@@ -1,0 +1,231 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;padding:0;background:#fff}canvas{display:block}
+</style></head><body><canvas id="c"></canvas><script>
+const D=DATA_PLACEHOLDER;
+const {OUTDOOR,BLD_GEO,BUILDINGS,plots}=D;
+const W=OUTDOOR[0].length,H=OUTDOOR.length;
+const TS=24, ML=46, MT=46, MR=470, MB=440;
+const cw=ML+W*TS+MR, ch=Math.max(MT+H*TS+MB, 1000);
+const c=document.getElementById('c'); c.width=cw; c.height=ch;
+const x=c.getContext('2d');
+const T=(tx)=>ML+tx*TS, V=(ty)=>MT+ty*TS;
+function R(col,px,py,w,h){x.fillStyle=col;x.fillRect(px,py,w,h);}
+x.fillStyle='#ffffff';x.fillRect(0,0,cw,ch);
+
+// ---------- TERRENO ----------
+function tree(px,py,s){
+  R('#7a5230',px+TS*0.44,py+TS*0.66,TS*0.12,TS*0.28);
+  x.fillStyle='#2f5f2c';x.beginPath();x.arc(px+TS/2,py+TS*0.42,TS*0.34,0,7);x.fill();
+  x.fillStyle='#3f7d3a';x.beginPath();x.arc(px+TS*0.47,py+TS*0.38,TS*0.24,0,7);x.fill();
+}
+for(let ty=0;ty<H;ty++)for(let tx=0;tx<W;tx++){
+  const t=OUTDOOR[ty][tx], px=T(tx), py=V(ty);
+  switch(t){
+    case 'W': R('#5aa9d6',px,py,TS,TS); R('#7dc3e8',px+TS*0.15,py+TS*0.3,TS*0.35,2); R('#7dc3e8',px+TS*0.5,py+TS*0.65,TS*0.3,2); break;
+    case 'o': R('#e8dcc0',px,py,TS,TS); R('#d8c8a0',px,py,TS,3); break;
+    case 'R': R('#8a8f9a',px,py,TS,TS); break;
+    case '|': R('#8a8f9a',px,py,TS,TS); R('#e8d860',px+TS*0.38,py+TS*0.12,TS*0.24,TS*0.4); break;
+    case 'P': R('#e2cfa0',px,py,TS,TS); R('#d2bb85',px,py+TS*0.45,TS,1); R('#d2bb85',px+TS*0.45,py,1,TS); break;
+    case 'D': R('#e2cfa0',px,py,TS,TS); R('#d2bb85',px,py+TS*0.45,TS,1); R('#d2bb85',px+TS*0.45,py,1,TS); break;
+    case ',': case 'I': R('#8ace74',px,py,TS,TS); R('#76bd62',px+TS*0.15,py+TS*0.3,3,4); break;
+    case 'T': R('#5fa84f',px,py,TS,TS); tree(px,py); break;
+    case 't': R('#7cc36b',px,py,TS,TS); tree(px,py); break;
+    case 'f': R('#7cc36b',px,py,TS,TS); R('#e85a7a',px+TS*0.28,py+TS*0.34,4,4); R('#e8d65a',px+TS*0.6,py+TS*0.55,4,4); break;
+    case 'L': R('#8ace74',px,py,TS,TS); R('#4a4a5a',px+TS*0.44,py+TS*0.28,3,TS*0.6); R('#ffe9a8',px+TS*0.34,py+TS*0.12,TS*0.3,TS*0.22); break;
+    case 'b': R('#8ace74',px,py,TS,TS); R('#9b6b4a',px+TS*0.14,py+TS*0.44,TS*0.72,4); R('#7a5230',px+TS*0.14,py+TS*0.3,TS*0.72,3); break;
+    default:  R('#7cc36b',px,py,TS,TS);
+  }
+}
+// ---------- SOLARES LIBRES ----------
+plots.forEach((p,i)=>{
+  x.fillStyle='rgba(214,90,180,0.20)'; x.fillRect(T(p.x),V(p.y),p.w*TS,p.h*TS);
+});
+// ---------- EDIFICIOS ----------
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ const m=v=>Math.max(0,Math.min(255,Math.round(v+255*f)));return '#'+[m(r),m(g),m(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+BLD_GEO.forEach(b=>{
+  const px=T(b.x0),py=V(b.y0),w=(b.x1-b.x0+1)*TS,h=(b.y1-b.y0+1)*TS;
+  R('rgba(0,0,0,0.22)',px+4,py+5,w,h);
+  R(shade(b.roof,0.06),px,py,w,h);
+  R(shade(b.roof,-0.16),px,py,w,5);
+  x.strokeStyle=shade(b.roof,-0.30);x.lineWidth=2;x.strokeRect(px+1,py+1,w-2,h-2);
+  if(b.courtyard){const[a,bb,cc,dd]=b.courtyard;
+    R('#cdbf95',T(a),V(bb),(cc-a+1)*TS,(dd-bb+1)*TS);
+    x.strokeStyle='#9b8a68';x.lineWidth=1;x.strokeRect(T(a)+0.5,V(bb)+0.5,(cc-a+1)*TS-1,(dd-bb+1)*TS-1);
+    x.fillStyle='#6a5a42';x.font='bold 11px system-ui';x.textAlign='center';
+    x.fillText('PATIO',T(a)+(cc-a+1)*TS/2,V(bb)+(dd-bb+1)*TS/2+4);}
+  const cx=px+w/2, cy=py+h/2;
+  x.textAlign='center';
+  x.font='bold 20px system-ui'; x.fillStyle='rgba(0,0,0,0.55)';
+  const ty0 = b.courtyard? py+18 : cy-2;
+  x.fillText(b.key,cx+1,ty0+1); x.fillStyle='#fff'; x.fillText(b.key,cx,ty0);
+  x.font='11px system-ui'; x.fillStyle='rgba(0,0,0,0.5)';
+  const nm=(BUILDINGS[b.key]||{}).name||b.label;
+  x.fillText(nm,cx+1,ty0+15); x.fillStyle='rgba(255,255,255,0.95)'; x.fillText(nm,cx,ty0+14);
+});
+// ---------- REJILLA ----------
+x.lineWidth=1;
+for(let tx=0;tx<=W;tx++){x.strokeStyle=(tx%5===0)?'rgba(0,0,0,0.38)':'rgba(0,0,0,0.11)';
+  x.beginPath();x.moveTo(T(tx)+0.5,MT);x.lineTo(T(tx)+0.5,MT+H*TS);x.stroke();}
+for(let ty=0;ty<=H;ty++){x.strokeStyle=(ty%5===0)?'rgba(0,0,0,0.38)':'rgba(0,0,0,0.11)';
+  x.beginPath();x.moveTo(ML,V(ty)+0.5);x.lineTo(ML+W*TS,V(ty)+0.5);x.stroke();}
+x.strokeStyle='#2a2a33';x.lineWidth=2;x.strokeRect(ML,MT,W*TS,H*TS);
+// ---------- SOLARES: contorno + etiqueta ----------
+plots.forEach((p,i)=>{
+  x.save();x.setLineDash([7,4]);x.strokeStyle='#c0219b';x.lineWidth=2.5;
+  x.strokeRect(T(p.x)+1,V(p.y)+1,p.w*TS-2,p.h*TS-2);x.restore();
+  const lab='LIBRE '+p.w+'×'+p.h;
+  x.font='bold 11px system-ui';const tw=x.measureText(lab).width;
+  R('#c0219b',T(p.x)+3,V(p.y)+3,tw+10,16);
+  x.fillStyle='#fff';x.textAlign='left';x.fillText(lab,T(p.x)+8,V(p.y)+15);
+  x.font='10px ui-monospace,monospace';x.fillStyle='#5a0a48';
+  x.fillText('('+p.x+','+p.y+')',T(p.x)+5,V(p.y)+p.h*TS-6);
+});
+// ---------- PUERTAS ----------
+BLD_GEO.forEach(b=>{
+  const dx=T(b.door[0])+TS/2, dy=V(b.door[1])+TS/2;
+  x.fillStyle='#ffffff';x.beginPath();x.arc(dx,dy,8.5,0,7);x.fill();
+  x.fillStyle='#d8202a';x.beginPath();x.arc(dx,dy,6,0,7);x.fill();
+  x.fillStyle='#fff';x.font='bold 9px system-ui';x.textAlign='center';x.fillText('D',dx,dy+3);
+  const lab=b.door[0]+','+b.door[1];
+  x.font='bold 10px ui-monospace,monospace';const tw=x.measureText(lab).width;
+  let bx=dx-tw/2-4, by=dy+11;
+  if(by+13>MT+H*TS) by=dy-24;
+  R('rgba(20,20,26,0.85)',bx,by,tw+8,13);
+  x.fillStyle='#ffe9a8';x.fillText(lab,dx,by+10);
+});
+// ---------- COORDENADAS ----------
+x.font='bold 12px ui-monospace,monospace';x.fillStyle='#2a2a33';
+for(let tx=0;tx<W;tx+=5){x.textAlign='center';x.fillText(String(tx),T(tx)+TS/2,MT-14);
+  x.strokeStyle='#2a2a33';x.lineWidth=1;x.beginPath();x.moveTo(T(tx)+0.5,MT-9);x.lineTo(T(tx)+0.5,MT);x.stroke();}
+for(let ty=0;ty<H;ty+=5){x.textAlign='right';x.fillText(String(ty),ML-12,V(ty)+TS/2+4);
+  x.beginPath();x.moveTo(ML-8,V(ty)+0.5);x.lineTo(ML,V(ty)+0.5);x.stroke();}
+x.textAlign='left';x.font='bold 11px system-ui';x.fillStyle='#666';
+x.fillText('x →',ML-40,MT-14); x.save();x.translate(14,MT+40);x.rotate(-Math.PI/2);x.fillText('y ↓',0,0);x.restore();
+
+// ---------- LEYENDA ----------
+const LX=ML+W*TS+22; let ly=MT+2;
+x.textAlign='left';
+x.font='bold 22px system-ui';x.fillStyle='#1a1a22';x.fillText('CAMPUS PASSAU',LX,ly+18);
+x.font='13px system-ui';x.fillStyle='#666';x.fillText('Plano del mapa exterior — '+W+' × '+H+' casillas',LX,ly+38);
+ly+=58;
+function sect(t){x.font='bold 12px system-ui';x.fillStyle='#c0219b';x.fillText(t.toUpperCase(),LX,ly);
+  x.strokeStyle='#e2d8c8';x.lineWidth=1;x.beginPath();x.moveTo(LX,ly+5.5);x.lineTo(LX+430,ly+5.5);x.stroke();ly+=18;}
+function line(t,col,bold){x.font=(bold?'bold ':'')+'12px system-ui';x.fillStyle=col||'#3a3a44';x.fillText(t,LX,ly);ly+=16;}
+
+sect('Cómo usar este plano');
+x.font='12px system-ui';x.fillStyle='#3a3a44';
+[' 1. Ábrelo en Paint y dibuja encima.',
+ ' 2. Para un edificio nuevo: marca su rectángulo y',
+ '     ponle un punto a la puerta (debe dar a un camino).',
+ ' 3. Apúntame las coordenadas de las esquinas usando',
+ '     los números de los bordes. Con eso lo cableo yo.'].forEach(t=>{x.fillText(t,LX,ly);ly+=16;});
+ly+=8;
+
+sect('Terreno');
+const terr=[['#7cc36b','.','hierba (edificable)'],['#8ace74',',','Innwiese / pradera'],
+ ['#e2cfa0','P','sendero peatonal'],['#8a8f9a','R','carretera'],
+ ['#5aa9d6','W','agua (Inn / Danubio)'],['#e8dcc0','o','orilla'],
+ ['#5fa84f','T','arbolado (bloquea)']];
+terr.forEach(([col,ch2,t])=>{R(col,LX,ly-10,14,13);x.strokeStyle='rgba(0,0,0,.25)';x.lineWidth=1;x.strokeRect(LX+.5,ly-9.5,13,12);
+  x.font='bold 12px ui-monospace,monospace';x.fillStyle='#1a1a22';x.fillText(ch2,LX+22,ly);
+  x.font='12px system-ui';x.fillStyle='#3a3a44';x.fillText(t,LX+40,ly);ly+=17;});
+ly+=2;
+x.fillStyle='#fff';x.beginPath();x.arc(LX+7,ly-4,8,0,7);x.fill();
+x.fillStyle='#d8202a';x.beginPath();x.arc(LX+7,ly-4,5.5,0,7);x.fill();
+x.font='12px system-ui';x.fillStyle='#3a3a44';x.fillText('puerta del edificio (casilla “D”)',LX+22,ly);ly+=18;
+x.save();x.setLineDash([6,3]);x.strokeStyle='#c0219b';x.lineWidth=2.5;x.strokeRect(LX+1,ly-11,13,12);x.restore();
+x.fillText('solar libre para construir',LX+22,ly);ly+=24;
+
+sect('Edificios ('+BLD_GEO.length+')');
+x.font='bold 11px system-ui';x.fillStyle='#8a8a95';
+x.fillText('CLAVE',LX,ly);x.fillText('NOMBRE',LX+64,ly);x.fillText('RECTÁNGULO',LX+250,ly);x.fillText('PUERTA',LX+360,ly);ly+=15;
+BLD_GEO.forEach(b=>{
+  R(b.roof,LX,ly-9,11,11);x.strokeStyle='rgba(0,0,0,.3)';x.lineWidth=1;x.strokeRect(LX+.5,ly-8.5,10,10);
+  x.font='bold 11px ui-monospace,monospace';x.fillStyle='#1a1a22';x.fillText(b.key,LX+16,ly);
+  x.font='11px system-ui';x.fillStyle='#3a3a44';
+  const nm=(BUILDINGS[b.key]||{}).name||b.label;
+  x.fillText(nm.length>24?nm.slice(0,23)+'…':nm,LX+64,ly);
+  x.font='11px ui-monospace,monospace';x.fillStyle='#5a5a66';
+  x.fillText(b.x0+','+b.y0+' → '+b.x1+','+b.y1,LX+250,ly);
+  x.fillStyle='#a01018';x.fillText(b.door[0]+','+b.door[1],LX+360,ly);
+  const hasInt=(BUILDINGS[b.key]||{}).interior;
+  x.fillStyle=hasInt?'#1a7a3a':'#b07000';x.font='bold 10px system-ui';
+  x.fillText(hasInt?'●':'○',LX+425,ly);
+  ly+=15;});
+ly+=4;
+x.font='11px system-ui';x.fillStyle='#1a7a3a';x.fillText('●  ya tiene interior',LX,ly);
+x.fillStyle='#b07000';x.fillText('○  sin interior — por diseñar',LX+120,ly);ly+=24;
+
+sect('Solares libres detectados');
+plots.forEach(p=>{
+  x.font='bold 11px ui-monospace,monospace';x.fillStyle='#c0219b';
+  x.fillText(p.w+'×'+p.h,LX,ly);
+  x.font='11px ui-monospace,monospace';x.fillStyle='#3a3a44';
+  x.fillText('esquina sup. izq. ('+p.x+','+p.y+')  →  inf. der. ('+(p.x+p.w-1)+','+(p.y+p.h-1)+')',LX+42,ly);
+  ly+=15;});
+
+// ================= LEYENDA DE INTERIORES (bajo el mapa) =================
+const off=document.createElement('canvas');off.width=16;off.height=16;
+const octx=off.getContext('2d');
+window.TILE=16; window.ctx=octx;
+eval(D.drawInTileSrc);
+x.imageSmoothingEnabled=false;
+function swatch(ch,px,py,size){
+  octx.clearRect(0,0,16,16);
+  try{ drawInTile(ch,0,0,false); }catch(e){}
+  x.imageSmoothingEnabled=false;
+  x.drawImage(off,px,py,size,size);
+  x.strokeStyle='rgba(0,0,0,0.28)';x.lineWidth=1;x.strokeRect(px+0.5,py+0.5,size-1,size-1);
+}
+const BY = MT+H*TS+34;
+x.textAlign='left';
+x.font='bold 15px system-ui';x.fillStyle='#1a1a22';
+x.fillText('PIEZAS DE INTERIOR',ML,BY);
+x.font='13px system-ui';x.fillStyle='#666';
+x.fillText('— la leyenda para dibujar tus salas en Paint. Cada letra es una casilla.',ML+178,BY);
+x.strokeStyle='#d8cfc0';x.lineWidth=1;x.beginPath();x.moveTo(ML,BY+9.5);x.lineTo(ML+W*TS,BY+9.5);x.stroke();
+
+const blocks=[
+ {t:'ESTRUCTURA Y SUELOS',w:300,items:[['#','pared'],['=','pared clara'],['.','suelo de pasillo'],['+','umbral de puerta'],
+   ['a','suelo de aula'],['r','suelo de recepción'],['k','suelo de oficina'],['b','suelo de baño']]},
+ {t:'MUEBLES  (bloquean el paso)',w:322,items:[['t','mesa'],['e','silla'],['m','mesa con portátil'],['s','estantería'],
+   ['D','escritorio'],['c','barra'],['u','taburete'],['K','barril'],['B','estante de botellas'],['p','planta'],
+   ['I','tablón de anuncios'],['P','pizarra'],['Z','pantalla de proyección'],['W','inodoro'],['L','lavabo']]},
+ {t:'PUERTAS Y SALIDAS  (se pisan)',w:322,items:[['1','puerta a sala 1'],['2','puerta a sala 2'],['3','puerta a sala 3'],
+   ['4','puerta a sala 4'],['5','puerta a sala 5'],['6','puerta a sala 6'],['A','puerta a sala A'],['C','puerta a sala C'],
+   ['J','puerta lateral J'],['Y','puerta al patio'],['G','puerta al bar'],['X','salida → vestíbulo'],['E','salida → campus']]}
+];
+let bx=ML;
+blocks.forEach(bl=>{
+  let by=BY+28;
+  x.font='bold 11px system-ui';x.fillStyle='#c0219b';x.fillText(bl.t,bx,by);by+=16;
+  bl.items.forEach(([ch2,desc])=>{
+    swatch(ch2,bx,by-13,17);
+    x.font='bold 12px ui-monospace,monospace';x.fillStyle='#1a1a22';x.fillText(ch2,bx+24,by);
+    x.font='12px system-ui';x.fillStyle='#3a3a44';x.fillText(desc,bx+42,by);
+    by+=17;
+  });
+  bx+=bl.w;
+});
+// bloque de reglas
+let ry=BY+28;
+x.font='bold 11px system-ui';x.fillStyle='#c0219b';x.fillText('REGLAS DE ORO',bx,ry);ry+=18;
+const rules=[
+ ['1.','Todas las filas de una sala deben medir lo mismo.'],
+ ['2.','Rodea la sala entera con # (si no, te sales del mapa).'],
+ ['3.','Toda sala necesita una salida: X (al vestíbulo) o E (al campus).'],
+ ['4.','Cada puerta necesita destino Y casilla de llegada pisable.'],
+ ['5.','Deja pasillos: los muebles bloquean el paso.'],
+ ['6.','“B” NO es una puerta — es el estante de botellas.']
+];
+rules.forEach(([n,t])=>{
+  x.font='bold 12px system-ui';x.fillStyle='#c0219b';x.fillText(n,bx,ry);
+  x.font='12px system-ui';x.fillStyle='#3a3a44';x.fillText(t,bx+18,ry);
+  ry+=19;
+});
+ry+=6;
+x.font='italic 12px system-ui';x.fillStyle='#7a7a86';
+x.fillText('El validador comprueba las 6 reglas automáticamente',bx,ry);
+x.fillText('al abrir el juego, así que no hace falta que las cuides.',bx,ry+16);
+</script></body></html>
