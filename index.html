@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- al añadirlo a la pantalla de inicio del iPhone se abre a pantalla completa, sin barras de Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Uni·Quest">
+<meta name="theme-color" content="#14161f">
+<title>Campus Passau — Uni·Quest</title>
+<style>
+  :root{
+    --dlg-bg:#f8f8f0; --dlg-frame:#5a6b8a; --dlg-shadow:#2a3550; --txt:#384256;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;background:#14161f;overflow:hidden;font-family:'Courier New',monospace;
+    -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;}
+  #game{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 30%, #2a2f4a, #14161f);}
+  /* el "stage" envuelve al canvas: toda la UI del juego se ancla a el, no a la ventana */
+  @media (orientation:portrait){ body.tmode #game{padding-top:min(15vh,120px);} }
+  #stage{position:relative;flex:0 0 auto;touch-action:none;
+    --ctl:132px; --abtn:66px; --pad:12px; --fs:16px; --ib:44px;}
+  canvas{image-rendering:pixelated;image-rendering:crisp-edges;background:#000;display:block;
+    box-shadow:0 0 0 4px #20243a, 0 0 30px rgba(0,0,0,.6);touch-action:none;}
+
+  #menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;color:#fff;text-align:center;padding:20px;overflow-y:auto;
+    background:linear-gradient(160deg,#3a6ea5 0%, #2a4d7a 55%, #1e3a5f 100%);}
+  #menu h1{font-size:clamp(26px,7vw,52px);letter-spacing:2px;line-height:1.05;
+    text-shadow:3px 3px 0 #1a2a44, 5px 5px 0 rgba(0,0,0,.3);color:#ffe9a8;margin-bottom:4px;}
+  #menu h1 .sub{display:block;font-size:.4em;color:#bfe0ff;letter-spacing:6px;margin-top:8px;text-shadow:2px 2px 0 #1a2a44;}
+  .panel{background:var(--dlg-bg);color:var(--txt);border:4px solid var(--dlg-frame);
+    border-radius:10px;box-shadow:0 6px 0 var(--dlg-shadow);padding:16px 18px;margin-top:18px;max-width:580px;width:100%;}
+  .panel h2{font-size:17px;margin-bottom:12px;color:#3a4a7a;letter-spacing:1px;}
+  .row{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;}
+  .pick{cursor:pointer;border:3px solid var(--dlg-frame);border-radius:8px;background:#fff;
+    padding:9px;width:84px;transition:transform .08s;box-shadow:0 3px 0 rgba(90,107,138,.5);}
+  .pick:hover{transform:translateY(-2px);}
+  .pick.sel{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
+  .pick canvas{box-shadow:none;background:#bfe3bf;border-radius:4px;display:block;margin:0 auto 5px;}
+  .pick .nm{font-size:12px;font-weight:bold;}
+  .career{cursor:pointer;border:3px solid var(--dlg-frame);border-radius:8px;background:#fff;
+    padding:8px 6px;width:104px;font-size:12px;transition:.08s;box-shadow:0 3px 0 rgba(90,107,138,.5);font-weight:bold;}
+  .career:hover{transform:translateY(-2px);}
+  .career.sel{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
+  .career .ic{font-size:21px;display:block;margin-bottom:3px;}
+  .career .full{display:block;font-size:9px;color:#6a7088;margin-top:2px;line-height:1.2;font-weight:normal;}
+  #startBtn{margin-top:20px;cursor:pointer;font-family:inherit;font-weight:bold;font-size:18px;color:#fff;
+    background:#e0a93a;border:4px solid #b07a1a;border-radius:10px;padding:12px 34px;
+    box-shadow:0 5px 0 #8a5e12;letter-spacing:1px;transition:transform .08s;}
+  #startBtn:hover{transform:translateY(-2px);}
+  #startBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #8a5e12;}
+  #startBtn:disabled{opacity:.45;cursor:not-allowed;}
+  .hint{margin-top:13px;font-size:12px;color:#cfe2ff;letter-spacing:.5px;line-height:1.5;}
+
+  #hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:none;pointer-events:none;z-index:20;}
+  #locBadge{background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:20px;
+    box-shadow:0 3px 0 var(--dlg-shadow);padding:4px 14px;color:var(--txt);font-weight:bold;
+    font-size:calc(var(--fs) * .82);letter-spacing:1px;white-space:nowrap;}
+  body.tmode #locBadge{background:rgba(248,248,240,.82);}
+
+  /* ---- CONTROLES TACTILES (overlay semitransparente sobre el campo de juego) ---- */
+  #touch{position:absolute;inset:0;display:none;pointer-events:none;z-index:30;
+    touch-action:none;user-select:none;-webkit-user-select:none;}
+  body.tmode.playing #touch{display:block;}
+  body.tmode.dlg #touch, body.tmode.ovl #touch{display:none;}
+
+  #dpad{position:absolute;left:var(--pad);bottom:var(--pad);width:var(--ctl);height:var(--ctl);
+    pointer-events:auto;touch-action:none;opacity:.55;transition:opacity .15s;}
+  #dpad.act{opacity:.92;}
+  .dbtn{position:absolute;width:34%;height:34%;background:rgba(248,244,228,.45);
+    border:2px solid rgba(58,74,110,.5);border-radius:22%;display:flex;align-items:center;
+    justify-content:center;font-size:calc(var(--ctl) * .16);color:#37425e;
+    box-shadow:0 2px 0 rgba(42,53,80,.28);transition:background .06s,transform .06s;}
+  .dbtn.on{background:rgba(255,228,150,.95);border-color:#e0a93a;color:#7a5410;transform:scale(.92);}
+  #du{left:33%;top:0;} #dd{left:33%;top:66%;} #dl{left:0;top:33%;} #dr{left:66%;top:33%;}
+  #dhub{position:absolute;left:33%;top:33%;width:34%;height:34%;border-radius:14%;
+    background:rgba(248,244,228,.3);border:2px solid rgba(58,74,110,.3);}
+
+  #aBtn{position:absolute;right:var(--pad);bottom:calc(var(--pad) + var(--ctl) * .16);
+    width:var(--abtn);height:var(--abtn);pointer-events:auto;touch-action:none;
+    background:rgba(224,169,58,.6);border:3px solid rgba(160,110,20,.65);border-radius:50%;
+    color:#fff;font-size:calc(var(--abtn) * .42);font-weight:bold;display:flex;align-items:center;
+    justify-content:center;box-shadow:0 3px 0 rgba(138,94,18,.45);opacity:.8;
+    text-shadow:0 1px 2px rgba(120,80,10,.5);transition:opacity .15s;}
+  #aBtn.on{opacity:1;background:rgba(255,214,120,.97);color:#7a5410;
+    transform:translateY(3px);box-shadow:0 1px 0 rgba(138,94,18,.45);}
+
+  #dialog{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(94%,640px);display:none;z-index:35;
+    background:var(--dlg-bg);border:4px solid var(--dlg-frame);border-radius:12px;
+    box-shadow:0 6px 0 var(--dlg-shadow), inset 0 0 0 3px #fff;color:var(--txt);
+    padding:calc(var(--fs) * .85) calc(var(--fs) * 1.1) calc(var(--fs) * .95);}
+  #dlgName{position:absolute;top:calc(var(--fs) * -1.1);left:16px;background:var(--dlg-frame);color:#fff;
+    font-size:calc(var(--fs) * .74);
+    font-weight:bold;letter-spacing:1px;padding:3px 12px;border-radius:6px;box-shadow:0 2px 0 var(--dlg-shadow);}
+  #dlgText{font-size:var(--fs);line-height:1.5;min-height:calc(var(--fs) * 2.9);letter-spacing:.5px;}
+  #dlgChoices{display:none;flex-direction:column;gap:6px;margin-top:10px;}
+  .choice{cursor:pointer;background:#fff;border:3px solid var(--dlg-frame);border-radius:8px;padding:7px 12px;
+    font-family:inherit;font-size:calc(var(--fs) * .88);color:var(--txt);text-align:left;box-shadow:0 2px 0 rgba(90,107,138,.4);}
+  .choice:hover{background:#ffe9a8;border-color:#e0a93a;}
+  #dlgArrow{position:absolute;right:16px;bottom:8px;font-size:calc(var(--fs) * .95);color:var(--dlg-frame);animation:bob .6s infinite;}
+  /* boton de inventario: mas discreto en movil */
+  body.tmode #invBtn{width:var(--ib);height:var(--ib);font-size:calc(var(--ib) * .5);
+    background:rgba(248,248,240,.7);opacity:.85;top:8px;right:8px;}
+  body.tmode.ovl #invBtn{display:none !important;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(3px);}}
+  .fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .3s;z-index:50;}
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="stage">
+    <canvas id="cv" width="240" height="160"></canvas>
+    <div id="hud"><div id="locBadge">Campus</div></div>
+    <div id="dialog">
+      <div id="dlgName">NPC</div><div id="dlgText"></div>
+      <div id="dlgChoices"></div><div id="dlgArrow">▼</div>
+    </div>
+    <div id="touch">
+      <div id="dpad">
+        <div id="dhub"></div>
+        <div class="dbtn" id="du">▲</div><div class="dbtn" id="dd">▼</div>
+        <div class="dbtn" id="dl">◄</div><div class="dbtn" id="dr">►</div>
+      </div>
+      <div id="aBtn">A</div>
+    </div>
+  </div>
+  <div id="menu">
+    <h1>CAMPUS PASSAU<span class="sub">UNI · QUEST</span></h1>
+    <div class="panel"><h2>1 · ELIGE TU PERSONAJE</h2><div class="row" id="charRow"></div></div>
+    <div class="panel"><h2>2 · ELIGE TU CARRERA</h2><div class="row" id="careerRow"></div></div>
+    <button id="startBtn" disabled>¡EMPEZAR!</button>
+    <div class="hint">Teclado: flechas/WASD para mover · Z/Espacio/Enter para interactuar<br>Móvil: desliza sobre el D-pad y pulsa A · toca la pantalla para avanzar diálogos<br><span style="opacity:.7">(tecla T: mostrar/ocultar controles táctiles)</span></div>
+  </div>
+  <div class="fade" id="fade"></div>
+</div>
+<script>
+//==================================================================
+//  CAMPUS PASSAU — Uni·Quest  (motor con mapas múltiples + interiores)
+//==================================================================
+const TILE=16;
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+const stage=document.getElementById('stage');
+let VW=240, VH=160;                       // resolucion interna del lienzo (en pixeles de juego)
+function setViewSize(w,h){
+  if(w===VW && h===VH) return false;
+  VW=w; VH=h; cv.width=w; cv.height=h;
+  ctx.imageSmoothingEnabled=false;        // cambiar width/height reinicia el contexto
+  return true;
+}
+
+//------------------------------------------------------------------
+//  DETECCION DE DISPOSITIVO  (movil/tablet tactil  vs  escritorio)
+//------------------------------------------------------------------
+function detectTouch(){
+  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  const noHover = window.matchMedia && matchMedia('(hover:none)').matches;
+  const hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints>0;
+  return (coarse || noHover) && hasTouch;
+}
+let touchMode = detectTouch();
+function applyMode(){
+  document.body.classList.toggle('tmode', touchMode);
+  resize();
+}
+
+//------------------------------------------------------------------
+//  ESCALADO ADAPTATIVO DEL LIENZO
+//  · escritorio: escala entera (pixel art perfecto)
+//  · movil: pasos de 1/4 para aprovechar toda la pantalla
+//------------------------------------------------------------------
+function viewport(){
+  const vv=window.visualViewport;
+  return {w: Math.round(vv?vv.width:window.innerWidth), h: Math.round(vv?vv.height:window.innerHeight)};
+}
+function resize(){
+  const {w:vw, h:vh} = viewport();
+
+  // --- elegir la resolucion interna segun el dispositivo y la orientacion ---
+  let iw=240, ih=160;
+  if(touchMode){
+    const ar = vw/vh;
+    if(ar < 1){            // vertical: ampliamos la vista hacia arriba/abajo
+      ih = Math.max(160, Math.min(224, Math.floor(240/ar/16)*16));
+    }else{                 // horizontal: ampliamos la vista a los lados
+      iw = Math.max(240, Math.min(352, Math.floor(160*ar/16)*16));
+    }
+  }
+  // nunca mostrar mas superficie que el propio mapa: las salas pequenas
+  // se amplian hasta llenar la pantalla en vez de flotar en un vacio de color
+  try{   // (en el primer arranque el mapa aun no existe)
+    if(mapW>0) iw=Math.max(128, Math.min(iw, mapW*TILE));
+    if(mapH>0) ih=Math.max(96,  Math.min(ih, mapH*TILE));
+  }catch(_){}
+  setViewSize(iw,ih);
+
+  const raw = Math.min(vw/VW, vh/VH);
+  const step = (window.devicePixelRatio||1) >= 2 ? 8 : 4;  // pantallas nitidas -> pasos mas finos
+  let s = touchMode ? Math.max(1, Math.floor(raw*step)/step)  // 1.000, 1.125, 1.250...
+                    : Math.max(1, Math.floor(raw));           // 1, 2, 3...
+  const w = Math.round(VW*s), h = Math.round(VH*s);
+  cv.style.width = w+'px'; cv.style.height = h+'px';
+
+  // tamano de los controles: relativo a la pantalla, no al lienzo
+  const ctl  = Math.max(96, Math.min(150, Math.round(Math.min(vw,vh)*0.30)));
+  const fs   = Math.max(11, Math.min(16, Math.round(w/26)));
+  const ib   = Math.max(34, Math.min(46, Math.round(ctl*0.33)));
+  stage.style.setProperty('--ctl',  ctl+'px');
+  stage.style.setProperty('--abtn', Math.round(ctl*0.50)+'px');
+  stage.style.setProperty('--pad',  Math.max(6, Math.round(ctl*0.09))+'px');
+  stage.style.setProperty('--fs',   fs+'px');
+  stage.style.setProperty('--ib',   ib+'px');
+}
+window.addEventListener('resize',resize);
+window.addEventListener('orientationchange',()=>setTimeout(resize,120));
+if(window.visualViewport){
+  visualViewport.addEventListener('resize',resize);
+  visualViewport.addEventListener('scroll',resize);
+}
+applyMode();
+
+// cambio automatico de modo: si aparece un toque -> tactil; si se usa el teclado -> escritorio
+window.addEventListener('touchstart',()=>{ if(!touchMode){touchMode=true;applyMode();} },{passive:true,capture:true});
+window.addEventListener('keydown',e=>{
+  if(e.key==='t'||e.key==='T') return;                       // la T alterna el modo a proposito
+  if(touchMode && (e.key.length===1 || e.key.startsWith('Arrow') || e.key==='Enter')){ touchMode=false; applyMode(); }
+},{capture:true});
+
+//==================================================================
+//  MAPA EXTERIOR (generado desde el plano dibujado)
+//==================================================================
+const OUTDOOR=[
+"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTooooooooooooooooooooooooooooooooooooooooooooooooooooooooTT",
+"TT........................................................TT",
+"TT........................BBBBBBBB........................TT",
+"TT............t...........BBBBBBBB................BBBBBBB.TT",
+"TT......t.................BBBBBBBB................BBBBBBB.TT",
+"TT........................BBBDBBBB................BBBBBBB.TT",
+"TT........t..................RRRRRRRRR............BBBBBBB.TT",
+"TT..................t...............RR............BBBBBBB.TT",
+"TT..............t.......t...........RR............BBBBBBB.TT",
+"TT................................f.RR...............D....TT",
+"TTRR|RR|RR|RR|RR|RR|RRR.............RR....................TT",
+"TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR......NNNNNNNNNNNN..TT",
+"TT....................RRRRRRRR......RR......NNNNNNNNNNNN..TT",
+"TT........................RRRRRRRR..RR......NNNHHHHHHNNN..TT",
+"TT....f...................f...RRRRRRRR......NNNHHHHHHNNN..TT",
+"TT........BBBBBB..................RRRR......NNNHHHHHHNNN..TT",
+"TT........BBBBBB..BBBBBB..............BBBBBBNNNHHHHHHNNN..TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB....BBBBBBNNNHHHHHHNNN..TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB....BBBBBBNNNNNNNNNNNN..TT",
+"TT.BBBBB....D.....BBBBBB....BBBBBB....BBBBBBNNNNNDNNNNNN..TT",
+"TT.BBBBB....P.......D.......BBBBBB......D........P........TT",
+"TT...D..PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP....P...TT",
+"TT..........P.......P.......................f...P...BBDBB.TT",
+"TT........BBBBB...BBBBBB.........,,L,,,,,,,,,L,,P...BBBBB.TT",
+"TT........BBBBB...BBBBBB.........,,,,,fI,b,,,,,,P...BBBBB.TT",
+"TT........BBBBB...BBBBBB.........,,,b,,,,,,f,,,,PPPPPPPP..TT",
+"TT...............................,t,,t,,t,,t,,t,..........TT",
+"TTooooooooooooooooooooooooooooooooooooooooooooooooooooooooTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
+"TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT"
+];
+
+//==================================================================
+//  INTERIORES (mapas pequeños)
+//  Leyenda interior: # pared  . suelo  c mostrador  s estantería
+//  t mesa  e silla  X salida(vuelve fuera)  p suelo-patio  g cesped
+//==================================================================
+const INTERIORS = {
+  mensa: {
+    name:"Mensa",
+    grid:[
+      "##########",
+      "#ssssssss#",
+      "#........#",
+      "#.tt..tt.#",
+      "#.ee..ee.#",
+      "#........#",
+      "#.tt..tt.#",
+      "#.ee..ee.#",
+      "#...XX...#",
+      "##########",
+    ],
+    spawn:[4,8], exit:[4,8],
+    npcs:[
+      {x:2,y:2,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
+       lines:["¡Hoy hay Schnitzel con patatas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
+       choice:{q:"¿Qué te sirvo?",opts:[
+         {t:"El menú del día",r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"]},
+         {t:"Solo un café",r:["Un café para sobrevivir al seminario. Lo entiendo."]}]}},
+      {x:7,y:5,name:"Estudiante Tom",color:"#5a8ad6",dir:'left',
+       lines:["Llevo aquí desde las nueve repasando.","La Mensa es el corazón social del campus, te lo digo yo."]},
+    ]
+  },
+  niko: {
+    name:"Nikolakloster — Recepción",
+    // Vestíbulo central abierto + dos pasillos laterales. 8 puertas:
+    // 1=baño mujeres, 2=secretaría, 3=centro idiomas (pasillo izq)
+    // 4=cafetería, 5=baño hombres, 6=biblioteca (pasillo der)
+    // Y=patio (arriba), E=salir al campus (abajo)
+    grid:[
+      "############YY#############",
+      "###1##...............##4###",
+      "##...#..p....I....p..#...##",
+      "##...#...............#...##",
+      "##...#....IccccI.....#...##",
+      "###.##...............##.###",
+      "#.........................#",
+      "3.........................6",
+      "#.........................#",
+      "###.##...............##.###",
+      "##...#....hhhhhhh....#...##",
+      "##...#...............#...##",
+      "##...#..p.........p..#...##",
+      "##...#...............#...##",
+      "###2########..#########5###",
+      "############EE#############",
+    ],
+    spawn:[13,6], exit:[13,6],
+    doors:[
+      {x:3,y:1,  to:'niko_bano_m',    at:[4,4]},
+      {x:3,y:14, to:'niko_secretaria',at:[5,1]},
+      {x:0,y:7,  to:'niko_idiomas',   at:[12,4]},
+      {x:23,y:1, to:'niko_cafeteria', at:[6,8]},
+      {x:23,y:14,to:'niko_bano_h',    at:[4,1]},
+      {x:26,y:7, to:'niko_biblio',    at:[1,6]},
+      {x:12,y:0, to:'niko_patio',     at:[10,8]},
+    ],
+    info:[
+      {x:13,y:2,name:"Directorio del NK",lines:["📋 NIKOLAKLOSTER — Directorio","Izq: aseos, secretaría, centro de idiomas.","Der: cafetería, aseos, biblioteca. Arriba: patio interno."]},
+      {x:10,y:4,name:"Cartel · Horarios",lines:["🕒 Horario del edificio: 7:00 – 22:00","Fines de semana: solo biblioteca y patio."]},
+      {x:15,y:4,name:"Cartel · Eventos",lines:["📣 Esta semana: charla de intercambios Erasmus.","Jueves, 18:00, en el patio interno."]},
+    ],
+    npcs:[
+      {x:13,y:9,name:"Recepcionista Uwe",color:"#5a8ad6",dir:'down',
+       lines:["Willkommen im Nikolakloster.","A tu izquierda: aseos, secretaría y el centro de idiomas.","A tu derecha: la cafetería, los otros aseos y la biblioteca.","Y arriba, el patio interno. ¿Te oriento?"],
+       careerLine:{Jura:"¿Derecho? Casi toda tu facultad vive en este edificio.",
+                   Kuwi:"¿KuWi? Muchas de tus clases son en estas aulas históricas.",
+                   default:"Sea cual sea tu carrera, aquí siempre hay alguna cola que hacer."}},
+      {x:10,y:11,name:"Estudiante perdida",color:"#d65a8a",dir:'left',
+       lines:["¿Tú también buscas tu aula? Llevo dando vueltas un rato.","Juraría que el cartel decía sala 3, pero aquí no hay ninguna sala 3."]},
+    ]
+  },
+  niko_bano_m: {
+    name:"Nikolakloster — Baño (mujeres)",
+    grid:[
+      "##########",
+      "#WLbbbLW.#",
+      "#........#",
+      "#.p....p.#",
+      "#........#",
+      "#...XX...#",
+      "##########",
+    ],
+    spawn:[4,4], exit:[4,4],
+    npcs:[
+      {x:7,y:2,name:"Estudiante apurada",color:"#d65a8a",dir:'left',
+       lines:["¡Uf! Justo antes de que empiece el seminario.","Estos lavabos del NK son de los pocos que siempre funcionan."]},
+    ]
+  },
+  niko_bano_h: {
+    name:"Nikolakloster — Baño (hombres)",
+    grid:[
+      "####XX####",
+      "#........#",
+      "#.p....p.#",
+      "#WLbbbLW.#",
+      "#........#",
+      "#........#",
+      "##########",
+    ],
+    spawn:[4,1], exit:[4,1],
+    npcs:[
+      {x:2,y:4,name:"Estudiante apurado",color:"#d6a05a",dir:'right',
+       lines:["¡Justo a tiempo antes del examen!","¿Sabes lo peor? Que el examen es de resistencia, no de vejiga."]},
+    ]
+  },
+  niko_secretaria: {
+    name:"Nikolakloster — Secretaría de notas",
+    grid:[
+      "#####XX#####",
+      "#..........#",
+      "#pk......kp#",
+      "#kkkkkkkkkk#",
+      "#kDDkkkkDDk#",
+      "#kkkkkkkkkk#",
+      "#kkkkkkkkkk#",
+      "#..........#",
+      "############",
+    ],
+    spawn:[5,1], exit:[5,1],
+    info:[
+      {x:2,y:2,name:"Tablón · Trámites",lines:["📌 Solicitudes y certificados de notas","Entregue formularios por triplicado.","Recogida: de 9:00 a 12:00."]},
+    ],
+    npcs:[
+      {x:2,y:3,name:"Secretaria Frau Kraus",color:"#d65a8a",dir:'down',
+       lines:["Secretaría de notas. Formularios, firmas y sellos.","¿Vienes por tu Notenbescheinigung?"],
+       choice:{q:"¿Qué necesitas?",opts:[
+         {t:"Un certificado de notas",r:["Rellena este formulario por triplicado. El sello está en la otra mesa."]},
+         {t:"Nada, gracias",r:["Como quieras. La puerta siempre está abierta. Casi siempre."]}]}},
+      {x:8,y:3,name:"Administrativo Kurt",color:"#8a5ad6",dir:'down',
+       lines:["Papeleo, papeleo y más papeleo.","Pero sin nosotros, nadie se graduaría. Recuérdalo."]},
+    ]
+  },
+  niko_idiomas: {
+    name:"Nikolakloster — Centro de idiomas",
+    // Aula de idiomas: pizarra (P) arriba, mesas (m) y sillas (e), plantas (p).
+    grid:[
+      "##############",
+      "#PPPPPPPPPPPP#",
+      "#............#",
+      "#.mm.mm.mm.p.#",
+      "#.ee.ee.ee...X",
+      "#............#",
+      "#.mm.mm.mm.p.#",
+      "#.ee.ee.ee...#",
+      "#............#",
+      "#............#",
+      "##############",
+    ],
+    spawn:[12,4], exit:[12,4],
+    info:[
+      {x:6,y:1,name:"Pizarra",lines:["📝 Sprachenzentrum — Centro de idiomas","Hoy: Deutsch A2, Español B1, English C1.","« Guten Morgen! · ¡Buenos días! · Good morning! »"]},
+    ],
+    npcs:[
+      {x:3,y:5,name:"Profesora Marta",color:"#d65a8a",dir:'down',
+       lines:["¡Hola! Aquí se aprenden idiomas de medio mundo.","El alemán cuesta al principio, pero se le coge el gusto."],
+       careerLine:{Kuwi:"¿KuWi? Los idiomas son medio grado tuyo, ¿verdad?",
+                   MuK:"¿MuK? Comunicar en varios idiomas te abrirá muchas puertas.",
+                   default:"Sea cual sea tu carrera, un idioma más nunca sobra."}},
+      {x:9,y:8,name:"Estudiante Erasmus",color:"#5ad68f",dir:'left',
+       lines:["Vengo de Italia con el Erasmus. Passau me encanta.","Estoy aprendiendo alemán… despacio, pero con birra ayuda."]},
+    ]
+  },
+  niko_cafeteria: {
+    name:"Nikolakloster — NK Cafetería",
+    // Cafetería: mostrador (c) y barriles/cafetera (K) arriba, mesas (t)+sillas (e), plantas.
+    grid:[
+      "###############",
+      "#ccccccc#KKKKK#",
+      "#.......#.....#",
+      "#..t..t..t...p#",
+      "#..e..e..e....#",
+      "#............p#",
+      "#..t..t..t....#",
+      "#..e..e..e...p#",
+      "#.............#",
+      "#.....XX......#",
+      "###############",
+    ],
+    spawn:[6,8], exit:[6,8],
+    info:[
+      {x:2,y:2,name:"Pizarra · Menú",lines:["☕ NK CAFETERÍA","Café 1,20 € · Bretzel 0,90 € · Bocadillo 2,50 €","Recomendación del día: café con Apfelstrudel."]},
+    ],
+    npcs:[
+      {x:2,y:3,name:"Barista Nora",color:"#c87a3a",dir:'down',
+       lines:["¡Bienvenido a la NK Cafetería! ¿Un café antes de clase?","El truco para aprobar: cafeína y buena compañía."],
+       choice:{q:"¿Qué te pongo?",opts:[
+         {t:"Un café solo",r:["Marchando. Cargadito, que se nota el lunes."]},
+         {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero."]},
+         {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla, ya caerás."]}]}},
+      {x:9,y:6,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
+       lines:["Entre clase y clase siempre acabo aquí.","La NK Cafetería es más barata que bajar a la ciudad."]},
+    ]
+  },
+  niko_biblio: {
+    name:"Nikolakloster — Bibliothek",
+    // Biblioteca grande: estanterías (s) arriba/abajo, muchas mesas (m) con
+    // portátiles y sillas (e), plantas (p). Salida (X) al hub.
+    grid:[
+      "####################",
+      "#ssssss#ssss#ssssss#",
+      "#..................#",
+      "#.p..mm..mm..mm..p.#",
+      "#....ee..ee..ee....#",
+      "#..................#",
+      "X.mm..mm..mm..mm..p#",
+      "#.ee..ee..ee..ee...#",
+      "#..................#",
+      "#p..mm..mm..mm..mm.#",
+      "#...ee..ee..ee..ee.#",
+      "#..................#",
+      "#s#sss#ss..ss#sss#s#",
+      "#..................#",
+      "####################",
+    ],
+    spawn:[1,6], exit:[1,6],
+    info:[
+      {x:9,y:1,name:"Tablón · Silencio",lines:["🔇 ZONA DE ESTUDIO","Silencio, por favor.","Portátiles permitidos. Café, bajo tu responsabilidad."]},
+    ],
+    npcs:[
+      {x:5,y:5,name:"Estudiante Lena",color:"#5ad68f",dir:'up',
+       lines:["Llevo toda la mañana con los apuntes y el portátil.","Esta biblioteca del Nikolakloster tiene algo… se concentra una bien."],
+       careerLine:{Inf:"¿Informática? Yo también. ¿Ya te compila el proyecto?",
+                   Mathe:"¿Mates? Entonces sabes que aquí las demostraciones salen solas.",
+                   default:"Sea lo que sea que estudies, un buen sitio de estudio lo es todo."}},
+      {x:11,y:8,name:"Doctorando Ali",color:"#5a8ad6",dir:'down',
+       lines:["Tesis, capítulo cuatro. O quizá el tres. Ya no lo sé.","Estas mesas junto a la ventana son las mejores del edificio."]},
+      {x:8,y:11,name:"Bibliotecaria Eva",color:"#d65a8a",dir:'down',
+       lines:["¿Necesitas una signatura? Están todas en el catálogo.","Y recuerda devolver los libros a tiempo. Llevo la cuenta."],
+       choice:{q:"¿Te ayudo a buscar algo?",opts:[
+         {t:"Bibliografía para un trabajo",r:["Pasillo de la izquierda, estantes por materia. Suerte."]},
+         {t:"Solo un sitio tranquilo",r:["Cualquier mesa libre es tuya. Disfruta del silencio."]}]}},
+    ]
+  },
+  niko_patio: {
+    name:"Nikolakloster — Innenhof",
+    isPatio:true,
+    // Patio grande: empedrado (p), 3 tilos en esquinas (o), fuente central (F).
+    // Salida (X) al hub. Puerta al bar Gmoa (G) en la esquina DERECHA.
+    grid:[
+      "######################",
+      "#.o..............o.G.#",
+      "#..pppppppppppppppp..#",
+      "#..pppppppppppppppp..#",
+      "#..ppppppppFppppppp..#",
+      "#..ppppppppFppppppp..#",
+      "#..pppppppppppppppp..#",
+      "#..pppppppppppppppp..#",
+      "#.o..............o...#",
+      "#.........XX.........#",
+      "######################",
+    ],
+    spawn:[10,8], exit:[10,8],
+    doors:[ {x:19,y:1,to:'gmoa',at:[6,13]} ],
+    npcs:[
+      {x:12,y:3,name:"Estudiante Mara",color:"#5ad68f",dir:'down',
+       lines:["El Innenhof es mi rincón favorito del Nikolakloster.","En cuanto sale el sol, todo el mundo baja su café a estos bancos."],
+       careerLine:{Kuwi:"¿KuWi? Este patio es prácticamente nuestra segunda aula.",
+                   default:"Siéntate junto a la fuente, se está de maravilla."}},
+      {x:6,y:7,name:"Jardinero Sepp",color:"#8a6a3a",dir:'up',
+       lines:["Estos tres tilos llevan aquí más años que yo, y mira que llevo.","¿Ves esa puertecita de la esquina derecha? Lleva al Gmoa. La mejor cerveza del campus."]},
+    ]
+  },
+  gmoa: {
+    name:"Gmoa — Studentenbar",
+    // Bar amplio: barra (c) con estante de botellas (B) y taburetes (u) arriba,
+    // mesas (t)+sillas (e) bien separadas, barriles (K) en las esquinas.
+    // Salida (X) de vuelta al patio.
+    grid:[
+      "################",
+      "#BBBBBBBB#K##K##",
+      "#cccccccc#.....#",
+      "#........#.....#",
+      "#uu.uu.uu......#",
+      "#..............#",
+      "#..............#",
+      "#.tt...tt...tt.#",
+      "#.ee...ee...ee.#",
+      "#..............#",
+      "#..............#",
+      "#.tt...tt...tt.#",
+      "#.ee...ee...ee.#",
+      "#..............#",
+      "#K....XX.....K.#",
+      "################",
+    ],
+    spawn:[6,13], exit:[6,13],
+    npcs:[
+      {x:2,y:3,name:"Tabernero Wast",color:"#c87a3a",dir:'down',
+       lines:["Servus! Bienvenido al Gmoa, la barra más querida del campus.","Aquí la cerveza está fría y las charlas son largas."],
+       choice:{q:"¿Qué te pongo?",opts:[
+         {t:"Una Weißbier",r:["¡Marchando una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"]},
+         {t:"Una Radler",r:["Buena elección para seguir estudiando después: media cerveza, media limonada."]},
+         {t:"Solo agua, gracias",r:["…¿agua? ¿En el Gmoa? Bueno, tú mandas. Va por la casa."]}]}},
+      {x:7,y:9,name:"Estudiante Vroni",color:"#d65a8a",dir:'down',
+       lines:["Después de un examen, la primera parada es el Gmoa.","Dicen que aquí se aprueban más asignaturas que en la biblioteca. En las charlas, ya sabes."],
+       careerLine:{Jura:"¿Derecho? Entonces necesitarás esta cerveza más que nadie.",
+                   Mathe:"¿Mates? Cuéntame otra vez lo de los límites, pero con una birra.",
+                   default:"¡Salud! Que los créditos ECTS se aprueben solos."}},
+      {x:11,y:11,name:"Parroquiano Hans",color:"#7a8a5a",dir:'left',
+       lines:["Llevo viniendo al Gmoa desde que era estudiante. De eso hace… años.","Algunas cosas de Passau no cambian, y menos mal."]},
+    ]
+  },
+  zb: {
+    name:"Zentralbibliothek",
+    grid:[
+      "##########",
+      "#ssssssss#",
+      "#........#",
+      "#s.ss.ss.#",
+      "#s.ss.ss.#",
+      "#........#",
+      "#tt.tt.tt#",
+      "#ee.ee.ee#",
+      "#...XX...#",
+      "##########",
+    ],
+    spawn:[4,8], exit:[4,8],
+    npcs:[
+      {x:1,y:2,name:"Bibliotecario Jonas",color:"#5ab0d6",dir:'right',
+       lines:["¿Buscas un libro o solo un sitio silencioso?","Tenemos plazas con vistas al Inn en la planta de arriba."],
+       choice:{q:"¿En qué te ayudo?",opts:[
+         {t:"Buscar bibliografía",r:["Mira en el catálogo OPAC. Y reserva pronto, en época de exámenes vuela."]},
+         {t:"Un sitio para estudiar",r:["Sube a la primera planta. Lleva auriculares, hay quien susurra demasiado."]}]}},
+      {x:8,y:5,name:"Estudiante Lea",color:"#5ad68f",dir:'down',
+       lines:["Tercer café del día y sigo en la misma página.","Pero el ambiente de la biblio ayuda a concentrarse."]},
+    ]
+  },
+  innstegaula: {
+    name:"Innstegaula — Aula Magna",
+    grid:[
+      "##################",
+      "#ZZZZZZZZZZZZZZZZ#",
+      "#................#",
+      "#.mmm.mmm.mmm.mm.#",
+      "#.eee.eee.eee.ee.#",
+      "#................#",
+      "#.mmm.mmm.mmm.mm.#",
+      "#.eee.eee.eee.ee.#",
+      "#................#",
+      "#.mmm.mmm.mmm.mm.#",
+      "#.eee.eee.eee.ee.#",
+      "#................#",
+      "#.mmm.mmm.mmm.mm.#",
+      "#.eee.eee.eee.ee.#",
+      "#................#",
+      "#.......XX.......#",
+      "##################",
+    ],
+    spawn:[8,14], exit:[8,14],
+    info:[
+      {x:8,y:1,name:"Pantalla",lines:["📽️ AULA MAGNA — Innstegaula","Proyección: 'Introducción al semestre'.","Aforo: 400. Silencio durante la clase, por favor."]},
+    ],
+    npcs:[
+      {x:4,y:2,name:"Prof. Weber",color:"#8a5ad6",dir:'down',
+       lines:["Bienvenido al aula magna de la Innstegaula.","Aquí caben cientos de estudiantes. Hoy toca una clase magistral.","La pantalla de proyección está lista, ¿te sientas?"],careerLine:{"default":"Sea cual sea tu carrera, alguna clase magistral darás aquí."}},
+      {x:11,y:5,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+       lines:["Estas clases junto al Inn tienen las mejores vistas.","Aunque en un aula tan grande, mejor llegar temprano por sitio."]},
+      {x:6,y:11,name:"Estudiante Klara",color:"#d65a8a",dir:'right',
+       lines:["Shhh, que ya va a empezar la proyección.","Esta aula es enorme, la voz del profe resuena."]},
+    ]
+  },
+  ww: {
+    name:"Wirtschaftswissenschaften",
+    grid:[
+      "####A####B####C####",
+      "#.................#",
+      "#.................#",
+      "#.......I.........#",
+      "#.................#",
+      "#.................J",
+      "#.................#",
+      "#.................#",
+      "#.................#",
+      "########EE#########",
+      "###################",
+    ],
+    spawn:[9,8], exit:[9,8],
+    doors:[
+      {x:4,y:0,to:'ww_salon1',at:[5,2]},
+      {x:9,y:0,to:'ww_salon2',at:[5,2]},
+      {x:14,y:0,to:'ww_salon3',at:[5,2]},
+      {x:18,y:5,to:'ww_biblio',at:[1,5]},
+    ],
+    info:[
+      {x:8,y:4,name:"Directorio WiWi",lines:["📋 WIRTSCHAFTSWISSENSCHAFTEN","Arriba: Salón 1 (Micro), Salón 2 (Macro), Salón 3 (VWL).","Centro: Biblioteca de Economía."]},
+    ],
+    npcs:[
+      {x:4,y:5,name:"Conserje Rita",color:"#8a5ad6",dir:'down',
+       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro. ¿Te oriento?"],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.","VWL":"¿VWL? Bienvenido, futuro economista."}},
+      {x:14,y:3,name:"Estudiante BWL",color:"#5a8ad6",dir:'left',
+       lines:["¿BWL tú también? Nos vemos en todos los salones.","La biblioteca de economía tiene los mejores manuales."],careerLine:{"BWL":"¡Otro de BWL! Habrá que sobrevivir juntos a Estadística."}},
+    ]
+  },
+  ww_salon1: {
+    name:"WiWi — Salón 1",
+    grid:[
+      "############",
+      "#....XX....#",
+      "#..........#",
+      "#.mm.mm.mm.#",
+      "#.ee.ee.ee.#",
+      "#..........#",
+      "#.mm.mm.mm.#",
+      "#.ee.ee.ee.#",
+      "#....ZZ....#",
+      "############",
+    ],
+    spawn:[5,2], exit:[5,2],
+    npcs:[
+      {x:3,y:5,name:"Prof. Fischer",color:"#8a5ad6",dir:'down',
+       lines:["Salón 1: Microeconomía.","La oferta y la demanda no descansan, y nosotros tampoco."]},
+    ]
+  },
+  ww_salon2: {
+    name:"WiWi — Salón 2",
+    grid:[
+      "############",
+      "#....XX....#",
+      "#..........#",
+      "#.mm.mm.mm.#",
+      "#.ee.ee.ee.#",
+      "#..........#",
+      "#.mm.mm.mm.#",
+      "#.ee.ee.ee.#",
+      "#....ZZ....#",
+      "############",
+    ],
+    spawn:[5,2], exit:[5,2],
+    npcs:[
+      {x:8,y:5,name:"Prof. Lang",color:"#8a5ad6",dir:'down',
+       lines:["Salón 2: Macroeconomía.","Hoy: política monetaria. Un clásico que nunca falla."]},
+    ]
+  },
+  ww_salon3: {
+    name:"WiWi — Salón 3",
+    grid:[
+      "############",
+      "#....XX....#",
+      "#..........#",
+      "#.mm.mm.mm.#",
+      "#.ee.ee.ee.#",
+      "#..........#",
+      "#.mm.mm.mm.#",
+      "#.ee.ee.ee.#",
+      "#....ZZ....#",
+      "############",
+    ],
+    spawn:[5,2], exit:[5,2],
+    npcs:[
+      {x:4,y:5,name:"Estudiante VWL",color:"#8a5ad6",dir:'down',
+       lines:["Salón 3, esperando que llegue el profe.","VWL es dura, pero Passau lo compensa."]},
+    ]
+  },
+  ww_biblio: {
+    name:"WiWi — Biblioteca de Economía",
+    grid:[
+      "################",
+      "#..............#",
+      "#ss.mm.mm.mm.ss#",
+      "#ss.ee.ee.ee.ss#",
+      "#..............#",
+      "X..mm.mm.mm...s#",
+      "#..............#",
+      "#ss.mm.mm.mm.ss#",
+      "#ss.ee.ee.ee.ss#",
+      "#ssssssssssss..#",
+      "################",
+    ],
+    spawn:[1,5], exit:[1,5],
+    info:[
+      {x:7,y:1,name:"Sección · Economía",lines:["📚 Biblioteca de Economía","Micro, Macro, Finanzas, Gestión.","Devoluciones en dos semanas."]},
+    ],
+    npcs:[
+      {x:3,y:4,name:"Bibliotecaria Ökon",color:"#8a5ad6",dir:'down',
+       lines:["Biblioteca de Economía. Silencio y buenos libros.","¿Buscas manuales de finanzas o de gestión?"]},
+      {x:10,y:6,name:"Doctorando Finanzas",color:"#5a8ad6",dir:'left',
+       lines:["Tesis sobre mercados financieros. Capítulo interminable.","Estos estantes tienen justo lo que necesito."]},
+    ]
+  },
+
+};
+
+//==================================================================
+//  EDIFICIOS — cada puerta del exterior por coordenada -> destino
+//  destino: {interior:'mensa'} entra a interior, o {info:[...]} solo diálogo
+//==================================================================
+const DOOR_AT = {}; // "x,y" -> building key
+const BUILDINGS = {
+  HBf:    {name:"Hauptbahnhof", door:[29,11], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad… ¿ya te vas?"],
+           choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
+             {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
+             {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
+  Einkauf:{name:"Einkaufszentrum", door:[53,15], info:["Centro comercial.","Tiendas, comida rápida y ese olor a centro comercial de toda Europa."]},
+  SP:     {name:"Sportzentrum", door:[5,27], info:["Centro deportivo (Sportzentrum).","Canchas, gimnasio y clases de todo tipo. ¿Hoy toca deporte?"]},
+  VG:     {name:"Verwaltungsgebäude", door:[12,25], info:["Edificio de administración.","Matrículas, certificados y paciencia. Mucha paciencia."],
+           choice:{q:"¿Vienes a hacer un trámite?",opts:[
+             {t:"Sí, un certificado",r:["Toma número… el 87. Van por el 31."]},
+             {t:"No, me he equivocado",r:["Pasa a menudo. La salida está detrás de ti."]}]}},
+  I:      {name:"Informatik", door:[12,28], info:["Facultad de Informática.","Laboratorios, servidores y café a partes iguales."]},
+  AM:     {name:"Audimax", door:[20,26], info:["Audimax — el aula magna.","El auditorio más grande del campus. Hoy hay una conferencia."]},
+  M:      {name:"Mensa", door:[20,28], interior:'mensa'},
+  ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
+  WW:     {name:"Wirtschaftswissenschaften", door:[40,26], interior:'ww'},
+  NK:     {name:"Nikolakloster", door:[49,25], interior:'niko'},
+  IA:     {name:"Innstegaula", door:[54,28], interior:'innstegaula'},
+};
+for(const k in BUILDINGS){ const d=BUILDINGS[k].door; DOOR_AT[d[0]+','+d[1]]=k; }
+
+//==================================================================
+//  GEOMETRÍA Y ESTILO DE EDIFICIOS (para dibujarlos como estructuras)
+//  x0,y0,x1,y1 = rectángulo de tiles que ocupa  | door = [x,y]
+//  style: 'modern' | 'historic' | 'station' | 'mall'
+//  roof = color de tejado | label = siglas en el cartel
+//==================================================================
+const BLD_GEO=[
+  {key:'HBf',  x0:26,y0:8, x1:33,y1:11, door:[29,11], style:'station',  roof:'#a23b3b', label:'HBF'},
+  {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7 aa', label:'EKZ'},
+  {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
+  {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
+  {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[12,28], style:'modern',   roof:'#4a8a6a', label:'I'},
+  {key:'AM',   x0:18,y0:22,x1:23,y1:25, door:[20,26], style:'modern',   roof:'#8a6ab0', label:'AM'},
+  {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,28], style:'modern',   roof:'#c87a3a', label:'M'},
+  {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
+  {key:'WW',   x0:38,y0:22,x1:43,y1:25, door:[40,26], style:'modern',   roof:'#b0a03a', label:'WW'},
+  {key:'NK',   x0:44,y0:17,x1:55,y1:25, door:[49,25], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[47,19,52,23]},
+  {key:'IA',   x0:52,y0:28,x1:56,y1:30, door:[54,28], style:'modern',   roof:'#3b9aa2', label:'IA'},
+];
+// corrección de un color tipografiado
+BLD_GEO[1].roof='#3b7aaa';
+const BLD_BY_KEY={}; BLD_GEO.forEach(b=>BLD_BY_KEY[b.key]=b);
+
+//==================================================================
+//  NPCs del exterior
+//==================================================================
+const OUT_NPCS=[
+  {x:40,y:30,name:"Estudiante Max",color:"#d6a05a",dir:'down',
+   lines:["¡Eh! ¿Disfrutando la Innwiese? Hace un sol perfecto.","Cuando hay buen tiempo, media uni baja a este prado junto al Inn."],
+   careerLine:{Kuwi:"¿KuWi? Entonces ya sabes que la mejor clase es la del césped al sol.",
+               BWL:"¿BWL? Hasta los de empresariales bajan a relajarse aquí.",
+               default:"Túmbate un rato, las diapositivas pueden esperar."}},
+  {x:44,y:31,name:"Sara",color:"#5ad68f",dir:'left',
+   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","¿Ya probaste la comida de la Mensa?"],
+   choice:{q:"¿Qué te trae por aquí?",opts:[
+     {t:"Estudiar, supongo",r:["Jaja, eso decimos todos en octubre."]},
+     {t:"El ambiente del río",r:["¡Esa es la actitud! El Inn nunca falla."]}]}},
+  {x:25,y:27,name:"Tutora Lena",color:"#5ab0d6",dir:'down',
+   lines:["¿Buscas tu aula? Los seminarios cambian de sala cada semana, es tradición.","Revisa Stud.IP… y luego revísalo otra vez."],
+   careerLine:{Inf:"¿Informática? El laboratorio está en el sótano. Lleva sudadera, hace frío.",
+               Mathe:"¿Mates? Tercer piso, sin ascensor. Ánimo.",
+               MuK:"¿MuK? El estudio de medios está pasando el Audimax.",
+               default:"Seguro que tu horario tiene un hueco perfecto para un café."}},
+  {x:14,y:27,name:"Conserje Otto",color:"#8a6a3a",dir:'right',
+   lines:["Estas flores no se riegan solas, ¿sabes?","El campus junto al Inn es el orgullo de Passau. Trátalo bien."]},
+  {x:35,y:18,name:"Ciclista Pia",color:"#d65a8a",dir:'down',
+   lines:["¡Cuidado, que voy! La carretera la comparten coches y bicis.","Voy tarde a clase en el WiWi. ¡Hasta luego!"]},
+];
+
+//==================================================================
+//  PERSONAJES Y CARRERAS
+//==================================================================
+const CHARS=[
+  {id:'noa',nm:'Noa',skin:'#f1c8a0',hair:'#3a2a1a',shirt:'#d65a5a'},
+  {id:'kai',nm:'Kai',skin:'#e8b98a',hair:'#5a3a1a',shirt:'#5a8ad6'},
+  {id:'mira',nm:'Mira',skin:'#f3d0b0',hair:'#7a3a5a',shirt:'#6ab05a'},
+  {id:'finn',nm:'Finn',skin:'#d6a878',hair:'#2a2a2a',shirt:'#e0a93a'},
+];
+const CAREERS=[
+  {id:'Kuwi',ic:'🎭',full:'Kulturwirtschaft'},
+  {id:'Jura',ic:'⚖️',full:'Derecho'},
+  {id:'BWL',ic:'📊',full:'Empresariales'},
+  {id:'MuK',ic:'📡',full:'Medien & Komm.'},
+  {id:'Mathe',ic:'📐',full:'Matemáticas'},
+  {id:'Inf',ic:'💻',full:'Informática'},
+];
+
+//==================================================================
+//  SPRITE de persona (top-down 16x16)
+//==================================================================
+function drawPerson(c,px,py,skin,hair,shirt,dir,frame){
+  c.fillStyle='rgba(0,0,0,.18)'; c.fillRect(px+3,py+14,10,3);
+  c.fillStyle='#3a3a4a';
+  c.fillRect(px+5,py+12+(frame===1?0:1),2,3);
+  c.fillRect(px+9,py+12+(frame===2?0:1),2,3);
+  c.fillStyle=shirt; c.fillRect(px+4,py+8,8,5);
+  c.fillRect(px+3,py+8,1,4); c.fillRect(px+12,py+8,1,4);
+  c.fillStyle=skin; c.fillRect(px+5,py+3,6,6);
+  c.fillStyle=hair;
+  if(dir==='up'){ c.fillRect(px+5,py+2,6,5); }
+  else { c.fillRect(px+5,py+2,6,3); c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+  if(dir!=='up'){
+    c.fillStyle='#2a2230';
+    if(dir==='down'){ c.fillRect(px+6,py+6,1,1); c.fillRect(px+9,py+6,1,1); }
+    if(dir==='left'){ c.fillRect(px+6,py+6,1,1); }
+    if(dir==='right'){ c.fillRect(px+9,py+6,1,1); }
+  }
+}
+
+//==================================================================
+//  TILES exterior
+//==================================================================
+let animTick=0;
+function noise(x,y){let n=Math.sin(x*127.1+y*311.7)*43758.5; return n-Math.floor(n);}
+
+//==================================================================
+//  DIBUJO DE EDIFICIOS COMPLETOS (estilo Pokémon Ruby)
+//  Se dibuja el edificio entero como una pieza: sombra, cuerpo de
+//  fachada, tejado con alero y volumen, ventanas, puerta y cartel.
+//==================================================================
+function shade(hex,f){ // aclara(f>0)/oscurece(f<0) un color hex
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  const m=(v)=>Math.max(0,Math.min(255, Math.round(v + 255*f)));
+  return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);
+}
+function drawBuilding(b){
+  // píxeles en pantalla (mundo - cámara)
+  const x=b.x0*TILE-cam.x, y=b.y0*TILE-cam.y;
+  const w=(b.x1-b.x0+1)*TILE, h=(b.y1-b.y0+1)*TILE;
+  const roofH=Math.round(h*0.42);           // alto de la zona de tejado
+  const wallY=y+roofH, wallH=h-roofH;
+  // ---- sombra proyectada ----
+  ctx.fillStyle='rgba(0,0,0,.16)';
+  ctx.fillRect(x+4, y+h-2, w, 4);
+  ctx.fillRect(x+w-2, y+roofH-2, 5, wallH);
+
+  if(b.style==='historic'){ drawHistoric(b,x,y,w,h,roofH,wallY,wallH); return; }
+
+  // ===== CUERPO / FACHADA =====
+  const wallC = b.style==='station' ? '#e8dccb' : '#e4e9ef';
+  ctx.fillStyle=wallC; ctx.fillRect(x, wallY, w, wallH);
+  // zócalo
+  ctx.fillStyle=shade(wallC,-0.12); ctx.fillRect(x, y+h-3, w, 3);
+  // esquinas/pilares
+  ctx.fillStyle=shade(wallC,-0.07); ctx.fillRect(x,wallY,2,wallH); ctx.fillRect(x+w-2,wallY,2,wallH);
+
+  // ===== VENTANAS (cuadrícula) =====
+  const winC='#bfe0f5', winFrame=shade(wallC,-0.18);
+  const cols=Math.max(2, Math.floor((w-8)/12));
+  const gap=(w-8)/cols;
+  for(let r=0;r<Math.max(1,Math.floor(wallH/12));r++){
+    for(let c=0;c<cols;c++){
+      const wx=x+5+Math.round(c*gap), wy=wallY+5+r*12;
+      if(wy+7>y+h-4) continue;
+      ctx.fillStyle=winFrame; ctx.fillRect(wx-1,wy-1,9,8);
+      ctx.fillStyle=winC; ctx.fillRect(wx,wy,7,6);
+      ctx.fillStyle='#d8f0ff'; ctx.fillRect(wx,wy,3,3); // reflejo
+    }
+  }
+
+  // ===== TEJADO con volumen y alero =====
+  const roof=b.roof, roofLt=shade(roof,0.12), roofDk=shade(roof,-0.15);
+  // alero que sobresale
+  ctx.fillStyle=roofDk; ctx.fillRect(x-2, wallY-2, w+4, 3);
+  // cara frontal del tejado (trapecio simulado con 2 bandas)
+  ctx.fillStyle=roof; ctx.fillRect(x, y+3, w, roofH-3);
+  ctx.fillStyle=roofLt; ctx.fillRect(x, y+3, w, Math.max(3,Math.round(roofH*0.4))); // luz arriba
+  // cumbrera
+  ctx.fillStyle=shade(roof,0.2); ctx.fillRect(x+2, y+2, w-4, 2);
+  // textura de tejas (líneas verticales suaves)
+  ctx.fillStyle=roofDk;
+  for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i, y+4, 1, roofH-5);
+
+  if(b.style==='station'){ // reloj en la estación
+    const cxp=x+Math.round(w/2), cyp=y+Math.round(roofH/2)+1;
+    ctx.fillStyle='#f8f4e4'; ctx.fillRect(cxp-4,cyp-4,8,8);
+    ctx.fillStyle='#2a2230'; ctx.fillRect(cxp-1,cyp-3,1,4); ctx.fillRect(cxp,cyp,3,1);
+  }
+  if(b.style==='mall'){ // marquesina de cristal
+    ctx.fillStyle='rgba(190,225,245,.6)'; ctx.fillRect(x+3, wallY, w-6, 4);
+  }
+
+  drawDoorAndSign(b,x,y,w,h,wallY,wallH);
+}
+
+function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
+  // Nikolakloster: muros de piedra clara, tejado rojizo a dos aguas, patio interior visible
+  const stone='#ddcfb2';
+  ctx.fillStyle=stone; ctx.fillRect(x,wallY,w,wallH);
+  // sillería (bloques de piedra)
+  ctx.fillStyle=shade(stone,-0.1);
+  for(let ry=wallY+4;ry<y+h-2;ry+=6){ ctx.fillRect(x,ry,w,1); }
+  for(let rx=x+8;rx<x+w;rx+=14){ ctx.fillRect(rx,wallY,1,wallH); }
+  // patio interior (courtyard) — hueco con suelo y arcos
+  if(b.courtyard){
+    const [cx0,cy0,cx1,cy1]=b.courtyard;
+    const px=cx0*TILE-cam.x, py=cy0*TILE-cam.y;
+    const pw=(cx1-cx0+1)*TILE, ph=(cy1-cy0+1)*TILE;
+    ctx.fillStyle='#cdbf95'; ctx.fillRect(px,py,pw,ph);              // suelo patio
+    ctx.fillStyle=shade('#cdbf95',-0.08);
+    for(let gx=px;gx<px+pw;gx+=8) ctx.fillRect(gx,py,1,ph);
+    for(let gy=py;gy<py+ph;gy+=8) ctx.fillRect(px,gy,pw,1);
+    // arcos del claustro alrededor del patio
+    ctx.fillStyle=shade(stone,-0.18);
+    for(let ax=px+2;ax<px+pw-3;ax+=8){ ctx.fillRect(ax,py-4,5,3); ctx.fillRect(ax,py+ph+1,5,3); }
+    // un arbolito en el patio
+    ctx.fillStyle='#2f5f2c'; ctx.fillRect(px+pw/2-3,py+ph/2-3,6,6);
+    ctx.fillStyle='#3f7d3a'; ctx.fillRect(px+pw/2-2,py+ph/2-2,3,3);
+  }
+  // ventanas arqueadas
+  ctx.fillStyle=shade(stone,-0.2);
+  const cols=Math.floor((w-6)/14);
+  for(let c=0;c<cols;c++){ const wx=x+6+c*14, wy=wallY+5;
+    if(b.courtyard && wx> (b.courtyard[0]*TILE-cam.x)-8 && wx<(b.courtyard[2]*TILE-cam.x)+8) continue;
+    ctx.fillStyle=shade(stone,-0.2); ctx.fillRect(wx-1,wy-1,7,9);
+    ctx.fillStyle='#9bb8c8'; ctx.fillRect(wx,wy,5,7); ctx.fillRect(wx+1,wy-1,3,1);
+  }
+  // tejado rojizo a dos aguas (perímetro)
+  const roof=b.roof,roofLt=shade(roof,0.12),roofDk=shade(roof,-0.18);
+  ctx.fillStyle=roofDk; ctx.fillRect(x-2,wallY-2,w+4,3);
+  ctx.fillStyle=roof; ctx.fillRect(x,y+3,w,roofH-3);
+  ctx.fillStyle=roofLt; ctx.fillRect(x,y+3,w,Math.round(roofH*0.45));
+  ctx.fillStyle=shade(roof,0.22); ctx.fillRect(x+2,y+2,w-4,2);
+  ctx.fillStyle=roofDk; for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i,y+4,1,roofH-5);
+  // torreta central
+  ctx.fillStyle=stone; ctx.fillRect(x+w/2-5,y-6,10,10);
+  ctx.fillStyle=roof; ctx.fillRect(x+w/2-6,y-9,12,4);
+  ctx.fillStyle=shade(roof,0.2); ctx.fillRect(x+w/2-1,y-13,2,5);
+  drawDoorAndSign(b,x,y,w,h,wallY,wallH);
+}
+
+function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
+  // puerta: centrada en la columna de la puerta real (b.door[0]) y abajo del edificio
+  const dxp=(b.door[0]*TILE-cam.x);
+  const doorW=14, doorH=Math.min(18, wallH-2);
+  const doorY=y+h-doorH-1, doorX=dxp+1;
+  ctx.fillStyle='#5a3a1a'; ctx.fillRect(doorX-1,doorY-1,doorW+2,doorH+1); // marco
+  ctx.fillStyle='#7a5230'; ctx.fillRect(doorX,doorY,doorW,doorH);
+  // doble hoja
+  ctx.fillStyle='#6a4626'; ctx.fillRect(doorX+doorW/2-0.5,doorY,1,doorH);
+  ctx.fillStyle='#caa45a'; ctx.fillRect(doorX+3,doorY+doorH/2,1,2); ctx.fillRect(doorX+doorW-5,doorY+doorH/2,1,2); // pomos
+  // felpudo
+  ctx.fillStyle='#caa45a'; ctx.fillRect(doorX-1,y+h-1,doorW+2,2);
+  // cartel con siglas: justo encima de la puerta (sobre el dintel)
+  const sgW=Math.max(16,b.label.length*7+6), sgX=dxp+7-sgW/2, sgY=doorY-11;
+  ctx.fillStyle='#2f3650'; ctx.fillRect(sgX,sgY,sgW,9);
+  ctx.fillStyle='#1f2640'; ctx.fillRect(sgX,sgY+8,sgW,1);
+  ctx.fillStyle='#ffe9a8'; ctx.font='7px "Courier New",monospace'; ctx.textBaseline='top'; ctx.textAlign='center';
+  ctx.fillText(b.label, sgX+sgW/2, sgY+1);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+}
+
+function drawOutTile(t,sx,sy,tx,ty){
+  switch(t){
+    case '.': {
+      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#6fb85f'; const r=noise(tx,ty);
+      if(r>0.6){ctx.fillRect(sx+3,sy+5,1,2);ctx.fillRect(sx+9,sy+9,1,2);}
+      break;}
+    case ',': { // innwiese
+      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#76bd62'; const r=noise(tx,ty);
+      ctx.fillRect(sx+2,sy+4,2,3); if(r>.5)ctx.fillRect(sx+10,sy+8,2,3);
+      break;}
+    case 'I': { // placa innwiese
+      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#76bd62'; ctx.fillRect(sx+3,sy+3,2,3);ctx.fillRect(sx+9,sy+9,2,3);ctx.fillRect(sx+6,sy+11,2,3);
+      break;}
+    case 'W': { // agua
+      ctx.fillStyle='#5aa9d6'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#7dc3e8'; const w=(animTick/30+tx*0.7+ty*0.3); const off=(Math.sin(w)*2)|0;
+      ctx.fillRect(sx+2+off,sy+4,5,1); ctx.fillRect(sx+9-off,sy+10,4,1);
+      break;}
+    case 'o': { // orilla
+      ctx.fillStyle='#e8dcc0'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#d8c8a0'; ctx.fillRect(sx,sy,TILE,3);
+      ctx.fillStyle='#cdbf95'; ctx.fillRect(sx+4,sy+8,3,2);ctx.fillRect(sx+10,sy+11,2,2);
+      break;}
+    case 'R': { // carretera asfalto
+      ctx.fillStyle='#8a8f9a'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#7a7f8a'; const r=noise(tx,ty); if(r>.7)ctx.fillRect(sx+(r*10|0),sy+6,2,2);
+      break;}
+    case '|': { // linea central carretera
+      ctx.fillStyle='#8a8f9a'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#e8d860'; ctx.fillRect(sx+6,sy+2,4,6);
+      break;}
+    case 'P': { // sendero peatonal (adoquin claro)
+      ctx.fillStyle='#e2cfa0'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#d2bb85'; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+7,sy,1,TILE);
+      break;}
+    case 'B': case 'N': case 'H': { // huella de edificio: suelo base (el edificio se dibuja encima)
+      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+      break;}
+    case 'D': { // baldosa frente a la puerta (la hoja la dibuja el edificio)
+      ctx.fillStyle='#e2cfa0'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#d2bb85'; ctx.fillRect(sx,sy+7,TILE,1);ctx.fillRect(sx+7,sy,1,TILE);
+      break;}
+    case 'T': { // arbol borde
+      ctx.fillStyle='#5fa84f'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+7,sy+11,2,4);
+      ctx.fillStyle='#2f5f2c'; ctx.fillRect(sx+3,sy+1,10,11);
+      ctx.fillStyle='#3f7d3a'; ctx.fillRect(sx+4,sy+2,8,8);
+      ctx.fillStyle='#5aa84f'; ctx.fillRect(sx+5,sy+3,3,3);
+      break;}
+    case 't': { // arbol suelto sobre hierba
+      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+7,sy+11,2,4);
+      ctx.fillStyle='#2f5f2c'; ctx.fillRect(sx+3,sy+1,10,11);
+      ctx.fillStyle='#3f7d3a'; ctx.fillRect(sx+4,sy+2,8,8);
+      ctx.fillStyle='#5aa84f'; ctx.fillRect(sx+5,sy+3,3,3);
+      break;}
+    case 'f': { // flores
+      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+      const cols=['#e85a7a','#e8d65a','#e89a5a','#d65ad6'];
+      ctx.fillStyle=cols[(tx+ty)%4];
+      ctx.fillRect(sx+4,sy+5,2,2);ctx.fillRect(sx+10,sy+8,2,2);ctx.fillRect(sx+7,sy+11,2,2);
+      break;}
+    case 'L': { // farola
+      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#4a4a5a'; ctx.fillRect(sx+7,sy+4,2,10);
+      ctx.fillStyle='#ffe9a8'; ctx.fillRect(sx+6,sy+2,4,3);
+      break;}
+    case 'b': { // banco
+      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#9b6b4a'; ctx.fillRect(sx+2,sy+7,12,3);ctx.fillRect(sx+3,sy+10,2,3);ctx.fillRect(sx+11,sy+10,2,3);
+      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+2,sy+5,12,2);
+      break;}
+    default: ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+  }
+}
+
+//==================================================================
+//  TILES interior
+//==================================================================
+function drawInTile(t,sx,sy,patio){
+  const F=(c)=>{ctx.fillStyle=c;ctx.fillRect(sx,sy,TILE,TILE);};
+  const R=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(sx+x,sy+y,w,h);};
+  if(patio){
+    switch(t){
+      case '#': F('#c9b89a'); R('#a89571',0,0,TILE,1);R('#a89571',0,8,TILE,1);
+        R('#a89571',7,0,1,8);R('#a89571',3,8,1,8);return;
+      case 'p': F('#cdbf95'); R('#bfae80',0,7,TILE,1);R('#bfae80',7,0,1,TILE);return; // empedrado
+      case '.': F('#b0a078'); R('#a0906a',0,0,TILE,2); return; // galería del claustro (arcada)
+      case 'o': { // árbol del patio (grande, tilo)
+        F('#b0a078'); R('#7a5230',6,11,3,5);
+        ctx.fillStyle='#2f5f2c';ctx.beginPath();ctx.arc(sx+8,sy+7,7,0,7);ctx.fill();
+        ctx.fillStyle='#3f7d3a';ctx.beginPath();ctx.arc(sx+8,sy+6,5,0,7);ctx.fill();
+        ctx.fillStyle='#5aa84f';ctx.beginPath();ctx.arc(sx+6,sy+5,2.2,0,7);ctx.fill();return; }
+      case 'F': { // fuente
+        F('#b0a078'); R('#8fb0c8',1,1,14,14); R('#6a95b5',2,2,12,12);
+        R('#bfe0f5',4,4,8,8); R('#d8f0ff',5,5,3,3);
+        R('#9aa8b0',7,6,2,4); return; }
+      case 'G': { // puerta a bar (en esquina) — arco de madera
+        F('#b0a078'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13);
+        R('#caa45a',9,8,1,2); R('#3a2410',6,3,4,3); return; }
+      case 'X': { // salida al edificio
+        F('#cdbf95'); R('#5a3a1a',3,2,10,12); R('#7a5230',4,3,8,11);
+        R('#e8d860',6,6,4,2); return; }
+      default: F('#cdbf95'); return;
+    }
+  }
+  // ----- INTERIORES CON PAREDES -----
+  switch(t){
+    case '#': F('#8a7a9a'); R('#6a5a7a',0,TILE-3,TILE,3); R('#9a8aaa',0,0,TILE,2); return; // pared
+    case '=': F('#9a8aaa'); R('#7a6a8a',0,0,TILE,2); R('#b0a0c0',0,TILE-2,TILE,2); return; // pared clara (bar)
+    // --- suelos por tipo de sala ---
+    case '.': F('#d8c4a0'); R('#cdb892',0,7,TILE,1);R('#cdb892',7,0,1,TILE); return; // suelo pasillo
+    case '+': F('#d8c4a0'); R('#b89a6a',3,0,10,TILE); R('#cdb892',0,7,TILE,1); return; // umbral/puerta de sala
+    case 'r': F('#d0c0d8'); R('#c4b2ce',0,7,TILE,1);R('#c4b2ce',7,0,1,TILE); return; // recepción (baldosa lila)
+    case 'a': F('#e0d2b0'); R('#d4c49e',0,7,TILE,1);R('#d4c49e',7,0,1,TILE); return; // aula (parqué claro)
+    case 'k': F('#c8d4c0'); R('#bccab2',0,7,TILE,1);R('#bccab2',7,0,1,TILE); return; // oficina (verde grisáceo)
+    case 'b': case 'l': F('#c0d0d8'); R('#b0c2cc',0,7,TILE,1);R('#b0c2cc',7,0,1,TILE); return; // baños (azulejo)
+    case 'g': F('#d8c4a0'); return;
+    case 'm': { // mesa de estudio con portátil abierto
+      F('#e0d2b0'); R('#9b6b4a',2,4,12,9); R('#b07a4a',2,4,12,2); // mesa
+      R('#3a4250',5,5,6,4); R('#6aa8d8',6,6,4,2); // portátil (tapa+pantalla)
+      R('#2a3038',5,9,6,1); return; }
+    // --- muebles ---
+    case 's': F('#d8c4a0'); R('#7a5230',1,0,14,12); // estantería libros
+      R('#c85a4a',2,1,2,4);R('#5a8ad6',5,1,2,4);R('#5ad68f',8,1,2,4);R('#e8d65a',11,1,2,4);
+      R('#c85a4a',2,6,2,4);R('#5a8ad6',5,6,2,4);R('#5ad68f',8,6,2,4);R('#e8d65a',11,6,2,4);return;
+    case 'D': F('#e0d2b0'); R('#8a5a3a',1,4,14,9); R('#a06a44',1,4,14,2); // escritorio
+      R('#d8e8f0',3,6,4,3); R('#2a3550',9,6,3,4); return; // papel + monitor
+    case 'c': { // barra del bar
+      F('#b08a5a'); R('#7a4a2a',0,4,TILE,9); R('#a06a3a',0,4,TILE,2);
+      R('#caa45a',2,9,2,1);R('#caa45a',7,9,2,1);R('#caa45a',12,9,2,1); return; }
+    case 'u': { // taburete de bar
+      F('#b08a5a'); R('#5a3a1a',5,5,6,2); R('#6a4626',7,7,2,5); return; }
+    case 't': F('#d8c4a0'); R('#9b6b4a',2,3,12,9); R('#b07a4a',2,3,12,2); return; // mesa
+    case 'e': F('#d8c4a0'); R('#6a5a4a',5,4,6,6); R('#7a6a5a',5,4,6,2); return; // silla
+    case 'K': { // barril de cerveza
+      F('#b08a5a'); R('#8a5a2a',3,2,10,12); R('#a06a3a',3,2,10,2);R('#a06a3a',3,7,10,2);R('#a06a3a',3,12,10,2);
+      R('#c8a860',4,4,8,2); return; }
+    case 'B': { // estante de botellas (bar)
+      F('#7a6a8a'); R('#4a3a2a',0,0,TILE,TILE); R('#5a8ad6',2,2,2,5);R('#5ad68f',5,2,2,5);
+      R('#c85a4a',8,2,2,5);R('#e8d65a',11,2,2,5); R('#7dc3e8',3,9,2,4);R('#d6a05a',9,9,2,4); return; }
+    case 'W': { // inodoro (WC)
+      F('#c0d0d8'); R('#f4f4f8',4,3,8,10); R('#dfe4ea',5,4,6,5); R('#c4ccd4',5,10,6,2); return; }
+    case 'L': { // lavabo
+      F('#c0d0d8'); R('#f4f4f8',3,5,10,5); R('#dfe4ea',5,6,6,3); R('#8fb0c8',7,4,2,2); return; }
+    case 'p': { // planta decorativa
+      F('#d8c4a0'); R('#b0703a',5,10,6,4); R('#a0602a',5,10,6,1);
+      ctx.fillStyle='#2f7d3a';ctx.beginPath();ctx.arc(sx+8,sy+6,4,0,7);ctx.fill();
+      ctx.fillStyle='#3f9d4a';ctx.beginPath();ctx.arc(sx+6,sy+5,2,0,7);ctx.fill();
+      ctx.fillStyle='#3f9d4a';ctx.beginPath();ctx.arc(sx+10,sy+5,2,0,7);ctx.fill();return; }
+    case 'I': { // tablón de información en pared
+      F('#8a7a9a'); R('#5a4a3a',1,1,14,12); R('#e8e2d0',2,2,12,10);
+      R('#5a8ad6',3,3,4,3);R('#d65a5a',8,3,4,2);R('#5ad68f',3,7,3,3);R('#e8d65a',8,7,4,3); return; }
+    case '1': case '2': case '3': case '4': case '5': case '6':
+    case 'A': case 'B': case 'C': case 'J': { // puertas de sala
+      F('#d8c4a0'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13);
+      R('#caa45a',9,8,1,2); // pomo
+      const cols={'1':'#d65a8a','2':'#5ab0d6','3':'#e0a93a','4':'#c87a3a','5':'#5a8ad6','6':'#5ad68f',
+                  'A':'#8a5ad6','B':'#5a8ad6','C':'#d65a8a','J':'#5ad68f'};
+      R(cols[t],5,3,6,2); return; }
+    case 'Y': { // puerta interior al patio
+      F('#d8c4a0'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13);
+      R('#8fd0f5',5,3,6,4); R('#caa45a',9,8,1,2); return; } // con cristal (da al patio)
+    case 'G': { // puerta al bar
+      F('#d8c4a0'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13); R('#caa45a',9,8,1,2); return; }
+    case 'P': { // pizarra (aula de idiomas)
+      F('#2f4a3a'); R('#243a2e',0,0,TILE,2); R('#e8e2d0',2,4,3,1);R('#e8e2d0',7,4,4,1);R('#e8e2d0',2,8,6,1); return; }
+    case 'Z': { // pantalla de proyección (aula magna / salones)
+      F('#3a3a4a'); R('#eceef2',1,1,14,12); R('#c8d0dc',2,2,12,10); // pantalla clara
+      R('#8fb0d8',3,3,5,4); R('#d8a05a',9,4,3,3); R('#6a8a5a',4,8,7,2); return; } // "diapositiva"
+    case 'X': F('#d8c4a0'); R('#7a5230',3,2,10,12); R('#5a3a1a',4,3,8,11); R('#e8d860',6,6,4,2); return; // salida a hub
+    case 'E': F('#d8c4a0'); R('#7a5230',3,1,10,13); R('#5a3a1a',4,2,8,12); R('#8fd0f5',5,3,6,3); R('#e8d860',6,7,4,2); return; // salida al campus
+    default: F('#d8c4a0');
+  }
+}
+
+//==================================================================
+//  ESTADO
+//==================================================================
+const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
+// interiores con paredes: muebles y elementos sólidos
+const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z']);
+// patio: sólidos = muros, árboles y fuente
+const SOLID_PATIO=new Set(['#','o','F']);
+let scene='outdoor';        // 'outdoor' | interior key
+let map=OUTDOOR, mapW=OUTDOOR[0].length, mapH=OUTDOOR.length;
+let npcs=OUT_NPCS;
+let patioMode=false;
+let state='menu';           // menu | play | dialog | transition
+
+let player={ x:39,y:31, px:39*TILE,py:31*TILE, dir:'up', moving:false, frame:0,
+             char:CHARS[0], career:null, tx:39, ty:31 };
+let returnPos=null;         // posición de regreso al salir de interior
+let cam={x:0,y:0};
+
+function tileAt(x,y){
+  if(scene==='outdoor'){ if(x<0||y<0||x>=mapW||y>=mapH)return 'T'; return map[y][x]; }
+  if(x<0||y<0||x>=mapW||y>=mapH)return '#'; return map[y][x];
+}
+function isSolid(x,y){
+  const t=tileAt(x,y);
+  if(scene==='outdoor') return SOLID_OUT.has(t);
+  if(patioMode){ return SOLID_PATIO.has(t); }
+  return SOLID_IN.has(t);
+}
+
+//==================================================================
+//  MENÚ
+//==================================================================
+let selChar=null, selCareer=null;
+const charRow=document.getElementById('charRow'), careerRow=document.getElementById('careerRow');
+const startBtn=document.getElementById('startBtn');
+CHARS.forEach(ch=>{
+  const d=document.createElement('div'); d.className='pick';
+  const cc=document.createElement('canvas'); cc.width=32;cc.height=32;
+  const cx=cc.getContext('2d'); cx.imageSmoothingEnabled=false;
+  cx.fillStyle='#bfe3bf';cx.fillRect(0,0,32,32);
+  cx.save();cx.scale(2,2);drawPerson(cx,0,1,ch.skin,ch.hair,ch.shirt,'down',0);cx.restore();
+  d.appendChild(cc);
+  const nm=document.createElement('div');nm.className='nm';nm.textContent=ch.nm;d.appendChild(nm);
+  d.onclick=()=>{document.querySelectorAll('#charRow .pick').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');selChar=ch;checkStart();};
+  charRow.appendChild(d);
+});
+CAREERS.forEach(ca=>{
+  const d=document.createElement('div'); d.className='career';
+  d.innerHTML=`<span class="ic">${ca.ic}</span>${ca.id}<span class="full">${ca.full}</span>`;
+  d.onclick=()=>{document.querySelectorAll('.career').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');selCareer=ca;checkStart();};
+  careerRow.appendChild(d);
+});
+function checkStart(){ startBtn.disabled=!(selChar&&selCareer); }
+startBtn.onclick=()=>{
+  newGame();                          // partida desde cero (borra guardado previo)
+  player.char=selChar; player.career=selCareer.id;
+  document.getElementById('menu').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  enterPlayUI();
+  invBtn.style.display='flex';        // mostrar botón de inventario
+  state='play';
+  saveGame();                         // guardado inicial
+  showToast(`¡${selChar.nm} (${selCareer.id}) llega a la Innwiese!`);
+};
+
+//==================================================================
+//  ENTRADA
+//==================================================================
+const keys={};
+window.addEventListener('keydown',e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  // overlay abierto: Esc cierra; no procesar movimiento/interacción
+  if(state==='overlay'){
+    if(e.key==='Escape') closeOverlay();
+    return;
+  }
+  keys[e.key.toLowerCase()]=true;
+  if((e.key==='i'||e.key==='I')&&state==='play'&&!e.repeat){ openInventory(); return; }
+  if(e.key===' '||e.key==='Enter'||e.key==='z'||e.key==='Z'){
+    if(state==='dialog') advanceDialog();
+    else if(state==='play'&&!e.repeat) interact();
+  }
+});
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+//------------------------------------------------------------------
+//  D-PAD POR ZONA: toda el area responde y se puede deslizar el dedo
+//  de una direccion a otra sin levantarlo.
+//------------------------------------------------------------------
+const dpadEl=document.getElementById('dpad'), aBtnEl=document.getElementById('aBtn');
+const DIRS={arrowup:'du',arrowdown:'dd',arrowleft:'dl',arrowright:'dr'};
+const dirEl={}; for(const k in DIRS) dirEl[k]=document.getElementById(DIRS[k]);
+let dpadPtr=null, curDir=null, lastAPress=0;
+
+function setDir(d){
+  if(d===curDir) return;
+  if(curDir){ keys[curDir]=false; dirEl[curDir].classList.remove('on'); }
+  curDir=d;
+  if(curDir){ keys[curDir]=true; dirEl[curDir].classList.add('on'); }
+}
+function dirFromPoint(x,y){
+  const r=dpadEl.getBoundingClientRect();
+  const dx=x-(r.left+r.width/2), dy=y-(r.top+r.height/2);
+  if(Math.hypot(dx,dy) < r.width*0.13) return null;        // zona muerta central
+  return Math.abs(dx)>Math.abs(dy) ? (dx>0?'arrowright':'arrowleft')
+                                   : (dy>0?'arrowdown':'arrowup');
+}
+dpadEl.addEventListener('pointerdown',e=>{
+  e.preventDefault(); dpadPtr=e.pointerId;
+  try{ dpadEl.setPointerCapture(e.pointerId); }catch(_){}
+  dpadEl.classList.add('act'); setDir(dirFromPoint(e.clientX,e.clientY));
+});
+dpadEl.addEventListener('pointermove',e=>{
+  if(e.pointerId!==dpadPtr) return; e.preventDefault();
+  setDir(dirFromPoint(e.clientX,e.clientY));
+});
+function dpadRelease(e){
+  if(e && e.pointerId!==dpadPtr) return;
+  dpadPtr=null; dpadEl.classList.remove('act'); setDir(null);
+}
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>dpadEl.addEventListener(ev,dpadRelease));
+window.addEventListener('blur',()=>dpadRelease(null));
+
+// --- boton A ---
+aBtnEl.addEventListener('pointerdown',e=>{
+  e.preventDefault(); aBtnEl.classList.add('on'); lastAPress=Date.now();
+  if(state==='dialog') advanceDialog(); else if(state==='play') interact();
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>
+  aBtnEl.addEventListener(ev,()=>aBtnEl.classList.remove('on')));
+
+// --- en movil, tocar la pantalla avanza el dialogo ---
+stage.addEventListener('pointerdown',e=>{
+  if(!touchMode || e.pointerType==='mouse') return;
+  if(state!=='dialog') return;
+  if(document.getElementById('dlgChoices').style.display==='flex') return;  // hay opciones que elegir
+  if(e.target.closest && e.target.closest('#dlgChoices')) return;
+  if(Date.now()-lastAPress<250) return;
+  e.preventDefault(); advanceDialog();
+});
+
+// --- tecla T: forzar/ocultar los controles tactiles (util para probar en PC) ---
+window.addEventListener('keydown',e=>{
+  if(e.key==='t'||e.key==='T'){ touchMode=!touchMode; applyMode(); }
+});
+
+// --- sincroniza clases del <body> con el estado del juego ---
+function enterPlayUI(){ document.body.classList.add('playing'); resize(); }
+let _lastState=null;
+function syncUIState(){
+  if(state===_lastState) return;
+  _lastState=state;
+  document.body.classList.toggle('dlg', state==='dialog');
+  document.body.classList.toggle('ovl', state==='overlay');
+  if(state==='dialog'||state==='overlay') dpadRelease(null);   // suelta el dpad al abrir menus
+}
+
+//==================================================================
+//  MOVIMIENTO
+//==================================================================
+function tryMove(){
+  if(player.moving) return;
+  let dx=0,dy=0;
+  if(keys['arrowup']||keys['w']){dy=-1;player.dir='up';}
+  else if(keys['arrowdown']||keys['s']){dy=1;player.dir='down';}
+  else if(keys['arrowleft']||keys['a']){dx=-1;player.dir='left';}
+  else if(keys['arrowright']||keys['d']){dx=1;player.dir='right';}
+  if(dx===0&&dy===0) return;
+  const nx=player.x+dx, ny=player.y+dy;
+  if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
+  if(isSolid(nx,ny)){player.frame=0;return;}
+  player.tx=nx;player.ty=ny;player.moving=true;
+}
+function updateMove(){
+  if(!player.moving)return;
+  const tgx=player.tx*TILE,tgy=player.ty*TILE,sp=2;
+  if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
+  if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
+  if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
+  if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  player.frame=(Math.floor((player.px+player.py)/4)%2)+1;
+  if(player.px===tgx&&player.py===tgy){
+    player.x=player.tx;player.y=player.ty;player.moving=false;player.frame=0;
+    onStep();
+  }
+}
+function onStep(){
+  const t=tileAt(player.x,player.y);
+  if(scene==='outdoor'){
+    const key=DOOR_AT[player.x+','+player.y];
+    if(t==='D'&&key){ const b=BUILDINGS[key];
+      if(b.interior){ enterInterior(b.interior); }
+      else { bumpBack(); openDialog(b.name, b.info, b.choice||null); }
+    }
+  } else {
+    // ¿puerta interna hacia otra escena?
+    const I=INTERIORS[scene];
+    if(I.doors){
+      const d=I.doors.find(d=>d.x===player.x&&d.y===player.y);
+      if(d){ gotoScene(d.to, d.at); return; }
+    }
+    if(t==='X'||t==='E'){ exitInterior(); }
+  }
+}
+function bumpBack(){
+  const back={up:[0,1],down:[0,-1],left:[1,0],right:[-1,0]}[player.dir];
+  const bx=player.x+back[0], by=player.y+back[1];
+  if(!isSolid(bx,by)){ player.x=bx;player.y=by;player.px=bx*TILE;player.py=by*TILE;player.tx=bx;player.ty=by; }
+}
+
+//==================================================================
+//  CAMBIO DE ESCENA (con pila de retorno)
+//==================================================================
+let sceneStack=[]; // [{scene, x, y}] para volver atrás correctamente
+function loadScene(key,at,dir){
+  // BUGFIX: 'outdoor' no esta en INTERIORS -> "Continuar partida" fallaba al
+  // cargar una posicion del mapa exterior.
+  if(key==='outdoor'){
+    scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
+    npcs=OUT_NPCS; patioMode=false;
+    player.x=at?at[0]:39; player.y=at?at[1]:31;
+    player.px=player.x*TILE; player.py=player.y*TILE;
+    player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
+    resize(); updateLocation();
+    if(typeof saveGame==='function' && state!=='menu' && player.career) saveGame();
+    return;
+  }
+  scene=key; const I=INTERIORS[key];
+  map=I.grid; mapW=map[0].length; mapH=map.length;
+  npcs=I.npcs; patioMode=!!I.isPatio;
+  player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
+  player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
+  showToast(I.name);
+  resize();                      // ajustar la vista al tamano de esta sala
+  if(typeof saveGame==='function' && state!=='menu' && player.career) saveGame();
+}
+function enterInterior(key){
+  transition(()=>{
+    sceneStack=[{scene:'outdoor', x:player.x, y:player.y}];
+    loadScene(key, INTERIORS[key].spawn, 'up');
+  });
+}
+// ir de una escena interior a otra (recordando de dónde venimos)
+function gotoScene(key,at){
+  transition(()=>{
+    sceneStack.push({scene:scene, x:player.x, y:player.y});
+    loadScene(key, at, 'down');
+  });
+}
+function exitInterior(){
+  transition(()=>{
+    const prev=sceneStack.pop();
+    if(!prev || prev.scene==='outdoor'){
+      // volver al mundo exterior, bajo la puerta del edificio
+      const back=prev||sceneStack[0];
+      scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
+      npcs=OUT_NPCS; patioMode=false;
+      const rx=(back?back.x:player.x), ry=(back?back.y:player.y);
+      player.x=rx; player.y=ry+1;
+      if(isSolid(player.x,player.y)) player.y=ry;
+      player.px=player.x*TILE;player.py=player.y*TILE;player.tx=player.x;player.ty=player.y;
+      player.dir='down';player.moving=false;
+      resize();                  // volver a la vista amplia del exterior
+      updateLocation();
+    } else {
+      // volver a la escena interior anterior (p.ej. del bar al patio)
+      loadScene(prev.scene, [prev.x, prev.y], 'down');
+    }
+  });
+}
+
+//==================================================================
+//  INTERACCIÓN
+//==================================================================
+function facing(){const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[player.dir];return{x:player.x+d[0],y:player.y+d[1]};}
+function opposite(d){return{up:'down',down:'up',left:'right',right:'left'}[d];}
+function interact(){
+  const f=facing();
+  // ¿objeto recolectable enfrente o bajo el jugador?
+  const objId=worldItemAt(f.x,f.y) || worldItemAt(player.x,player.y);
+  if(objId){ promptPickup(objId); return; }
+  const npc=npcs.find(n=>n.x===f.x&&n.y===f.y);
+  if(npc){ npc.dir=opposite(player.dir); startNPC(npc); return; }
+  // puerta enfrente (exterior) para edificios sin interior -> abrir info
+  if(scene==='outdoor'){
+    const key=DOOR_AT[f.x+','+f.y];
+    if(key){ const b=BUILDINGS[key];
+      if(b.interior) enterInterior(b.interior);
+      else openDialog(b.name, b.info, b.choice||null);
+      return;
+    }
+  } else {
+    const I=INTERIORS[scene];
+    // puerta interna hacia otra escena
+    if(I.doors){ const d=I.doors.find(d=>d.x===f.x&&d.y===f.y); if(d){ gotoScene(d.to,d.at); return; } }
+    // salida
+    if(tileAt(f.x,f.y)==='X'||tileAt(f.x,f.y)==='E'){ exitInterior(); return; }
+    // tablón de información
+    if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines); return; } }
+  }
+}
+function startNPC(npc){
+  let lines=[...npc.lines];
+  if(npc.careerLine){ const cl=npc.careerLine[player.career]||npc.careerLine.default; if(cl)lines.push(cl); }
+  openDialog(npc.name, lines, npc.choice||null);
+}
+
+//==================================================================
+//  DIÁLOGO
+//==================================================================
+const dlgBox=document.getElementById('dialog'),dlgName=document.getElementById('dlgName'),
+      dlgText=document.getElementById('dlgText'),dlgArrow=document.getElementById('dlgArrow'),
+      dlgChoices=document.getElementById('dlgChoices');
+let dlg={lines:[],idx:0,choice:null}, typer=null,typing=false,fullLine='';
+function openDialog(name,lines,choice){
+  state='dialog'; dlg={lines:lines.slice(),idx:0,choice:choice};
+  dlgName.textContent=name; dlgBox.style.display='block';
+  dlgChoices.style.display='none';dlgChoices.innerHTML='';
+  typeLine(lines[0]);
+}
+function typeLine(txt){
+  fullLine=txt;typing=true;dlgText.textContent='';dlgArrow.style.display='none';
+  let i=0;clearInterval(typer);
+  typer=setInterval(()=>{dlgText.textContent=txt.slice(0,++i);
+    if(i>=txt.length){clearInterval(typer);typing=false;dlgArrow.style.display='block';}},22);
+}
+function advanceDialog(){
+  if(typing){clearInterval(typer);dlgText.textContent=fullLine;typing=false;dlgArrow.style.display='block';return;}
+  dlg.idx++;
+  if(dlg.idx<dlg.lines.length){typeLine(dlg.lines[dlg.idx]);return;}
+  if(dlg.choice){ showChoices(dlg.choice); dlg.choice=null; return; }
+  closeDialog();
+}
+function showChoices(choice){
+  dlgArrow.style.display='none';
+  dlgChoices.style.display='flex';dlgChoices.innerHTML='';
+  choice.opts.forEach(o=>{
+    const b=document.createElement('button');b.className='choice';b.textContent='▸ '+o.t;
+    b.onclick=()=>{dlgChoices.style.display='none';dlg.lines=o.r.slice();dlg.idx=0;typeLine(o.r[0]);};
+    dlgChoices.appendChild(b);
+  });
+}
+function closeDialog(){dlgBox.style.display='none';state='play';}
+
+//==================================================================
+//  TOAST / UBICACIÓN
+//==================================================================
+const locBadge=document.getElementById('locBadge');let toastTimer=null,toastActive=false;
+function showToast(txt){locBadge.textContent=txt;locBadge.style.background='#ffe9a8';toastActive=true;
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toastActive=false;locBadge.style.background='var(--dlg-bg)';updateLocation();},2200);}
+function updateLocation(){
+  if(toastActive)return;
+  if(scene!=='outdoor'){locBadge.textContent=INTERIORS[scene].name;return;}
+  const x=player.x,y=player.y;let loc="Campus Uni Passau";
+  if(y<=6)loc="Donau"; else if(y>=33)loc="Inn";
+  else if(x>=33&&x<=49&&y>=29&&y<=32)loc="Innwiese";
+  else if(y<=15&&x<25)loc="Bosque del campus";
+  if(!toastActive)locBadge.textContent=loc;
+}
+
+//==================================================================
+//  TRANSICIÓN
+//==================================================================
+const fade=document.getElementById('fade');
+function transition(mid){state='transition';fade.style.opacity='1';
+  setTimeout(()=>{mid&&mid();setTimeout(()=>{fade.style.opacity='0';state='play';},180);},320);}
+
+//==================================================================
+//  RENDER
+//==================================================================
+function updateCamera(){
+  cam.x=player.px+8-VW/2; cam.y=player.py+8-VH/2;
+  cam.x=Math.max(0,Math.min(cam.x,mapW*TILE-VW));
+  cam.y=Math.max(0,Math.min(cam.y,mapH*TILE-VH));
+  if(mapW*TILE<VW) cam.x=(mapW*TILE-VW)/2;
+  if(mapH*TILE<VH) cam.y=(mapH*TILE-VH)/2;
+}
+function render(){
+  ctx.fillStyle = scene==='outdoor'?'#5fa84f':'#8a7a9a';
+  ctx.fillRect(0,0,VW,VH);
+  const startX=Math.floor(cam.x/TILE),startY=Math.floor(cam.y/TILE);
+  const offX=((cam.x%TILE)+TILE)%TILE, offY=((cam.y%TILE)+TILE)%TILE;
+  const TX=Math.ceil(VW/TILE), TY=Math.ceil(VH/TILE);
+  for(let ty=-1;ty<=TY;ty++)for(let tx=-1;tx<=TX;tx++){
+    const mx=startX+tx,my=startY+ty;
+    const t=tileAt(mx,my);
+    const sx=tx*TILE-offX, sy=ty*TILE-offY;
+    if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
+    else drawInTile(t,sx,sy,patioMode);
+  }
+  // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
+  const ents=[];
+  if(scene==='outdoor'){
+    BLD_GEO.forEach(b=>{
+      // visible solo si está cerca de cámara (optimización ligera)
+      const bx=b.x0*TILE-cam.x, bw=(b.x1-b.x0+1)*TILE;
+      const by=b.y0*TILE-cam.y, bh=(b.y1-b.y0+1)*TILE;
+      if(bx+bw< -32||bx>VW+32||by+bh< -48||by>VH+48) return;
+      ents.push({y:b.y1, draw:()=>drawBuilding(b)});
+    });
+  }
+  npcs.forEach(n=>ents.push({y:n.y,draw:()=>drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,'#f1c8a0','#3a2a1a',n.color,n.dir,0)}));
+  worldItemsInScene().forEach(o=>ents.push({y:o.y-0.1,draw:()=>drawWorldItemAt(ctx,o.x,o.y,o.id)}));
+  ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame)});
+  ents.sort((a,b)=>a.y-b.y).forEach(e=>e.draw());
+  // indicador '!' frente a NPC o puerta interactuable
+  if(state==='play'){
+    const f=facing();
+    const npc=npcs.find(n=>n.x===f.x&&n.y===f.y);
+    let inter=!!npc;
+    if(worldItemAt(f.x,f.y))inter=true;
+    if(scene==='outdoor'&&DOOR_AT[f.x+','+f.y])inter=true;
+    if(scene!=='outdoor'){
+      const t=tileAt(f.x,f.y);
+      if('XEYG123456ABCJ'.includes(t))inter=true;
+      const I=INTERIORS[scene];
+      if(I.doors&&I.doors.some(d=>d.x===f.x&&d.y===f.y))inter=true;
+      if(I.info&&I.info.some(s=>s.x===f.x&&s.y===f.y))inter=true;
+    }
+    if(inter){
+      const ex=f.x*TILE-cam.x, ey=f.y*TILE-cam.y;
+      ctx.fillStyle='#fff';ctx.fillRect(ex+5,ey-7,6,7);
+      ctx.fillStyle='#e0a93a';ctx.fillRect(ex+7,ey-6,2,3);ctx.fillRect(ex+7,ey-2,2,1);
+    }
+  }
+}
+
+
+//==================================================================
+//  SISTEMA DE INVENTARIO, OBJETOS Y GUARDADO
+//==================================================================
+
+// --- Estado persistente del jugador (se guarda/carga) ---
+let gameData = {
+  inventory: [],        // ids de objetos que llevas
+  worldItems: {},       // estado de objetos del mundo: id -> 'taken'|'dropped@x,y,scene'|undefined(en su sitio)
+  droppedItems: [],     // objetos tirados: {id, scene, x, y}
+  emails: [],           // {to, subject, body, date}
+  documents: [],        // {title, body, date}
+  notebook: [],         // páginas del cuaderno: [{text, date}]
+  savedAt: null,
+  char: null, career: null,
+  pos: null,            // {scene, x, y}
+};
+
+// --- Definición de objetos recolectables ---
+// spawn: {scene, x, y} donde aparece en el mundo
+// guess: texto de "¿qué es esto?"  | icon: dibujo | type: 'laptop'|'notebook'|'doc'|'ring'
+const ITEMS = {
+  laptop: {
+    name:"Portátil", type:'laptop', icon:'laptop',
+    spawn:{scene:'niko_biblio', x:6, y:3},  // sobre una mesa de la biblioteca del NK
+    guess:"Parece un ordenador portátil. Alguien lo dejó abierto sobre la mesa.",
+    desc:"Un portátil funcional. Puedes escribir emails y documentos con él.",
+  },
+  ring: {
+    name:"Anillo", type:'ring', icon:'ring',
+    spawn:{scene:'outdoor', x:40, y:31},    // en la Innwiese
+    guess:"Un anillo pequeño y brillante. ¿Se le habrá caído a alguien en el prado?",
+    desc:"Un anillo elegante. Quizá alguien lo esté buscando.",
+  },
+  cert_fr: {
+    name:"Certificado de francés", type:'doc', icon:'cert',
+    spawn:{scene:'niko_bano_m', x:2, y:2},  // baño femenino del NK
+    guess:"Un certificado oficial. Parece un diploma de idioma.",
+    desc:"Certificado de idioma francés (DELF B2) a nombre de Lisa Müller. Alguien lo perdió.",
+    readable:["📜 CERTIFICAT — DELF B2","Langue française","Titulaire: Lisa Müller","Mention: Bien · Passau"],
+  },
+  notebook: {
+    name:"Cuaderno de notas", type:'notebook', icon:'notebook',
+    spawn:{scene:'niko_cafeteria', x:11, y:3}, // cafetería del NK
+    guess:"Un cuaderno de anotaciones. Tiene hojas en blanco para escribir.",
+    desc:"Un cuaderno personal. Puedes abrirlo y escribir notas que se guardan.",
+  },
+};
+
+// --- GUARDADO: intenta localStorage, si falla usa variable en memoria ---
+const SAVE_KEY = 'campus_passau_save';
+let sessionSave = null;   // respaldo en sesión
+let storageOK = false;
+(function testStorage(){
+  try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); storageOK=true; }
+  catch(e){ storageOK=false; }
+})();
+
+function saveGame(){
+  gameData.savedAt = Date.now();
+  gameData.char = player.char ? player.char.id : null;
+  gameData.career = player.career;
+  gameData.pos = { scene:scene, x:player.x, y:player.y };
+  const json = JSON.stringify(gameData);
+  sessionSave = json;  // respaldo en memoria siempre
+  if(storageOK){ try{ localStorage.setItem(SAVE_KEY, json); }catch(e){} }
+}
+function hasSave(){
+  if(storageOK){ try{ if(localStorage.getItem(SAVE_KEY)) return true; }catch(e){} }
+  return !!sessionSave;
+}
+function loadSaveRaw(){
+  if(storageOK){ try{ const s=localStorage.getItem(SAVE_KEY); if(s) return s; }catch(e){} }
+  return sessionSave;
+}
+function deleteSave(){
+  sessionSave=null;
+  if(storageOK){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+}
+
+
+//==================================================================
+//  UI DEL INVENTARIO Y APLICACIONES (laptop, cuaderno)
+//==================================================================
+// Creamos los paneles de UI dinámicamente y los insertamos en #game
+const gameEl = document.getElementById('game');
+
+// --- Contenedor de overlays ---
+const overlay = document.createElement('div');
+overlay.id='overlay';
+overlay.style.cssText='position:absolute;inset:0;display:none;z-index:60;font-family:"Courier New",monospace;';
+gameEl.appendChild(overlay);
+
+// estilos comunes
+const uiStyle=document.createElement('style');
+uiStyle.textContent=`
+  #overlay .scrim{position:absolute;inset:0;background:rgba(20,22,34,.72);}
+  #overlay .panel2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(94%,560px);max-height:88%;overflow-y:auto;background:var(--dlg-bg);
+    border:5px solid var(--dlg-frame);border-radius:14px;box-shadow:0 8px 0 var(--dlg-shadow);
+    padding:16px 18px;color:var(--txt);}
+  #overlay h3{font-size:18px;color:#3a4a7a;margin-bottom:12px;letter-spacing:1px;display:flex;align-items:center;gap:8px;}
+  #overlay .invgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  #overlay .invslot{border:3px solid var(--dlg-frame);border-radius:10px;background:#fff;
+    padding:8px 4px;text-align:center;cursor:pointer;box-shadow:0 3px 0 rgba(90,107,138,.4);transition:.08s;}
+  #overlay .invslot:hover{background:#ffe9a8;transform:translateY(-2px);}
+  #overlay .invslot canvas{display:block;margin:0 auto 4px;image-rendering:pixelated;}
+  #overlay .invslot .lbl{font-size:11px;font-weight:bold;line-height:1.1;}
+  #overlay .invempty{grid-column:1/-1;text-align:center;color:#8a90a8;padding:24px;font-size:14px;}
+  #overlay .btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  #overlay button.ui{cursor:pointer;font-family:inherit;font-weight:bold;font-size:14px;color:var(--txt);
+    background:#fff;border:3px solid var(--dlg-frame);border-radius:8px;padding:8px 14px;
+    box-shadow:0 3px 0 rgba(90,107,138,.4);transition:.08s;}
+  #overlay button.ui:hover{background:#ffe9a8;border-color:#e0a93a;}
+  #overlay button.ui.primary{background:#e0a93a;color:#fff;border-color:#b07a1a;box-shadow:0 3px 0 #8a5e12;}
+  #overlay button.ui.danger{background:#d66a5a;color:#fff;border-color:#a84a3a;box-shadow:0 3px 0 #7a3020;}
+  #overlay .close{position:absolute;top:10px;right:14px;cursor:pointer;font-size:20px;color:var(--dlg-frame);font-weight:bold;background:none;border:none;}
+  #overlay input.ui,#overlay textarea.ui{width:100%;font-family:inherit;font-size:14px;color:var(--txt);
+    border:3px solid var(--dlg-frame);border-radius:8px;padding:8px;margin-top:6px;background:#fff;}
+  #overlay textarea.ui{min-height:120px;resize:vertical;}
+  #overlay .laptop{background:#2a2f45;border-color:#1a1d2e;color:#dfe6ec;}
+  #overlay .laptop h3{color:#bfe0ff;}
+  #overlay .applist{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
+  #overlay .app{cursor:pointer;background:#3a4260;border:3px solid #232840;border-radius:10px;
+    padding:14px 6px;text-align:center;color:#dfe6ec;font-weight:bold;font-size:12px;transition:.08s;}
+  #overlay .app:hover{background:#4a5480;transform:translateY(-2px);}
+  #overlay .app .ic{font-size:26px;display:block;margin-bottom:6px;}
+  #overlay .listitem{background:#fff;border:2px solid var(--dlg-frame);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;}
+  #overlay .listitem .meta{font-size:11px;color:#8a90a8;margin-bottom:3px;}
+  #overlay .hintline{font-size:11px;color:#8a90a8;margin-top:10px;text-align:center;}
+  #invBtn{position:absolute;top:10px;right:12px;z-index:40;cursor:pointer;width:44px;height:44px;
+    background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:10px;box-shadow:0 3px 0 var(--dlg-shadow);
+    display:none;align-items:center;justify-content:center;font-size:22px;padding:0;}
+  #invBtn:active{transform:translateY(2px);}
+`;
+document.head.appendChild(uiStyle);
+
+// Botón de inventario (bolsa) visible durante el juego
+const invBtn=document.createElement('button');
+invBtn.id='invBtn'; invBtn.title='Inventario (I)'; invBtn.textContent='🎒';
+(document.getElementById('stage')||gameEl).appendChild(invBtn);
+invBtn.onclick=()=>{ if(state==='play') openInventory(); };
+
+// --- helpers de overlay ---
+let overlayStack=[];
+function showOverlay(html, cls){
+  overlay.style.display='block';
+  overlay.innerHTML='<div class="scrim"></div><div class="panel2 '+(cls||'')+'">'+html+'</div>';
+  const scrim=overlay.querySelector('.scrim');
+  scrim.onclick=()=>closeOverlay();
+  prevState = (state==='play')?'play':prevState;
+  state='overlay';
+}
+function closeOverlay(){
+  overlay.style.display='none'; overlay.innerHTML='';
+  state = prevState||'play';
+}
+let prevState='play';
+
+// icono pixelado de objeto (para inventario)
+function itemIconCanvas(type,size){
+  const c=document.createElement('canvas'); c.width=size;c.height=size;
+  const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
+  const s=size/16;
+  x.scale(s,s);
+  drawItemIcon(x,type);
+  return c;
+}
+function drawItemIcon(x,type){
+  // dibuja en 16x16
+  if(type==='laptop'){ x.fillStyle='#3a4250';x.fillRect(2,4,12,7); x.fillStyle='#6aa8d8';x.fillRect(3,5,10,5);
+    x.fillStyle='#2a3038';x.fillRect(1,11,14,2); x.fillStyle='#4a5468';x.fillRect(6,11,4,1); return; }
+  if(type==='ring'){ x.fillStyle='#e8c85a';x.beginPath();x.arc(8,10,4,0,7);x.stroke();
+    x.lineWidth=2;x.strokeStyle='#e8c85a';x.beginPath();x.arc(8,10,3,0,7);x.stroke();
+    x.fillStyle='#8fd0f5';x.fillRect(7,3,2,2); x.fillStyle='#bfe8ff';x.fillRect(7,2,2,1); return; }
+  if(type==='doc'||type==='cert'){ x.fillStyle='#f4efe0';x.fillRect(3,2,10,12); x.fillStyle='#c8a85a';x.fillRect(3,2,10,2);
+    x.fillStyle='#8a90a8';x.fillRect(5,6,6,1);x.fillRect(5,8,6,1);x.fillRect(5,10,4,1);
+    x.fillStyle='#d66a5a';x.fillRect(9,10,3,3); return; }
+  if(type==='notebook'){ x.fillStyle='#5a8ad6';x.fillRect(3,2,10,12); x.fillStyle='#4a7ac0';x.fillRect(3,2,2,12);
+    x.fillStyle='#f4efe0';x.fillRect(6,4,6,7); x.fillStyle='#b0b8c8';x.fillRect(7,6,4,1);x.fillRect(7,8,4,1); return; }
+  // genérico
+  x.fillStyle='#c8b89a';x.fillRect(3,3,10,10);
+}
+
+
+//==================================================================
+//  LÓGICA DEL INVENTARIO Y APLICACIONES
+//==================================================================
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString()+' '+d.toLocaleTimeString().slice(0,5); }
+
+// --- INVENTARIO principal ---
+function openInventory(){
+  let slots='';
+  if(gameData.inventory.length===0){
+    slots='<div class="invempty">Tu mochila está vacía.<br>Explora el campus y recoge objetos con la barra espaciadora.</div>';
+  } else {
+    gameData.inventory.forEach(id=>{
+      const it=ITEMS[id];
+      slots+=`<div class="invslot" data-id="${id}"><canvas width="32" height="32"></canvas><div class="lbl">${esc(it.name)}</div></div>`;
+    });
+  }
+  showOverlay(`<button class="close">✕</button><h3>🎒 Inventario</h3><div class="invgrid">${slots}</div>
+    <div class="hintline">Toca un objeto para usarlo · Esc para cerrar</div>`);
+  // pintar iconos
+  overlay.querySelectorAll('.invslot').forEach(sl=>{
+    const id=sl.dataset.id; const cv=sl.querySelector('canvas');
+    const cx=cv.getContext('2d'); cx.imageSmoothingEnabled=false; cx.save(); cx.scale(2,2);
+    drawItemIcon(cx, ITEMS[id].type); cx.restore();
+    sl.onclick=()=>openItem(id);
+  });
+  overlay.querySelector('.close').onclick=closeOverlay;
+}
+
+// --- Interactuar con un objeto del inventario ---
+function openItem(id){
+  const it=ITEMS[id];
+  let actions='';
+  if(it.type==='laptop') actions=`<button class="ui primary" data-a="use">💻 Usar portátil</button>`;
+  else if(it.type==='notebook') actions=`<button class="ui primary" data-a="use">📓 Abrir cuaderno</button>`;
+  else if(it.readable) actions=`<button class="ui primary" data-a="read">🔍 Leer</button>`;
+  showOverlay(`<button class="close">✕</button><h3>${esc(it.name)}</h3>
+    <p style="font-size:14px;line-height:1.5">${esc(it.desc)}</p>
+    <div class="btnrow">${actions}
+      <button class="ui" data-a="give">🤝 Entregar</button>
+      <button class="ui danger" data-a="drop">🗑️ Dejar aquí</button>
+      <button class="ui" data-a="back">← Volver</button>
+    </div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelectorAll('button[data-a]').forEach(b=>{
+    b.onclick=()=>{
+      const a=b.dataset.a;
+      if(a==='back') return openInventory();
+      if(a==='use'&&it.type==='laptop') return openLaptop();
+      if(a==='use'&&it.type==='notebook') return openNotebook();
+      if(a==='read') return showRead(it);
+      if(a==='give') return giveItem(id);
+      if(a==='drop') return dropItem(id);
+    };
+  });
+}
+function showRead(it){
+  showOverlay(`<button class="close">✕</button><h3>${esc(it.name)}</h3>
+    <div class="listitem">${it.readable.map(l=>esc(l)).join('<br>')}</div>
+    <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('button[data-a]').onclick=()=>openInventory();
+}
+function giveItem(id){
+  showOverlay(`<button class="close">✕</button><h3>Entregar ${esc(ITEMS[id].name)}</h3>
+    <p style="font-size:14px">No hay nadie cerca a quien entregárselo ahora mismo. Acércate a la persona indicada y vuelve a intentarlo.</p>
+    <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('button[data-a]').onclick=()=>openInventory();
+  // (La entrega a NPCs concretos se puede ampliar luego; por ahora informa.)
+}
+function dropItem(id){
+  // quitar del inventario y dejar tirado en la posición actual
+  gameData.inventory = gameData.inventory.filter(x=>x!==id);
+  gameData.worldItems[id]='dropped';
+  gameData.droppedItems.push({id, scene:scene, x:player.x, y:player.y});
+  saveGame();
+  closeOverlay();
+  showToast(`Dejaste: ${ITEMS[id].name}`);
+}
+function takeItem(id){
+  if(!gameData.inventory.includes(id)) gameData.inventory.push(id);
+  gameData.worldItems[id]='taken';
+  gameData.droppedItems = gameData.droppedItems.filter(d=>d.id!==id);
+  saveGame();
+  showToast(`Obtienes: ${ITEMS[id].name}`);
+}
+
+// --- LAPTOP: menú de apps ---
+function openLaptop(){
+  showOverlay(`<button class="close">✕</button><h3>💻 Portátil</h3>
+    <div class="applist">
+      <div class="app" data-app="mail"><span class="ic">✉️</span>Correo</div>
+      <div class="app" data-app="write"><span class="ic">📝</span>Documentos</div>
+      <div class="app" data-app="sent"><span class="ic">📤</span>Enviados</div>
+    </div>
+    <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`,'laptop');
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('button[data-a]').onclick=()=>openInventory();
+  overlay.querySelectorAll('.app').forEach(a=>{
+    a.onclick=()=>{ const ap=a.dataset.app;
+      if(ap==='mail') composeEmail();
+      else if(ap==='write') docList();
+      else if(ap==='sent') sentBox();
+    };
+  });
+}
+function composeEmail(){
+  showOverlay(`<button class="close">✕</button><h3>✉️ Nuevo correo</h3>
+    <label style="font-size:12px;color:#bfe0ff">Para:</label>
+    <input class="ui" id="mTo" placeholder="destinatario@uni-passau.de">
+    <label style="font-size:12px;color:#bfe0ff">Asunto:</label>
+    <input class="ui" id="mSub" placeholder="Asunto">
+    <label style="font-size:12px;color:#bfe0ff">Mensaje:</label>
+    <textarea class="ui" id="mBody" placeholder="Escribe tu mensaje..."></textarea>
+    <div class="btnrow">
+      <button class="ui primary" data-a="send">📤 Enviar</button>
+      <button class="ui" data-a="back">← Volver</button>
+    </div>`,'laptop');
+  overlay.querySelector('.close').onclick=closeOverlay;
+  const q=s=>overlay.querySelector(s);
+  q('button[data-a="back"]').onclick=()=>openLaptop();
+  q('button[data-a="send"]').onclick=()=>{
+    const to=q('#mTo').value.trim(), sub=q('#mSub').value.trim(), body=q('#mBody').value.trim();
+    if(!to&&!sub&&!body){ return; }
+    gameData.emails.push({to,subject:sub,body,date:Date.now()});
+    saveGame();
+    showOverlay(`<h3>✉️ Enviado</h3><p style="font-size:14px">Tu correo se ha guardado en Enviados.</p>
+      <div class="btnrow"><button class="ui primary" data-a="ok">Aceptar</button></div>`,'laptop');
+    overlay.querySelector('button[data-a="ok"]').onclick=()=>openLaptop();
+  };
+}
+function sentBox(){
+  let list='';
+  if(gameData.emails.length===0) list='<p style="font-size:14px;color:#8a90a8">No has enviado ningún correo todavía.</p>';
+  else gameData.emails.slice().reverse().forEach(m=>{
+    list+=`<div class="listitem"><div class="meta">${fmtDate(m.date)} · Para: ${esc(m.to||'(sin destinatario)')}</div>
+      <b>${esc(m.subject||'(sin asunto)')}</b><br>${esc(m.body||'')}</div>`;
+  });
+  showOverlay(`<button class="close">✕</button><h3>📤 Enviados</h3>${list}
+    <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`,'laptop');
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('button[data-a]').onclick=()=>openLaptop();
+}
+function docList(){
+  let list='';
+  if(gameData.documents.length===0) list='<p style="font-size:14px;color:#8a90a8">No hay documentos guardados.</p>';
+  else gameData.documents.slice().reverse().forEach((d,i)=>{
+    const realIdx=gameData.documents.length-1-i;
+    list+=`<div class="listitem" data-doc="${realIdx}" style="cursor:pointer"><div class="meta">${fmtDate(d.date)}</div><b>${esc(d.title||'(sin título)')}</b></div>`;
+  });
+  showOverlay(`<button class="close">✕</button><h3>📝 Documentos</h3>${list}
+    <div class="btnrow"><button class="ui primary" data-a="new">＋ Nuevo documento</button>
+    <button class="ui" data-a="back">← Volver</button></div>`,'laptop');
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('button[data-a="new"]').onclick=()=>docEdit(null);
+  overlay.querySelector('button[data-a="back"]').onclick=()=>openLaptop();
+  overlay.querySelectorAll('[data-doc]').forEach(el=>el.onclick=()=>docEdit(parseInt(el.dataset.doc)));
+}
+function docEdit(idx){
+  const doc = idx!=null ? gameData.documents[idx] : {title:'',body:''};
+  showOverlay(`<button class="close">✕</button><h3>📝 Documento</h3>
+    <input class="ui" id="dTitle" placeholder="Título" value="${esc(doc.title)}">
+    <textarea class="ui" id="dBody" placeholder="Escribe aquí tu documento...">${esc(doc.body)}</textarea>
+    <div class="btnrow"><button class="ui primary" data-a="save">💾 Guardar</button>
+    <button class="ui" data-a="back">← Volver</button></div>`,'laptop');
+  overlay.querySelector('.close').onclick=closeOverlay;
+  const q=s=>overlay.querySelector(s);
+  q('button[data-a="back"]').onclick=()=>docList();
+  q('button[data-a="save"]').onclick=()=>{
+    const title=q('#dTitle').value.trim(), body=q('#dBody').value;
+    if(idx!=null){ gameData.documents[idx]={title,body,date:Date.now()}; }
+    else { gameData.documents.push({title,body,date:Date.now()}); }
+    saveGame();
+    docList();
+  };
+}
+
+// --- CUADERNO ---
+function openNotebook(){
+  let pages='';
+  if(gameData.notebook.length===0) pages='<p style="font-size:14px;color:#8a90a8">El cuaderno está en blanco.</p>';
+  else gameData.notebook.slice().reverse().forEach((p,i)=>{
+    const realIdx=gameData.notebook.length-1-i;
+    pages+=`<div class="listitem" data-page="${realIdx}" style="cursor:pointer"><div class="meta">${fmtDate(p.date)}</div>${esc(p.text).slice(0,60)}${p.text.length>60?'…':''}</div>`;
+  });
+  showOverlay(`<button class="close">✕</button><h3>📓 Cuaderno de notas</h3>${pages}
+    <div class="btnrow"><button class="ui primary" data-a="new">＋ Nueva nota</button>
+    <button class="ui" data-a="back">← Volver</button></div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('button[data-a="new"]').onclick=()=>notePage(null);
+  overlay.querySelector('button[data-a="back"]').onclick=()=>openInventory();
+  overlay.querySelectorAll('[data-page]').forEach(el=>el.onclick=()=>notePage(parseInt(el.dataset.page)));
+}
+function notePage(idx){
+  const pg = idx!=null ? gameData.notebook[idx] : {text:''};
+  showOverlay(`<button class="close">✕</button><h3>📓 Nota</h3>
+    <textarea class="ui" id="nText" placeholder="Escribe tu nota...">${esc(pg.text)}</textarea>
+    <div class="btnrow"><button class="ui primary" data-a="save">💾 Guardar</button>
+    <button class="ui" data-a="back">← Volver</button></div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  const q=s=>overlay.querySelector(s);
+  q('button[data-a="back"]').onclick=()=>openNotebook();
+  q('button[data-a="save"]').onclick=()=>{
+    const text=q('#nText').value;
+    if(idx!=null) gameData.notebook[idx]={text,date:Date.now()};
+    else gameData.notebook.push({text,date:Date.now()});
+    saveGame();
+    openNotebook();
+  };
+}
+
+// --- Recoger objeto del mundo (menú al pulsar espacio junto a él) ---
+function promptPickup(id){
+  const it=ITEMS[id];
+  showOverlay(`<button class="close">✕</button><h3>Objeto en el suelo</h3>
+    <p style="font-size:14px">Hay algo aquí.</p>
+    <div class="btnrow">
+      <button class="ui" data-a="what">❓ ¿Qué es esto?</button>
+      <button class="ui primary" data-a="take">✋ Tomar</button>
+      <button class="ui" data-a="ignore">➡️ Ignorar</button>
+    </div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>{
+    const a=b.dataset.a;
+    if(a==='what'){
+      overlay.querySelector('.panel2').innerHTML=`<button class="close">✕</button><h3>¿Qué es esto?</h3>
+        <p style="font-size:14px;line-height:1.5">${esc(it.guess)}</p>
+        <div class="btnrow"><button class="ui primary" data-a2="take">✋ Tomar</button>
+        <button class="ui" data-a2="ignore">➡️ Ignorar</button></div>`;
+      overlay.querySelector('.close').onclick=closeOverlay;
+      overlay.querySelectorAll('button[data-a2]').forEach(bb=>bb.onclick=()=>{
+        if(bb.dataset.a2==='take'){ takeItem(id); closeOverlay(); }
+        else closeOverlay();
+      });
+    } else if(a==='take'){ takeItem(id); closeOverlay(); }
+    else closeOverlay();
+  });
+}
+
+
+//==================================================================
+//  INTEGRACIÓN DE OBJETOS CON EL MUNDO
+//==================================================================
+function worldItemAt(x,y){
+  for(const id in ITEMS){
+    const st=gameData.worldItems[id];
+    if(st==='taken'||st==='dropped') continue;
+    const sp=ITEMS[id].spawn;
+    if(sp.scene===scene && sp.x===x && sp.y===y) return id;
+  }
+  const d=gameData.droppedItems.find(d=>d.scene===scene && d.x===x && d.y===y);
+  if(d) return d.id;
+  return null;
+}
+function worldItemsInScene(){
+  const out=[];
+  for(const id in ITEMS){
+    const st=gameData.worldItems[id];
+    if(st==='taken'||st==='dropped') continue;
+    const sp=ITEMS[id].spawn;
+    if(sp.scene===scene) out.push({id,x:sp.x,y:sp.y});
+  }
+  gameData.droppedItems.forEach(d=>{ if(d.scene===scene) out.push({id:d.id,x:d.x,y:d.y}); });
+  return out;
+}
+function drawWorldItemAt(ctx,x,y,id){
+  const sx=x*TILE-cam.x, sy=y*TILE-cam.y;
+  ctx.save(); ctx.translate(sx,sy);
+  ctx.fillStyle='rgba(0,0,0,.18)'; ctx.fillRect(3,TILE-3,TILE-6,2);
+  drawItemIcon(ctx, ITEMS[id].type);
+  ctx.restore();
+}
+
+
+//==================================================================
+//  MENÚ DE INICIO: CONTINUAR / NUEVA PARTIDA + GUARDADO AUTO
+//==================================================================
+// Aplica el estado cargado (gameData) al juego y entra a jugar
+function applyLoadedGame(){
+  // personaje y carrera
+  const ch = CHARS.find(c=>c.id===gameData.char) || CHARS[0];
+  player.char = ch;
+  player.career = gameData.career;
+  document.getElementById('menu').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  enterPlayUI();
+  invBtn.style.display='flex';
+  // posición guardada
+  const pos = gameData.pos || {scene:'outdoor', x:39, y:31};
+  if(pos.scene==='outdoor'){
+    loadScene('outdoor',[pos.x,pos.y],player.dir||'up');
+  } else if(INTERIORS[pos.scene]){
+    // reconstruir pila mínima para poder salir
+    sceneStack=[{scene:'outdoor', x:39, y:31}];
+    loadScene(pos.scene,[pos.x,pos.y],player.dir||'down');
+  } else {
+    loadScene('outdoor',[39,31],'up');
+  }
+  state='play';
+  showToast('Partida cargada');
+}
+function continueGame(){
+  const raw=loadSaveRaw();
+  if(!raw){ return; }
+  try{
+    const data=JSON.parse(raw);
+    // fusionar con estructura por defecto (por si faltan campos)
+    gameData = Object.assign({inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[]}, data);
+  }catch(e){ return; }
+  applyLoadedGame();
+}
+function newGame(){
+  deleteSave();
+  gameData = {inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[],
+              savedAt:null,char:null,career:null,pos:null};
+}
+
+// Insertar botón "Continuar" en el menú si hay guardado
+(function setupMenu(){
+  const menu=document.getElementById('menu');
+  const cont=document.createElement('button');
+  cont.id='continueBtn'; cont.textContent='▶ CONTINUAR PARTIDA';
+  cont.style.cssText='margin-bottom:10px;display:none;';
+  // insertar antes del startBtn
+  startBtn.parentNode.insertBefore(cont, startBtn);
+  if(hasSave()){
+    cont.style.display='';
+    // no autohabilitar start; continuar es independiente de elegir personaje
+  }
+  cont.onclick=()=>continueGame();
+})();
+
+
+//==================================================================
+//  BUCLE
+//==================================================================
+function loop(){
+  animTick++;
+  syncUIState();
+  if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
+  updateCamera(); render();
+  requestAnimationFrame(loop);
+}
+updateLocation();
+requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
