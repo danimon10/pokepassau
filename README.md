@@ -9,8 +9,12 @@ estilo Pokémon, con mapa exterior, interiores de edificios y NPCs.
 coordenadas, pensado para abrirlo en Paint y dibujar encima los cambios.
 Incluye la leyenda de piezas de interior para diseñar salas nuevas.
 
-Es un artefacto generado y no se versiona. Para crearlo o regenerarlo cuando
-cambie el mapa:
+Está versionado, así que basta con descargarlo del repositorio para tener la
+última versión. Se genera a partir del propio `index.html`, de modo que se
+regenera —y se vuelve a commitear— cada vez que cambia el mapa, para que la
+imagen y el código nunca se desincronicen.
+
+Para regenerarlo hacen falta Node.js y Chromium:
 
 ```sh
 node tools/plano.js                 # genera tools/.plano-render.html
