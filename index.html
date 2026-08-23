@@ -245,28 +245,28 @@ const OUTDOOR=[
 "TT........................BBBBBBBB........................TT",
 "TT............t...........BBBBBBBB................BBBBBBB.TT",
 "TT......t.................BBBBBBBB................BBBBBBB.TT",
-"TT........................BBBDBBBB................BBBBBBB.TT",
-"TT........t..................RRRRRRRRR............BBBBBBB.TT",
-"TT..................t...............RR............BBBBBBB.TT",
-"TT..............t.......t...........RR............BBBBBBB.TT",
-"TT................................f.RR...............D....TT",
-"TTRR|RR|RR|RR|RR|RR|RRR.............RR....................TT",
-"TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR......NNNNNNNNNNNN..TT",
-"TT....................RRRRRRRR......RR......NNNNNNNNNNNN..TT",
-"TT........................RRRRRRRR..RR......NNNHHHHHHNNN..TT",
-"TT....f...................f...RRRRRRRR......NNNHHHHHHNNN..TT",
-"TT........BBBBBB..................RRRR......NNNHHHHHHNNN..TT",
-"TT........BBBBBB..BBBBBB..............BBBBBBNNNHHHHHHNNN..TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB....BBBBBBNNNHHHHHHNNN..TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB....BBBBBBNNNNNNNNNNNN..TT",
-"TT.BBBBB....D.....BBBBBB....BBBBBB....BBBBBBNNNNNDNNNNNN..TT",
-"TT.BBBBB....P.......D.......BBBBBB......D........P........TT",
-"TT...D..PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP....P...TT",
-"TT..........P.......P.......................f...P...BBDBB.TT",
-"TT........BBBBB...BBBBBB.........,,L,,,,,,,,,L,,P...BBBBB.TT",
-"TT........BBBBB...BBBBBB.........,,,,,fI,b,,,,,,P...BBBBB.TT",
-"TT........BBBBB...BBBBBB.........,,,b,,,,,,f,,,,PPPPPPPP..TT",
-"TT...............................,t,,t,,t,,t,,t,..........TT",
+"TTBBBBBBBB................BBBDBBBB................BBBBBBB.TT",
+"TTBBBBBBBBt..................RRRRRRRRRRRRRRRRRRRRRBBBBBBB.TT",
+"TTBBBBBBBB..........t...............RR............BBBBBBB.TT",
+"TTBBBBBBBB......t.......t...........RR............BBBBBBB.TT",
+"TTBBBBBBBB........................f.RR...............D....TT",
+"TTRR|RD|RR|RR|RR|RR|RRR.............RR....................TT",
+"TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR..NNNNNNNNNNNN......TT",
+"TT....................RRRRRRRR......RR..NNNNNNNNNNNN......TT",
+"TT........................RRRRRRRR..RR..NNNHHHHHHNNN......TT",
+"TT....f...................f...RRRRRRRR..NNNHHHHHHNNN......TT",
+"TT........BBBBBB..................RRRR..NNNHHHHHHNNN......TT",
+"TT........BBBBBB..BBBBBB................NNNHHHHHHNNN......TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNHHHHHHNNN......TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN......TT",
+"TT.BBBBB....D.....BBBBBB....BBBBBB......NNNNNDNNNNNN......TT",
+"TT.BBBBB....P.......D.......BBBBBB...............P........TT",
+"TT...D..PPPPPPPPPPPPPPPPPPPPPPDPPPPPPPPPPPPPPPPPPP....P...TT",
+"TT..........D.......D......D................f...PBBDBB....TT",
+"TT........BBBBB...BBBBBB.BBBBBB..,,L,,,,,,,,,L,,PBBBBB....TT",
+"TT........BBBBB...BBBBBB.BBBBBB..,,,,,fI,b,,,,,,PBBBBB....TT",
+"TT........BBBBB...BBBBBB.BBBBBB..,,,b,,,,,,f,,,,PPPPPPPP..TT",
+"TT.......................BBBBBB..,t,,t,,t,,t,,t,..........TT",
 "TTooooooooooooooooooooooooooooooooooooooooooooooooooooooooTT",
 "TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
 "TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
@@ -472,7 +472,7 @@ const INTERIORS = {
          {t:"Un café solo",r:["Marchando. Cargadito, que se nota el lunes."]},
          {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero."]},
          {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla, ya caerás."]}]}},
-      {x:9,y:6,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
+      {x:10,y:6,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
        lines:["Entre clase y clase siempre acabo aquí.","La NK Cafetería es más barata que bajar a la ciudad."]},
     ]
   },
@@ -647,7 +647,7 @@ const INTERIORS = {
   ww: {
     name:"Wirtschaftswissenschaften",
     grid:[
-      "####A####B####C####",
+      "####1####2####3####",
       "#.................#",
       "#.................#",
       "#.......I.........#",
@@ -785,9 +785,13 @@ const BUILDINGS = {
   AM:     {name:"Audimax", door:[20,26], info:["Audimax — el aula magna.","El auditorio más grande del campus. Hoy hay una conferencia."]},
   M:      {name:"Mensa", door:[20,28], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
-  WW:     {name:"Wirtschaftswissenschaften", door:[40,26], interior:'ww'},
-  NK:     {name:"Nikolakloster", door:[49,25], interior:'niko'},
-  IA:     {name:"Innstegaula", door:[54,28], interior:'innstegaula'},
+  WW:     {name:"Wirtschaftswissenschaften", door:[27,28], interior:'ww'},
+  NK:     {name:"Nikolakloster", door:[45,25], interior:'niko'},
+  IA:     {name:"Innstegaula", door:[51,28], interior:'innstegaula'},
+  WH:     {name:"Studentenwohnheim", door:[6,16], info:["Residencia de estudiantes (Studentenwohnheim).","Habitaciones individuales, cocinas compartidas y un ambiente de examen permanente."],
+           choice:{q:"¿Llamas al timbre?",opts:[
+             {t:"Sí, a ver quién abre",r:["Se oye música arriba y alguien gritando algo sobre la lavadora.","Un estudiante te abre en pijama. Son las cuatro de la tarde."]},
+             {t:"Mejor no",r:["Prudente. A estas horas ahí dentro nadie tiene clase."]}]}},
 };
 for(const k in BUILDINGS){ const d=BUILDINGS[k].door; DOOR_AT[d[0]+','+d[1]]=k; }
 
@@ -799,16 +803,17 @@ for(const k in BUILDINGS){ const d=BUILDINGS[k].door; DOOR_AT[d[0]+','+d[1]]=k; 
 //==================================================================
 const BLD_GEO=[
   {key:'HBf',  x0:26,y0:8, x1:33,y1:11, door:[29,11], style:'station',  roof:'#a23b3b', label:'HBF'},
-  {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7 aa', label:'EKZ'},
+  {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
   {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
   {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
   {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[12,28], style:'modern',   roof:'#4a8a6a', label:'I'},
   {key:'AM',   x0:18,y0:22,x1:23,y1:25, door:[20,26], style:'modern',   roof:'#8a6ab0', label:'AM'},
   {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,28], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
-  {key:'WW',   x0:38,y0:22,x1:43,y1:25, door:[40,26], style:'modern',   roof:'#b0a03a', label:'WW'},
-  {key:'NK',   x0:44,y0:17,x1:55,y1:25, door:[49,25], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[47,19,52,23]},
-  {key:'IA',   x0:52,y0:28,x1:56,y1:30, door:[54,28], style:'modern',   roof:'#3b9aa2', label:'IA'},
+  {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[27,28], style:'modern',   roof:'#b0a03a', label:'WW'},
+  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,25], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
+  {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,28], style:'modern',   roof:'#3b9aa2', label:'IA'},
+  {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
 ];
 // corrección de un color tipografiado
 BLD_GEO[1].roof='#3b7aaa';
@@ -1180,11 +1185,11 @@ function drawInTile(t,sx,sy,patio){
       F('#8a7a9a'); R('#5a4a3a',1,1,14,12); R('#e8e2d0',2,2,12,10);
       R('#5a8ad6',3,3,4,3);R('#d65a5a',8,3,4,2);R('#5ad68f',3,7,3,3);R('#e8d65a',8,7,4,3); return; }
     case '1': case '2': case '3': case '4': case '5': case '6':
-    case 'A': case 'B': case 'C': case 'J': { // puertas de sala
+    case 'A': case 'C': case 'J': { // puertas de sala  ('B' NO: es el botellero)
       F('#d8c4a0'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13);
       R('#caa45a',9,8,1,2); // pomo
       const cols={'1':'#d65a8a','2':'#5ab0d6','3':'#e0a93a','4':'#c87a3a','5':'#5a8ad6','6':'#5ad68f',
-                  'A':'#8a5ad6','B':'#5a8ad6','C':'#d65a8a','J':'#5ad68f'};
+                  'A':'#8a5ad6','C':'#d65a8a','J':'#5ad68f'};
       R(cols[t],5,3,6,2); return; }
     case 'Y': { // puerta interior al patio
       F('#d8c4a0'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13);
@@ -1210,6 +1215,141 @@ const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
 const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z']);
 // patio: sólidos = muros, árboles y fuente
 const SOLID_PATIO=new Set(['#','o','F']);
+
+//==================================================================
+//  VALIDADOR DE MAPAS
+//  Se ejecuta al cargar la pagina. Comprueba la geometria de cada
+//  sala y el cableado de cada puerta, para que un fallo de diseno
+//  salte aqui (consola + banner rojo) y no como una sala a la que
+//  luego no se puede entrar. Se puede relanzar con validateMaps().
+//==================================================================
+const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
+const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
+                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E']);
+const TILES_PATIO=new Set(['#','p','.','o','F','G','X']);
+
+function validateMaps(){
+  const errs=[], warns=[];
+  const E=m=>errs.push(m), Wn=m=>warns.push(m);
+
+  // ---------------- MAPA EXTERIOR ----------------
+  const ow=OUTDOOR[0].length;
+  OUTDOOR.forEach((r,y)=>{ if(r.length!==ow) E('OUTDOOR fila '+y+': mide '+r.length+' casillas, se esperaban '+ow); });
+  OUTDOOR.forEach((r,y)=>[...r].forEach((c,x)=>{
+    if(!TILES_OUT.has(c)) Wn('OUTDOOR ('+x+','+y+"): caracter '"+c+"' sin dibujo asignado"); }));
+
+  const puertaDe={};
+  for(const k in BUILDINGS){
+    const b=BUILDINGS[k], dx=b.door[0], dy=b.door[1];
+    const t=(OUTDOOR[dy]||'')[dx];
+    if(t===undefined)      E(k+': la puerta ('+dx+','+dy+') cae fuera del mapa');
+    else if(t!=='D')       E(k+': la puerta ('+dx+','+dy+") esta sobre '"+t+"' y tiene que estar sobre 'D' — asi no se puede entrar");
+    if(DOOR_AT[dx+','+dy]!==k) E(k+': DOOR_AT no apunta a este edificio en ('+dx+','+dy+')');
+    if(puertaDe[dx+','+dy]) E(k+' y '+puertaDe[dx+','+dy]+' comparten la puerta ('+dx+','+dy+')');
+    puertaDe[dx+','+dy]=k;
+    if(b.interior && !INTERIORS[b.interior]) E(k+": el interior '"+b.interior+"' no existe");
+    if(!b.interior && !b.info)               E(k+': no tiene ni interior ni texto info — al entrar no pasaria nada');
+  }
+
+  const ocupado={};
+  BLD_GEO.forEach(b=>{
+    const B=BUILDINGS[b.key];
+    if(!B){ E("BLD_GEO '"+b.key+"' no existe en BUILDINGS"); return; }
+    if(B.door[0]!==b.door[0]||B.door[1]!==b.door[1])
+      E(b.key+': la puerta de BLD_GEO ('+b.door+') no coincide con la de BUILDINGS ('+B.door+')');
+    if(b.x1<b.x0||b.y1<b.y0) E(b.key+': rectangulo invertido (x0,y0 debe ser la esquina superior izquierda)');
+    if(b.x0<0||b.y0<0||b.x1>=ow||b.y1>=OUTDOOR.length) E(b.key+': el rectangulo se sale del mapa');
+    if(!/^#[0-9a-fA-F]{6}$/.test(b.roof)) E(b.key+": color de tejado invalido '"+b.roof+"'");
+    for(let y=b.y0;y<=b.y1;y++)for(let x=b.x0;x<=b.x1;x++){
+      const c=x+','+y;
+      if(ocupado[c]) E(b.key+' se solapa con '+ocupado[c]+' en ('+x+','+y+')');
+      ocupado[c]=b.key;
+    }
+  });
+  for(const k in BUILDINGS) if(!BLD_GEO.some(b=>b.key===k)) Wn(k+': sin geometria en BLD_GEO, no se dibuja en el mapa');
+
+  // ---------------- INTERIORES ----------------
+  for(const key in INTERIORS){
+    const I=INTERIORS[key], g=I.grid;
+    const SOL=I.isPatio?SOLID_PATIO:SOLID_IN, OKT=I.isPatio?TILES_PATIO:TILES_IN;
+    const at =(x,y)=>(g[y]||'')[x];
+    const pisable=(x,y)=>{ const t=at(x,y); return t!==undefined && !SOL.has(t); };
+
+    if(!Array.isArray(g)||!g.length){ E(key+': no tiene grid'); continue; }
+    const w=g[0].length;
+    g.forEach((r,y)=>{ if(r.length!==w) E(key+' fila '+y+': mide '+r.length+' casillas, se esperaban '+w); });
+    g.forEach((r,y)=>[...r].forEach((c,x)=>{
+      if(!OKT.has(c)) Wn(key+' ('+x+','+y+"): caracter '"+c+"' sin dibujo asignado"); }));
+
+    if(!I.name) Wn(key+': sin nombre');
+    if(!I.spawn) E(key+': falta spawn');
+    else if(!pisable(I.spawn[0],I.spawn[1]))
+      E(key+': el spawn ('+I.spawn+") cae sobre '"+at(I.spawn[0],I.spawn[1])+"' — el jugador apareceria atrapado");
+
+    if(!g.some(r=>r.indexOf('X')>=0||r.indexOf('E')>=0))
+      E(key+": no tiene salida — hace falta al menos una casilla 'X' (al vestibulo) o 'E' (al campus)");
+
+    (I.doors||[]).forEach(d=>{
+      if(!pisable(d.x,d.y))
+        E(key+' -> '+d.to+': la puerta ('+d.x+','+d.y+") esta sobre '"+at(d.x,d.y)+"' y no se puede pisar");
+      const T=INTERIORS[d.to];
+      if(!T){ E(key+" -> '"+d.to+"': ese destino no existe"); return; }
+      const SOL2=T.isPatio?SOLID_PATIO:SOLID_IN;
+      const tt=(T.grid[d.at[1]]||'')[d.at[0]];
+      if(tt===undefined)      E(key+' -> '+d.to+': la casilla de llegada ('+d.at+') cae fuera de la sala');
+      else if(SOL2.has(tt))   E(key+' -> '+d.to+': la casilla de llegada ('+d.at+") cae sobre '"+tt+"' — el jugador quedaria atrapado");
+      if(!(T.grid.some(r=>r.indexOf('X')>=0||r.indexOf('E')>=0)))
+        E(key+' -> '+d.to+': esa sala no tiene salida, se entra y no se puede volver');
+    });
+
+    (I.npcs||[]).forEach(n=>{
+      if(at(n.x,n.y)===undefined) E(key+': el NPC "'+n.name+'" en ('+n.x+','+n.y+') cae fuera de la sala');
+      else if(!pisable(n.x,n.y)) Wn(key+': el NPC "'+n.name+'" en ('+n.x+','+n.y+") esta encima de '"+at(n.x,n.y)+"'");
+    });
+    (I.info||[]).forEach(n=>{
+      if(at(n.x,n.y)===undefined) E(key+': el cartel "'+n.name+'" en ('+n.x+','+n.y+') cae fuera de la sala');
+    });
+  }
+
+  // ---------------- INFORME ----------------
+  const salas=Object.keys(INTERIORS).length;
+  if(errs.length){
+    console.error('%cVALIDADOR: '+errs.length+' error(es)','color:#fff;background:#c0392b;padding:2px 6px;font-weight:bold');
+    errs.forEach(m=>console.error('  x '+m));
+  }
+  if(warns.length){
+    console.warn('%cVALIDADOR: '+warns.length+' aviso(s)','color:#000;background:#e0a93a;padding:2px 6px;font-weight:bold');
+    warns.forEach(m=>console.warn('  ! '+m));
+  }
+  if(!errs.length && !warns.length)
+    console.log('%cVALIDADOR: todo correcto — '+salas+' salas y '+BLD_GEO.length+' edificios','color:#fff;background:#1a7a3a;padding:2px 6px;font-weight:bold');
+
+  if(errs.length) mostrarBannerErrores(errs);
+  return {errores:errs, avisos:warns};
+}
+
+function mostrarBannerErrores(errs){
+  const pinta=()=>{
+    if(!document.body || document.getElementById('validBanner')) return;
+    const d=document.createElement('div');
+    d.id='validBanner';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:9999;background:#c0392b;color:#fff;'+
+      'font:12px/1.45 ui-monospace,Consolas,monospace;padding:10px 40px 10px 14px;max-height:45vh;overflow:auto;'+
+      'box-shadow:0 2px 10px rgba(0,0,0,.4)';
+    d.innerHTML='<b>VALIDADOR — '+errs.length+' error(es) en los mapas</b><br>'+
+      errs.map(m=>'&bull; '+m.replace(/&/g,'&amp;').replace(/</g,'&lt;')).join('<br>');
+    const b=document.createElement('button');
+    b.textContent='×';
+    b.style.cssText='position:absolute;top:6px;right:10px;background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;line-height:1';
+    b.onclick=()=>d.remove();
+    d.appendChild(b);
+    document.body.appendChild(d);
+  };
+  if(document.body) pinta(); else document.addEventListener('DOMContentLoaded',pinta);
+}
+
+try{ validateMaps(); }catch(e){ console.error('VALIDADOR: fallo interno',e); }
+
 let scene='outdoor';        // 'outdoor' | interior key
 let map=OUTDOOR, mapW=OUTDOOR[0].length, mapH=OUTDOOR.length;
 let npcs=OUT_NPCS;
