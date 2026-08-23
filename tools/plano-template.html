@@ -123,7 +123,7 @@ sect('Cómo usar este plano');
 x.font='12px system-ui';x.fillStyle='#3a3a44';
 [' 1. Ábrelo en Paint y dibuja encima.',
  ' 2. Para un edificio nuevo: marca su rectángulo y',
- '     ponle un punto a la puerta (debe dar a un camino).',
+ '     ponle un punto a la baldosa de delante de la puerta.',
  ' 3. Toda coordenada es la ESQUINA SUPERIOR IZQUIERDA,',
  '     marcada con el triangulito ◤. Apúntamela y la cableo.'].forEach(t=>{x.fillText(t,LX,ly);ly+=16;});
 ly+=8;
@@ -198,7 +198,7 @@ const blocks=[
  {t:'MUEBLES  (bloquean el paso)',w:322,items:[['t','mesa'],['e','silla'],['m','mesa con portátil'],['s','estantería'],
    ['D','escritorio'],['c','barra'],['u','taburete'],['K','barril'],['B','estante de botellas'],['p','planta'],
    ['I','tablón de anuncios'],['P','pizarra'],['Z','pantalla de proyección'],['W','inodoro'],['L','lavabo']]},
- {t:'PUERTAS Y SALIDAS  (se pisan)',w:322,items:[['1','puerta a sala 1'],['2','puerta a sala 2'],['3','puerta a sala 3'],
+ {t:'PUERTAS Y SALIDAS  (no se pisan)',w:322,items:[['1','puerta a sala 1'],['2','puerta a sala 2'],['3','puerta a sala 3'],
    ['4','puerta a sala 4'],['5','puerta a sala 5'],['6','puerta a sala 6'],['A','puerta a sala A'],['C','puerta a sala C'],
    ['J','puerta lateral J'],['Y','puerta al patio'],['G','puerta al bar'],['X','salida → vestíbulo'],['E','salida → campus']]}
 ];
@@ -220,8 +220,9 @@ x.font='bold 11px system-ui';x.fillStyle='#c0219b';x.fillText('REGLAS DE ORO',bx
 const rules=[
  ['1.','Todas las filas de una sala deben medir lo mismo.'],
  ['2.','Rodea la sala entera con # (si no, te sales del mapa).'],
- ['3.','Toda sala necesita una salida: X (al vestíbulo) o E (al campus).'],
- ['4.','Cada puerta necesita destino Y casilla de llegada pisable.'],
+ ['3.','Cada sala tiene UNA sola salida: X (al vestíbulo) o E (al campus).'],
+ ['4.','Las puertas van en la pared y no se pisan: se empujan desde delante,'],
+ ['','    así que necesitan una casilla libre justo enfrente.'],
  ['5.','Deja pasillos: los muebles bloquean el paso.'],
  ['6.','“B” NO es una puerta — es el estante de botellas.']
 ];
