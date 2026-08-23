@@ -40,6 +40,12 @@ for(let ty=0;ty<H;ty++)for(let tx=0;tx<W;tx++){
 plots.forEach((p,i)=>{
   x.fillStyle='rgba(214,90,180,0.20)'; x.fillRect(T(p.x),V(p.y),p.w*TS,p.h*TS);
 });
+// marcador de la esquina superior izquierda (la coordenada de referencia)
+function esquina(px,py,col){
+  x.fillStyle=col; x.beginPath();
+  x.moveTo(px,py); x.lineTo(px+11,py); x.lineTo(px,py+11); x.closePath(); x.fill();
+  x.strokeStyle='rgba(255,255,255,0.85)';x.lineWidth=1;x.stroke();
+}
 // ---------- EDIFICIOS ----------
 function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
  const m=v=>Math.max(0,Math.min(255,Math.round(v+255*f)));return '#'+[m(r),m(g),m(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
@@ -54,6 +60,7 @@ BLD_GEO.forEach(b=>{
     x.strokeStyle='#9b8a68';x.lineWidth=1;x.strokeRect(T(a)+0.5,V(bb)+0.5,(cc-a+1)*TS-1,(dd-bb+1)*TS-1);
     x.fillStyle='#6a5a42';x.font='bold 11px system-ui';x.textAlign='center';
     x.fillText('PATIO',T(a)+(cc-a+1)*TS/2,V(bb)+(dd-bb+1)*TS/2+4);}
+  esquina(px,py,'rgba(0,0,0,0.55)');
   const cx=px+w/2, cy=py+h/2;
   x.textAlign='center';
   x.font='bold 20px system-ui'; x.fillStyle='rgba(0,0,0,0.55)';
@@ -74,12 +81,11 @@ x.strokeStyle='#2a2a33';x.lineWidth=2;x.strokeRect(ML,MT,W*TS,H*TS);
 plots.forEach((p,i)=>{
   x.save();x.setLineDash([7,4]);x.strokeStyle='#c0219b';x.lineWidth=2.5;
   x.strokeRect(T(p.x)+1,V(p.y)+1,p.w*TS-2,p.h*TS-2);x.restore();
-  const lab='LIBRE '+p.w+'×'+p.h;
+  const lab='LIBRE '+p.w+'×'+p.h+'  esq.('+p.x+','+p.y+')';
   x.font='bold 11px system-ui';const tw=x.measureText(lab).width;
   R('#c0219b',T(p.x)+3,V(p.y)+3,tw+10,16);
   x.fillStyle='#fff';x.textAlign='left';x.fillText(lab,T(p.x)+8,V(p.y)+15);
-  x.font='10px ui-monospace,monospace';x.fillStyle='#5a0a48';
-  x.fillText('('+p.x+','+p.y+')',T(p.x)+5,V(p.y)+p.h*TS-6);
+  esquina(T(p.x),V(p.y),'#c0219b');
 });
 // ---------- PUERTAS ----------
 BLD_GEO.forEach(b=>{
@@ -118,8 +124,8 @@ x.font='12px system-ui';x.fillStyle='#3a3a44';
 [' 1. Ábrelo en Paint y dibuja encima.',
  ' 2. Para un edificio nuevo: marca su rectángulo y',
  '     ponle un punto a la puerta (debe dar a un camino).',
- ' 3. Apúntame las coordenadas de las esquinas usando',
- '     los números de los bordes. Con eso lo cableo yo.'].forEach(t=>{x.fillText(t,LX,ly);ly+=16;});
+ ' 3. Toda coordenada es la ESQUINA SUPERIOR IZQUIERDA,',
+ '     marcada con el triangulito ◤. Apúntamela y la cableo.'].forEach(t=>{x.fillText(t,LX,ly);ly+=16;});
 ly+=8;
 
 sect('Terreno');
