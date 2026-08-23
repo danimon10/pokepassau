@@ -245,27 +245,27 @@ const OUTDOOR=[
 "TT........................BBBBBBBB........................TT",
 "TT............t...........BBBBBBBB................BBBBBBB.TT",
 "TT......t.................BBBBBBBB................BBBBBBB.TT",
-"TTBBBBBBBB................BBBDBBBB................BBBBBBB.TT",
-"TTBBBBBBBBt..................RRRRRRRRRRRRRRRRRRRRRBBBBBBB.TT",
+"TTBBBBBBBB................BBBBBBBB................BBBBBBB.TT",
+"TTBBBBBBBBt..................DRRRRRRRRRRRRRRRRRRRRBBBBBBB.TT",
 "TTBBBBBBBB..........t...............RR............BBBBBBB.TT",
 "TTBBBBBBBB......t.......t...........RR............BBBBBBB.TT",
 "TTBBBBBBBB........................f.RR...............D....TT",
-"TTRR|RD|RR|RR|RR|RR|RRR.............RR....................TT",
-"TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR..NNNNNNNNNNNN......TT",
-"TT....................RRRRRRRR......RR..NNNNNNNNNNNN......TT",
-"TT........................RRRRRRRR..RR..NNNHHHHHHNNN......TT",
-"TT....f...................f...RRRRRRRR..NNNHHHHHHNNN......TT",
-"TT........BBBBBB..................RRRR..NNNHHHHHHNNN......TT",
-"TT........BBBBBB..BBBBBB................NNNHHHHHHNNN......TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNHHHHHHNNN......TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN......TT",
-"TT.BBBBB....D.....BBBBBB....BBBBBB......NNNNNDNNNNNN......TT",
-"TT.BBBBB....P.......D.......BBBBBB...............P........TT",
-"TT...D..PPPPPPPPPPPPPPPPPPPPPPDPPPPPPPPPPPPPPPPPPP....P...TT",
-"TT..........D.......D......D................f...PBBDBB....TT",
+"TTRR|RD|RR|RR|RR|RR|RRR.............RR...............P....TT",
+"TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR..NNNNNNNNNNNN.P....TT",
+"TT....................RRRRRRRR......RR..NNNNNNNNNNNN.P....TT",
+"TT........................RRRRRRRR..RR..NNNHHHHHHNNN.P....TT",
+"TT....f...................f...RRRRRRRR..NNNHHHHHHNNN.P....TT",
+"TT........BBBBBB..................RRRR..NNNHHHHHHNNN.P....TT",
+"TT........BBBBBB..BBBBBB................NNNHHHHHHNNN.P....TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNHHHHHHNNN.P....TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
+"TT.BBBBB....D.....BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
+"TT.BBBBB....P.......D.......BBBBBB...........D...P...P....TT",
+"TT...D..PPPPPPPPPPPPPPPPPPPPPPDPPPPPPPPPPPPPPPPPPPPPPP....TT",
+"TT..........D.......D......D................f...PBBBBB....TT",
 "TT........BBBBB...BBBBBB.BBBBBB..,,L,,,,,,,,,L,,PBBBBB....TT",
 "TT........BBBBB...BBBBBB.BBBBBB..,,,,,fI,b,,,,,,PBBBBB....TT",
-"TT........BBBBB...BBBBBB.BBBBBB..,,,b,,,,,,f,,,,PPPPPPPP..TT",
+"TT........BBBBB...BBBBBB.BBBBBB..,,,b,,,,,,f,,,,PPPDPPPPPPTT",
 "TT.......................BBBBBB..,t,,t,,t,,t,,t,..........TT",
 "TTooooooooooooooooooooooooooooooooooooooooooooooooooooooooTT",
 "TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
@@ -291,10 +291,9 @@ const INTERIORS = {
       "#........#",
       "#.tt..tt.#",
       "#.ee..ee.#",
-      "#...XX...#",
-      "##########",
+      "#........#",
+      "####X#####",
     ],
-    spawn:[4,8], exit:[4,8],
     npcs:[
       {x:2,y:2,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
        lines:["¡Hoy hay Schnitzel con patatas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
@@ -312,7 +311,7 @@ const INTERIORS = {
     // 4=cafetería, 5=baño hombres, 6=biblioteca (pasillo der)
     // Y=patio (arriba), E=salir al campus (abajo)
     grid:[
-      "############YY#############",
+      "#############Y#############",
       "###1##...............##4###",
       "##...#..p....I....p..#...##",
       "##...#...............#...##",
@@ -326,18 +325,17 @@ const INTERIORS = {
       "##...#...............#...##",
       "##...#..p.........p..#...##",
       "##...#...............#...##",
-      "###2########..#########5###",
-      "############EE#############",
+      "###2#########.#########5###",
+      "#############E#############",
     ],
-    spawn:[13,6], exit:[13,6],
     doors:[
-      {x:3,y:1,  to:'niko_bano_m',    at:[4,4]},
-      {x:3,y:14, to:'niko_secretaria',at:[5,1]},
-      {x:0,y:7,  to:'niko_idiomas',   at:[12,4]},
-      {x:23,y:1, to:'niko_cafeteria', at:[6,8]},
-      {x:23,y:14,to:'niko_bano_h',    at:[4,1]},
-      {x:26,y:7, to:'niko_biblio',    at:[1,6]},
-      {x:12,y:0, to:'niko_patio',     at:[10,8]},
+      {x:3,y:1,  to:'niko_bano_m'},
+      {x:3,y:14, to:'niko_secretaria'},
+      {x:0,y:7,  to:'niko_idiomas'},
+      {x:23,y:1, to:'niko_cafeteria'},
+      {x:23,y:14,to:'niko_bano_h'},
+      {x:26,y:7, to:'niko_biblio'},
+      {x:13,y:0, to:'niko_patio'},
     ],
     info:[
       {x:13,y:2,name:"Directorio del NK",lines:["📋 NIKOLAKLOSTER — Directorio","Izq: aseos, secretaría, centro de idiomas.","Der: cafetería, aseos, biblioteca. Arriba: patio interno."]},
@@ -362,10 +360,9 @@ const INTERIORS = {
       "#........#",
       "#.p....p.#",
       "#........#",
-      "#...XX...#",
-      "##########",
+      "#........#",
+      "####X#####",
     ],
-    spawn:[4,4], exit:[4,4],
     npcs:[
       {x:7,y:2,name:"Estudiante apurada",color:"#d65a8a",dir:'left',
        lines:["¡Uf! Justo antes de que empiece el seminario.","Estos lavabos del NK son de los pocos que siempre funcionan."]},
@@ -374,7 +371,7 @@ const INTERIORS = {
   niko_bano_h: {
     name:"Nikolakloster — Baño (hombres)",
     grid:[
-      "####XX####",
+      "####X#####",
       "#........#",
       "#.p....p.#",
       "#WLbbbLW.#",
@@ -382,7 +379,6 @@ const INTERIORS = {
       "#........#",
       "##########",
     ],
-    spawn:[4,1], exit:[4,1],
     npcs:[
       {x:2,y:4,name:"Estudiante apurado",color:"#d6a05a",dir:'right',
        lines:["¡Justo a tiempo antes del examen!","¿Sabes lo peor? Que el examen es de resistencia, no de vejiga."]},
@@ -391,7 +387,7 @@ const INTERIORS = {
   niko_secretaria: {
     name:"Nikolakloster — Secretaría de notas",
     grid:[
-      "#####XX#####",
+      "#####X######",
       "#..........#",
       "#pk......kp#",
       "#kkkkkkkkkk#",
@@ -401,7 +397,6 @@ const INTERIORS = {
       "#..........#",
       "############",
     ],
-    spawn:[5,1], exit:[5,1],
     info:[
       {x:2,y:2,name:"Tablón · Trámites",lines:["📌 Solicitudes y certificados de notas","Entregue formularios por triplicado.","Recogida: de 9:00 a 12:00."]},
     ],
@@ -431,7 +426,6 @@ const INTERIORS = {
       "#............#",
       "##############",
     ],
-    spawn:[12,4], exit:[12,4],
     info:[
       {x:6,y:1,name:"Pizarra",lines:["📝 Sprachenzentrum — Centro de idiomas","Hoy: Deutsch A2, Español B1, English C1.","« Guten Morgen! · ¡Buenos días! · Good morning! »"]},
     ],
@@ -458,10 +452,9 @@ const INTERIORS = {
       "#..t..t..t....#",
       "#..e..e..e...p#",
       "#.............#",
-      "#.....XX......#",
-      "###############",
+      "#.............#",
+      "######X########",
     ],
-    spawn:[6,8], exit:[6,8],
     info:[
       {x:2,y:2,name:"Pizarra · Menú",lines:["☕ NK CAFETERÍA","Café 1,20 € · Bretzel 0,90 € · Bocadillo 2,50 €","Recomendación del día: café con Apfelstrudel."]},
     ],
@@ -497,7 +490,6 @@ const INTERIORS = {
       "#..................#",
       "####################",
     ],
-    spawn:[1,6], exit:[1,6],
     info:[
       {x:9,y:1,name:"Tablón · Silencio",lines:["🔇 ZONA DE ESTUDIO","Silencio, por favor.","Portátiles permitidos. Café, bajo tu responsabilidad."]},
     ],
@@ -523,7 +515,7 @@ const INTERIORS = {
     // Salida (X) al hub. Puerta al bar Gmoa (G) en la esquina DERECHA.
     grid:[
       "######################",
-      "#.o..............o.G.#",
+      "#.o..............o...G",
       "#..pppppppppppppppp..#",
       "#..pppppppppppppppp..#",
       "#..ppppppppFppppppp..#",
@@ -531,11 +523,10 @@ const INTERIORS = {
       "#..pppppppppppppppp..#",
       "#..pppppppppppppppp..#",
       "#.o..............o...#",
-      "#.........XX.........#",
-      "######################",
+      "#....................#",
+      "##########X###########",
     ],
-    spawn:[10,8], exit:[10,8],
-    doors:[ {x:19,y:1,to:'gmoa',at:[6,13]} ],
+    doors:[ {x:21,y:1,to:'gmoa'} ],
     npcs:[
       {x:12,y:3,name:"Estudiante Mara",color:"#5ad68f",dir:'down',
        lines:["El Innenhof es mi rincón favorito del Nikolakloster.","En cuanto sale el sol, todo el mundo baja su café a estos bancos."],
@@ -565,10 +556,9 @@ const INTERIORS = {
       "#.tt...tt...tt.#",
       "#.ee...ee...ee.#",
       "#..............#",
-      "#K....XX.....K.#",
-      "################",
+      "#K...........K.#",
+      "######X#########",
     ],
-    spawn:[6,13], exit:[6,13],
     npcs:[
       {x:2,y:3,name:"Tabernero Wast",color:"#c87a3a",dir:'down',
        lines:["Servus! Bienvenido al Gmoa, la barra más querida del campus.","Aquí la cerveza está fría y las charlas son largas."],
@@ -596,10 +586,9 @@ const INTERIORS = {
       "#........#",
       "#tt.tt.tt#",
       "#ee.ee.ee#",
-      "#...XX...#",
-      "##########",
+      "#........#",
+      "####X#####",
     ],
-    spawn:[4,8], exit:[4,8],
     npcs:[
       {x:1,y:2,name:"Bibliotecario Jonas",color:"#5ab0d6",dir:'right',
        lines:["¿Buscas un libro o solo un sitio silencioso?","Tenemos plazas con vistas al Inn en la planta de arriba."],
@@ -628,10 +617,9 @@ const INTERIORS = {
       "#.mmm.mmm.mmm.mm.#",
       "#.eee.eee.eee.ee.#",
       "#................#",
-      "#.......XX.......#",
-      "##################",
+      "#................#",
+      "########X#########",
     ],
-    spawn:[8,14], exit:[8,14],
     info:[
       {x:8,y:1,name:"Pantalla",lines:["📽️ AULA MAGNA — Innstegaula","Proyección: 'Introducción al semestre'.","Aforo: 400. Silencio durante la clase, por favor."]},
     ],
@@ -656,15 +644,14 @@ const INTERIORS = {
       "#.................#",
       "#.................#",
       "#.................#",
-      "########EE#########",
+      "########E##########",
       "###################",
     ],
-    spawn:[9,8], exit:[9,8],
     doors:[
-      {x:4,y:0,to:'ww_salon1',at:[5,2]},
-      {x:9,y:0,to:'ww_salon2',at:[5,2]},
-      {x:14,y:0,to:'ww_salon3',at:[5,2]},
-      {x:18,y:5,to:'ww_biblio',at:[1,5]},
+      {x:4,y:0,to:'ww_salon1'},
+      {x:9,y:0,to:'ww_salon2'},
+      {x:14,y:0,to:'ww_salon3'},
+      {x:18,y:5,to:'ww_biblio'},
     ],
     info:[
       {x:8,y:4,name:"Directorio WiWi",lines:["📋 WIRTSCHAFTSWISSENSCHAFTEN","Arriba: Salón 1 (Micro), Salón 2 (Macro), Salón 3 (VWL).","Centro: Biblioteca de Economía."]},
@@ -679,8 +666,8 @@ const INTERIORS = {
   ww_salon1: {
     name:"WiWi — Salón 1",
     grid:[
-      "############",
-      "#....XX....#",
+      "#####X######",
+      "#..........#",
       "#..........#",
       "#.mm.mm.mm.#",
       "#.ee.ee.ee.#",
@@ -690,7 +677,6 @@ const INTERIORS = {
       "#....ZZ....#",
       "############",
     ],
-    spawn:[5,2], exit:[5,2],
     npcs:[
       {x:3,y:5,name:"Prof. Fischer",color:"#8a5ad6",dir:'down',
        lines:["Salón 1: Microeconomía.","La oferta y la demanda no descansan, y nosotros tampoco."]},
@@ -699,8 +685,8 @@ const INTERIORS = {
   ww_salon2: {
     name:"WiWi — Salón 2",
     grid:[
-      "############",
-      "#....XX....#",
+      "#####X######",
+      "#..........#",
       "#..........#",
       "#.mm.mm.mm.#",
       "#.ee.ee.ee.#",
@@ -710,7 +696,6 @@ const INTERIORS = {
       "#....ZZ....#",
       "############",
     ],
-    spawn:[5,2], exit:[5,2],
     npcs:[
       {x:8,y:5,name:"Prof. Lang",color:"#8a5ad6",dir:'down',
        lines:["Salón 2: Macroeconomía.","Hoy: política monetaria. Un clásico que nunca falla."]},
@@ -719,8 +704,8 @@ const INTERIORS = {
   ww_salon3: {
     name:"WiWi — Salón 3",
     grid:[
-      "############",
-      "#....XX....#",
+      "#####X######",
+      "#..........#",
       "#..........#",
       "#.mm.mm.mm.#",
       "#.ee.ee.ee.#",
@@ -730,7 +715,6 @@ const INTERIORS = {
       "#....ZZ....#",
       "############",
     ],
-    spawn:[5,2], exit:[5,2],
     npcs:[
       {x:4,y:5,name:"Estudiante VWL",color:"#8a5ad6",dir:'down',
        lines:["Salón 3, esperando que llegue el profe.","VWL es dura, pero Passau lo compensa."]},
@@ -751,7 +735,6 @@ const INTERIORS = {
       "#ssssssssssss..#",
       "################",
     ],
-    spawn:[1,5], exit:[1,5],
     info:[
       {x:7,y:1,name:"Sección · Economía",lines:["📚 Biblioteca de Economía","Micro, Macro, Finanzas, Gestión.","Devoluciones en dos semanas."]},
     ],
@@ -771,7 +754,7 @@ const INTERIORS = {
 //==================================================================
 const DOOR_AT = {}; // "x,y" -> building key
 const BUILDINGS = {
-  HBf:    {name:"Hauptbahnhof", door:[29,11], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad… ¿ya te vas?"],
+  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad… ¿ya te vas?"],
            choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
              {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
              {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
@@ -786,8 +769,8 @@ const BUILDINGS = {
   M:      {name:"Mensa", door:[20,28], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
   WW:     {name:"Wirtschaftswissenschaften", door:[27,28], interior:'ww'},
-  NK:     {name:"Nikolakloster", door:[45,25], interior:'niko'},
-  IA:     {name:"Innstegaula", door:[51,28], interior:'innstegaula'},
+  NK:     {name:"Nikolakloster", door:[45,26], interior:'niko'},
+  IA:     {name:"Innstegaula", door:[51,31], interior:'innstegaula'},
   WH:     {name:"Studentenwohnheim", door:[6,16], info:["Residencia de estudiantes (Studentenwohnheim).","Habitaciones individuales, cocinas compartidas y un ambiente de examen permanente."],
            choice:{q:"¿Llamas al timbre?",opts:[
              {t:"Sí, a ver quién abre",r:["Se oye música arriba y alguien gritando algo sobre la lavadora.","Un estudiante te abre en pijama. Son las cuatro de la tarde."]},
@@ -802,7 +785,7 @@ for(const k in BUILDINGS){ const d=BUILDINGS[k].door; DOOR_AT[d[0]+','+d[1]]=k; 
 //  roof = color de tejado | label = siglas en el cartel
 //==================================================================
 const BLD_GEO=[
-  {key:'HBf',  x0:26,y0:8, x1:33,y1:11, door:[29,11], style:'station',  roof:'#a23b3b', label:'HBF'},
+  {key:'HBf',  x0:26,y0:8, x1:33,y1:11, door:[29,12], style:'station',  roof:'#a23b3b', label:'HBF'},
   {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
   {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
   {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
@@ -811,8 +794,8 @@ const BLD_GEO=[
   {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,28], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
   {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[27,28], style:'modern',   roof:'#b0a03a', label:'WW'},
-  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,25], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
-  {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,28], style:'modern',   roof:'#3b9aa2', label:'IA'},
+  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
+  {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,31], style:'modern',   roof:'#3b9aa2', label:'IA'},
   {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
 ];
 // corrección de un color tipografiado
@@ -1212,9 +1195,11 @@ function drawInTile(t,sx,sy,patio){
 //==================================================================
 const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
 // interiores con paredes: muebles y elementos sólidos
-const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z']);
+const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
+  // las puertas tambien son solidas: no se pisan, se empujan desde delante
+  '1','2','3','4','5','6','A','C','J','Y','G','X','E']);
 // patio: sólidos = muros, árboles y fuente
-const SOLID_PATIO=new Set(['#','o','F']);
+const SOLID_PATIO=new Set(['#','o','F','G','X']);
 
 //==================================================================
 //  VALIDADOR DE MAPAS
@@ -1227,6 +1212,8 @@ const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
                            'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X']);
+// puertas que llevan a otra escena (la salida X/E se trata aparte)
+const PUERTAS_SALA=new Set(['1','2','3','4','5','6','A','C','J','Y','G']);
 
 function validateMaps(){
   const errs=[], warns=[];
@@ -1245,6 +1232,14 @@ function validateMaps(){
     if(t===undefined)      E(k+': la puerta ('+dx+','+dy+') cae fuera del mapa');
     else if(t!=='D')       E(k+': la puerta ('+dx+','+dy+") esta sobre '"+t+"' y tiene que estar sobre 'D' — asi no se puede entrar");
     if(DOOR_AT[dx+','+dy]!==k) E(k+': DOOR_AT no apunta a este edificio en ('+dx+','+dy+')');
+    const gb=BLD_BY_KEY[k];
+    if(gb){
+      const dentro=(dx>=gb.x0&&dx<=gb.x1&&dy>=gb.y0&&dy<=gb.y1);
+      const pegada=[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>{
+        const x=dx+ox,y=dy+oy; return x>=gb.x0&&x<=gb.x1&&y>=gb.y0&&y<=gb.y1; });
+      if(dentro) E(k+': la baldosa de la puerta ('+dx+','+dy+') esta dentro del edificio; tiene que estar delante');
+      else if(!pegada) E(k+': la baldosa de la puerta ('+dx+','+dy+') no toca el edificio, no se puede empujar hacia el');
+    }
     if(puertaDe[dx+','+dy]) E(k+' y '+puertaDe[dx+','+dy]+' comparten la puerta ('+dx+','+dy+')');
     puertaDe[dx+','+dy]=k;
     if(b.interior && !INTERIORS[b.interior]) E(k+": el interior '"+b.interior+"' no existe");
@@ -1282,24 +1277,38 @@ function validateMaps(){
       if(!OKT.has(c)) Wn(key+' ('+x+','+y+"): caracter '"+c+"' sin dibujo asignado"); }));
 
     if(!I.name) Wn(key+': sin nombre');
-    if(!I.spawn) E(key+': falta spawn');
-    else if(!pisable(I.spawn[0],I.spawn[1]))
-      E(key+': el spawn ('+I.spawn+") cae sobre '"+at(I.spawn[0],I.spawn[1])+"' — el jugador apareceria atrapado");
 
-    if(!g.some(r=>r.indexOf('X')>=0||r.indexOf('E')>=0))
-      E(key+": no tiene salida — hace falta al menos una casilla 'X' (al vestibulo) o 'E' (al campus)");
+    // una puerta se acciona desde la casilla de al lado: tiene que haber hueco
+    const huecoAlLado=(x,y)=>[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>pisable(x+ox,y+oy));
+    const nSalidas=(T)=>T.grid.join('').split('').filter(c=>c==='X'||c==='E').length;
+
+    const salidas=[];
+    g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E') salidas.push([x,y]); }));
+    if(!salidas.length)
+      E(key+": no tiene salida — hace falta una casilla 'X' (al vestibulo) o 'E' (al campus)");
+    else if(salidas.length>1)
+      E(key+': tiene '+salidas.length+' salidas '+salidas.map(p=>'('+p+')').join(' ')+'; debe haber una sola');
+    else if(!huecoAlLado(salidas[0][0],salidas[0][1]))
+      E(key+': la salida ('+salidas[0]+') no tiene ninguna casilla libre al lado; no se podria accionar ni aparecer junto a ella');
+
+    // toda puerta dibujada tiene que estar cableada, y toda puerta cableada dibujada
+    const cableadas=new Set((I.doors||[]).map(d=>d.x+','+d.y));
+    g.forEach((r,y)=>[...r].forEach((c,x)=>{
+      if(PUERTAS_SALA.has(c) && !cableadas.has(x+','+y))
+        E(key+': la puerta \''+c+'\' de ('+x+','+y+') no lleva a ninguna parte (falta en doors)');
+    }));
 
     (I.doors||[]).forEach(d=>{
-      if(!pisable(d.x,d.y))
-        E(key+' -> '+d.to+': la puerta ('+d.x+','+d.y+") esta sobre '"+at(d.x,d.y)+"' y no se puede pisar");
+      const tp=at(d.x,d.y);
+      if(tp===undefined) E(key+' -> '+d.to+': la puerta ('+d.x+','+d.y+') cae fuera de la sala');
+      else if(!PUERTAS_SALA.has(tp))
+        E(key+' -> '+d.to+': en ('+d.x+','+d.y+") no hay ninguna puerta dibujada, hay '"+tp+"'");
+      if(!huecoAlLado(d.x,d.y))
+        E(key+' -> '+d.to+': la puerta ('+d.x+','+d.y+') no tiene casilla libre delante; no se puede accionar');
       const T=INTERIORS[d.to];
       if(!T){ E(key+" -> '"+d.to+"': ese destino no existe"); return; }
-      const SOL2=T.isPatio?SOLID_PATIO:SOLID_IN;
-      const tt=(T.grid[d.at[1]]||'')[d.at[0]];
-      if(tt===undefined)      E(key+' -> '+d.to+': la casilla de llegada ('+d.at+') cae fuera de la sala');
-      else if(SOL2.has(tt))   E(key+' -> '+d.to+': la casilla de llegada ('+d.at+") cae sobre '"+tt+"' — el jugador quedaria atrapado");
-      if(!(T.grid.some(r=>r.indexOf('X')>=0||r.indexOf('E')>=0)))
-        E(key+' -> '+d.to+': esa sala no tiene salida, se entra y no se puede volver');
+      const n=nSalidas(T);
+      if(n!==1) E(key+' -> '+d.to+': esa sala tiene '+n+' salidas; necesita exactamente una para poder volver');
     });
 
     (I.npcs||[]).forEach(n=>{
@@ -1512,6 +1521,7 @@ function tryMove(){
   if(dx===0&&dy===0) return;
   const nx=player.x+dx, ny=player.y+dy;
   if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
+  if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
   if(isSolid(nx,ny)){player.frame=0;return;}
   player.tx=nx;player.ty=ny;player.moving=true;
 }
@@ -1525,31 +1535,56 @@ function updateMove(){
   player.frame=(Math.floor((player.px+player.py)/4)%2)+1;
   if(player.px===tgx&&player.py===tgy){
     player.x=player.tx;player.y=player.ty;player.moving=false;player.frame=0;
-    onStep();
   }
 }
-function onStep(){
-  const t=tileAt(player.x,player.y);
+//==================================================================
+//  PUERTAS
+//  Una puerta no se pisa. Te colocas en la casilla de delante y
+//  empujas hacia ella con el movimiento (o pulsas el boton de accion).
+//  La misma puerta sirve para entrar y para salir, y al cruzarla
+//  apareces justo a su lado, de espaldas a ella.
+//==================================================================
+// Casilla pisable junto a la salida de una sala, y direccion en la que
+// mira el jugador al aparecer. Se calcula, no se escribe a mano: asi no
+// puede quedarse desincronizada de la rejilla.
+function frenteASalida(key){
+  const I=INTERIORS[key], g=I.grid;
+  const SOL=I.isPatio?SOLID_PATIO:SOLID_IN;
+  const libre=(x,y)=>g[y]!==undefined && g[y][x]!==undefined && !SOL.has(g[y][x]);
+  let px=-1,py=-1;
+  g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'){px=x;py=y;} }));
+  if(px<0){
+    for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++) if(libre(x,y)) return {at:[x,y],dir:'down'};
+    return {at:[1,1],dir:'down'};
+  }
+  const cx=(g[0].length-1)/2, cy=(g.length-1)/2;
+  const cand=[['up',0,-1],['down',0,1],['left',-1,0],['right',1,0]]
+    .map(([dir,ox,oy])=>({dir,x:px+ox,y:py+oy}))
+    .filter(c=>libre(c.x,c.y))
+    .sort((a,b)=>((a.x-cx)**2+(a.y-cy)**2)-((b.x-cx)**2+(b.y-cy)**2));
+  if(!cand.length) return {at:[px,py],dir:'down'};
+  return {at:[cand[0].x,cand[0].y], dir:cand[0].dir};
+}
+// Acciona la puerta al empujar hacia (nx,ny). Devuelve true si se ha
+// accionado, en cuyo caso el jugador no llega a moverse.
+function activarPuerta(nx,ny){
   if(scene==='outdoor'){
+    // hay que estar sobre la baldosa de la puerta y empujar hacia el edificio
     const key=DOOR_AT[player.x+','+player.y];
-    if(t==='D'&&key){ const b=BUILDINGS[key];
-      if(b.interior){ enterInterior(b.interior); }
-      else { bumpBack(); openDialog(b.name, b.info, b.choice||null); }
-    }
-  } else {
-    // ¿puerta interna hacia otra escena?
-    const I=INTERIORS[scene];
-    if(I.doors){
-      const d=I.doors.find(d=>d.x===player.x&&d.y===player.y);
-      if(d){ gotoScene(d.to, d.at); return; }
-    }
-    if(t==='X'||t==='E'){ exitInterior(); }
+    if(!key) return false;
+    const g=BLD_BY_KEY[key];
+    if(!g || nx<g.x0 || nx>g.x1 || ny<g.y0 || ny>g.y1) return false;
+    const b=BUILDINGS[key];
+    if(b.interior) enterInterior(b.interior);
+    else openDialog(b.name, b.info, b.choice||null);
+    return true;
   }
-}
-function bumpBack(){
-  const back={up:[0,1],down:[0,-1],left:[1,0],right:[-1,0]}[player.dir];
-  const bx=player.x+back[0], by=player.y+back[1];
-  if(!isSolid(bx,by)){ player.x=bx;player.y=by;player.px=bx*TILE;player.py=by*TILE;player.tx=bx;player.ty=by; }
+  const I=INTERIORS[scene];
+  const d=(I.doors||[]).find(d=>d.x===nx&&d.y===ny);
+  if(d){ gotoScene(d.to); return true; }
+  const t=tileAt(nx,ny);
+  if(t==='X'||t==='E'){ exitInterior(); return true; }
+  return false;
 }
 
 //==================================================================
@@ -1581,27 +1616,29 @@ function loadScene(key,at,dir){
 function enterInterior(key){
   transition(()=>{
     sceneStack=[{scene:'outdoor', x:player.x, y:player.y}];
-    loadScene(key, INTERIORS[key].spawn, 'up');
+    const f=frenteASalida(key);
+    loadScene(key, f.at, f.dir);
   });
 }
 // ir de una escena interior a otra (recordando de dónde venimos)
-function gotoScene(key,at){
+function gotoScene(key){
   transition(()=>{
     sceneStack.push({scene:scene, x:player.x, y:player.y});
-    loadScene(key, at, 'down');
+    const f=frenteASalida(key);
+    loadScene(key, f.at, f.dir);
   });
 }
 function exitInterior(){
   transition(()=>{
     const prev=sceneStack.pop();
     if(!prev || prev.scene==='outdoor'){
-      // volver al mundo exterior, bajo la puerta del edificio
-      const back=prev||sceneStack[0];
+      // se vuelve exactamente a la baldosa desde la que se entro
+      let back=prev||sceneStack[0];
+      if(!back){ const k=Object.keys(BUILDINGS).find(k=>BUILDINGS[k].interior===scene);
+                 if(k) back={x:BUILDINGS[k].door[0], y:BUILDINGS[k].door[1]}; }
       scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
       npcs=OUT_NPCS; patioMode=false;
-      const rx=(back?back.x:player.x), ry=(back?back.y:player.y);
-      player.x=rx; player.y=ry+1;
-      if(isSolid(player.x,player.y)) player.y=ry;
+      player.x=back?back.x:player.x; player.y=back?back.y:player.y;
       player.px=player.x*TILE;player.py=player.y*TILE;player.tx=player.x;player.ty=player.y;
       player.dir='down';player.moving=false;
       resize();                  // volver a la vista amplia del exterior
@@ -1625,20 +1662,10 @@ function interact(){
   if(objId){ promptPickup(objId); return; }
   const npc=npcs.find(n=>n.x===f.x&&n.y===f.y);
   if(npc){ npc.dir=opposite(player.dir); startNPC(npc); return; }
-  // puerta enfrente (exterior) para edificios sin interior -> abrir info
-  if(scene==='outdoor'){
-    const key=DOOR_AT[f.x+','+f.y];
-    if(key){ const b=BUILDINGS[key];
-      if(b.interior) enterInterior(b.interior);
-      else openDialog(b.name, b.info, b.choice||null);
-      return;
-    }
-  } else {
+  // puerta enfrente: el boton de accion abre la misma puerta que el movimiento
+  if(activarPuerta(f.x,f.y)) return;
+  if(scene!=='outdoor'){
     const I=INTERIORS[scene];
-    // puerta interna hacia otra escena
-    if(I.doors){ const d=I.doors.find(d=>d.x===f.x&&d.y===f.y); if(d){ gotoScene(d.to,d.at); return; } }
-    // salida
-    if(tileAt(f.x,f.y)==='X'||tileAt(f.x,f.y)==='E'){ exitInterior(); return; }
     // tablón de información
     if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines); return; } }
   }
