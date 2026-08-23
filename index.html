@@ -262,11 +262,11 @@ const OUTDOOR=[
 "TT.BBBBB....D.....BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
 "TT.BBBBB....P.......D.......BBBBBB...........D...P...P....TT",
 "TT...D..PPPPPPPPPPPPPPPPPPPPPPDPPPPPPPPPPPPPPPPPPPPPPP....TT",
-"TT..........D.......D......D................f...PBBBBB....TT",
+"TT..........................................f...PBBBBB....TT",
 "TT........BBBBB...BBBBBB.BBBBBB..,,L,,,,,,,,,L,,PBBBBB....TT",
 "TT........BBBBB...BBBBBB.BBBBBB..,,,,,fI,b,,,,,,PBBBBB....TT",
 "TT........BBBBB...BBBBBB.BBBBBB..,,,b,,,,,,f,,,,PPPDPPPPPPTT",
-"TT.......................BBBBBB..,t,,t,,t,,t,,t,..........TT",
+"TT..........D.......D....BBBBBBD.,t,,t,,t,,t,,t,..........TT",
 "TTooooooooooooooooooooooooooooooooooooooooooooooooooooooooTT",
 "TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
 "TTWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWTT",
@@ -764,11 +764,11 @@ const BUILDINGS = {
            choice:{q:"¿Vienes a hacer un trámite?",opts:[
              {t:"Sí, un certificado",r:["Toma número… el 87. Van por el 31."]},
              {t:"No, me he equivocado",r:["Pasa a menudo. La salida está detrás de ti."]}]}},
-  I:      {name:"Informatik", door:[12,28], info:["Facultad de Informática.","Laboratorios, servidores y café a partes iguales."]},
+  I:      {name:"Informatik", door:[12,32], info:["Facultad de Informática.","Laboratorios, servidores y café a partes iguales."]},
   AM:     {name:"Audimax", door:[20,26], info:["Audimax — el aula magna.","El auditorio más grande del campus. Hoy hay una conferencia."]},
-  M:      {name:"Mensa", door:[20,28], interior:'mensa'},
+  M:      {name:"Mensa", door:[20,32], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
-  WW:     {name:"Wirtschaftswissenschaften", door:[27,28], interior:'ww'},
+  WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
   NK:     {name:"Nikolakloster", door:[45,26], interior:'niko'},
   IA:     {name:"Innstegaula", door:[51,31], interior:'innstegaula'},
   WH:     {name:"Studentenwohnheim", door:[6,16], info:["Residencia de estudiantes (Studentenwohnheim).","Habitaciones individuales, cocinas compartidas y un ambiente de examen permanente."],
@@ -789,11 +789,11 @@ const BLD_GEO=[
   {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
   {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
   {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
-  {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[12,28], style:'modern',   roof:'#4a8a6a', label:'I'},
+  {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[12,32], style:'modern',   roof:'#4a8a6a', label:'I'},
   {key:'AM',   x0:18,y0:22,x1:23,y1:25, door:[20,26], style:'modern',   roof:'#8a6ab0', label:'AM'},
-  {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,28], style:'modern',   roof:'#c87a3a', label:'M'},
+  {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,32], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
-  {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[27,28], style:'modern',   roof:'#b0a03a', label:'WW'},
+  {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[31,32], style:'modern',   roof:'#b0a03a', label:'WW'},
   {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
   {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,31], style:'modern',   roof:'#3b9aa2', label:'IA'},
   {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
@@ -991,8 +991,11 @@ function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
 }
 
 function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
-  // puerta: centrada en la columna de la puerta real (b.door[0]) y abajo del edificio
-  const dxp=(b.door[0]*TILE-cam.x);
+  // La puerta se dibuja siempre en la fachada (cara sur). Si la baldosa de
+  // entrada queda a un costado, la hoja se pega a ese extremo de la fachada
+  // en lugar de salirse del sprite.
+  const col=Math.min(Math.max(b.door[0], b.x0), b.x1);
+  const dxp=(col*TILE-cam.x);
   const doorW=14, doorH=Math.min(18, wallH-2);
   const doorY=y+h-doorH-1, doorX=dxp+1;
   ctx.fillStyle='#5a3a1a'; ctx.fillRect(doorX-1,doorY-1,doorW+2,doorH+1); // marco
