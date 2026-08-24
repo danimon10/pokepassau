@@ -280,28 +280,73 @@ const OUTDOOR=[
 //  t mesa  e silla  X salida(vuelve fuera)  p suelo-patio  g cesped
 //==================================================================
 const INTERIORS = {
+  //---------------- MENSA (dos plantas) ----------------
+  // Planta de arriba: por donde se entra. Mesitas a la izquierda, pantallas
+  // con el menu en el centro, recarga de tarjeta a la derecha, y al fondo la
+  // escalera que baja al comedor.
   mensa: {
-    name:"Mensa",
+    name:"Mensa 1 — Entrada",
     grid:[
-      "##########",
-      "#ssssssss#",
-      "#........#",
-      "#.tt..tt.#",
-      "#.ee..ee.#",
-      "#........#",
-      "#.tt..tt.#",
-      "#.ee..ee.#",
-      "#........#",
-      "####X#####",
+      "#####################",
+      "#................SSS#",
+      "#................SSS#",
+      "#................SSS#",
+      "#....ZZZZ..ZZZZ..SVS#",
+      "#...................#",
+      "#...................#",
+      "#..t..t.............#",
+      "#..e..e.............#",
+      "#...................#",
+      "#..t..t.............#",
+      "#..e..e....DD...DD..#",
+      "#######E#############",
+    ],
+    doors:[
+      {x:18,y:4, to:'mensa2'},
+    ],
+    info:[
+      {x:6,y:4,name:"Pantalla · Menú del día",lines:["🍽 MENÚ 1 — Schnitzel con patatas · 3,20 €","🥗 MENÚ 2 — Curry de verduras con arroz · 2,80 €","🍲 SOPA — Crema de calabaza · 1,20 €"]},
+      {x:12,y:4,name:"Pantalla · Menú de la semana",lines:["📅 ESTA SEMANA","Lunes: pasta. Martes: pescado. Miércoles: Schnitzel.","Jueves: curry. Viernes: lo que quede."]},
+      {x:11,y:11,name:"Recarga de tarjeta",lines:["💳 RECARGA DE TARJETA DE ESTUDIANTE","Inserta billetes y apoya la tarjeta en el lector.","Saldo actual: 12,40 €"]},
+      {x:16,y:11,name:"Recarga de tarjeta",lines:["💳 Fuera de servicio.","Usa el de al lado. Lleva así desde febrero."]},
     ],
     npcs:[
-      {x:2,y:2,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
+      {x:9,y:5,name:"Estudiante Mara",color:"#5ad68f",dir:'up',
+       lines:["Siempre miro el menú antes de bajar, por si hay cola.","Hoy hay Schnitzel. Va a estar lleno."],
+       careerLine:{default:"Baja pronto, que a la una no se cabe."}},
+      {x:12,y:10,name:"Estudiante Nils",color:"#5a8ad6",dir:'down',
+       lines:["Sin saldo en la tarjeta no te sirven, y aquí no aceptan efectivo.","Recarga arriba y luego baja a la cola."]},
+    ]
+  },
+  // Planta de abajo: el comedor. Arriba los mostradores y las cajas,
+  // separados del comedor por un tabique con dos pasos.
+  mensa2: {
+    name:"Mensa 2 — Comedor",
+    grid:[
+      "#####################",
+      "#SSS..ccccc....ccccc#",
+      "#SSS................#",
+      "#SSS.......DD.DD....#",
+      "#SUS..#######.#######",
+      "#...................#",
+      "#...................#",
+      "#...................#",
+      "#..te.te.te.te.te.te#",
+      "#..te.te.te.te.te.te#",
+      "#..te.te.te.te.te.te#",
+      "#...................#",
+      "#####################",
+    ],
+    npcs:[
+      {x:8,y:2,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
        lines:["¡Hoy hay Schnitzel con patatas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
        choice:{q:"¿Qué te sirvo?",opts:[
          {t:"El menú del día",r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"]},
          {t:"Solo un café",r:["Un café para sobrevivir al seminario. Lo entiendo."]}]}},
-      {x:7,y:5,name:"Estudiante Tom",color:"#5a8ad6",dir:'left',
-       lines:["Llevo aquí desde las nueve repasando.","La Mensa es el corazón social del campus, te lo digo yo."]},
+      {x:13,y:3,name:"Cajera Uschi",color:"#c87a3a",dir:'down',
+       lines:["Tarjeta, por favor. Aquí no cobramos en efectivo.","Si no llevas saldo, arriba tienes las máquinas."]},
+      {x:17,y:10,name:"Estudiante Hanna",color:"#d65a8a",dir:'left',
+       lines:["Las mesas del fondo son las tranquilas.","Junto a la escalera no se oye ni pensar."]},
     ]
   },
   niko: {
@@ -746,6 +791,105 @@ const INTERIORS = {
     ]
   },
 
+  //---------------- AUDIMAX ----------------
+  // Vestibulo: dos aulas arriba (la magna a la derecha, la secundaria a la
+  // izquierda) separadas por un pasillo central, y la cafeteria abajo a la
+  // izquierda. Se sale al campus por la puerta de abajo.
+  audimax: {
+    name:"Audimax — Vestíbulo",
+    grid:[
+      "###########################",
+      "######.....################",
+      "######.....################",
+      "######.....################",
+      "#####2.....################",
+      "######.....################",
+      "######.....################",
+      "######.....################",
+      "######.....########1#######",
+      "#........................p#",
+      "#..c......................#",
+      "#..c...te.................#",
+      "#..c......................#",
+      "#..c...te.................#",
+      "#..c......................#",
+      "#..c...te.......p.I.I.p..p#",
+      "##############E############",
+    ],
+    doors:[
+      {x:19,y:8, to:'audimax_aula1'},
+      {x:5, y:4, to:'audimax_aula2'},
+    ],
+    info:[
+      {x:18,y:15,name:"Directorio del Audimax",lines:["📋 AUDIMAX","Arriba a la derecha: Aula Magna.","Arriba a la izquierda: Aula Secundaria.","La cafetería, a la izquierda del vestíbulo."]},
+      {x:20,y:15,name:"Cartel · Programa de hoy",lines:["📣 HOY EN EL AUDIMAX","10:00 — Clase magistral de Derecho Europeo.","18:00 — Conferencia abierta: «Passau y el Danubio»."]},
+    ],
+    npcs:[
+      {x:14,y:12,name:"Ujier Anton",color:"#8a5ad6",dir:'down',
+       lines:["Bienvenido al Audimax. Arriba a la derecha, el aula magna; a la izquierda, la secundaria.","Si hay conferencia, mejor entra pronto: se llena."],
+       careerLine:{default:"Da igual la carrera que hagas: alguna clase acabarás dando aquí."}},
+      {x:2,y:12,name:"Cafetera Sabine",color:"#c87a3a",dir:'right',
+       lines:["Café antes de una clase magistral de dos horas. Te hace falta, créeme.","Las mesas de la derecha están libres."],
+       choice:{q:"¿Qué te pongo?",opts:[
+         {t:"Un café doble",r:["Marchando. Con esto aguantas hasta el descanso."]},
+         {t:"Un té, que voy nervioso",r:["Buena elección si hoy te toca presentar."]},
+         {t:"Nada, gracias",r:["Aquí estaré cuando cambies de idea."]}]}},
+      {x:9,y:13,name:"Estudiante Lena",color:"#5ad68f",dir:'left',
+       lines:["Me siento aquí a repasar antes de entrar al aula magna.","El truco es coger sitio en las filas de en medio."]},
+    ]
+  },
+  // Aula magna: butacas en abanico alrededor del escenario, con pasillo
+  // central. Las filas se ensanchan hacia el fondo, como en un teatro.
+  audimax_aula1: {
+    name:"Audimax — Aula Magna",
+    grid:[
+      "###################",
+      "#ZZZZZZZZZZZZZZZZZ#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaaeeeaeeeaaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaeeeeaeeeeaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaeeeeeaeeeeeaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaeeeeeeaeeeeeeaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#########X#########",
+    ],
+    npcs:[
+      {x:9,y:2,name:"Profesora Dr. Reiter",color:"#d65a8a",dir:'down',
+       lines:["El aula magna del Audimax. Cabe medio campus aquí dentro.","Las butacas están en abanico para que se vea bien desde cualquier fila."],
+       careerLine:{default:"Hoy toca conferencia abierta. Siéntate donde quieras."}},
+    ]
+  },
+  // Aula secundaria: pupitres y sillas en filas, pizarra al frente.
+  audimax_aula2: {
+    name:"Audimax — Aula Secundaria",
+    // Girada 90 grados: la puerta queda a la derecha y la pizarra a la izquierda.
+    grid:[
+      "###########",
+      "#Paaaaaaaa#",
+      "#Pameameaa#",
+      "#Pameameaa#",
+      "#Paaaaaaaa#",
+      "#Pameameaa#",
+      "#Pameameaa#",
+      "#PaaaaaaaaX",
+      "#Pameameaa#",
+      "#Pameameaa#",
+      "#Paaaaaaaa#",
+      "#Pameameaa#",
+      "#Pameameaa#",
+      "#Paaaaaaaa#",
+      "###########",
+    ],
+    npcs:[
+      {x:8,y:7,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+       lines:["Aquí damos los seminarios pequeños, nada de conferencias.","Se agradece un aula normal después del aula magna."]},
+    ]
+  },
+
 };
 
 //==================================================================
@@ -765,7 +909,7 @@ const BUILDINGS = {
              {t:"Sí, un certificado",r:["Toma número… el 87. Van por el 31."]},
              {t:"No, me he equivocado",r:["Pasa a menudo. La salida está detrás de ti."]}]}},
   I:      {name:"Informatik", door:[12,32], info:["Facultad de Informática.","Laboratorios, servidores y café a partes iguales."]},
-  AM:     {name:"Audimax", door:[20,26], info:["Audimax — el aula magna.","El auditorio más grande del campus. Hoy hay una conferencia."]},
+  AM:     {name:"Audimax", door:[20,26], interior:'audimax'},
   M:      {name:"Mensa", door:[20,32], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
   WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
@@ -1187,6 +1331,11 @@ function drawInTile(t,sx,sy,patio){
     case 'Z': { // pantalla de proyección (aula magna / salones)
       F('#3a3a4a'); R('#eceef2',1,1,14,12); R('#c8d0dc',2,2,12,10); // pantalla clara
       R('#8fb0d8',3,3,5,4); R('#d8a05a',9,4,3,3); R('#6a8a5a',4,8,7,2); return; } // "diapositiva"
+    case 'S': case 'V': case 'U': { // tramo de escalera
+      F('#a89ec0');
+      for(let i=0;i<4;i++){ R('#ded8ea',0,i*4,TILE,3); R('#8b81a6',0,i*4+3,TILE,1); }
+      R('#7a7090',0,0,1,TILE); R('#7a7090',TILE-1,0,1,TILE);   // zancas
+      return; }
     case 'X': F('#d8c4a0'); R('#7a5230',3,2,10,12); R('#5a3a1a',4,3,8,11); R('#e8d860',6,6,4,2); return; // salida a hub
     case 'E': F('#d8c4a0'); R('#7a5230',3,1,10,13); R('#5a3a1a',4,2,8,12); R('#8fd0f5',5,3,6,3); R('#e8d860',6,7,4,2); return; // salida al campus
     default: F('#d8c4a0');
@@ -1200,7 +1349,8 @@ const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
 // interiores con paredes: muebles y elementos sólidos
 const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
   // las puertas tambien son solidas: no se pisan, se empujan desde delante
-  '1','2','3','4','5','6','A','C','J','Y','G','X','E']);
+  '1','2','3','4','5','6','A','C','J','Y','G','X','E',
+  'S','V','U']);   // la escalera tampoco se pisa: se acciona
 // patio: sólidos = muros, árboles y fuente
 const SOLID_PATIO=new Set(['#','o','F','G','X']);
 
@@ -1213,10 +1363,10 @@ const SOLID_PATIO=new Set(['#','o','F','G','X']);
 //==================================================================
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
-                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E']);
+                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E','S','V','U']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
-const PUERTAS_SALA=new Set(['1','2','3','4','5','6','A','C','J','Y','G']);
+const PUERTAS_SALA=new Set(['1','2','3','4','5','6','A','C','J','Y','G','V']);
 
 function validateMaps(){
   const errs=[], warns=[];
@@ -1283,10 +1433,10 @@ function validateMaps(){
 
     // una puerta se acciona desde la casilla de al lado: tiene que haber hueco
     const huecoAlLado=(x,y)=>[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>pisable(x+ox,y+oy));
-    const nSalidas=(T)=>T.grid.join('').split('').filter(c=>c==='X'||c==='E').length;
+    const nSalidas=(T)=>T.grid.join('').split('').filter(c=>c==='X'||c==='E'||c==='U').length;
 
     const salidas=[];
-    g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E') salidas.push([x,y]); }));
+    g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'||c==='U') salidas.push([x,y]); }));
     if(!salidas.length)
       E(key+": no tiene salida — hace falta una casilla 'X' (al vestibulo) o 'E' (al campus)");
     else if(salidas.length>1)
@@ -1555,7 +1705,7 @@ function frenteASalida(key){
   const SOL=I.isPatio?SOLID_PATIO:SOLID_IN;
   const libre=(x,y)=>g[y]!==undefined && g[y][x]!==undefined && !SOL.has(g[y][x]);
   let px=-1,py=-1;
-  g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'){px=x;py=y;} }));
+  g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'||c==='U'){px=x;py=y;} }));
   if(px<0){
     for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++) if(libre(x,y)) return {at:[x,y],dir:'down'};
     return {at:[1,1],dir:'down'};
@@ -1583,11 +1733,50 @@ function activarPuerta(nx,ny){
     return true;
   }
   const I=INTERIORS[scene];
-  const d=(I.doors||[]).find(d=>d.x===nx&&d.y===ny);
-  if(d){ gotoScene(d.to); return true; }
   const t=tileAt(nx,ny);
+  const d=(I.doors||[]).find(d=>d.x===nx&&d.y===ny);
+  if(d){ if(t==='V') usarEscalera(nx,ny,d.to,false); else gotoScene(d.to); return true; }
+  if(t==='U'){ usarEscalera(nx,ny,null,true); return true; }
   if(t==='X'||t==='E'){ exitInterior(); return true; }
   return false;
+}
+
+//------------------------------------------------------------------
+//  ESCALERAS
+//  No se teletransporta: se le quita el control al jugador, este
+//  recorre el tramo a pie, hay un fundido, y aparece bajando el del
+//  otro piso. 'V' baja a otra escena; 'U' sube a la anterior.
+//------------------------------------------------------------------
+let guion=null;                      // movimiento automatico en curso
+function guionar(pasos,fin){ state='transition'; guion={pasos:pasos.slice(), fin:fin}; }
+function avanzarGuion(){
+  if(!guion || player.moving) return;
+  if(!guion.pasos.length){ const f=guion.fin; guion=null; if(f) f(); return; }
+  const [nx,ny]=guion.pasos.shift();
+  player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
+  player.tx=nx; player.ty=ny; player.moving=true;
+}
+// localiza el peldano activo de la escalera de una sala
+function escaleraDe(clave){
+  const g=INTERIORS[clave].grid;
+  for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++)
+    if(g[y][x]==='V'||g[y][x]==='U') return [x,y];
+  return null;
+}
+function usarEscalera(ex,ey,destino,esSalida){
+  guionar([[ex,ey],[ex,ey-1],[ex,ey-2]], ()=>{      // se mete en el hueco
+    fade.style.opacity='1';
+    setTimeout(()=>{
+      let clave=destino;
+      if(esSalida){ const prev=sceneStack.pop(); if(prev) clave=prev.scene; }
+      else sceneStack.push({scene:scene, x:ex, y:ey+1});
+      const s=escaleraDe(clave);
+      if(!s){ loadScene(clave,[1,1],'down'); fade.style.opacity='0'; guion=null; state='play'; return; }
+      loadScene(clave, [s[0], s[1]-2], 'down');
+      fade.style.opacity='0';
+      guionar([[s[0],s[1]-1],[s[0],s[1]],[s[0],s[1]+1]], ()=>{ state='play'; });
+    },320);
+  });
 }
 
 //==================================================================
@@ -2325,6 +2514,7 @@ function loop(){
   animTick++;
   syncUIState();
   if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
+  else if(guion){ avanzarGuion(); updateMove(); }   // escaleras: el jugador anda solo
   updateCamera(); render();
   requestAnimationFrame(loop);
 }

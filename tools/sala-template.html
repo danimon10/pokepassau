@@ -5,7 +5,7 @@ const D=DATA_PLACEHOLDER;
 const {clave,I,drawInTileSrc,marca,SOLID_IN,SOLID_PATIO}=D;
 const g=I.grid, W=g[0].length, H=g.length;
 const TS=28, ML=54, MT=52, MR=330, MB=54;
-const cw=ML+W*TS+MR, ch=Math.max(MT+H*TS+MB, 420);
+const cw=Math.max(ML+W*TS+MR, 920), ch=Math.max(MT+H*TS+MB, 420);
 const c=document.getElementById('c'); c.width=cw; c.height=ch;
 const x=c.getContext('2d');
 x.fillStyle='#fff'; x.fillRect(0,0,cw,ch);
