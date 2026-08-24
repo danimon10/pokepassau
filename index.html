@@ -746,6 +746,96 @@ const INTERIORS = {
     ]
   },
 
+  //---------------- AUDIMAX ----------------
+  // Vestibulo: dos aulas arriba (la magna a la derecha, la secundaria a la
+  // izquierda) separadas por un pasillo central, y la cafeteria abajo a la
+  // izquierda. Se sale al campus por la puerta de abajo.
+  audimax: {
+    name:"Audimax — Vestíbulo",
+    grid:[
+      "###########################",
+      "######.....################",
+      "######.....################",
+      "######.....################",
+      "#####2.....################",
+      "######.....################",
+      "######.....################",
+      "######.....################",
+      "######.....########1#######",
+      "#.........................#",
+      "#..c......................#",
+      "#..c...te.................#",
+      "#..c......................#",
+      "#..c...te.................#",
+      "#..c......................#",
+      "#..c...te.................#",
+      "##############E############",
+    ],
+    doors:[
+      {x:19,y:8, to:'audimax_aula1'},
+      {x:5, y:4, to:'audimax_aula2'},
+    ],
+    npcs:[
+      {x:14,y:12,name:"Ujier Anton",color:"#8a5ad6",dir:'down',
+       lines:["Bienvenido al Audimax. Arriba a la derecha, el aula magna; a la izquierda, la secundaria.","Si hay conferencia, mejor entra pronto: se llena."],
+       careerLine:{default:"Da igual la carrera que hagas: alguna clase acabarás dando aquí."}},
+      {x:2,y:12,name:"Cafetera Sabine",color:"#c87a3a",dir:'right',
+       lines:["Café antes de una clase magistral de dos horas. Te hace falta, créeme.","Las mesas de la derecha están libres."],
+       choice:{q:"¿Qué te pongo?",opts:[
+         {t:"Un café doble",r:["Marchando. Con esto aguantas hasta el descanso."]},
+         {t:"Un té, que voy nervioso",r:["Buena elección si hoy te toca presentar."]},
+         {t:"Nada, gracias",r:["Aquí estaré cuando cambies de idea."]}]}},
+      {x:9,y:13,name:"Estudiante Lena",color:"#5ad68f",dir:'left',
+       lines:["Me siento aquí a repasar antes de entrar al aula magna.","El truco es coger sitio en las filas de en medio."]},
+    ]
+  },
+  // Aula magna: butacas en abanico alrededor del escenario, con pasillo
+  // central. Las filas se ensanchan hacia el fondo, como en un teatro.
+  audimax_aula1: {
+    name:"Audimax — Aula Magna",
+    grid:[
+      "###################",
+      "#ZZZZZZZZZZZZZZZZZ#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaaeeeaeeeaaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaeeeeaeeeeaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaeeeeeaeeeeeaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaeeeeeeaeeeeeeaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#########X#########",
+    ],
+    npcs:[
+      {x:9,y:2,name:"Profesora Dr. Reiter",color:"#d65a8a",dir:'down',
+       lines:["El aula magna del Audimax. Cabe medio campus aquí dentro.","Las butacas están en abanico para que se vea bien desde cualquier fila."],
+       careerLine:{default:"Hoy toca conferencia abierta. Siéntate donde quieras."}},
+    ]
+  },
+  // Aula secundaria: pupitres y sillas en filas, pizarra al frente.
+  audimax_aula2: {
+    name:"Audimax — Aula Secundaria",
+    grid:[
+      "###############",
+      "#PPPPPPPPPPPPP#",
+      "#aaaaaaaaaaaaa#",
+      "#ammammammamma#",
+      "#aeeaeeaeeaeea#",
+      "#aaaaaaaaaaaaa#",
+      "#ammammammamma#",
+      "#aeeaeeaeeaeea#",
+      "#aaaaaaaaaaaaa#",
+      "#aaaaaaaaaaaaa#",
+      "#######X#######",
+    ],
+    npcs:[
+      {x:7,y:8,name:"Estudiante Jonas",color:"#5a8ad6",dir:'up',
+       lines:["Aquí damos los seminarios pequeños, nada de conferencias.","Se agradece un aula normal después del aula magna."]},
+    ]
+  },
+
 };
 
 //==================================================================
@@ -765,7 +855,7 @@ const BUILDINGS = {
              {t:"Sí, un certificado",r:["Toma número… el 87. Van por el 31."]},
              {t:"No, me he equivocado",r:["Pasa a menudo. La salida está detrás de ti."]}]}},
   I:      {name:"Informatik", door:[12,32], info:["Facultad de Informática.","Laboratorios, servidores y café a partes iguales."]},
-  AM:     {name:"Audimax", door:[20,26], info:["Audimax — el aula magna.","El auditorio más grande del campus. Hoy hay una conferencia."]},
+  AM:     {name:"Audimax", door:[20,26], interior:'audimax'},
   M:      {name:"Mensa", door:[20,32], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
   WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
