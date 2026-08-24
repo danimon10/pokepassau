@@ -326,7 +326,7 @@ const INTERIORS = {
       "#####################",
       "#SSS..ccccc....ccccc#",
       "#SSS................#",
-      "#SSS.......DD.DD....#",
+      "#SSS........D.D.....#",
       "#SUS..#######.#######",
       "#...................#",
       "#...................#",
@@ -343,8 +343,17 @@ const INTERIORS = {
        choice:{q:"¿Qué te sirvo?",opts:[
          {t:"El menú del día",r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"]},
          {t:"Solo un café",r:["Un café para sobrevivir al seminario. Lo entiendo."]}]}},
-      {x:13,y:3,name:"Cajera Uschi",color:"#c87a3a",dir:'down',
-       lines:["Tarjeta, por favor. Aquí no cobramos en efectivo.","Si no llevas saldo, arriba tienes las máquinas."]},
+      {x:11,y:3,name:"Cajera Rosi",color:"#e08aa8",dir:'down',
+       lines:["¡Hola, guapo! Tienes cara de examen, ¿me equivoco?","Tú tranquilo, que aquí no se cobra con prisa."],
+       careerLine:{default:"Sea lo que sea que estudies, hoy has hecho bien en bajar a comer."},
+       choice:{q:"¿Te cobro?",opts:[
+         {t:"Sí, por favor",r:["Marchando. Y llévate un postre, anda, que estás muy delgado."]},
+         {t:"Todavía no",r:["Pues cuando quieras, bonito. Aquí me tienes."]}]}},
+      {x:15,y:3,name:"Cajera Brunhilde",color:"#6a7a8a",dir:'down',
+       lines:["Tarjeta.","...","¿Necesita algo más o va a seguir ahí parado?"],
+       choice:{q:"¿Te cobro?",opts:[
+         {t:"Sí",r:["Pues la tarjeta. No tengo todo el día."]},
+         {t:"Mejor voy a la otra caja",r:["Como quiera. Allí tardará el doble, pero como quiera."]}]}},
       {x:17,y:10,name:"Estudiante Hanna",color:"#d65a8a",dir:'left',
        lines:["Las mesas del fondo son las tranquilas.","Junto a la escalera no se oye ni pensar."]},
     ]
