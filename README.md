@@ -36,3 +36,25 @@ Comprueba, entre otras cosas: que todas las filas de un mapa midan lo mismo,
 que cada puerta exterior esté sobre una casilla `D`, que cada puerta interior
 tenga un destino existente y una casilla de llegada pisable, que ninguna sala
 se quede sin salida y que los edificios no se solapen.
+
+## Controles
+
+En el ordenador: flechas o WASD para moverse, y Z / Espacio / Enter para
+interactuar.
+
+En el móvil la pantalla entera es el mando y se reparte en dos mitades:
+
+- **Mitad izquierda — joystick flotante.** No hay cruceta fija: el aro nace
+  justo bajo el dedo, en el punto que sea, y le persigue si te sales de él.
+  Así se juega igual de bien con el móvil vertical que horizontal, sin buscar
+  a ciegas una esquina.
+- **Mitad derecha — acción.** Un toque equivale a pulsar A (hablar, abrir
+  puertas, recoger objetos). Si en vez de tocar arrastras, también sale el
+  joystick, para poder jugar con la mano derecha.
+
+El botón A viene colocado hacia el centro, separado del borde, y se puede
+**arrastrar** para dejarlo donde caiga bien el pulgar. Cada orientación
+recuerda su propia posición en `localStorage`.
+
+La tecla `T` alterna los controles táctiles en el ordenador, útil para
+probarlos sin un móvil.

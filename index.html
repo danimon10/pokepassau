@@ -13,16 +13,23 @@
 <style>
   :root{
     --dlg-bg:#f8f8f0; --dlg-frame:#5a6b8a; --dlg-shadow:#2a3550; --txt:#384256;
+    /* medidas de la interfaz tactil; resize() las recalcula segun la pantalla */
+    --joy:132px; --abtn:66px; --pad:12px; --fs:16px; --ib:44px;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;background:#14161f;overflow:hidden;font-family:'Courier New',monospace;
-    -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;}
+    -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+    /* mantener el dedo pulsado no debe seleccionar la pantalla entera ni sacar
+       el menu del sistema (copiar / guardar imagen) */
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+  /* ...salvo donde de verdad se escribe: correo, documentos y cuaderno */
+  input,textarea,[contenteditable]{user-select:text;-webkit-user-select:text;-webkit-touch-callout:default;}
+  canvas,img{-webkit-user-drag:none;}
   #game{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 30%, #2a2f4a, #14161f);}
-  /* el "stage" envuelve al canvas: toda la UI del juego se ancla a el, no a la ventana */
-  @media (orientation:portrait){ body.tmode #game{padding-top:min(15vh,120px);} }
-  #stage{position:relative;flex:0 0 auto;touch-action:none;
-    --ctl:132px; --abtn:66px; --pad:12px; --fs:16px; --ib:44px;}
+    touch-action:none;background:radial-gradient(circle at 50% 30%, #2a2f4a, #14161f);}
+  /* el "stage" envuelve al canvas y ancla la UI del juego (diálogo, mochila);
+     el mando táctil se ancla a la ventana entera, no al lienzo */
+  #stage{position:relative;flex:0 0 auto;touch-action:none;}
   canvas{image-rendering:pixelated;image-rendering:crisp-edges;background:#000;display:block;
     box-shadow:0 0 0 4px #20243a, 0 0 30px rgba(0,0,0,.6);touch-action:none;}
 
@@ -62,32 +69,62 @@
     font-size:calc(var(--fs) * .82);letter-spacing:1px;white-space:nowrap;}
   body.tmode #locBadge{background:rgba(248,248,240,.82);}
 
-  /* ---- CONTROLES TACTILES (overlay semitransparente sobre el campo de juego) ---- */
-  #touch{position:absolute;inset:0;display:none;pointer-events:none;z-index:30;
+  /* ---- CONTROLES TACTILES ------------------------------------------
+     La pantalla entera es el mando y se reparte en dos mitades:
+       · izquierda -> el joystick nace bajo el dedo, donde sea que toques
+       · derecha   -> boton de accion (el circulo A, y tambien toda la mitad)
+     El overlay cubre la ventana completa, no solo el lienzo, para poder
+     usar tambien el margen que queda por debajo del juego.            */
+  #touch{position:absolute;inset:0;display:none;pointer-events:auto;z-index:30;
     touch-action:none;user-select:none;-webkit-user-select:none;}
   body.tmode.playing #touch{display:block;}
   body.tmode.dlg #touch, body.tmode.ovl #touch{display:none;}
 
-  #dpad{position:absolute;left:var(--pad);bottom:var(--pad);width:var(--ctl);height:var(--ctl);
-    pointer-events:auto;touch-action:none;opacity:.55;transition:opacity .15s;}
-  #dpad.act{opacity:.92;}
-  .dbtn{position:absolute;width:34%;height:34%;background:rgba(248,244,228,.45);
-    border:2px solid rgba(58,74,110,.5);border-radius:22%;display:flex;align-items:center;
-    justify-content:center;font-size:calc(var(--ctl) * .16);color:#37425e;
-    box-shadow:0 2px 0 rgba(42,53,80,.28);transition:background .06s,transform .06s;}
-  .dbtn.on{background:rgba(255,228,150,.95);border-color:#e0a93a;color:#7a5410;transform:scale(.92);}
-  #du{left:33%;top:0;} #dd{left:33%;top:66%;} #dl{left:0;top:33%;} #dr{left:66%;top:33%;}
-  #dhub{position:absolute;left:33%;top:33%;width:34%;height:34%;border-radius:14%;
-    background:rgba(248,244,228,.3);border:2px solid rgba(58,74,110,.3);}
+  /* --- joystick flotante: JS le pone left/top donde aterriza el dedo --- */
+  #joy{position:absolute;left:0;top:0;width:var(--joy);height:var(--joy);
+    margin:calc(var(--joy) / -2) 0 0 calc(var(--joy) / -2);
+    border-radius:50%;pointer-events:none;touch-action:none;
+    background:radial-gradient(circle at 50% 50%, rgba(30,38,60,.18), rgba(30,38,60,.42));
+    border:3px solid rgba(248,244,228,.5);
+    box-shadow:0 0 22px rgba(0,0,0,.35), inset 0 0 18px rgba(0,0,0,.2);
+    visibility:hidden;opacity:0;transform:scale(.55);
+    transition:opacity .13s ease-out, transform .13s ease-out, visibility .13s;}
+  #joy.on{visibility:visible;opacity:.95;transform:scale(1);}
+  #joyKnob{position:absolute;left:50%;top:50%;width:46%;height:46%;margin:-23% 0 0 -23%;
+    border-radius:50%;background:rgba(255,233,168,.95);border:3px solid rgba(224,169,58,.95);
+    box-shadow:0 3px 0 rgba(120,80,10,.35), 0 0 12px rgba(255,214,120,.45);}
+  .jarrow{position:absolute;color:rgba(248,244,228,.5);line-height:1;
+    font-size:calc(var(--joy) * .155);transition:color .06s, text-shadow .06s;}
+  .jarrow.on{color:#ffe9a8;text-shadow:0 0 9px rgba(255,214,120,.95);}
+  #ju{left:50%;top:6%;transform:translateX(-50%);}
+  #jd{left:50%;bottom:6%;transform:translateX(-50%);}
+  #jl{left:6%;top:50%;transform:translateY(-50%);}
+  #jr{right:6%;top:50%;transform:translateY(-50%);}
 
-  #aBtn{position:absolute;right:var(--pad);bottom:calc(var(--pad) + var(--ctl) * .16);
+  /* --- boton de accion: JS le pone left/top (se puede arrastrar) --- */
+  #aBtn{position:absolute;left:50%;top:70%;
     width:var(--abtn);height:var(--abtn);pointer-events:auto;touch-action:none;
     background:rgba(224,169,58,.6);border:3px solid rgba(160,110,20,.65);border-radius:50%;
     color:#fff;font-size:calc(var(--abtn) * .42);font-weight:bold;display:flex;align-items:center;
     justify-content:center;box-shadow:0 3px 0 rgba(138,94,18,.45);opacity:.8;
-    text-shadow:0 1px 2px rgba(120,80,10,.5);transition:opacity .15s;}
+    text-shadow:0 1px 2px rgba(120,80,10,.5);transition:opacity .15s, box-shadow .1s;}
   #aBtn.on{opacity:1;background:rgba(255,214,120,.97);color:#7a5410;
-    transform:translateY(3px);box-shadow:0 1px 0 rgba(138,94,18,.45);}
+    box-shadow:0 1px 0 rgba(138,94,18,.45), 0 0 14px rgba(255,214,120,.5);}
+  #aBtn.drag{opacity:1;border-color:#fff;border-style:dashed;
+    box-shadow:0 0 0 4px rgba(255,233,168,.35), 0 0 20px rgba(0,0,0,.5);}
+
+  /* --- aviso de bienvenida: se explica el reparto de la pantalla --- */
+  #tHint{position:absolute;inset:0;pointer-events:none;display:none;
+    color:#fff;font-size:calc(var(--fs) * .95);font-weight:bold;line-height:1.45;
+    text-align:center;text-shadow:0 2px 6px rgba(0,0,0,.85);
+    opacity:0;transition:opacity .4s;}
+  #tHint.on{display:block;opacity:1;}
+  #tHint::before{content:'';position:absolute;left:50%;top:12%;bottom:12%;width:0;
+    border-left:3px dashed rgba(255,255,255,.45);}
+  #tHint .l,#tHint .r{position:absolute;top:50%;width:42%;transform:translateY(-50%);
+    padding:14px 10px;border-radius:16px;background:rgba(20,22,34,.55);
+    box-shadow:0 0 26px 22px rgba(20,22,34,.55);}
+  #tHint .l{left:3%;} #tHint .r{right:3%;}
 
   #dialog{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(94%,640px);display:none;z-index:35;
     background:var(--dlg-bg);border:4px solid var(--dlg-frame);border-radius:12px;
@@ -119,13 +156,19 @@
       <div id="dlgName">NPC</div><div id="dlgText"></div>
       <div id="dlgChoices"></div><div id="dlgArrow">▼</div>
     </div>
-    <div id="touch">
-      <div id="dpad">
-        <div id="dhub"></div>
-        <div class="dbtn" id="du">▲</div><div class="dbtn" id="dd">▼</div>
-        <div class="dbtn" id="dl">◄</div><div class="dbtn" id="dr">►</div>
-      </div>
-      <div id="aBtn">A</div>
+  </div>
+  <!-- el mando vive fuera del "stage" para aprovechar la pantalla entera,
+       incluido el margen que queda por debajo del lienzo -->
+  <div id="touch">
+    <div id="joy">
+      <div class="jarrow" id="ju">▲</div><div class="jarrow" id="jd">▼</div>
+      <div class="jarrow" id="jl">◄</div><div class="jarrow" id="jr">►</div>
+      <div id="joyKnob"></div>
+    </div>
+    <div id="aBtn">A</div>
+    <div id="tHint">
+      <div class="l">◄ apoya el dedo<br>donde quieras<br>y desliza</div>
+      <div class="r">toca este lado<br>para hablar,<br>abrir y recoger ►</div>
     </div>
   </div>
   <div id="menu">
@@ -133,7 +176,7 @@
     <div class="panel"><h2>1 · ELIGE TU PERSONAJE</h2><div class="row" id="charRow"></div></div>
     <div class="panel"><h2>2 · ELIGE TU CARRERA</h2><div class="row" id="careerRow"></div></div>
     <button id="startBtn" disabled>¡EMPEZAR!</button>
-    <div class="hint">Teclado: flechas/WASD para mover · Z/Espacio/Enter para interactuar<br>Móvil: desliza sobre el D-pad y pulsa A · toca la pantalla para avanzar diálogos<br><span style="opacity:.7">(tecla T: mostrar/ocultar controles táctiles)</span></div>
+    <div class="hint">Teclado: flechas/WASD para mover · Z/Espacio/Enter para interactuar<br>Móvil: apoya el dedo en la mitad izquierda y desliza — el joystick aparece donde toques<br>Toca la mitad derecha (o el botón A) para interactuar · arrastra el botón A para cambiarlo de sitio<br><span style="opacity:.7">(tecla T: mostrar/ocultar controles táctiles)</span></div>
   </div>
   <div class="fade" id="fade"></div>
 </div>
@@ -205,15 +248,25 @@ function resize(){
   const w = Math.round(VW*s), h = Math.round(VH*s);
   cv.style.width = w+'px'; cv.style.height = h+'px';
 
+  // En vertical sobra mucha pantalla alrededor del lienzo: se sube el juego
+  // para que el hueco grande quede abajo, que es donde descansa el pulgar.
+  const hueco = Math.max(0, vh-h);
+  stage.parentNode.style.paddingBottom =
+    (touchMode && vh>vw ? Math.round(hueco/3) : 0)+'px';
+
   // tamano de los controles: relativo a la pantalla, no al lienzo
-  const ctl  = Math.max(96, Math.min(150, Math.round(Math.min(vw,vh)*0.30)));
+  const menor= Math.min(vw,vh);
+  const joy  = Math.max(104, Math.min(184, Math.round(menor*0.34)));   // aro del joystick
+  const abtn = Math.max(56,  Math.min(96,  Math.round(menor*0.175)));  // boton de accion
   const fs   = Math.max(11, Math.min(16, Math.round(w/26)));
-  const ib   = Math.max(34, Math.min(46, Math.round(ctl*0.33)));
-  stage.style.setProperty('--ctl',  ctl+'px');
-  stage.style.setProperty('--abtn', Math.round(ctl*0.50)+'px');
-  stage.style.setProperty('--pad',  Math.max(6, Math.round(ctl*0.09))+'px');
-  stage.style.setProperty('--fs',   fs+'px');
-  stage.style.setProperty('--ib',   ib+'px');
+  const ib   = Math.max(34, Math.min(46, Math.round(menor*0.10)));
+  const root = document.documentElement.style;
+  root.setProperty('--joy',  joy+'px');
+  root.setProperty('--abtn', abtn+'px');
+  root.setProperty('--pad',  Math.max(6, Math.round(menor*0.027))+'px');
+  root.setProperty('--fs',   fs+'px');
+  root.setProperty('--ib',   ib+'px');
+  try{ colocarBotonA(); }catch(_){}   // (en el primer arranque aun no existe)
 }
 window.addEventListener('resize',resize);
 window.addEventListener('orientationchange',()=>setTimeout(resize,120));
@@ -223,9 +276,17 @@ if(window.visualViewport){
 }
 applyMode();
 
+// Mientras se escribe (correo, documentos, cuaderno) el teclado es del texto,
+// no del juego: ni mueve al personaje, ni cambia de modo, ni se traga el espacio.
+function escribiendo(e){
+  const t=e.target;
+  return !!(t && t.closest && t.closest('input,textarea,[contenteditable]'));
+}
+
 // cambio automatico de modo: si aparece un toque -> tactil; si se usa el teclado -> escritorio
 window.addEventListener('touchstart',()=>{ if(!touchMode){touchMode=true;applyMode();} },{passive:true,capture:true});
 window.addEventListener('keydown',e=>{
+  if(escribiendo(e)) return;                                 // el teclado del movil no es un teclado de PC
   if(e.key==='t'||e.key==='T') return;                       // la T alterna el modo a proposito
   if(touchMode && (e.key.length===1 || e.key.startsWith('Arrow') || e.key==='Enter')){ touchMode=false; applyMode(); }
 },{capture:true});
@@ -2549,6 +2610,7 @@ startBtn.onclick=()=>{
 //==================================================================
 const keys={};
 window.addEventListener('keydown',e=>{
+  if(escribiendo(e)) return;   // espacio, flechas y demas son del texto que se escribe
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   // overlay abierto: Esc cierra; no procesar movimiento/interacción
   if(state==='overlay'){
@@ -2564,13 +2626,28 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 //------------------------------------------------------------------
-//  D-PAD POR ZONA: toda el area responde y se puede deslizar el dedo
-//  de una direccion a otra sin levantarlo.
+//  MANDO TACTIL
+//  La pantalla entera se reparte en dos mitades:
+//    · izquierda -> JOYSTICK FLOTANTE. Nace justo bajo el dedo, en el
+//      punto que sea, y le sigue si te sales del aro; asi nunca hay que
+//      buscar a ciegas una cruceta diminuta en una esquina.
+//    · derecha   -> ACCION. Un toque (sin arrastrar) equivale a pulsar A.
+//      Si en vez de tocar arrastras, tambien sale el joystick, para poder
+//      jugar con la mano derecha.
+//  El boton A sigue estando, colocado hacia el centro y arrastrable: se
+//  mantiene pulsado y se mueve para dejarlo donde caiga bien el pulgar.
 //------------------------------------------------------------------
-const dpadEl=document.getElementById('dpad'), aBtnEl=document.getElementById('aBtn');
-const DIRS={arrowup:'du',arrowdown:'dd',arrowleft:'dl',arrowright:'dr'};
+const touchEl=document.getElementById('touch');
+const joyEl=document.getElementById('joy'), joyKnob=document.getElementById('joyKnob');
+const aBtnEl=document.getElementById('aBtn'), tHintEl=document.getElementById('tHint');
+const DIRS={arrowup:'ju',arrowdown:'jd',arrowleft:'jl',arrowright:'jr'};
 const dirEl={}; for(const k in DIRS) dirEl[k]=document.getElementById(DIRS[k]);
-let dpadPtr=null, curDir=null, lastAPress=0;
+let curDir=null, lastAPress=0;
+
+const JOY_DEAD=0.30;    // fraccion del recorrido que no mueve (zona muerta)
+const JOY_BIAS=1.30;    // histeresis: la direccion actual aguanta un poco
+const TAP_TOL=14;       // px que se pueden mover sin dejar de ser "un toque"
+const TAP_MS=500;       // y tiempo maximo del toque
 
 function setDir(d){
   if(d===curDir) return;
@@ -2578,36 +2655,183 @@ function setDir(d){
   curDir=d;
   if(curDir){ keys[curDir]=true; dirEl[curDir].classList.add('on'); }
 }
-function dirFromPoint(x,y){
-  const r=dpadEl.getBoundingClientRect();
-  const dx=x-(r.left+r.width/2), dy=y-(r.top+r.height/2);
-  if(Math.hypot(dx,dy) < r.width*0.13) return null;        // zona muerta central
-  return Math.abs(dx)>Math.abs(dy) ? (dx>0?'arrowright':'arrowleft')
-                                   : (dy>0?'arrowdown':'arrowup');
-}
-dpadEl.addEventListener('pointerdown',e=>{
-  e.preventDefault(); dpadPtr=e.pointerId;
-  try{ dpadEl.setPointerCapture(e.pointerId); }catch(_){}
-  dpadEl.classList.add('act'); setDir(dirFromPoint(e.clientX,e.clientY));
-});
-dpadEl.addEventListener('pointermove',e=>{
-  if(e.pointerId!==dpadPtr) return; e.preventDefault();
-  setDir(dirFromPoint(e.clientX,e.clientY));
-});
-function dpadRelease(e){
-  if(e && e.pointerId!==dpadPtr) return;
-  dpadPtr=null; dpadEl.classList.remove('act'); setDir(null);
-}
-['pointerup','pointercancel','lostpointercapture'].forEach(ev=>dpadEl.addEventListener(ev,dpadRelease));
-window.addEventListener('blur',()=>dpadRelease(null));
+// el marco de referencia del mando es la ventana entera (#game)
+function mandoRect(){ return document.getElementById('game').getBoundingClientRect(); }
 
-// --- boton A ---
-aBtnEl.addEventListener('pointerdown',e=>{
-  e.preventDefault(); aBtnEl.classList.add('on'); lastAPress=Date.now();
+//--- joystick ------------------------------------------------------
+let joy={id:null, cx:0, cy:0};
+function joyRadio(){ return (joyEl.offsetWidth||132)/2; }
+function joyCentrar(cx,cy){
+  const r=mandoRect();
+  joy.cx=cx; joy.cy=cy;
+  joyEl.style.left=(cx-r.left)+'px';
+  joyEl.style.top =(cy-r.top )+'px';
+}
+function joyDireccion(dx,dy){
+  const ax=Math.abs(dx), ay=Math.abs(dy);
+  // sin histeresis manda el eje dominante; con una direccion ya elegida,
+  // hay que pasarse claramente de la diagonal para cambiar de eje
+  const horiz = (curDir==='arrowleft'||curDir==='arrowright') ? ax*JOY_BIAS>=ay
+              : (curDir==='arrowup'  ||curDir==='arrowdown' ) ? ax>=ay*JOY_BIAS
+              : ax>=ay;
+  return horiz ? (dx>0?'arrowright':'arrowleft') : (dy>0?'arrowdown':'arrowup');
+}
+function joySeguir(x,y){
+  const R=joyRadio(), Rk=(joyKnob.offsetWidth||R*0.46)/2;
+  const Rmax=Math.max(12, R-Rk-3);   // recorrido del pomo, sin asomar del aro
+  let dx=x-joy.cx, dy=y-joy.cy, d=Math.hypot(dx,dy);
+  if(d>Rmax){                        // base pegajosa: el aro persigue al dedo
+    const k=(d-Rmax)/d;
+    joyCentrar(joy.cx+dx*k, joy.cy+dy*k);
+    dx=x-joy.cx; dy=y-joy.cy; d=Math.hypot(dx,dy);
+  }
+  joyKnob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';
+  setDir(d < Math.max(8, Rmax*JOY_DEAD) ? null : joyDireccion(dx,dy));
+}
+function joyAbrir(id,x,y){
+  joy.id=id; joyCentrar(x,y);
+  joyKnob.style.transform='translate(0,0)';
+  joyEl.classList.add('on');
+  joySeguir(x,y);
+}
+function joySoltar(e){
+  if(e && joy.id!==null && e.pointerId!==joy.id) return;
+  joy.id=null; joyEl.classList.remove('on');
+  joyKnob.style.transform='translate(0,0)';
+  setDir(null);
+}
+
+//--- boton de accion: posicion propia por orientacion, y arrastrable ---
+const ABTN_KEY='campus_passau_abtn';
+let aPos={};
+try{ const g=localStorage.getItem(ABTN_KEY); if(g) aPos=JSON.parse(g)||{}; }catch(_){}
+function aPosKey(vw,vh){ return vw>vh ? 'l' : 'p'; }
+function colocarBotonA(){
+  const {w:vw,h:vh}=viewport(), k=aPosKey(vw,vh);
+  const lado=aBtnEl.offsetWidth||64, mitad=lado/2, g=aPos[k];
+  let cx,cy;
+  if(g && isFinite(g.fx) && isFinite(g.fy)){ cx=g.fx*vw; cy=g.fy*vh; }
+  else{
+    // por defecto: separado del borde derecho (el pulgar no llega comodo
+    // a la esquina) y levantado del inferior. En vertical cae ademas en el
+    // hueco que queda por debajo del lienzo.
+    const apaisado = vw>vh;
+    cx = vw - Math.max(58, Math.min(190, vw*(apaisado?0.155:0.215)));
+    cy = vh - Math.max(58, Math.min(190, vh*(apaisado?0.235:0.145)));
+  }
+  const m=Math.max(6, mitad*0.12);
+  cx=Math.max(mitad+m, Math.min(vw-mitad-m, cx));
+  cy=Math.max(mitad+m, Math.min(vh-mitad-m, cy));
+  aBtnEl.style.left=(cx-mitad)+'px';
+  aBtnEl.style.top =(cy-mitad)+'px';
+  return {cx,cy};
+}
+function guardarBotonA(cx,cy){
+  const {w:vw,h:vh}=viewport();
+  aPos[aPosKey(vw,vh)]={fx:cx/vw, fy:cy/vh};
+  try{ localStorage.setItem(ABTN_KEY, JSON.stringify(aPos)); }catch(_){}
+}
+function accionA(){
+  lastAPress=Date.now();
   if(state==='dialog') advanceDialog(); else if(state==='play') interact();
+}
+function destelloA(){
+  aBtnEl.classList.add('on');
+  clearTimeout(destelloA._t);
+  destelloA._t=setTimeout(()=>aBtnEl.classList.remove('on'),120);
+}
+
+//--- reparto de la pantalla y seguimiento de los dedos ---------------
+// tap: pulsacion en la mitad derecha que ni se mueve ni se alarga
+let tap={id:null, x:0, y:0, t:0, sobreA:false, arrastra:false, ox:0, oy:0};
+function tapSoltar(){ tap.id=null; tap.sobreA=false; tap.arrastra=false; }
+
+touchEl.addEventListener('pointerdown',e=>{
+  if(state!=='play' && state!=='dialog') return;
+  e.preventDefault();
+  ocultarPistaTactil();
+  const r=mandoRect(), sobreA=aBtnEl.contains(e.target);
+  const derecha=(e.clientX-r.left) > r.width*0.5;
+  try{ touchEl.setPointerCapture(e.pointerId); }catch(_){}
+
+  if(sobreA || (derecha && tap.id===null)){
+    // la mitad derecha manda accion; sobre el propio boton, ya
+    tap={id:e.pointerId, x:e.clientX, y:e.clientY, t:Date.now(), sobreA:sobreA,
+         arrastra:false, ox:e.clientX-aBtnEl.offsetLeft, oy:e.clientY-aBtnEl.offsetTop};
+    if(sobreA){ aBtnEl.classList.add('on'); accionA(); }
+    return;
+  }
+  if(joy.id===null) joyAbrir(e.pointerId, e.clientX, e.clientY);
 });
-['pointerup','pointercancel','pointerleave'].forEach(ev=>
-  aBtnEl.addEventListener(ev,()=>aBtnEl.classList.remove('on')));
+
+touchEl.addEventListener('pointermove',e=>{
+  if(e.pointerId===joy.id){ e.preventDefault(); joySeguir(e.clientX,e.clientY); return; }
+  if(e.pointerId!==tap.id) return;
+  const d=Math.hypot(e.clientX-tap.x, e.clientY-tap.y);
+  if(!tap.arrastra && d<=TAP_TOL) return;
+  e.preventDefault();
+  if(tap.sobreA){
+    // arrastrar el boton A lo recoloca donde se suelte
+    if(!tap.arrastra){
+      tap.arrastra=true; aBtnEl.classList.remove('on'); aBtnEl.classList.add('drag');
+      try{ navigator.vibrate && navigator.vibrate(12); }catch(_){}
+    }
+    const r=mandoRect(), lado=aBtnEl.offsetWidth, m=Math.max(6, lado*0.06);
+    const x=Math.max(m, Math.min(r.width -lado-m, e.clientX-tap.ox));
+    const y=Math.max(m, Math.min(r.height-lado-m, e.clientY-tap.oy));
+    aBtnEl.style.left=x+'px'; aBtnEl.style.top=y+'px';
+  }else if(joy.id===null){
+    // no era un toque sino un deslizamiento: tambien vale de joystick
+    tap.arrastra=true;
+    joyAbrir(e.pointerId, tap.x, tap.y);
+    joySeguir(e.clientX, e.clientY);
+    tapSoltar();
+  }else{
+    tap.arrastra=true;    // ya hay joystick en marcha: este dedo no hace nada
+  }
+});
+
+function punteroArriba(e){
+  if(e && e.pointerId===joy.id){ joySoltar(e); return; }
+  if(!e || e.pointerId!==tap.id){ if(!e){ joySoltar(null); tapSoltar(); } return; }
+  if(tap.sobreA){
+    aBtnEl.classList.remove('on','drag');
+    if(tap.arrastra) guardarBotonA(aBtnEl.offsetLeft+aBtnEl.offsetWidth/2,
+                                   aBtnEl.offsetTop +aBtnEl.offsetHeight/2);
+  }else if(!tap.arrastra && e.type==='pointerup' && Date.now()-tap.t<TAP_MS){
+    destelloA(); accionA();      // toque limpio en la mitad derecha
+  }
+  tapSoltar();
+}
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>
+  touchEl.addEventListener(ev,punteroArriba));
+window.addEventListener('blur',()=>punteroArriba(null));
+
+// --- pista de bienvenida: solo la primera partida tactil ---
+const HINT_KEY='campus_passau_hint_tactil';
+let hintTimer=null;
+function ocultarPistaTactil(){
+  if(!tHintEl.classList.contains('on')) return;
+  clearTimeout(hintTimer);
+  tHintEl.classList.remove('on');
+  setTimeout(()=>{ tHintEl.style.display=''; },450);
+}
+function mostrarPistaTactil(){
+  if(!touchMode) return;
+  try{ if(localStorage.getItem(HINT_KEY)) return; localStorage.setItem(HINT_KEY,'1'); }catch(_){}
+  tHintEl.style.display='block';
+  requestAnimationFrame(()=>tHintEl.classList.add('on'));
+  clearTimeout(hintTimer);
+  hintTimer=setTimeout(ocultarPistaTactil, 4200);
+}
+
+// --- mantener el dedo pulsado no debe seleccionar ni sacar el menu del sistema ---
+['selectstart','contextmenu','dragstart'].forEach(ev=>document.addEventListener(ev,e=>{
+  const t=e.target;
+  if(t && t.closest && t.closest('input,textarea,[contenteditable]')) return;
+  if(ev==='contextmenu' && !touchMode) return;   // en el PC el clic derecho sigue siendo suyo
+  e.preventDefault();
+}));
 
 // --- en movil, tocar la pantalla avanza el dialogo ---
 stage.addEventListener('pointerdown',e=>{
@@ -2621,18 +2845,19 @@ stage.addEventListener('pointerdown',e=>{
 
 // --- tecla T: forzar/ocultar los controles tactiles (util para probar en PC) ---
 window.addEventListener('keydown',e=>{
+  if(escribiendo(e)) return;   // ...pero no al escribir una "t" en el cuaderno
   if(e.key==='t'||e.key==='T'){ touchMode=!touchMode; applyMode(); }
 });
 
 // --- sincroniza clases del <body> con el estado del juego ---
-function enterPlayUI(){ document.body.classList.add('playing'); resize(); }
+function enterPlayUI(){ document.body.classList.add('playing'); resize(); mostrarPistaTactil(); }
 let _lastState=null;
 function syncUIState(){
   if(state===_lastState) return;
   _lastState=state;
   document.body.classList.toggle('dlg', state==='dialog');
   document.body.classList.toggle('ovl', state==='overlay');
-  if(state==='dialog'||state==='overlay') dpadRelease(null);   // suelta el dpad al abrir menus
+  if(state==='dialog'||state==='overlay') punteroArriba(null); // suelta el mando al abrir menus
 }
 
 //==================================================================
