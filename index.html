@@ -641,12 +641,12 @@ const INTERIORS = {
       "#.s.s...........c...#",
       "#.s.s...........c...#",
       "#.s.s...........c...#",
-      "#.....SSS.......c...#",
-      "#.s.s.SSS.......c...#",
-      "#.s.s.SSS.......c...#",
-      "#.s.s.SVS...........#",
-      "#...................#",
-      "#...................#",
+      "#...............c...#",
+      "#.s.s...........c...#",
+      "#.s.s...........c...#",
+      "#.s.s.SSSS..........#",
+      "#.....VSSS..........#",
+      "#.....SSSS..........#",
       "###########.#########",
       "#.II.II.II.......####",
       "#................#A##",
@@ -655,7 +655,7 @@ const INTERIORS = {
       "###########E#########",
     ],
     doors:[
-      {x:7, y:7,  to:'zb2'},
+      {x:6, y:8,  to:'zb2'},
       {x:18,y:12, to:'zb_bano_m'},
       {x:18,y:14, to:'zb_bano_h'},
     ],
@@ -688,12 +688,12 @@ const INTERIORS = {
       "#####################",
       "#............s.s.s..#",
       "#.mm.........s.s.s..#",
-      "#.mm..ss.....SSS....#",
-      "#.....ss.....SSS....#",
-      "#.mm.........SSS....#",
-      "C.mm.........SUS....#",
-      "#...................#",
-      "##########.#######A##",
+      "#.mm..ss............#",
+      "#.....ss............#",
+      "#.mm.....SSSS.......#",
+      "C.mm.....SSSU.......#",
+      "#........SSSS.......#",
+      "########.#########A##",
       "#mmm.......mmm..#####",
       "#...............#####",
       "#mmm.......mmm..#####",
@@ -1898,6 +1898,28 @@ function avanzarGuion(){
   player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
   player.tx=nx; player.ty=ny; player.moving=true;
 }
+// bordes del tramo de escalera al que pertenece una casilla
+function tramoEscalera(g,x,y){
+  const es=(a,b)=>{const c=(g[b]||'')[a]; return c==='S'||c==='V'||c==='U';};
+  const vistos=new Set([x+','+y]), cola=[[x,y]];
+  let x0=x,x1=x,y0=y,y1=y;
+  while(cola.length){
+    const [a,b]=cola.pop();
+    x0=Math.min(x0,a); x1=Math.max(x1,a); y0=Math.min(y0,b); y1=Math.max(y1,b);
+    for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
+      const p=(a+dx)+','+(b+dy);
+      if(!vistos.has(p) && es(a+dx,b+dy)){ vistos.add(p); cola.push([a+dx,b+dy]); }
+    }
+  }
+  return {x0,x1,y0,y1};
+}
+// sentido en el que se recorre: del peldano activo hacia el resto del tramo.
+// Un tramo mas ancho que alto se sube en horizontal; si no, en vertical.
+function dirEscalera(g,x,y){
+  const t=tramoEscalera(g,x,y);
+  if((t.x1-t.x0) > (t.y1-t.y0)) return x<=(t.x0+t.x1)/2 ? [1,0] : [-1,0];
+  return y<=(t.y0+t.y1)/2 ? [0,1] : [0,-1];
+}
 // localiza el peldano activo de la escalera de una sala
 function escaleraDe(clave){
   const g=INTERIORS[clave].grid;
@@ -1906,17 +1928,19 @@ function escaleraDe(clave){
   return null;
 }
 function usarEscalera(ex,ey,destino,esSalida){
-  guionar([[ex,ey],[ex,ey-1],[ex,ey-2]], ()=>{      // se mete en el hueco
+  const [dx,dy]=dirEscalera(INTERIORS[scene].grid, ex, ey);
+  guionar([[ex,ey],[ex+dx,ey+dy],[ex+2*dx,ey+2*dy]], ()=>{   // recorre el tramo
     fade.style.opacity='1';
     setTimeout(()=>{
       let clave=destino;
       if(esSalida){ const prev=sceneStack.pop(); if(prev) clave=prev.scene; }
-      else sceneStack.push({scene:scene, x:ex, y:ey+1});
+      else sceneStack.push({scene:scene, x:ex-dx, y:ey-dy});
       const s=escaleraDe(clave);
       if(!s){ loadScene(clave,[1,1],'down'); fade.style.opacity='0'; guion=null; state='play'; return; }
-      loadScene(clave, [s[0], s[1]-2], 'down');
+      const [ax,ay]=dirEscalera(INTERIORS[clave].grid, s[0], s[1]);
+      loadScene(clave, [s[0]+2*ax, s[1]+2*ay], 'down');
       fade.style.opacity='0';
-      guionar([[s[0],s[1]-1],[s[0],s[1]],[s[0],s[1]+1]], ()=>{ state='play'; });
+      guionar([[s[0]+ax,s[1]+ay],[s[0],s[1]],[s[0]-ax,s[1]-ay]], ()=>{ state='play'; });
     },320);
   });
 }
