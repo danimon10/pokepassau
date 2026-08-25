@@ -311,7 +311,7 @@ const OUTDOOR=[
 "TTBBBBBBBB..........t...............RR............BBBBBBB.TT",
 "TTBBBBBBBB......t.......t...........RR............BBBBBBB.TT",
 "TTBBBBBBBB........................f.RR...............D....TT",
-"TTRR|RD|RR|RR|RR|RR|RRR.............RR...............P....TT",
+"TTRR|RD|RR|RR|RR|RR|RRR.............RR.......D.......P....TT",
 "TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR..NNNNNNNNNNNN.P....TT",
 "TT....................RRRRRRRR......RR..NNNNNNNNNNNN.P....TT",
 "TT........................RRRRRRRR..RR..NNNHHHHHHNNN.P....TT",
@@ -760,64 +760,16 @@ const INTERIORS = {
        lines:["Teoría del deporte. Sí, también hay que estudiar.","Anatomía, fisiología y un examen que no perdona."]},
     ]
   },
-  niko: {
-    name:"Nikolakloster — Recepción",
-    // Vestíbulo central abierto + dos pasillos laterales. 8 puertas:
-    // 1=baño mujeres, 2=secretaría, 3=centro idiomas (pasillo izq)
-    // 4=cafetería, 5=baño hombres, 6=biblioteca (pasillo der)
-    // Y=patio (arriba), E=salir al campus (abajo)
-    grid:[
-      "#############Y#############",
-      "###1##...............##4###",
-      "#.......p....I....p.......#",
-      "#.........................#",
-      "#.........IccccI..........#",
-      "#.........................#",
-      "#.........................#",
-      "3.........................6",
-      "#.........................#",
-      "#.........................#",
-      "#.........................#",
-      "#.........................#",
-      "#.......p.........p.......#",
-      "#.........................#",
-      "###2#########.#########5###",
-      "#############E#############",
-    ],
-    doors:[
-      {x:3,y:1,  to:'niko_bano_m'},
-      {x:3,y:14, to:'niko_secretaria'},
-      {x:0,y:7,  to:'niko_idiomas'},
-      {x:23,y:1, to:'niko_cafeteria'},
-      {x:23,y:14,to:'niko_bano_h'},
-      {x:26,y:7, to:'niko_biblio'},
-      {x:13,y:0, to:'niko_patio'},
-    ],
-    info:[
-      {x:13,y:2,name:"Directorio del NK",lines:["📋 NIKOLAKLOSTER — Directorio","Izq: aseos, secretaría, centro de idiomas.","Der: cafetería, aseos, biblioteca. Arriba: patio interno."]},
-      {x:10,y:4,name:"Cartel · Horarios",lines:["🕒 Horario del edificio: 7:00 – 22:00","Fines de semana: solo biblioteca y patio."]},
-      {x:15,y:4,name:"Cartel · Eventos",lines:["📣 Esta semana: charla de intercambios Erasmus.","Jueves, 18:00, en el patio interno."]},
-    ],
-    npcs:[
-      {x:13,y:9,name:"Recepcionista Uwe",color:"#5a8ad6",dir:'down',
-       lines:["Willkommen im Nikolakloster.","A tu izquierda: aseos, secretaría y el centro de idiomas.","A tu derecha: la cafetería, los otros aseos y la biblioteca.","Y arriba, el patio interno. ¿Te oriento?"],
-       careerLine:{Jura:"¿Derecho? Casi toda tu facultad vive en este edificio.",
-                   Kuwi:"¿KuWi? Muchas de tus clases son en estas aulas históricas.",
-                   default:"Sea cual sea tu carrera, aquí siempre hay alguna cola que hacer."}},
-      {x:10,y:11,name:"Estudiante perdida",color:"#d65a8a",dir:'left',
-       lines:["¿Tú también buscas tu aula? Llevo dando vueltas un rato.","Juraría que el cartel decía sala 3, pero aquí no hay ninguna sala 3."]},
-    ]
-  },
   niko_bano_m: {
     name:"Nikolakloster — Baño (mujeres)",
     grid:[
-      "##########",
-      "#WLbbbLW.#",
+      "####X#####",
+      "#........#",
       "#........#",
       "#.p....p.#",
       "#........#",
-      "#........#",
-      "####X#####",
+      "#WLbbbLW.#",
+      "##########",
     ],
     npcs:[
       {x:7,y:2,name:"Estudiante apurada",color:"#d65a8a",dir:'left',
@@ -841,14 +793,14 @@ const INTERIORS = {
     ]
   },
   niko_secretaria: {
-    name:"Nikolakloster — Secretaría de notas",
+    name:"Notas del Centro de Idiomas",
     grid:[
-      "#####X######",
+      "############",
       "#..........#",
       "#pk......kp#",
       "#kkkkkkkkkk#",
       "#kDDkkkkDDk#",
-      "#kkkkkkkkkk#",
+      "#kkkkkkkkkkX",
       "#kkkkkkkkkk#",
       "#..........#",
       "############",
@@ -857,24 +809,26 @@ const INTERIORS = {
       {x:2,y:2,name:"Tablón · Trámites",lines:["📌 Solicitudes y certificados de notas","Entregue formularios por triplicado.","Recogida: de 9:00 a 12:00."]},
     ],
     npcs:[
-      {x:2,y:3,name:"Secretaria Frau Kraus",color:"#d65a8a",dir:'down',
-       lines:["Secretaría de notas. Formularios, firmas y sellos.","¿Vienes por tu Notenbescheinigung?"],
+      {x:2,y:3,name:"Herr Kim",color:"#4a7a8a",dir:'down',
+       lines:["Administración de notas del centro de idiomas. Aquí acaban todos los exámenes de idiomas.",
+              "Doce idiomas, cuatro niveles cada uno y un solo archivador. Bueno, cuatro.",
+              "¿Vienes por tu Notenbescheinigung? Dime el idioma y el semestre."],
        choice:{q:"¿Qué necesitas?",opts:[
          {t:"Un certificado de notas",r:["Rellena este formulario por triplicado. El sello está en la otra mesa."]},
          {t:"Nada, gracias",r:["Como quieras. La puerta siempre está abierta. Casi siempre."]}]}},
       {x:8,y:3,name:"Administrativo Kurt",color:"#8a5ad6",dir:'down',
-       lines:["Papeleo, papeleo y más papeleo.","Pero sin nosotros, nadie se graduaría. Recuérdalo."]},
+       lines:["Papeleo, papeleo y más papeleo.","Pero sin nosotros nadie certifica un B2. Recuérdalo."]},
     ]
   },
   niko_idiomas: {
-    name:"Nikolakloster — Centro de idiomas",
+    name:"Nikolakloster — Aula 115",
     // Aula de idiomas: pizarra (P) arriba, mesas (m) y sillas (e), plantas (p).
     grid:[
       "##############",
       "#PPPPPPPPPPPP#",
       "#............#",
       "#.mm.mm.mm.p.#",
-      "#.ee.ee.ee...X",
+      "X.ee.ee.ee...#",
       "#............#",
       "#.mm.mm.mm.p.#",
       "#.ee.ee.ee...#",
@@ -886,110 +840,13 @@ const INTERIORS = {
       {x:6,y:1,name:"Pizarra",lines:["📝 Sprachenzentrum — Centro de idiomas","Hoy: Deutsch A2, Español B1, English C1.","« Guten Morgen! · ¡Buenos días! · Good morning! »"]},
     ],
     npcs:[
-      {x:3,y:5,name:"Profesora Marta",color:"#d65a8a",dir:'down',
+      {x:3,y:5,name:"Profesora Irene",color:"#d65a8a",dir:'down',
        lines:["¡Hola! Aquí se aprenden idiomas de medio mundo.","El alemán cuesta al principio, pero se le coge el gusto."],
        careerLine:{Kuwi:"¿KuWi? Los idiomas son medio grado tuyo, ¿verdad?",
                    MuK:"¿MuK? Comunicar en varios idiomas te abrirá muchas puertas.",
                    default:"Sea cual sea tu carrera, un idioma más nunca sobra."}},
       {x:9,y:8,name:"Estudiante Erasmus",color:"#5ad68f",dir:'left',
        lines:["Vengo de Italia con el Erasmus. Passau me encanta.","Estoy aprendiendo alemán… despacio, pero con birra ayuda."]},
-    ]
-  },
-  niko_cafeteria: {
-    name:"Nikolakloster — NK Cafetería",
-    // Cafetería: mostrador (c) y barriles/cafetera (K) arriba, mesas (t)+sillas (e), plantas.
-    grid:[
-      "###############",
-      "#ccccccc#KKKKK#",
-      "#.......#.....#",
-      "#..t..t..t...p#",
-      "#..e..e..e....#",
-      "#............p#",
-      "#..t..t..t....#",
-      "#..e..e..e...p#",
-      "#.............#",
-      "#.............#",
-      "######X########",
-    ],
-    info:[
-      {x:2,y:2,name:"Pizarra · Menú",lines:["☕ NK CAFETERÍA","Café 1,20 € · Bretzel 0,90 € · Bocadillo 2,50 €","Recomendación del día: café con Apfelstrudel."]},
-    ],
-    npcs:[
-      {x:2,y:3,name:"Barista Nora",color:"#c87a3a",dir:'down',
-       lines:["¡Bienvenido a la NK Cafetería! ¿Un café antes de clase?","El truco para aprobar: cafeína y buena compañía."],
-       choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Un café solo",r:["Marchando. Cargadito, que se nota el lunes."]},
-         {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero."]},
-         {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla, ya caerás."]}]}},
-      {x:10,y:6,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
-       lines:["Entre clase y clase siempre acabo aquí.","La NK Cafetería es más barata que bajar a la ciudad."]},
-    ]
-  },
-  niko_biblio: {
-    name:"Nikolakloster — Bibliothek",
-    // Biblioteca grande: estanterías (s) arriba/abajo, muchas mesas (m) con
-    // portátiles y sillas (e), plantas (p). Salida (X) al hub.
-    grid:[
-      "####################",
-      "#ssssss#ssss#ssssss#",
-      "#..................#",
-      "#.p..mm..mm..mm..p.#",
-      "#....ee..ee..ee....#",
-      "#..................#",
-      "X.mm..mm..mm..mm..p#",
-      "#.ee..ee..ee..ee...#",
-      "#..................#",
-      "#p..mm..mm..mm..mm.#",
-      "#...ee..ee..ee..ee.#",
-      "#..................#",
-      "#s#sss#ss..ss#sss#s#",
-      "#..................#",
-      "####################",
-    ],
-    info:[
-      {x:9,y:1,name:"Tablón · Silencio",lines:["🔇 ZONA DE ESTUDIO","Silencio, por favor.","Portátiles permitidos. Café, bajo tu responsabilidad."]},
-    ],
-    npcs:[
-      {x:5,y:5,name:"Estudiante Lena",color:"#5ad68f",dir:'up',
-       lines:["Llevo toda la mañana con los apuntes y el portátil.","Esta biblioteca del Nikolakloster tiene algo… se concentra una bien."],
-       careerLine:{Inf:"¿Informática? Yo también. ¿Ya te compila el proyecto?",
-                   Mathe:"¿Mates? Entonces sabes que aquí las demostraciones salen solas.",
-                   default:"Sea lo que sea que estudies, un buen sitio de estudio lo es todo."}},
-      {x:11,y:8,name:"Doctorando Ali",color:"#5a8ad6",dir:'down',
-       lines:["Tesis, capítulo cuatro. O quizá el tres. Ya no lo sé.","Estas mesas junto a la ventana son las mejores del edificio."]},
-      {x:8,y:11,name:"Bibliotecaria Eva",color:"#d65a8a",dir:'down',
-       lines:["¿Necesitas una signatura? Están todas en el catálogo.","Y recuerda devolver los libros a tiempo. Llevo la cuenta."],
-       choice:{q:"¿Te ayudo a buscar algo?",opts:[
-         {t:"Bibliografía para un trabajo",r:["Pasillo de la izquierda, estantes por materia. Suerte."]},
-         {t:"Solo un sitio tranquilo",r:["Cualquier mesa libre es tuya. Disfruta del silencio."]}]}},
-    ]
-  },
-  niko_patio: {
-    name:"Nikolakloster — Innenhof",
-    isPatio:true,
-    // Patio grande: empedrado (p), 3 tilos en esquinas (o), fuente central (F).
-    // Salida (X) al hub. Puerta al bar Gmoa (G) en la esquina DERECHA.
-    grid:[
-      "######################",
-      "#.o..............o...G",
-      "#..pppppppppppppppp..#",
-      "#..pppppppppppppppp..#",
-      "#..ppppppppFppppppp..#",
-      "#..ppppppppFppppppp..#",
-      "#..pppppppppppppppp..#",
-      "#..pppppppppppppppp..#",
-      "#.o..............o...#",
-      "#....................#",
-      "##########X###########",
-    ],
-    doors:[ {x:21,y:1,to:'gmoa'} ],
-    npcs:[
-      {x:12,y:3,name:"Estudiante Mara",color:"#5ad68f",dir:'down',
-       lines:["El Innenhof es mi rincón favorito del Nikolakloster.","En cuanto sale el sol, todo el mundo baja su café a estos bancos."],
-       careerLine:{Kuwi:"¿KuWi? Este patio es prácticamente nuestra segunda aula.",
-                   default:"Siéntate junto a la fuente, se está de maravilla."}},
-      {x:6,y:7,name:"Jardinero Sepp",color:"#8a6a3a",dir:'up',
-       lines:["Estos tres tilos llevan aquí más años que yo, y mira que llevo.","¿Ves esa puertecita de la esquina derecha? Lleva al Gmoa. La mejor cerveza del campus."]},
     ]
   },
   gmoa: {
@@ -1821,6 +1678,914 @@ const INTERIORS = {
     ]
   },
 
+  niko_patio: {
+    // El claustro tiene dos plataformas a distinta altura. La baja ('b')
+    // es la de la entrada sur y el aparcabicis; la alta ('g') es la de los
+    // tilos y los bancos. El muro de contencion ('m' y 'M') las separa y
+    // el unico paso es la escalera ('s'): no se puede cruzar por el borde.
+    name:"Nikolakloster — Claustro",
+    isPatio:true,
+    grid:[
+      "###########E###################",
+      "#ggggggggggggggggggggggggggggg#",
+      "#ggggggggggggggggggggggggggggg#",
+      "#gggggggggggggggggggggggggggggQ",
+      "#ggggOgggngggggggggggggggggggg#",
+      "#ggggggggggggggggggggggOgggggg#",
+      "#gggggggggggggnggggggggggggggg#",
+      "4ggggggggggggggggggggggggggggg#",
+      "#ggggggggggggggggggggggggggggg#",
+      "#mmmm[sss]mmmmmmmmgggggggggggg#",
+      "#bbbb[sss]bbbbbbbMgaggggnggggg#",
+      "#bbbb[sss]bbbbbbbMgggggggggggg#",
+      "#bbbb[sss]bbbbbbbMggnggggggggg#",
+      "#bbbbbbbbbbbbbbbbMgggggggggggg#",
+      "#bbbbbbbbbbbbbbbbMgagggggggggg#",
+      "#bbbbbbbbbbbbbbbbMgggggggggggg#",
+      "#bbbbbbbbbbbbbbbbMggnggggggggg#",
+      "#bbbbbbbbbbbbbbbbMgggggggggggg#",
+      "#bbbbbbbbbbbbbbbbMgggggggggggg#",
+      "#bbbbbbbbbbbbbbbbMgagggggOgggg#",
+      "#bbbbbbbbbbbbbbbbMgggggggggggg#",
+      "5bbkkkkkkbbbbbbbbMgggggggggggg#",
+      "#bbbbbbbbbbbbbbbbMggnggggnggggG",
+      "#bbbbbbbbbbbbbbbbMgggggggggggg#",
+      "############E##################",
+    ],
+    salidas:[
+      {x:12,y:24, at:[45,26]},           // 1 · entrada sur, la de siempre
+      {x:11,y:0,  at:[45,16]},           // 2 · salida norte, por detras del NK
+    ],
+    doors:[
+      {x:30,y:22, to:'gmoa'},                                  // 3
+      {x:0, y:7,  to:'nk3', at:[25,1],  dir:'left'},           // 4
+      {x:0, y:21, to:'nk2', at:[13,13], dir:'left'},           // 5
+    ],
+    info:[
+      {x:30,y:3,name:"Portón del convento",lines:[
+        "Un portón de madera oscura, cerrado con dos vueltas de llave.",
+        "Detrás se oye, muy flojo, un canto a varias voces.",
+        "Sobre el dintel, tallado en la piedra: MCDLXXVIII."]},
+      {x:5,y:21,name:"Aparcabicis",lines:[
+        "🚲 Treinta bicis y ni un candado igual.",
+        "Una lleva aquí desde el semestre pasado, con el sillín torcido.",
+        "Alguien le ha colgado un cartel: «¿de quién soy?»"]},
+    ],
+    npcs:[
+      {x:29,y:3,name:"Sor Adelheid",color:"#6a4a8a",dir:'left',
+       lines:["Por aquí no se pasa, criatura. Esto ya no es parte de la universidad.",
+              "El claustro es vuestro; el convento, nuestro. Fue el trato de 1978.",
+              "Quizá algún día. Hoy no."],
+       careerLine:{default:"Estudia con calma. Este edificio lleva quinientos años viendo pasar prisas."}},
+      {x:7,y:5,name:"Jardinero Sepp",color:"#8a6a3a",dir:'down',
+       lines:["Estos tilos llevan aquí más años que yo, y mira que llevo.",
+              "La terraza de arriba y el patio de abajo son el mismo claustro, ojo.",
+              "Pero para subir hay que usar la escalera. Por el murete no, que ya se cayó uno."]},
+      {x:21,y:16,name:"Estudiante Mara",color:"#5ad68f",dir:'left',
+       lines:["La terraza de arriba es mi rincón favorito del Nikolakloster.",
+              "En cuanto sale el sol, todo el mundo sube su café a estos bancos."],
+       careerLine:{Kuwi:"¿KuWi? Este claustro es prácticamente nuestra segunda aula.",
+                   default:"Siéntate un rato bajo los tilos, se está de maravilla."}},
+      {x:11,y:21,name:"Estudiante Bruno",color:"#d6a05a",dir:'down',
+       lines:["Cinco minutos buscando mi bici. Cinco. Y son todas negras.",
+              "La puerta de atrás, la del norte, te ahorra media vuelta al edificio.",
+              "Poca gente la usa. Yo la uso siempre."]},
+      {x:14,y:22,name:"Conserje Herr Loibl",color:"#5a8ad6",dir:'up',
+       lines:["Willkommen im Nikolakloster.",
+              "Por la puerta de la izquierda de abajo se va a la planta intermedia;",
+              "por la de arriba, al ala de aulas. Y el Gmoa está al fondo a la derecha.",
+              "Si te pierdes, sube a la terraza y mira desde allí. Se ve todo."],
+       careerLine:{Jura:"¿Derecho? Casi toda tu facultad vive en este edificio.",
+                   default:"Sea cual sea tu carrera, aquí acabas pasando media semana."}},
+    ]
+  },
+  nk2: {
+    // Un piso de paso: cuatro paredes, una planta y poco mas. De aqui
+    // sale el estacionamiento subterraneo y la escalera al ala de aulas.
+    name:"Nikolakloster — Planta intermedia",
+    grid:[
+      "###############",
+      "#.............#",
+      "#...........I.#",
+      "#.............#",
+      "2.............#",
+      "#.............#",
+      "#.............#",
+      "#.............#",
+      "#..p..........#",
+      "#.............#",
+      "#.............#",
+      "#.............#",
+      "#.............#",
+      "#.............1",
+      "#.............#",
+      "#.............#",
+      "#.............#",
+      "#.............#",
+      "#########.....#",
+      "#########.....#",
+      "#########.....#",
+      "#########SVSS.#",
+      "#########SSSS.#",
+      "#########SSSS.#",
+      "#########SSSS.#",
+      "#########.....#",
+      "#########.....#",
+      "#########.....#",
+      "###############",
+    ],
+    doors:[
+      {x:0, y:4,  to:'nk2_parking'},                                   // 2
+      {x:14,y:13, to:'niko_patio', at:[1,21], dir:'right'},            // 1
+      {x:10,y:21, to:'nk3'},                                           // escalera
+    ],
+    info:[
+      {x:12,y:2,name:"Tablón olvidado",lines:[
+        "Un tablón de corcho con cuatro chinchetas y ningún papel.",
+        "En una esquina queda media hoja: «…urso de verano 20…».",
+        "Nadie ha vuelto a colgar nada aquí en mucho tiempo."]},
+    ],
+    npcs:[
+      {x:6,y:10,name:"Estudiante Fabi",color:"#8a94a2",dir:'right',
+       lines:["¿Tú también has acabado aquí sin querer?",
+              "Es el piso más aburrido de la universidad. Y mira que hay competencia.",
+              "Abajo está el parking y arriba las aulas. Aquí, nada. Literalmente nada."]},
+    ]
+  },
+  nk2_parking: {
+    // Estacionamiento subterraneo. La salida esta al sur, detras de los coches.
+    name:"Nikolakloster — Estacionamiento",
+    grid:[
+      "#####################",
+      "#___________________#",
+      "#_<_<_<_<_<_<_<_<_<_#",
+      "#___________________#",
+      "#___________________#",
+      "#___________________#",
+      "#_<_<_<_<_<_<_<_<_<_#",
+      "#___________________#",
+      "#___________________#",
+      "#___________________#",
+      "#_<_<_<_<_<_<_<_<_<_#",
+      "#___________________#",
+      "#I__________________#",
+      "#___________________#",
+      "##########X##########",
+    ],
+    info:[
+      {x:1,y:12,name:"Cartel de plazas",lines:[
+        "🅿 PLAZAS RESERVADAS AL PERSONAL",
+        "Estudiantes: 40 € al semestre. Lista de espera: dos semestres.",
+        "Debajo, a boli: «o vienes en bici»."]},
+    ],
+    npcs:[
+      {x:10,y:8,name:"Herr Pichlmaier",color:"#7a8494",dir:'left',
+       lines:["Tercera fila, plaza catorce. O eso creía yo.",
+              "Llevo veinte minutos dando vueltas con el mando en la mano.",
+              "Si oyes un pitido, avísame."]},
+      {x:5,y:4,name:"Estudiante Yannik",color:"#5a8ad6",dir:'down',
+       lines:["Aquí abajo no hay cobertura y siempre hace el mismo frío.",
+              "En invierno se agradece. En junio, también."]},
+    ]
+  },
+  nk3: {
+    // Planta abierta: cafeteria al noroeste (escenario, mostrador y mesas),
+    // rincon semicerrado con dos mesitas, la biblioteca en L al sur y los
+    // despachos al este. Dos escaleras: una sube a NK4 y otra baja a NK2.
+    name:"Nikolakloster — Cafetería y biblioteca",
+    grid:[
+      "###########################",
+      "#a^^^^aa#I................4",
+      "#aaaaapa#.................#",
+      "#aaaaaaa#.................#",
+      "#ataataa#.................#",
+      "#aeaaeaa#...####....#.#####",
+      "#aaaaaaaa...#aaa....#.SSSS#",
+      "#ataataaa.t.#ata....#.VSSS#",
+      "#aeaaeaaa.e.#aea....#.SSSS#",
+      "#aaaaaaa#...#aaa....#######",
+      "#aaaaaaa#.t.####....#######",
+      "#caccaaa#.e.####....#######",
+      "#aaaaata#...####.p..#######",
+      "#aaaaaea#.t.####....2######",
+      "#########.e.####....#######",
+      "#...........####....#######",
+      "#...........####....#######",
+      "#...........####....3######",
+      "#...........####....#######",
+      "#....###########....#######",
+      "#....###########....#######",
+      "#....###########....#######",
+      "#..p.###########..........#",
+      "#....###########..........#",
+      "#....###########.p........#",
+      "#....7##########..........#",
+      "#....###########..........#",
+      "#....###########..........#",
+      "#....###########....#SVSS##",
+      "#...................#SSSS##",
+      "#...................#SSSS##",
+      "#...................#SSSS##",
+      "#####8###9####0###A########",
+    ],
+    doors:[
+      {x:26,y:1,  to:'niko_patio', at:[1,7], dir:'right'},   // 4 · al claustro
+      {x:20,y:13, to:'nk3_master'},                          // 2
+      {x:20,y:17, to:'nk3_filosofia'},                       // 3
+      {x:5, y:25, to:'niko_biblio'},                         // 7
+      {x:5, y:32, to:'nk3_aula1'},                           // 8
+      {x:9, y:32, to:'nk3_aula2'},                           // 9
+      {x:14,y:32, to:'niko_bano_h'},                         // 10
+      {x:18,y:32, to:'niko_bano_m'},                         // 11
+      {x:22,y:7,  to:'nk4'},                                 // escalera arriba
+      {x:22,y:28, to:'nk2'},                                 // escalera abajo
+    ],
+    info:[
+      {x:9,y:1,name:"Tablero de la universidad",lines:[
+        "📋 UNIVERSITÄT PASSAU — INFORMACIÓN",
+        "Fundada en 1978 · unos 11.000 estudiantes · cuatro facultades.",
+        "Este edificio, el Nikolakloster, es un convento del siglo XV.",
+        "Charla de intercambios el jueves a las 18:00, aquí mismo.",
+        "Alguien ha añadido a boli: «hay tarta»."]},
+      {x:3,y:1,name:"Escenario",lines:[
+        "🎭 Un escenario bajo, de tablas, con dos focos colgados.",
+        "Los jueves hay conciertos pequeños; los martes, teatro universitario.",
+        "Hoy hay una guitarra apoyada y nadie al lado."]},
+    ],
+    npcs:[
+      {x:2,y:11,name:"Barista Nora",color:"#c87a3a",dir:'down',
+       lines:["¡Bienvenido! ¿Un café antes de clase?",
+              "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
+              "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
+       choice:{q:"¿Qué te pongo?",opts:[
+         {t:"Un café solo",r:["Marchando. Cargadito, que se nota el lunes."]},
+         {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero, lo hago yo."]},
+         {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla. Ya caerás."]}]},
+       careerLine:{default:"A ti te veo cara de segundo café. Y no son ni las once."}},
+      {x:11,y:8,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
+       lines:["Entre clase y clase siempre acabo aquí.",
+              "Esta cafetería es más barata que bajar a la ciudad, y encima hay conciertos."]},
+      {x:15,y:8,name:"Estudiante Selma",color:"#d65a8a",dir:'up',
+       lines:["Este rincón es el mejor sitio del edificio para estudiar sin encerrarse.",
+              "Se oye el murmullo de la cafetería, pero de lejos. Justo lo necesario."]},
+      {x:17,y:20,name:"Conserje Uwe",color:"#5a8ad6",dir:'left',
+       lines:["Abajo del todo tienes los aseos y dos aulas.",
+              "La biblioteca es la puerta grande de la izquierda: sólo se entra por ahí.",
+              "Y esa escalera del fondo sube a las aulas y a los despachos de idiomas."],
+       careerLine:{Kuwi:"¿KuWi? Entonces media carrera te la vas a pasar en esta planta.",
+                   default:"Si buscas un aula concreta, mira el número: los pares están arriba."}},
+      {x:10,y:29,name:"Estudiante Jost",color:"#d6a05a",dir:'up',
+       lines:["Examen en veinte minutos y aquí sigo, repasando de pie.",
+              "Los baños del fondo son de los pocos que siempre funcionan."]},
+    ]
+  },
+  niko_biblio: {
+    // La biblioteca del NK, en L, como en el plano de la planta: sala
+    // ancha abajo y brazo estrecho subiendo por la derecha. Solo se entra
+    // y se sale por la puerta 7.
+    name:"Nikolakloster — Bibliothek",
+    grid:[
+      "#######################",
+      "#############.........#",
+      "#############.sss.sss.#",
+      "#############.......p.#",
+      "#############.e.e.....#",
+      "#############.m.m.~~~.#",
+      "#############.....~~~.#",
+      "#############.m.m.~~~.#",
+      "#############.e.e.....#",
+      "#.....................#",
+      "#.DD..................#",
+      "#.ss.ss.ss....e.e.e...#",
+      "#.ss.ss.ss....m.m.m...#",
+      "X.....................#",
+      "#.....................#",
+      "#.ss.ss.ss....e.e.e...#",
+      "#.ss.ss.ss....m.m.m...#",
+      "#p...................p#",
+      "#######################",
+    ],
+    info:[
+      {x:2,y:10,name:"Mostrador de préstamo",lines:[
+        "📕 Préstamo: cuatro semanas, renovable dos veces.",
+        "Un cartel escrito a mano: «los libros de la vitrina NO salen».",
+        "Debajo, otro: «tampoco los de la mesa. Ni los del carrito.»"]},
+      {x:19,y:6,name:"Rincón verde",lines:[
+        "🌿 Una jardinera larga con helechos y un ficus que se ha venido arriba.",
+        "Es el único sitio de la biblioteca donde se puede hablar bajito.",
+        "Alguien riega esto muy bien. Nadie sabe quién."]},
+      {x:16,y:2,name:"Sociedad de libros",lines:[
+        "📚 SOCIEDAD DE LIBROS DEL NIKOLAKLOSTER",
+        "Se reúne los miércoles. Cada mes, un libro y mucha discusión.",
+        "En la lista de este mes hay siete nombres y un dibujo de un gato."]},
+    ],
+    npcs:[
+      {x:5,y:13,name:"Bibliotecaria Frau Enz",color:"#8a5ad6",dir:'right',
+       lines:["Bienvenido. Aquí se habla bajo y se lee alto, por dentro.",
+              "El brazo de arriba a la derecha es la zona de estudio silencioso.",
+              "Y ese rincón verde es para leer sin sentirse en un sótano."],
+       choice:{q:"¿Buscas algo?",opts:[
+         {t:"Un sitio para estudiar",r:["Sube por la derecha. Las mesas del fondo tienen enchufe."]},
+         {t:"Un libro concreto",r:["Dime el título… bueno, dímelo cuando lo sepas. Pasa mucho."]},
+         {t:"Solo estoy mirando",r:["Mira, mira. Aquí mirar también cuenta como leer."]}]}},
+      {x:15,y:11,name:"Estudiante Lena",color:"#5ad68f",dir:'up',
+       lines:["Llevo toda la mañana con los apuntes y el portátil.",
+              "Esta biblioteca tiene algo… se concentra una bien."],
+       careerLine:{Inf:"¿Informática? Yo también. ¿Ya te compila el proyecto?",
+                   default:"Sea lo que sea que estudies, un buen sitio de estudio lo es todo."}},
+      {x:15,y:5,name:"Doctorando Ali",color:"#5a8ad6",dir:'left',
+       lines:["Tesis, capítulo cuatro. O quizá el tres. Ya no lo sé.",
+              "Estas mesas de arriba son las mejores del edificio y lo sabe muy poca gente.",
+              "Te pido un favor: no lo cuentes."]},
+      {x:11,y:17,name:"Estudiante Pia",color:"#d65a8a",dir:'up',
+       lines:["La sociedad de libros se reúne los miércoles, por si te apetece.",
+              "Este mes toca uno de setecientas páginas. Vamos por la treinta."]},
+    ]
+  },
+  nk3_master: {
+    name:"Orientación de másteres",
+    grid:[
+      "#############",
+      "#HHHkkkkksss#",
+      "#kkkkkkkkkkk#",
+      "#kDDkkkkkDDk#",
+      "Xkkkkkkkkkkk#",
+      "#kkkkkkkkkkk#",
+      "#pkkkkkkkkIk#",
+      "#kkkkkkkkkkk#",
+      "#############",
+    ],
+    info:[
+      {x:9,y:6,name:"Tablón de másteres",lines:[
+        "🎓 Másteres de la Universität Passau",
+        "Plazo de solicitud: hasta el 15 de julio.",
+        "«¿Sirve mi grado?» — la pregunta más repetida de este despacho."]},
+    ],
+    npcs:[
+      {x:2,y:4,name:"Frau Dr. Steinbach",color:"#7a5ad6",dir:'down',
+       lines:["Orientación de programas de máster. Aquí se decide qué viene después.",
+              "Casi todo el mundo entra diciendo «no sé si esto es para mí». Casi todo el mundo se equivoca.",
+              "Tráeme tu expediente y lo miramos con calma."],
+       careerLine:{default:"Con tu grado tienes al menos tres másteres aquí mismo. Y uno en Múnich, si te vas."}},
+    ]
+  },
+  nk3_filosofia: {
+    name:"Orientación de Filosofía",
+    grid:[
+      "#############",
+      "#HHHkkkkksss#",
+      "#kkkkkkkkkkk#",
+      "#kDDkkkkkDDk#",
+      "Xkkkkkkkkkkk#",
+      "#kkkkkkkkskk#",
+      "#pkkkkkkksIk#",
+      "#kkkkkkkkkkk#",
+      "#############",
+    ],
+    info:[
+      {x:9,y:6,name:"Tablón del departamento",lines:[
+        "📖 DEPARTAMENTO DE FILOSOFÍA",
+        "Seminario de Ética aplicada: martes 16:00.",
+        "Alguien ha escrito debajo: «¿es obligatorio?». Y otro: «depende»."]},
+    ],
+    npcs:[
+      {x:2,y:4,name:"Herr Prof. Dr. Ehrlich",color:"#5a8a6a",dir:'down',
+       lines:["Orientación del departamento de Filosofía. Siéntate, si quieres.",
+              "Todo el mundo me pregunta para qué sirve. Yo pregunto: ¿para qué sirve la pregunta?",
+              "…Perdona. Es deformación profesional. Pasa, pasa."],
+       careerLine:{Kuwi:"KuWi y Filosofía se llevan mejor de lo que parece. Casi demasiado bien.",
+                   default:"Puedes coger asignaturas nuestras sueltas. Se llama Studium Generale y es gratis."}},
+      {x:8,y:5,name:"Estudiante Konrad",color:"#8a6a4a",dir:'left',
+       lines:["Vengo a cambiar de asignatura. Otra vez.",
+              "Es la tercera. El profesor ya me llama por mi nombre y eso me da vergüenza."]},
+    ]
+  },
+  nk3_aula1: {
+    name:"Nikolakloster — Aula 001",
+    grid:[
+      "######X######",
+      "#aaaaaaaaaaa#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaap#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaaa#",
+      "#PPPPPPPPPPP#",
+      "#############",
+    ],
+    info:[
+      {x:6,y:8,name:"Pizarra",lines:["📝 Seminario de Historia Moderna","Hoy: la Paz de Westfalia y por qué nadie se puso de acuerdo.","En una esquina: «examen 12.02»."]},
+    ],
+    npcs:[
+      {x:4,y:3,name:"Estudiante Ida",color:"#5ad68f",dir:'right',
+       lines:["Aula 001. La más fría del edificio en invierno.","Nos sentamos todos en la fila del fondo, junto al radiador."]},
+    ]
+  },
+  nk3_aula2: {
+    name:"Nikolakloster — Aula 002",
+    grid:[
+      "######X######",
+      "#aaaaaaaaaaa#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaap#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaaa#",
+      "#PPPPPPPPPPP#",
+      "#############",
+    ],
+    info:[
+      {x:6,y:8,name:"Pizarra",lines:["📝 Introducción al Derecho Civil","«Todo contrato es una promesa. No toda promesa es un contrato.»","Debajo, alguien ha dibujado un pato."]},
+    ],
+    npcs:[
+      {x:10,y:5,name:"Estudiante Ferdi",color:"#5a8ad6",dir:'up',
+       lines:["Doscientas páginas para el jueves. Doscientas.","El profesor dice que es «una lectura ligera». Y lo dice en serio."]},
+    ]
+  },
+  nk4: {
+    // La planta de arriba: un pasillo en forma de U alrededor del bloque
+    // central de aulas, con los despachos del centro de idiomas al este.
+    // La escalera del este baja a la planta de la cafeteria.
+    name:"Nikolakloster — Aulas y despachos",
+    grid:[
+      "###########################",
+      "#..............############",
+      "#..............############",
+      "#..............############",
+      "#..............###1########",
+      "#....#########.......######",
+      "#....#########.......######",
+      "#....#########.......2#####",
+      "#....*########T......######",
+      "#....#########.......######",
+      "#....#########.....T.######",
+      "#....#########........SSSS#",
+      "#....############.....VSSS#",
+      "#....?###########.....SSSS#",
+      "#....############....######",
+      "#....###########3....######",
+      "#..p.############....4#####",
+      "#....############....######",
+      "#....!###########....######",
+      "#....############....######",
+      "C....###########5....6#####",
+      "#....############..p.######",
+      "#....############....######",
+      "#....############....######",
+      "#....###########7....######",
+      "#....J###########....8#####",
+      "A....############....######",
+      "#....############....######",
+      "#....................######",
+      "#....................######",
+      "#.p..................######",
+      "#....................######",
+      "#....................######",
+      "########0########9#########",
+    ],
+    doors:[
+      {x:18,y:4,  to:'nk4_aula1'},          // 1
+      {x:21,y:7,  to:'nk4_direccion'},      // 2
+      {x:16,y:15, to:'nk4_aula3'},          // 3
+      {x:21,y:16, to:'nk4_espanol'},        // 4
+      {x:16,y:20, to:'nk4_vicegerencia'},   // 5
+      {x:21,y:20, to:'nk4_gerencia'},       // 6
+      {x:16,y:24, to:'niko_secretaria'},    // 7
+      {x:21,y:25, to:'nk4_admin'},          // 8
+      {x:17,y:33, to:'nk4_aula9'},          // 9
+      {x:8, y:33, to:'nk4_aula10'},         // 10
+      {x:0, y:26, to:'nk4_aula11'},         // 11
+      {x:0, y:20, to:'nk4_aula12'},         // 12
+      {x:5, y:25, to:'nk4_aula13'},         // 13
+      {x:5, y:18, to:'nk4_aula14'},         // 14
+      {x:5, y:13, to:'niko_idiomas'},       // 15
+      {x:5, y:8,  to:'nk4_tecnica'},        // 16
+      {x:22,y:12, to:'nk3'},                // escalera de subida y bajada
+    ],
+    npcs:[
+      {x:19,y:12,name:"Estudiante Nele",color:"#5ad68f",dir:'left',
+       lines:["Esta planta es un anillo: des igual por dónde vayas, acabas volviendo aquí.",
+              "Los despachos del centro de idiomas están todos en este lado.",
+              "Las aulas, del otro. Yo tardé dos semestres en aprendérmelo."]},
+      {x:15,y:8,name:"Estudiante Rasmus",color:"#5a8ad6",dir:'down',
+       lines:["Veinte minutos de espera entre clase y clase y estos sillones son lo mejor del edificio.",
+              "El aula grande, la 15, es la única con ventanas de verdad."]},
+      {x:3,y:22,name:"Frau Huber",color:"#c8709a",dir:'right',
+       lines:["¿Buscas un despacho? Los pares están al otro lado del pasillo.",
+              "Yo llevo la limpieza de esta planta desde antes de que existieran los másteres."]},
+      {x:12,y:30,name:"Estudiante Ilias",color:"#d6a05a",dir:'up',
+       lines:["Examen oral en el despacho de idiomas. Llevo aquí de pie diez minutos.",
+              "Dicen que el gerente es majo. Dicen."]},
+    ]
+  },
+  nk4_aula1: {
+    name:"Nikolakloster — Aula 101",
+    grid:[
+      "#############",
+      "#PPPPPPPPPPP#",
+      "#aaaaaaaaaaa#",
+      "#ammammammaa#",
+      "#aeeaeeaeeaa#",
+      "#aaaaaaaaaap#",
+      "#ammammammaa#",
+      "#aeeaeeaeeaa#",
+      "#aaaaaaaaaaa#",
+      "######X######",
+    ],
+    info:[
+      {x:1,y:1,name:"Pizarra",lines:["📝 Lingüística general","Hoy: fonemas, alófonos y por qué nadie oye lo mismo.","En la esquina: «no hay clase el viernes»."]},
+    ],
+    npcs:[
+      {x:1,y:2,name:"Estudiante Vera",color:"#5ad68f",dir:'down',
+       lines:["El aula 101 es la única con vistas al claustro.","En primavera no atiende nadie. Es física."]},
+    ]
+  },
+  nk4_aula3: {
+    name:"Nikolakloster — Aula 103",
+    grid:[
+      "#############",
+      "#Paaaaaaaaaa#",
+      "#Pameameaaaa#",
+      "#Pameameaaaa#",
+      "#Paaaaaaaaaa#",
+      "#PameameaaaaX",
+      "#Pameameaaaa#",
+      "#Paaaaaaaaaa#",
+      "#Paaapaaaaaa#",
+      "#############",
+    ],
+    info:[
+      {x:1,y:1,name:"Pizarra",lines:["📝 DaF · Deutsch als Fremdsprache","« Der, die, das. » Debajo, siete tachones.","Y al final, a boli: «ánimo»."]},
+    ],
+    npcs:[
+      {x:2,y:1,name:"Estudiante Wen",color:"#d65a8a",dir:'down',
+       lines:["Llevo tres semestres con el alemán y sigo peleándome con los artículos.","Nora, la de la cafetería, me corrige mientras me sirve el café. Aprendo más ahí."]},
+    ]
+  },
+  nk4_aula9: {
+    name:"Nikolakloster — Aula 109",
+    grid:[
+      "######X######",
+      "#aaaaaaaaaaa#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaap#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaaa#",
+      "#PPPPPPPPPPP#",
+      "#############",
+    ],
+    info:[
+      {x:1,y:8,name:"Pizarra",lines:["📝 Taller de traducción","«Traduttore, traditore» — y debajo: «pero cobramos igual»."]},
+    ],
+    npcs:[
+      {x:1,y:7,name:"Estudiante Mirek",color:"#8a6a4a",dir:'down',
+       lines:["Traducimos del alemán al español y del español al alemán.","Lo difícil no es el idioma. Es el chiste."]},
+    ]
+  },
+  nk4_aula10: {
+    name:"Nikolakloster — Aula 110",
+    grid:[
+      "######X######",
+      "#aaaaaaaaaaa#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaap#",
+      "#aeeaeeaeeaa#",
+      "#ammammammaa#",
+      "#aaaaaaaaaaa#",
+      "#PPPPPPPPPPP#",
+      "#############",
+    ],
+    info:[
+      {x:1,y:8,name:"Pizarra",lines:["📝 Literatura comparada","Lista de lecturas: nueve títulos. Semanas de curso: catorce.","Alguien ha rodeado el nueve con cara de pánico."]},
+    ],
+    npcs:[
+      {x:1,y:7,name:"Estudiante Frida",color:"#c8709a",dir:'down',
+       lines:["Nueve novelas en un semestre. Y una de ellas es rusa.","Voy por la segunda. Es octubre."]},
+    ]
+  },
+  nk4_aula11: {
+    name:"Nikolakloster — Aula 111",
+    grid:[
+      "#############",
+      "#Paaaaaaaaaa#",
+      "#Pameameaaaa#",
+      "#Pameameaaaa#",
+      "#Paaaaaaaaaa#",
+      "#PameameaaaaX",
+      "#Pameameaaaa#",
+      "#Paaaaaaaaaa#",
+      "#Paaapaaaaaa#",
+      "#############",
+    ],
+    info:[
+      {x:1,y:1,name:"Pizarra",lines:["📝 Español B1","« Pretérito indefinido vs. imperfecto »","Debajo: «fui / iba». Y un corazón roto."]},
+    ],
+    npcs:[
+      {x:2,y:1,name:"Estudiante Jonas",color:"#5a8ad6",dir:'down',
+       lines:["El español se me da bien hasta que llega el subjuntivo.","María dice que el subjuntivo es cuestión de fe. Empiezo a creerla."]},
+    ]
+  },
+  nk4_aula12: {
+    name:"Nikolakloster — Aula 112",
+    grid:[
+      "#############",
+      "#Paaaaaaaaaa#",
+      "#Pameameaaaa#",
+      "#Pameameaaaa#",
+      "#Paaaaaaaaaa#",
+      "#PameameaaaaX",
+      "#Pameameaaaa#",
+      "#Paaaaaaaaaa#",
+      "#Paaapaaaaaa#",
+      "#############",
+    ],
+    info:[
+      {x:1,y:1,name:"Pizarra",lines:["📝 Français A2","« Les liaisons » — y una flecha entre cada dos palabras.","En la esquina, muy pequeño: «courage»."]},
+    ],
+    npcs:[
+      {x:2,y:1,name:"Estudiante Amelie",color:"#d6a05a",dir:'down',
+       lines:["Aquí se dan los cursos de idiomas de la tarde.","A las seis está lleno. A las ocho, media clase."]},
+    ]
+  },
+  nk4_aula13: {
+    name:"Nikolakloster — Aula 113",
+    grid:[
+      "#############",
+      "#aaaaaaaaaaP#",
+      "#aaaaemaemaP#",
+      "#aaaaemaemaP#",
+      "#aaaaaaaaaaP#",
+      "XaaaaemaemaP#",
+      "#aaaaemaemaP#",
+      "#aaaaaaaaaaP#",
+      "#aaaaaapaaaP#",
+      "#############",
+    ],
+    info:[
+      {x:11,y:1,name:"Pizarra",lines:["📝 Italiano A1","« Ciao / Buongiorno / Arrivederci »","Alguien ha añadido: «y ya sé pedir un café»."]},
+    ],
+    npcs:[
+      {x:10,y:1,name:"Estudiante Tim",color:"#5ad68f",dir:'down',
+       lines:["Empecé italiano por diversión y ahora es mi mejor nota.","No se lo digas a nadie de mi carrera."]},
+    ]
+  },
+  nk4_aula14: {
+    name:"Nikolakloster — Aula 114",
+    grid:[
+      "#############",
+      "#aaaaaaaaaaP#",
+      "#aaaaemaemaP#",
+      "#aaaaemaemaP#",
+      "#aaaaaaaaaaP#",
+      "XaaaaemaemaP#",
+      "#aaaaemaemaP#",
+      "#aaaaaaaaaaP#",
+      "#aaaaaapaaaP#",
+      "#############",
+    ],
+    info:[
+      {x:11,y:1,name:"Pizarra",lines:["📝 Latín I","« Rosa, rosae, rosae, rosam, rosa, rosa. »","Debajo: «¿por qué?». Sin respuesta."]},
+    ],
+    npcs:[
+      {x:10,y:1,name:"Estudiante Bene",color:"#8a6a4a",dir:'down',
+       lines:["Latín obligatorio para Filosofía. Obligatorio.","Al final le coges cariño. Al final del todo."]},
+    ]
+  },
+  nk4_direccion: {
+    // El despacho de la direccion del area tecnica y administrativa: mesa
+    // de tres pantallas, zona de sofas, mesa de reuniones y muchas plantas.
+    name:"Dirección del área técnica y administrativa",
+    grid:[
+      "###################",
+      "#sssssaaaaaaaaaaap#",
+      "#aaaaaaaaaaaTTaTTp#",
+      "#aaaaaaaaaaaTTaTTa#",
+      "#a$$$aaaaaaaaaaaaa#",
+      "#aaeaaaaaaaaaaaaaa#",
+      "Xaaaaaaaaaaaaaaaap#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaaaaaaaapaeeeeaa#",
+      "#Iaaaaaaaaaattttaa#",
+      "#aaaaaaaaaaaeeeeaa#",
+      "#paaaaaaaaaaaaaaap#",
+      "###################",
+    ],
+    info:[
+      {x:9,y:1,name:"Placa",lines:[
+        "🏷 DIRECCIÓN DEL ÁREA TÉCNICA Y ADMINISTRATIVA",
+        "Universität Passau · Nikolakloster, planta alta",
+        "Debajo, en una nota amarilla: «llamar a informática. OTRA VEZ.»"]},
+      {x:3,y:4,name:"Mesa de tres pantallas",lines:[
+        "Tres pantallas encendidas a la vez: correo, un plano y un calendario.",
+        "El calendario está lleno de bloques de color hasta marzo.",
+        "En la de la derecha hay abierto un mapa del campus."]},
+      {x:13,y:9,name:"Mesa de reuniones",lines:[
+        "Ocho sillas alrededor de una mesa larga y ni una migaja.",
+        "Aquí se decide qué se arregla primero cuando todo está roto a la vez."]},
+    ],
+    npcs:[
+      {x:5,y:4,name:"El director",color:"#3a6a8a",dir:'right',
+       lines:["Pasa, pasa. Aquí se lleva todo lo técnico y lo administrativo de la casa.",
+              "Redes, obras, llaves, presupuestos y los mil líos que nadie ve hasta que fallan.",
+              "Si algo del campus no funciona, acaba en esta mesa. Y sale de aquí arreglado."],
+       choice:{q:"¿Quieres preguntar algo?",opts:[
+         {t:"¿Qué se hace exactamente aquí?",r:[
+           "Todo lo que hace que la universidad funcione sin que se note.",
+           "El día que se note, es que algo ha salido mal."]},
+         {t:"¿Se puede hacer prácticas?",r:[
+           "Siempre. Escríbeme y lo hablamos.",
+           "Se aprende más en un semestre aquí que en tres asignaturas."]},
+         {t:"Solo pasaba a saludar",r:["Pues bienvenido. La puerta está abierta casi siempre."]}]},
+       careerLine:{default:"Suerte con el semestre. Y si ves algo roto por el campus, dímelo."}},
+      {x:14,y:3,name:"Becaria Johanna",color:"#5ad68f",dir:'down',
+       lines:["Es el despacho más bonito del edificio y no lo digo por peloteo.",
+              "Bueno, un poco sí."]},
+    ]
+  },
+  nk4_espanol: {
+    name:"Lectorado de Español",
+    grid:[
+      "###############",
+      "#HHHkkkkkIksss#",
+      "#kkkkkkkkkkkkk#",
+      "#kDDkkkkkkkDDk#",
+      "#kkkkkkkkkkkkk#",
+      "Xkkkkkkkkkkkkk#",
+      "#skkkkkkkkkkkk#",
+      "#skkkkttkkkkkp#",
+      "#pkkkkeekkkkIk#",
+      "#kkkkkkkkkkkkk#",
+      "###############",
+    ],
+    info:[
+      {x:9,y:1,name:"Tablón del lectorado",lines:[
+        "🇪🇸 LECTORADO DE ESPAÑOL",
+        "Tándems español–alemán: apúntate en la lista.",
+        "Cine en V.O. el último jueves de mes. Con subtítulos, tranquilos."]},
+    ],
+    npcs:[
+      {x:3,y:4,name:"Profesora María",color:"#d65a8a",dir:'down',
+       lines:["¡Hola! Bienvenido al lectorado de español. Aquí se habla español todo el rato.",
+              "Dirijo el departamento: los cursos, los lectores, los tándems y el cine de los jueves.",
+              "Y sí, el subjuntivo es difícil. También lo es para los que lo hablamos desde niños."],
+       choice:{q:"¿Te apuntas a algo?",opts:[
+         {t:"A un tándem",r:["¡Estupendo! Te busco pareja esta semana.",
+                              "Una hora en español, una hora en alemán. Y un café en medio."]},
+         {t:"Al cine en V.O.",r:["Último jueves de mes, aula 111. Este mes toca una argentina.",
+                                  "Trae paciencia con el acento. Y palomitas."]},
+         {t:"Solo venía a preguntar",r:["Pues pregunta lo que quieras. Para eso está la puerta abierta."]}]},
+       careerLine:{Kuwi:"¿KuWi? Entonces el español te va a abrir media carrera. Y medio mundo.",
+                   default:"Un idioma más nunca sobra. Y este te lo llevas puesto a veinte países."}},
+      {x:8,y:8,name:"Lector Diego",color:"#c87a3a",dir:'left',
+       lines:["Vine de Salamanca por un año. Van cinco.",
+              "Passau en invierno es dura, pero el río compensa."]},
+    ]
+  },
+  nk4_vicegerencia: {
+    name:"Vicegerencia del Centro de Idiomas",
+    grid:[
+      "#############",
+      "#HHHkkkkksss#",
+      "#kkkkkkkkkkk#",
+      "#kDDkkkkkDDk#",
+      "Xkkkkkkkkkkk#",
+      "#kkkkkkkkRkk#",
+      "#pkkkkkkkkIk#",
+      "#kkkkkkkkkkk#",
+      "#############",
+    ],
+    info:[
+      {x:9,y:6,name:"Tablón",lines:[
+        "🗂 CENTRO DE IDIOMAS — VICEGERENCIA",
+        "Inscripciones a los cursos: dos semanas antes del semestre.",
+        "Los cursos de alemán se llenan en cuatro minutos. Récord del año pasado: tres."]},
+    ],
+    npcs:[
+      {x:2,y:4,name:"Frau Krista",color:"#8a5ad6",dir:'down',
+       lines:["Vicegerencia del centro de idiomas. Yo soy la que hace que los horarios cuadren.",
+              "Doce idiomas, cuarenta profesores y catorce aulas. Y todo cabe. Casi siempre.",
+              "Si te has quedado fuera de un curso, ven a verme. A veces hay milagros."],
+       careerLine:{default:"¿Quieres un idioma nuevo este semestre? Apúntate pronto, muy pronto."}},
+      {x:8,y:5,name:"Estudiante Rita",color:"#5ad68f",dir:'up',
+       lines:["Me quedé la 41 de la lista de espera del curso de alemán.",
+              "Frau Krista dice que a veces hay milagros. Estoy aquí por eso."]},
+    ]
+  },
+  nk4_gerencia: {
+    name:"Gerencia del Centro de Idiomas",
+    grid:[
+      "###############",
+      "#HHHkkkkkkksss#",
+      "#kkkkkkkkkkkTk#",
+      "#kDDkkkkkkkDTk#",
+      "#kkkkkkkkkkkkk#",
+      "Xkkkkkkkkkkkkk#",
+      "#kkkkkttkkkkkp#",
+      "#pkkkkeekkkkIk#",
+      "#kkkkkkkkkkkkk#",
+      "###############",
+    ],
+    info:[
+      {x:9,y:6,name:"Mapa de idiomas",lines:[
+        "🌍 Doce idiomas en oferta: alemán, inglés, español, francés, italiano,",
+        "portugués, ruso, polaco, checo, chino, japonés y árabe.",
+        "Y latín, que técnicamente no habla nadie pero cuenta igual."]},
+    ],
+    npcs:[
+      {x:2,y:4,name:"Herr Fonjoven",color:"#3a6a8a",dir:'down',
+       lines:["Gerencia del centro de idiomas. Bienvenido.",
+              "Doce idiomas se enseñan en esta planta. Trece si contamos el latín, y lo contamos.",
+              "Mi trabajo es que ninguno de los doce se quede sin aula. Y sin profesor."],
+       choice:{q:"¿Quieres saber algo del centro?",opts:[
+         {t:"¿Qué idioma me recomienda?",r:[
+           "El que te dé miedo. Ese es el que más te va a cambiar el semestre.",
+           "Y si no te da miedo ninguno, español. Nunca falla."]},
+         {t:"¿Los cursos cuentan créditos?",r:[
+           "Casi todos, sí. Mira el Modulhandbuch de tu carrera.",
+           "Y si no cuentan, cuentan igual. Solo que para otra cosa."]},
+         {t:"Nada, gracias",r:["Pues aquí estamos. Segunda puerta a la derecha, siempre."]}]}},
+    ]
+  },
+  nk4_admin: {
+    name:"Oficina de administración",
+    grid:[
+      "#############",
+      "#HHHkkkkksss#",
+      "#kkkkkkkkkkk#",
+      "#kDDkkkkkDDk#",
+      "Xkkkkkkkkkkk#",
+      "#kkkkkkkkRkk#",
+      "#pkkkkpkkkIk#",
+      "#kkkkkkkkkkk#",
+      "#############",
+    ],
+    info:[
+      {x:9,y:6,name:"Tablón",lines:[
+        "📌 Certificados de asistencia · justificantes · cambios de grupo",
+        "Horario: lu–ju 9:00–12:00.",
+        "Un post-it: «si está cerrado, llamad, que estoy en la fotocopiadora»."]},
+    ],
+    npcs:[
+      {x:2,y:4,name:"Frau Leni",color:"#5ad68f",dir:'down',
+       lines:["¡Hola! Dime, ¿qué necesitas? Sea lo que sea, lo miramos.",
+              "Aquí se hace el papeleo del centro de idiomas, y sí, es mucho papeleo.",
+              "Pero nadie sale de este despacho sin una respuesta. Esa es la norma."],
+       choice:{q:"¿Necesitas algo?",opts:[
+         {t:"Un certificado de asistencia",r:["Hecho. Te lo tengo mañana a primera hora.",
+                                              "Y si lo necesitas hoy… también, pero no lo cuentes."]},
+         {t:"Cambiar de grupo",r:["A ver… sí, hay hueco en el de las diez. ¿Te va bien?",
+                                   "Te lo cambio ahora mismo y te llega el correo en un rato."]},
+         {t:"Nada, gracias",r:["Pues que tengas buen día. Y abrígate, que en este pasillo corre."]}]},
+       careerLine:{default:"Si algún día te lías con un papel, sube aquí antes de desesperarte."}},
+    ]
+  },
+  nk4_tecnica: {
+    name:"Despacho técnico",
+    grid:[
+      "###############",
+      "#|||||||||||||#",
+      "#kkkkkkkkkkkkk#",
+      "#kkkkkkRkkkkkk#",
+      "#k||kkkkkkk||k#",
+      "Xk||kkkZkkk||k#",
+      "#kkkkkkkkkkkkk#",
+      "#kDDkmmkkkkkkk#",
+      "#kkkkeekkkkkkk#",
+      "#Ikkkkkkkkkkkp#",
+      "###############",
+    ],
+    info:[
+      {x:7,y:1,name:"Estantería de equipos",lines:[
+        "🎥 Cámaras de vídeo, trípodes, grabadoras, micros de solapa y cables.",
+        "Muchos cables. Cables que ya no sabe nadie de qué son.",
+        "Todo etiquetado con una letra pequeñísima y un número."]},
+      {x:7,y:3,name:"Fotocopiadora grande",lines:[
+        "La fotocopiadora buena del edificio. La otra, la del pasillo, no cuenta.",
+        "Un cartel: «pregunta antes de usarla». Y debajo: «en serio»."]},
+      {x:1,y:9,name:"Hoja de préstamos",lines:[
+        "📋 PRÉSTAMO DE MATERIAL",
+        "Cámara 3 — devuelta con la batería a cero. Otra vez.",
+        "Grabadora 7 — «prestada a alguien de KuWi». Sin nombre. Sin fecha."]},
+    ],
+    npcs:[
+      {x:4,y:6,name:"Marta",color:"#c8709a",dir:'right',
+       lines:["Soy la encargada de la técnica de esta casa. Todo lo que enchufa, pasa por aquí.",
+              "Cámaras, grabadoras, proyectores, portátiles y los micros que siempre acoplan.",
+              "¿Necesitas material para un trabajo? Se presta. Pero se devuelve. Cargado."],
+       choice:{q:"¿Quieres pedir algo prestado?",opts:[
+         {t:"Una cámara de vídeo",r:["Te doy la 5, que es la que mejor va.",
+                                      "Batería cargada, tarjeta vacía y trípode. Y me la traes el lunes."]},
+         {t:"Una grabadora",r:["Toma la 2. Para entrevistas es la mejor.",
+                                "Apunta tu nombre en la hoja, por favor. Que luego no hay quien las encuentre."]},
+         {t:"Solo curioseaba",r:["Cotillea lo que quieras, pero no toques los cables azules."]}]},
+       careerLine:{default:"Si algún día te toca grabar algo para clase, sube aquí antes de comprar nada."}},
+    ]
+  },
 };
 
 //==================================================================
@@ -1841,14 +2606,17 @@ const BUILDINGS = {
   M:      {name:"Mensa", door:[20,32], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
   WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
-  NK:     {name:"Nikolakloster", door:[45,26], interior:'niko'},
+  NK:     {name:"Nikolakloster", door:[45,26], door2:[45,16], interior:'niko_patio'},
   IA:     {name:"Innstegaula", door:[51,31], interior:'innstegaula'},
   WH:     {name:"Studentenwohnheim", door:[6,16], info:["Residencia de estudiantes (Studentenwohnheim).","Habitaciones individuales, cocinas compartidas y un ambiente de examen permanente."],
            choice:{q:"¿Llamas al timbre?",opts:[
              {t:"Sí, a ver quién abre",r:["Se oye música arriba y alguien gritando algo sobre la lavadora.","Un estudiante te abre en pijama. Son las cuatro de la tarde."]},
              {t:"Mejor no",r:["Prudente. A estas horas ahí dentro nadie tiene clase."]}]}},
 };
-for(const k in BUILDINGS){ const d=BUILDINGS[k].door; DOOR_AT[d[0]+','+d[1]]=k; }
+for(const k in BUILDINGS){ const b=BUILDINGS[k];
+  DOOR_AT[b.door[0]+','+b.door[1]]=k;
+  if(b.door2) DOOR_AT[b.door2[0]+','+b.door2[1]]=k;   // entrada trasera
+}
 
 //==================================================================
 //  GEOMETRÍA Y ESTILO DE EDIFICIOS (para dibujarlos como estructuras)
@@ -1866,7 +2634,7 @@ const BLD_GEO=[
   {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,32], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
   {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[31,32], style:'modern',   roof:'#b0a03a', label:'WW'},
-  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
+  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], door2:[45,16], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
   {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,31], style:'modern',   roof:'#3b9aa2', label:'IA'},
   {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
 ];
@@ -2084,6 +2852,13 @@ function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
   ctx.fillStyle='#ffe9a8'; ctx.font='7px "Courier New",monospace'; ctx.textBaseline='top'; ctx.textAlign='center';
   ctx.fillText(b.label, sgX+sgW/2, sgY+1);
   ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  // puerta trasera: se marca en el borde norte del edificio
+  if(b.door2){
+    const c2=Math.min(Math.max(b.door2[0], b.x0), b.x1), dx2=(c2*TILE-cam.x);
+    ctx.fillStyle='#5a3a1a'; ctx.fillRect(dx2, y+1, 14, 6);
+    ctx.fillStyle='#7a5230'; ctx.fillRect(dx2+1, y+2, 12, 4);
+    ctx.fillStyle='#caa45a'; ctx.fillRect(dx2+3, y+4, 8, 1);
+  }
 }
 
 function drawOutTile(t,sx,sy,tx,ty){
@@ -2192,6 +2967,62 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       case 'X': { // salida al edificio
         F('#cdbf95'); R('#5a3a1a',3,2,10,12); R('#7a5230',4,3,8,11);
         R('#e8d860',6,6,4,2); return; }
+      // --- claustro del NK: dos plataformas a distinta altura ---
+      case 'b': { // plataforma BAJA: losa gris azulada
+        F('#a8b4bc'); R('#9aa6ae',0,7,TILE,1); R('#9aa6ae',7,0,1,TILE);
+        R('#b4c0c8',2,2,3,3); R('#b4c0c8',10,10,3,3); return; }
+      case 'g': { // plataforma ALTA: losa clara con hierba en las juntas
+        F('#c9bf9a'); R('#bcb08a',0,7,TILE,1); R('#bcb08a',7,0,1,TILE);
+        R('#8fae6a',3,8,2,1); R('#8fae6a',11,3,2,1); return; }
+      case 'm': { // muro de contencion visto desde el SUR (lo bajo queda abajo)
+        F('#c9bf9a');
+        R('#8e8470',0,5,TILE,3);                    // coronacion
+        R('#6f6656',0,8,TILE,8);                    // paramento
+        R('#5c5446',0,8,TILE,1); R('#7d735f',0,11,TILE,1);
+        R('#464034',0,15,TILE,1); return; }
+      case 'M': { // muro de contencion visto desde el OESTE (lo bajo, a la izq.)
+        F('#c9bf9a');
+        R('#8e8470',5,0,4,TILE);
+        R('#6f6656',0,0,5,TILE);
+        R('#464034',0,0,1,TILE); R('#7d735f',3,0,1,TILE); return; }
+      case 's': { // tramo de escalera entre las dos plataformas (se sube andando)
+        // Los peldanos van de lado a lado: en un tramo ancho no debe verse la
+        // junta de cada baldosa, si no parece una tarima en vez de una escalera.
+        F('#b9b09a');
+        for(let i=0;i<4;i++){ R('#ddd5bf',0,i*4,TILE,3); R('#8e8470',0,i*4+3,TILE,1); }
+        return; }
+      case '[': case ']': { // peldano del borde del tramo, con su zanca
+        F('#b9b09a');
+        for(let i=0;i<4;i++){ R('#ddd5bf',0,i*4,TILE,3); R('#8e8470',0,i*4+3,TILE,1); }
+        const zx = t==='[' ? 0 : TILE-3;
+        R('#8e8470',zx,0,3,TILE); R('#6f6656',t==='[' ? 0 : TILE-1,0,1,TILE);
+        return; }
+      case 'O': { // tilo grande de la plataforma alta
+        F('#c9bf9a'); R('#7a5230',6,11,4,5);
+        ctx.fillStyle='#2f5f2c';ctx.beginPath();ctx.arc(sx+8,sy+7,7.5,0,7);ctx.fill();
+        ctx.fillStyle='#3f7d3a';ctx.beginPath();ctx.arc(sx+8,sy+6,5.5,0,7);ctx.fill();
+        ctx.fillStyle='#5aa84f';ctx.beginPath();ctx.arc(sx+6,sy+5,2.4,0,7);ctx.fill(); return; }
+      case 'a': { // arbolito joven
+        F('#c9bf9a'); R('#8a6a45',7,10,2,5);
+        ctx.fillStyle='#3f7d3a';ctx.beginPath();ctx.arc(sx+8,sy+7,4.5,0,7);ctx.fill();
+        ctx.fillStyle='#5aa84f';ctx.beginPath();ctx.arc(sx+7,sy+6,2,0,7);ctx.fill(); return; }
+      case 'n': { // banco
+        F('#c9bf9a'); R('#8a6a45',1,5,14,5); R('#a0805a',1,5,14,2);
+        R('#6f6656',2,10,2,4); R('#6f6656',12,10,2,4); return; }
+      case 'k': { // aparcabicis
+        F('#a8b4bc'); R('#6d7680',1,4,14,2);
+        R('#6d7680',3,4,2,9); R('#6d7680',7,4,2,9); R('#6d7680',11,4,2,9);
+        R('#565e66',1,13,14,1); return; }
+      case 'Q': { // porton del convento (cerrado, lo guarda la monja)
+        F('#c9bf9a'); R('#4a3520',1,0,14,15); R('#6a4a2a',2,1,12,14);
+        R('#4a3520',7,1,2,14); R('#c8a860',4,8,2,2); R('#c8a860',10,8,2,2);
+        R('#8a6a3a',2,1,12,1); return; }
+      case 'E': { // salida al campus
+        F('#c9bf9a'); R('#5a3a1a',2,1,12,14); R('#7a5230',3,2,10,13);
+        R('#8fd0f5',5,4,6,3); R('#e8d860',6,8,4,2); return; }
+      case '4': case '5': { // puertas a las alas del edificio
+        F('#c9bf9a'); R('#5a3a1a',2,1,12,14); R('#7a5230',3,2,10,13);
+        R('#6a4626',7,2,1,13); R('#caa45a',5,8,1,2); R('#caa45a',10,8,1,2); return; }
       default: F('#cdbf95'); return;
     }
   }
@@ -2242,6 +3073,7 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       F('#8a7a9a'); R('#5a4a3a',1,1,14,12); R('#e8e2d0',2,2,12,10);
       R('#5a8ad6',3,3,4,3);R('#d65a5a',8,3,4,2);R('#5ad68f',3,7,3,3);R('#e8d65a',8,7,4,3); return; }
     case '1': case '2': case '3': case '4': case '5': case '6':
+    case '7': case '8': case '9': case '0': case '!': case '?': case '*':
     case 'A': case 'C': case 'J': { // puertas de sala  ('B' NO: es el botellero)
       F('#d8c4a0'); R('#5a3a1a',3,1,10,14); R('#7a5230',4,2,8,13);
       R('#caa45a',9,8,1,2); // pomo
@@ -2300,6 +3132,32 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
     case 'x': { // maquina de gimnasio
       F('#d8c4a0'); R('#4a4a58',2,3,12,3); R('#3a3a46',6,6,4,7);
       R('#8a8a98',1,12,14,2); R('#c85a4a',2,1,3,2); R('#c85a4a',11,1,3,2); return; }
+    case '_': { // solera de hormigon (garaje)
+      F('#8f9298'); R('#84878d',0,7,TILE,1); R('#84878d',7,0,1,TILE);
+      R('#9a9da3',3,3,2,2); return; }
+    case '<': { // coche aparcado
+      F('#8f9298');
+      const car=['#c0392b','#2d6cb5','#3f8f5a','#c8a13a','#7a4a9a','#3b4453'][(sx*7+sy*13)%6];
+      R('#2a2e34',1,1,14,14); R(car,2,2,12,12); R(shade(car,0.18),3,3,10,4);
+      R('#8fb0d8',4,4,8,3); R('#8fb0d8',4,10,8,2);
+      R('#e8e2d0',3,1,3,1); R('#e8e2d0',10,1,3,1); return; }
+    case '^': { // escenario de actos
+      F('#8a5f3a'); R('#a3764c',0,0,TILE,2); R('#754f2f',0,7,TILE,1);
+      R('#c8a860',0,TILE-2,TILE,2); return; }
+    case '~': { // jardinera interior (zona verde)
+      F('#b0703a'); R('#8a5628',0,0,TILE,2); R('#3f7d3a',1,2,14,13);
+      R('#5aa84f',3,4,4,4); R('#5aa84f',9,8,4,4); R('#2f5f2c',8,3,3,3); return; }
+    case '$': { // escritorio de direccion con tres pantallas
+      F('#e0d2b0'); R('#6a4a2a',0,5,TILE,9); R('#8a5f3a',0,5,TILE,2);
+      R('#2a3550',1,1,4,5); R('#2a3550',6,0,4,5); R('#2a3550',11,1,4,5);
+      R('#5a8ad6',2,2,2,3); R('#5a8ad6',7,1,2,3); R('#5a8ad6',12,2,2,3); return; }
+    case '|': { // estanteria de material tecnico
+      F('#c8d4c0'); R('#5a6270',0,0,TILE,15);
+      R('#2a3038',1,1,6,4); R('#8fb0d8',2,2,4,2);
+      R('#3a4250',8,1,6,4); R('#d65a5a',12,2,1,1);
+      R('#2a3038',1,6,4,4); R('#5ad68f',2,7,2,1);
+      R('#3a4250',6,6,8,4); R('#e8d65a',7,7,2,2);
+      R('#2a3038',1,11,12,3); R('#8fb0d8',2,12,3,1); R('#8fb0d8',7,12,4,1); return; }
     case 'H': { // archivador de expedientes
       F('#c8d4c0');
       R('#7d8794',2,1,12,14);
@@ -2382,11 +3240,13 @@ const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
 // interiores con paredes: muebles y elementos sólidos
 const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
   // las puertas tambien son solidas: no se pisan, se empujan desde delante
-  '1','2','3','4','5','6','A','C','J','Y','G','X','E',
+  '1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','X','E',
   'S','V','U','M','h','x',     // escalera, maquina, arbolado y aparatos
-  'H','R','N','O','Q','T','i','v','z']); // muebles de oficina, cocina y RRII
-// patio: sólidos = muros, árboles y fuente
-const SOLID_PATIO=new Set(['#','o','F','G','X']);
+  'H','R','N','O','Q','T','i','v','z',   // muebles de oficina, cocina y RRII
+  '<','^','~','$','|']);                  // coche, escenario, jardinera, mesa de direccion, equipos
+// patio: sólidos = muros, árboles, fuente, muros de contención y mobiliario
+const SOLID_PATIO=new Set(['#','o','F','G','X',
+  'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
 
 //==================================================================
 //  VALIDADOR DE MAPAS
@@ -2397,11 +3257,12 @@ const SOLID_PATIO=new Set(['#','o','F','G','X']);
 //==================================================================
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
-                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
-                           'H','R','N','O','Q','T','i','v','z']);
-const TILES_PATIO=new Set(['#','p','.','o','F','G','X']);
+                           'K','B','W','L','p','I','1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
+                           'H','R','N','O','Q','T','i','v','z','_','<','^','~','$','|']);
+const TILES_PATIO=new Set(['#','p','.','o','F','G','X','b','g','m','M','s','[',']','O','a','n','k','Q','E','4','5']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
-const PUERTAS_SALA=new Set(['1','2','3','4','5','6','A','C','J','Y','G','V']);
+const PUERTAS_SALA=new Set(['1','2','3','4','5','6','7','8','9','0','!','?','*',
+                            'A','C','J','Y','G','V']);
 
 function validateMaps(){
   const errs=[], warns=[];
@@ -2415,21 +3276,26 @@ function validateMaps(){
 
   const puertaDe={};
   for(const k in BUILDINGS){
-    const b=BUILDINGS[k], dx=b.door[0], dy=b.door[1];
-    const t=(OUTDOOR[dy]||'')[dx];
-    if(t===undefined)      E(k+': la puerta ('+dx+','+dy+') cae fuera del mapa');
-    else if(t!=='D')       E(k+': la puerta ('+dx+','+dy+") esta sobre '"+t+"' y tiene que estar sobre 'D' — asi no se puede entrar");
-    if(DOOR_AT[dx+','+dy]!==k) E(k+': DOOR_AT no apunta a este edificio en ('+dx+','+dy+')');
-    const gb=BLD_BY_KEY[k];
-    if(gb){
-      const dentro=(dx>=gb.x0&&dx<=gb.x1&&dy>=gb.y0&&dy<=gb.y1);
-      const pegada=[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>{
-        const x=dx+ox,y=dy+oy; return x>=gb.x0&&x<=gb.x1&&y>=gb.y0&&y<=gb.y1; });
-      if(dentro) E(k+': la baldosa de la puerta ('+dx+','+dy+') esta dentro del edificio; tiene que estar delante');
-      else if(!pegada) E(k+': la baldosa de la puerta ('+dx+','+dy+') no toca el edificio, no se puede empujar hacia el');
-    }
-    if(puertaDe[dx+','+dy]) E(k+' y '+puertaDe[dx+','+dy]+' comparten la puerta ('+dx+','+dy+')');
-    puertaDe[dx+','+dy]=k;
+    const b=BUILDINGS[k];
+    // un edificio puede tener una segunda entrada (door2): se comprueban igual
+    [b.door, b.door2].filter(Boolean).forEach(d=>{
+      const dx=d[0], dy=d[1];
+      const t=(OUTDOOR[dy]||'')[dx];
+      if(t===undefined)      E(k+': la puerta ('+dx+','+dy+') cae fuera del mapa');
+      else if(t!=='D')       E(k+': la puerta ('+dx+','+dy+") esta sobre '"+t+"' y tiene que estar sobre 'D' — asi no se puede entrar");
+      if(DOOR_AT[dx+','+dy]!==k) E(k+': DOOR_AT no apunta a este edificio en ('+dx+','+dy+')');
+      const gb=BLD_BY_KEY[k];
+      if(gb){
+        const dentro=(dx>=gb.x0&&dx<=gb.x1&&dy>=gb.y0&&dy<=gb.y1);
+        const pegada=[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>{
+          const x=dx+ox,y=dy+oy; return x>=gb.x0&&x<=gb.x1&&y>=gb.y0&&y<=gb.y1; });
+        if(dentro) E(k+': la baldosa de la puerta ('+dx+','+dy+') esta dentro del edificio; tiene que estar delante');
+        else if(!pegada) E(k+': la baldosa de la puerta ('+dx+','+dy+') no toca el edificio, no se puede empujar hacia el');
+      }
+      if(puertaDe[dx+','+dy]) E(k+' y '+puertaDe[dx+','+dy]+' comparten la puerta ('+dx+','+dy+')');
+      puertaDe[dx+','+dy]=k;
+    });
+    if(b.door2 && !b.interior) E(k+': tiene segunda puerta pero no tiene interior');
     if(b.interior && !INTERIORS[b.interior]) E(k+": el interior '"+b.interior+"' no existe");
     if(!b.interior && !b.info)               E(k+': no tiene ni interior ni texto info — al entrar no pasaria nada');
   }
@@ -2440,6 +3306,8 @@ function validateMaps(){
     if(!B){ E("BLD_GEO '"+b.key+"' no existe en BUILDINGS"); return; }
     if(B.door[0]!==b.door[0]||B.door[1]!==b.door[1])
       E(b.key+': la puerta de BLD_GEO ('+b.door+') no coincide con la de BUILDINGS ('+B.door+')');
+    if(String(B.door2||'')!==String(b.door2||''))
+      E(b.key+': la segunda puerta de BLD_GEO ('+b.door2+') no coincide con la de BUILDINGS ('+B.door2+')');
     if(b.x1<b.x0||b.y1<b.y0) E(b.key+': rectangulo invertido (x0,y0 debe ser la esquina superior izquierda)');
     if(b.x0<0||b.y0<0||b.x1>=ow||b.y1>=OUTDOOR.length) E(b.key+': el rectangulo se sale del mapa');
     if(!/^#[0-9a-fA-F]{6}$/.test(b.roof)) E(b.key+": color de tejado invalido '"+b.roof+"'");
@@ -2468,16 +3336,31 @@ function validateMaps(){
 
     // una puerta se acciona desde la casilla de al lado: tiene que haber hueco
     const huecoAlLado=(x,y)=>[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>pisable(x+ox,y+oy));
-    const nSalidas=(T)=>T.grid.join('').split('').filter(c=>c==='X'||c==='E'||c==='U').length;
+    // Salidas de una sala. Las X/E/U normales devuelven al sitio del que se
+    // vino (pila), y de esas solo puede haber una. Las que van listadas en
+    // 'salidas' llevan a una baldosa fija del campus, y de esas puede haber
+    // varias: es lo que permite que un edificio tenga dos entradas.
+    const dePila=(T)=>{ const fijas=new Set((T.salidas||[]).map(x=>x.x+','+x.y)); let n=0;
+      (T.grid||[]).forEach((r,y)=>[...r].forEach((c,x)=>{
+        if((c==='X'||c==='E'||c==='U') && !fijas.has(x+','+y)) n++; })); return n; };
+    const tieneVuelta=(T)=>dePila(T)>0 || (T.doors||[]).length>0 || (T.salidas||[]).length>0;
 
     const salidas=[];
     g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'||c==='U') salidas.push([x,y]); }));
-    if(!salidas.length)
+    if(!tieneVuelta(I))
       E(key+": no tiene salida — hace falta una casilla 'X' (al vestibulo) o 'E' (al campus)");
-    else if(salidas.length>1)
-      E(key+': tiene '+salidas.length+' salidas '+salidas.map(p=>'('+p+')').join(' ')+'; debe haber una sola');
-    else if(!huecoAlLado(salidas[0][0],salidas[0][1]))
-      E(key+': la salida ('+salidas[0]+') no tiene ninguna casilla libre al lado; no se podria accionar ni aparecer junto a ella');
+    if(dePila(I)>1)
+      E(key+': tiene '+dePila(I)+" salidas de vuelta; solo puede haber una (las demas van en 'salidas')");
+    salidas.forEach(pp=>{ if(!huecoAlLado(pp[0],pp[1]))
+      E(key+': la salida ('+pp+') no tiene ninguna casilla libre al lado; no se podria accionar ni aparecer junto a ella'); });
+    (I.salidas||[]).forEach(sa=>{
+      const ts=at(sa.x,sa.y);
+      if(ts===undefined)                    E(key+': la salida al campus ('+sa.x+','+sa.y+') cae fuera de la sala');
+      else if(ts!=='X'&&ts!=='E'&&ts!=='U') E(key+': en ('+sa.x+','+sa.y+") no hay salida dibujada, hay '"+ts+"'");
+      const ct=(OUTDOOR[sa.at[1]]||'')[sa.at[0]];
+      if(ct===undefined)        E(key+': la salida ('+sa.x+','+sa.y+') deja al jugador fuera del mapa del campus');
+      else if(SOLID_OUT.has(ct))E(key+': la salida ('+sa.x+','+sa.y+") deja al jugador sobre '"+ct+"', que no se puede pisar");
+    });
 
     // toda puerta dibujada tiene que estar cableada, y toda puerta cableada dibujada
     const cableadas=new Set((I.doors||[]).map(d=>d.x+','+d.y));
@@ -2495,8 +3378,12 @@ function validateMaps(){
         E(key+' -> '+d.to+': la puerta ('+d.x+','+d.y+') no tiene casilla libre delante; no se puede accionar');
       const T=INTERIORS[d.to];
       if(!T){ E(key+" -> '"+d.to+"': ese destino no existe"); return; }
-      const n=nSalidas(T);
-      if(n!==1) E(key+' -> '+d.to+': esa sala tiene '+n+' salidas; necesita exactamente una para poder volver');
+      if(!tieneVuelta(T)) E(key+' -> '+d.to+': esa sala no tiene ninguna via de vuelta');
+      if(d.at){
+        const SOLT=T.isPatio?SOLID_PATIO:SOLID_IN, tt=(T.grid[d.at[1]]||'')[d.at[0]];
+        if(tt===undefined)   E(key+' -> '+d.to+': el punto de llegada ('+d.at+') cae fuera de esa sala');
+        else if(SOLT.has(tt))E(key+' -> '+d.to+": el punto de llegada ("+d.at+") esta sobre '"+tt+"', que no se puede pisar");
+      }
     });
 
     (I.npcs||[]).forEach(n=>{
@@ -2914,12 +3801,15 @@ function updateMove(){
 // Casilla pisable junto a la salida de una sala, y direccion en la que
 // mira el jugador al aparecer. Se calcula, no se escribe a mano: asi no
 // puede quedarse desincronizada de la rejilla.
-function frenteASalida(key){
+function frenteASalida(key,desde){
   const I=INTERIORS[key], g=I.grid;
   const SOL=I.isPatio?SOLID_PATIO:SOLID_IN;
   const libre=(x,y)=>g[y]!==undefined && g[y][x]!==undefined && !SOL.has(g[y][x]);
   let px=-1,py=-1;
-  g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'||c==='U'){px=x;py=y;} }));
+  // si el edificio tiene varias entradas, aparecemos junto a la que hemos usado
+  if(desde){ const s=(I.salidas||[]).find(s=>s.at[0]===desde[0]&&s.at[1]===desde[1]);
+             if(s){ px=s.x; py=s.y; } }
+  if(px<0) g.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==='X'||c==='E'||c==='U'){px=x;py=y;} }));
   if(px<0){
     for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++) if(libre(x,y)) return {at:[x,y],dir:'down'};
     return {at:[1,1],dir:'down'};
@@ -2942,14 +3832,16 @@ function activarPuerta(nx,ny){
     const g=BLD_BY_KEY[key];
     if(!g || nx<g.x0 || nx>g.x1 || ny<g.y0 || ny>g.y1) return false;
     const b=BUILDINGS[key];
-    if(b.interior) enterInterior(b.interior);
+    if(b.interior) enterInterior(b.interior,[player.x,player.y]);
     else openDialog(b.name, b.info, b.choice||null);
     return true;
   }
   const I=INTERIORS[scene];
   const t=tileAt(nx,ny);
   const d=(I.doors||[]).find(d=>d.x===nx&&d.y===ny);
-  if(d){ if(t==='V') usarEscalera(nx,ny,d.to,false); else gotoScene(d.to); return true; }
+  const sal=(I.salidas||[]).find(s=>s.x===nx&&s.y===ny);
+  if(sal){ salirAlCampus(sal.at); return true; }
+  if(d){ if(t==='V') usarEscalera(nx,ny,d.to,false); else gotoScene(d.to,d.at,d.dir); return true; }
   if(t==='U'){ usarEscalera(nx,ny,null,true); return true; }
   if(t==='X'||t==='E'){ exitInterior(); return true; }
   return false;
@@ -3018,13 +3910,18 @@ function dirEscalera(g,x,y){
   return y<=(t.y0+t.y1)/2 ? [0,1] : [0,-1];
 }
 // localiza el peldano activo de la escalera de una sala
-function escaleraDe(clave){
-  const g=INTERIORS[clave].grid;
+function escaleraDe(clave,desde){
+  const I=INTERIORS[clave], g=I.grid;
+  // si la planta tiene varias escaleras, salimos por la que baja/sube al sitio
+  // del que venimos; si no, por la primera que haya
+  if(desde){ const d=(I.doors||[]).find(d=>d.to===desde && (g[d.y]||'')[d.x]==='V');
+             if(d) return [d.x,d.y]; }
   for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++)
     if(g[y][x]==='V'||g[y][x]==='U') return [x,y];
   return null;
 }
 function usarEscalera(ex,ey,destino,esSalida){
+  const origen=scene;
   const [dx,dy]=dirEscalera(INTERIORS[scene].grid, ex, ey);
   guionar([[ex,ey],[ex+dx,ey+dy],[ex+2*dx,ey+2*dy]], ()=>{   // recorre el tramo
     fade.style.opacity='1';
@@ -3032,7 +3929,7 @@ function usarEscalera(ex,ey,destino,esSalida){
       let clave=destino;
       if(esSalida){ const prev=sceneStack.pop(); if(prev) clave=prev.scene; }
       else sceneStack.push({scene:scene, x:ex-dx, y:ey-dy});
-      const s=escaleraDe(clave);
+      const s=escaleraDe(clave,origen);
       if(!s){ loadScene(clave,[1,1],'down'); fade.style.opacity='0'; guion=null; state='play'; return; }
       const [ax,ay]=dirEscalera(INTERIORS[clave].grid, s[0], s[1]);
       loadScene(clave, [s[0]+2*ax, s[1]+2*ay], 'down');
@@ -3069,18 +3966,30 @@ function loadScene(key,at,dir){
   resize();                      // ajustar la vista al tamano de esta sala
   if(typeof saveGame==='function' && state!=='menu' && player.career) saveGame();
 }
-function enterInterior(key){
+function enterInterior(key,desde){
   transition(()=>{
     sceneStack=[{scene:'outdoor', x:player.x, y:player.y}];
-    const f=frenteASalida(key);
+    const f=frenteASalida(key,desde);
     loadScene(key, f.at, f.dir);
   });
 }
+// salir a una baldosa concreta del campus (edificios con mas de una puerta)
+function salirAlCampus(at){
+  transition(()=>{
+    scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
+    npcs=OUT_NPCS; patioMode=false; sceneStack=[];
+    player.x=at[0]; player.y=at[1];
+    player.px=player.x*TILE; player.py=player.y*TILE;
+    player.tx=player.x; player.ty=player.y;
+    player.dir='down'; player.moving=false;
+    resize(); updateLocation();
+  });
+}
 // ir de una escena interior a otra (recordando de dónde venimos)
-function gotoScene(key){
+function gotoScene(key,at,dir){
   transition(()=>{
     sceneStack.push({scene:scene, x:player.x, y:player.y});
-    const f=frenteASalida(key);
+    const f = at ? {at:at, dir:dir||'down'} : frenteASalida(key);
     loadScene(key, f.at, f.dir);
   });
 }
@@ -3241,9 +4150,10 @@ function render(){
     if(scene==='outdoor'&&DOOR_AT[f.x+','+f.y])inter=true;
     if(scene!=='outdoor'){
       const t=tileAt(f.x,f.y);
-      if('XEYG123456ABCJ'.includes(t))inter=true;
+      if('XEU'.includes(t)||PUERTAS_SALA.has(t))inter=true;
       const I=INTERIORS[scene];
       if(I.doors&&I.doors.some(d=>d.x===f.x&&d.y===f.y))inter=true;
+      if(I.salidas&&I.salidas.some(d=>d.x===f.x&&d.y===f.y))inter=true;
       if(I.info&&I.info.some(s=>s.x===f.x&&s.y===f.y))inter=true;
     }
     if(inter){
