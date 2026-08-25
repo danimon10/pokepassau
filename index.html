@@ -629,29 +629,162 @@ const INTERIORS = {
        lines:["Llevo viniendo al Gmoa desde que era estudiante. De eso hace… años.","Algunas cosas de Passau no cambian, y menos mal."]},
     ]
   },
+  //---------------- ZENTRALBIBLIOTHEK (tres plantas) ----------------
+  // Planta baja: se entra por abajo a un vestíbulo con las exposiciones
+  // temporales a la izquierda y los dos aseos a la derecha. Cruzando el
+  // tabique está la sala principal, con el mostrador de préstamo, las
+  // estanterías y la escalera al segundo piso.
   zb: {
-    name:"Zentralbibliothek",
+    name:"Zentralbibliothek — Vestíbulo",
+    grid:[
+      "#####################",
+      "#.s.s...........c...#",
+      "#.s.s...........c...#",
+      "#.s.s...........c...#",
+      "#.....SSS.......c...#",
+      "#.s.s.SSS.......c...#",
+      "#.s.s.SSS.......c...#",
+      "#.s.s.SVS...........#",
+      "#...................#",
+      "#...................#",
+      "###########.#########",
+      "#.II.II.II.......####",
+      "#................#A##",
+      "#...................#",
+      "#................#C##",
+      "###########E#########",
+    ],
+    doors:[
+      {x:7, y:7,  to:'zb2'},
+      {x:18,y:12, to:'zb_bano_m'},
+      {x:18,y:14, to:'zb_bano_h'},
+    ],
+    info:[
+      {x:2,y:11,name:"Exposición temporal",lines:["🖼 «PASSAU EN 1900» — fotografías de la ciudad","Fondo del archivo municipal. Hasta final de semestre.","Entrada libre."]},
+      {x:5,y:11,name:"Exposición temporal",lines:["🖼 Grabados del Danubio, siglo XVIII.","Cedidos por la Staatsbibliothek."]},
+      {x:8,y:11,name:"Exposición temporal",lines:["🖼 Manuscritos del Nikolakloster.","No tocar el cristal, por favor. Va en serio."]},
+    ],
+    npcs:[
+      {x:17,y:3,name:"Bibliotecaria Frau Vogt",color:"#5ab0d6",dir:'left',
+       lines:["Mostrador de préstamo. ¿Vienes a llevarte algo o a devolverlo?","Tres semanas, y se puede renovar dos veces. Después, multa."],
+       careerLine:{default:"Sea cual sea tu carrera, aquí tenemos tu bibliografía. En algún sitio."},
+       choice:{q:"¿En qué te ayudo?",opts:[
+         {t:"Sacar un libro",r:["Tarjeta de estudiante y firma aquí. Y devuélvelo a tiempo, que me acuerdo de las caras."]},
+         {t:"¿Dónde está la torre de los libros?",r:["Segundo piso, al fondo a la izquierda.","Ahí guardamos lo que ya no cabe abajo. No te pierdas."]},
+         {t:"Nada, gracias",r:["Pues por aquí andaré."]}]}},
+      {x:7,y:2,name:"Estudiante Jonas",color:"#5ad68f",dir:'left',
+       lines:["Llevo veinte minutos buscando una signatura que empieza por PT.","Juraría que el catálogo se inventa la mitad de los números."]},
+      {x:3,y:12,name:"Estudiante Lea",color:"#d65a8a",dir:'up',
+       lines:["Vengo por las exposiciones, no te voy a mentir.","Las cambian cada semestre y son gratis."]},
+    ]
+  },
+  // Segundo piso: se sube por la escalera. Arriba, estanterías y mesas de
+  // estudio; un tabique con un solo paso separa esa zona de la sala grande
+  // de estudio. A la izquierda, la puerta a la torre de los libros; abajo a
+  // la derecha, la hemeroteca.
+  zb2: {
+    name:"Zentralbibliothek — Segundo piso",
+    grid:[
+      "#####################",
+      "#............s.s.s..#",
+      "#.mm.........s.s.s..#",
+      "#.mm..ss.....SSS....#",
+      "#.....ss.....SSS....#",
+      "#.mm.........SSS....#",
+      "C.mm.........SUS....#",
+      "#...................#",
+      "##########.#######A##",
+      "#mmm.......mmm..#####",
+      "#...............#####",
+      "#mmm.......mmm..#####",
+      "#...............#####",
+      "#mmm.......mmm..#####",
+      "#####################",
+    ],
+    doors:[
+      {x:0, y:6, to:'zb_torre'},
+      {x:18,y:8, to:'zb_revistas'},
+    ],
+    npcs:[
+      {x:1,y:7,name:"Archivero Herr Brand",color:"#8a5ad6",dir:'left',
+       lines:["Esa puerta da a la torre de los libros. Cuatro pisos de estanterías.","Ahí dentro no hay ventanas y el silencio es distinto. Ya lo notarás."]},
+      {x:4,y:10,name:"Estudiante Mira",color:"#5a8ad6",dir:'right',
+       lines:["Esta sala es la buena: mesas grandes y nadie hablando.","Los de abajo vienen a socializar; nosotros venimos a sufrir."]},
+      {x:14,y:2,name:"Estudiante Tobias",color:"#d6a05a",dir:'down',
+       lines:["Cuidado al bajar la escalera con la pila de libros.","Lo digo por experiencia."]},
+    ]
+  },
+  // La torre de los libros: cuatro hileras de estanterías y nada más.
+  zb_torre: {
+    name:"Zentralbibliothek — Torre de los libros",
+    grid:[
+      "#####################",
+      "#...................#",
+      "#.s..s..s..s..s..s..#",
+      "#.s..s..s..s..s..s..#",
+      "#...................#",
+      "#...................#",
+      "#.s..s..s..s..s..s..X",
+      "#.s..s..s..s..s..s..#",
+      "#...................#",
+      "#...................#",
+      "#.s..s..s..s..s..s..#",
+      "#.s..s..s..s..s..s..#",
+      "#####################",
+    ],
+    npcs:[
+      {x:10,y:8,name:"Bibliotecario Herr Kranz",color:"#6a7a8a",dir:'up',
+       lines:["Aquí abajo está lo que nadie pide desde 1974.","Y aun así, alguien lo pide. Siempre alguien lo pide."]},
+    ]
+  },
+  // Hemeroteca: revistas y periódicos, con mesas de lectura.
+  zb_revistas: {
+    name:"Zentralbibliothek — Hemeroteca",
+    grid:[
+      "######X######",
+      "#...........#",
+      "#.sssss.sss.#",
+      "#...........#",
+      "#.t.t.t.t.t.#",
+      "#.e.e.e.e.e.#",
+      "#...........#",
+      "#.t.t.t.t.t.#",
+      "#.e.e.e.e.e.#",
+      "#...........#",
+      "#############",
+    ],
+    npcs:[
+      {x:9,y:4,name:"Jubilado Herr Pichler",color:"#8a6a3a",dir:'left',
+       lines:["Vengo cada mañana a leer la Passauer Neue Presse.","No hace falta ser estudiante. Solo hay que estar callado."]},
+    ]
+  },
+  zb_bano_m: {
+    name:"Zentralbibliothek — Aseo de mujeres",
     grid:[
       "##########",
-      "#ssssssss#",
+      "#WLbbbLW.#",
       "#........#",
-      "#s.ss.ss.#",
-      "#s.ss.ss.#",
+      "#.p....p.#",
       "#........#",
-      "#tt.tt.tt#",
-      "#ee.ee.ee#",
       "#........#",
       "####X#####",
     ],
     npcs:[
-      {x:1,y:2,name:"Bibliotecario Jonas",color:"#5ab0d6",dir:'right',
-       lines:["¿Buscas un libro o solo un sitio silencioso?","Tenemos plazas con vistas al Inn en la planta de arriba."],
-       choice:{q:"¿En qué te ayudo?",opts:[
-         {t:"Buscar bibliografía",r:["Mira en el catálogo OPAC. Y reserva pronto, en época de exámenes vuela."]},
-         {t:"Un sitio para estudiar",r:["Sube a la primera planta. Lleva auriculares, hay quien susurra demasiado."]}]}},
-      {x:8,y:5,name:"Estudiante Lea",color:"#5ad68f",dir:'down',
-       lines:["Tercer café del día y sigo en la misma página.","Pero el ambiente de la biblio ayuda a concentrarse."]},
+      {x:7,y:4,name:"Estudiante Nina",color:"#d65a8a",dir:'down',
+       lines:["El secador lleva roto desde antes de que yo me matriculara.","Y no exagero: entré en 2021."]},
     ]
+  },
+  zb_bano_h: {
+    name:"Zentralbibliothek — Aseo de hombres",
+    grid:[
+      "##########",
+      "#.WWLLbb.#",
+      "#........#",
+      "#.p....p.#",
+      "#........#",
+      "#........#",
+      "####X#####",
+    ],
   },
   innstegaula: {
     name:"Innstegaula — Aula Magna",
@@ -1807,7 +1940,7 @@ function loadScene(key,at,dir){
   }
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
-  npcs=I.npcs; patioMode=!!I.isPatio;
+  npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -1935,7 +2068,9 @@ function updateLocation(){
 //==================================================================
 const fade=document.getElementById('fade');
 function transition(mid){state='transition';fade.style.opacity='1';
-  setTimeout(()=>{mid&&mid();setTimeout(()=>{fade.style.opacity='0';state='play';},180);},320);}
+  // si mientras tanto ha arrancado un guion (una escalera), no le quitamos
+  // el control: seria el guion quien devuelve el estado al terminar.
+  setTimeout(()=>{mid&&mid();setTimeout(()=>{fade.style.opacity='0';if(!guion)state='play';},180);},320);}
 
 //==================================================================
 //  RENDER

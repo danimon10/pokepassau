@@ -56,7 +56,10 @@ if(marca){
 // ---------------- panel ----------------
 const LX=ML+W*TS+24; let ly=MT+4;
 x.textAlign='left';
-x.font='bold 20px system-ui';x.fillStyle='#1a1a22';x.fillText(I.name||clave,LX,ly+16);
+const tit=I.name||clave;
+let ts=20; x.font='bold '+ts+'px system-ui';
+while(x.measureText(tit).width>cw-LX-16 && ts>12){ ts--; x.font='bold '+ts+'px system-ui'; }
+x.fillStyle='#1a1a22'; x.fillText(tit,LX,ly+16);
 x.font='12px system-ui';x.fillStyle='#666';
 x.fillText('clave "'+clave+'"  ·  '+W+' × '+H+' casillas',LX,ly+36);
 ly+=58;
@@ -69,6 +72,7 @@ const NOMBRE={'#':'pared','=':'pared clara','.':'suelo','+':'umbral','a':'suelo 
  'u':'taburete','K':'barril','B':'estante de botellas','p':'planta','I':'tablón de anuncios','P':'pizarra',
  'Z':'pantalla de proyección','W':'inodoro','L':'lavabo','o':'árbol','F':'fuente',
  'X':'SALIDA (al vestíbulo)','E':'SALIDA (al campus)','Y':'puerta al patio','G':'puerta al bar',
+ 'S':'tramo de escalera','V':'ESCALERA que baja','U':'ESCALERA que sube (salida)',
  '1':'puerta a sala 1','2':'puerta a sala 2','3':'puerta a sala 3','4':'puerta a sala 4',
  '5':'puerta a sala 5','6':'puerta a sala 6','A':'puerta a sala A','C':'puerta a sala C','J':'puerta lateral'};
 const destino={}; (I.doors||[]).forEach(d=>{ destino[g[d.y][d.x]]=d.to; });
