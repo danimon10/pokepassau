@@ -265,17 +265,14 @@ const OUTDOOR=[
 "TT......P.......................P...........f...PBBBBB....TT",
 "TT......P.BBBBB...BBBBBB.BBBBBB.P,,L,,,,,,,,,L,,PBBBBB....TT",
 "TT......P.BBBBB...BBBBBB.BBBBBB.P,,,,,fI,b,,,,,,PBBBBB....TT",
-"TT......P.BBBBB...BBBBBB.BBBBBB.P,,,b,,,,,,f,,,,PPPDPPPPPPTT",
-"TT......P...D.......D....BBBBBBDP,t,,t,,t,,t,,t,..........TT",
+"TT......P.BBBBBD..BBBBBB.BBBBBB.P,,,b,,,,,,f,,,,PPPDPPPPPPTT",
+"TT......P...........D....BBBBBBDP,t,,t,,t,,t,,t,..........TT",
 "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
 "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-];
-
-//==================================================================
-//  INTERIORES (mapas pequeños)
+];//  INTERIORES (mapas pequeños)
 //  Leyenda interior: # pared  . suelo  c mostrador  s estantería
 //  t mesa  e silla  X salida(vuelve fuera)  p suelo-patio  g cesped
 //==================================================================
@@ -357,6 +354,197 @@ const INTERIORS = {
       {x:17,y:10,name:"Estudiante Hanna",color:"#d65a8a",dir:'left',
        lines:["Las mesas del fondo son las tranquilas.","Junto a la escalera no se oye ni pensar."]},
     ]
+  },
+  //---------------- INFORMATIK (planta y sótano) ----------------
+  // Planta baja: se entra por la cara este. Cuatro salones detrás de los
+  // tabiques, la escalera al sótano abajo a la izquierda y una máquina
+  // expendedora al lado.
+  informatik: {
+    name:"Informatik — Planta baja",
+    grid:[
+      "#####################",
+      "#####################",
+      "#####################",
+      "####1#####2####3#####",
+      "#...................#",
+      "#...................#",
+      "#...................#",
+      "#...................E",
+      "#...................#",
+      "#...................#",
+      "#........#######4####",
+      "#....SSSS############",
+      "#.M..VSSS############",
+      "#....SSSS############",
+      "#####################",
+    ],
+    doors:[
+      {x:4, y:3,  to:'informatik_aula1'},
+      {x:10,y:3,  to:'informatik_aula2'},
+      {x:15,y:3,  to:'informatik_aula3'},
+      {x:16,y:10, to:'informatik_aula4'},
+      {x:5, y:12, to:'informatik_sotano'},
+    ],
+    info:[
+      {x:2,y:12,name:"Máquina expendedora",lines:["🥤 Bebidas y sándwiches. Se paga con la tarjeta.","La fila E7 lleva atascada desde el semestre pasado.","Todo el mundo lo sabe. Nadie la arregla."]},
+    ],
+    npcs:[
+      {x:11,y:6,name:"Estudiante Timo",color:"#5a8ad6",dir:'left',
+       lines:["Cuatro salones y ninguno libre. Siempre igual en época de prácticas.","Si buscas los servidores, están abajo, en el sótano."],
+       careerLine:{"Inf":"¿Inf tú también? Bienvenido al edificio donde nunca es de día."}},
+      {x:6,y:9,name:"Técnico Herr Amsel",color:"#4a8a6a",dir:'down',
+       lines:["Bajo al sótano veinte veces al día. Veinte.","Si algo no va, es el cable. Siempre es el cable."]},
+    ]
+  },
+  // Sótano: pasillo con los aseos al sur y el almacén técnico al este.
+  informatik_sotano: {
+    name:"Informatik — Sótano",
+    grid:[
+      "#####################",
+      "#..............######",
+      "#..SSSS........######",
+      "#..SSSU........######",
+      "#..SSSS........4#####",
+      "#..............######",
+      "#..............######",
+      "#..............######",
+      "###2####3############",
+      "#####################",
+      "#####################",
+    ],
+    doors:[
+      {x:3, y:8, to:'informatik_bano_h'},
+      {x:8, y:8, to:'informatik_bano_m'},
+      {x:15,y:4, to:'informatik_almacen'},
+    ],
+    npcs:[
+      {x:11,y:5,name:"Becario Lukas",color:"#8a5ad6",dir:'right',
+       lines:["Me mandaron a por un cable HDMI hace media hora.","Aquí abajo no hay cobertura y he perdido la noción del tiempo."]},
+    ]
+  },
+  // Almacén técnico: estanterías, escritorios con equipos y cajas.
+  informatik_almacen: {
+    name:"Informatik — Almacén técnico",
+    grid:[
+      "#################",
+      "#sssssssssssssss#",
+      "#...............#",
+      "#.DD.mm.DD.mm.K.#",
+      "#...............#",
+      "#.ss.ss.ss.ss.K.#",
+      "#...............#",
+      "#.DD.mm.DD.mm.K.#",
+      "#...............#",
+      "#.ss.ss.ss.ss...#",
+      "#........X#######",
+    ],
+    npcs:[
+      {x:8,y:8,name:"Herr Amsel (almacén)",color:"#4a8a6a",dir:'up',
+       lines:["Aquí hay de todo: monitores, teléfonos, altavoces, cables de 1998.","Si buscas algo concreto, tardo menos yo. En serio."],
+       choice:{q:"¿Necesitas algo?",opts:[
+         {t:"Un cable HDMI",r:["Toma. Y devuélvelo, que son míos.","(El becario lleva media hora buscando este mismo cable.)"]},
+         {t:"Solo miraba",r:["Pues mira sin tocar, que hay cosas caras."]}]}},
+    ]
+  },
+  informatik_aula1: {
+    name:"Informatik — Laboratorio 1",
+    grid:[
+      "############",
+      "#PPPPPPPPPP#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "#####X######",
+    ],
+    npcs:[
+      {x:5,y:8,name:"Estudiante Nele",color:"#5ad68f",dir:'up',
+       lines:["Prácticas de programación. Llevo dos horas con un punto y coma.","Y te juro que estaba ahí."]},
+    ]
+  },
+  informatik_aula2: {
+    name:"Informatik — Laboratorio 2",
+    grid:[
+      "############",
+      "#ZZZZZZZZZZ#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "#####X######",
+    ],
+    npcs:[
+      {x:5,y:8,name:"Profesor Dr. Hofer",color:"#8a5ad6",dir:'down',
+       lines:["Hoy vemos estructuras de datos. Traed café.","La pantalla funciona, cosa que no siempre puedo decir."]},
+    ]
+  },
+  informatik_aula3: {
+    name:"Informatik — Seminario",
+    grid:[
+      "############",
+      "#PPPPPPPPPP#",
+      "#aaaaaaaaaa#",
+      "#a.tttttt.a#",
+      "#a.eeeeee.a#",
+      "#aaaaaaaaaa#",
+      "#a.tttttt.a#",
+      "#a.eeeeee.a#",
+      "#aaaaaaaaaa#",
+      "#####X######",
+    ],
+    npcs:[
+      {x:5,y:8,name:"Estudiante Paul",color:"#d6a05a",dir:'up',
+       lines:["Aquí hacemos los seminarios en grupo.","Mesas grandes y nadie mirando una pantalla. Se agradece."]},
+    ]
+  },
+  informatik_aula4: {
+    name:"Informatik — Aula de prácticas",
+    grid:[
+      "############",
+      "#PPPPPPPPPP#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "#####X######",
+    ],
+    npcs:[
+      {x:5,y:8,name:"Estudiante Ida",color:"#d65a8a",dir:'up',
+       lines:["Esta es la que siempre está libre, y por algo será.","Los ordenadores de esta sala son de la época del disquete."]},
+    ]
+  },
+  informatik_bano_h: {
+    name:"Informatik — Aseo de hombres",
+    grid:[
+      "##########",
+      "#.WWLLbb.#",
+      "#........#",
+      "#.p....p.#",
+      "#........#",
+      "#........#",
+      "####X#####",
+    ],
+  },
+  informatik_bano_m: {
+    name:"Informatik — Aseo de mujeres",
+    grid:[
+      "##########",
+      "#WLbbbLW.#",
+      "#........#",
+      "#.p....p.#",
+      "#........#",
+      "#........#",
+      "####X#####",
+    ],
   },
   niko: {
     name:"Nikolakloster — Recepción",
@@ -1050,7 +1238,7 @@ const BUILDINGS = {
            choice:{q:"¿Vienes a hacer un trámite?",opts:[
              {t:"Sí, un certificado",r:["Toma número… el 87. Van por el 31."]},
              {t:"No, me he equivocado",r:["Pasa a menudo. La salida está detrás de ti."]}]}},
-  I:      {name:"Informatik", door:[12,32], info:["Facultad de Informática.","Laboratorios, servidores y café a partes iguales."]},
+  I:      {name:"Informatik", door:[15,31], interior:'informatik'},
   AM:     {name:"Audimax", door:[20,26], interior:'audimax'},
   M:      {name:"Mensa", door:[20,32], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
@@ -1075,7 +1263,7 @@ const BLD_GEO=[
   {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
   {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
   {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
-  {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[12,32], style:'modern',   roof:'#4a8a6a', label:'I'},
+  {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[15,31], style:'modern',   roof:'#4a8a6a', label:'I'},
   {key:'AM',   x0:18,y0:22,x1:23,y1:25, door:[20,26], style:'modern',   roof:'#8a6ab0', label:'AM'},
   {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,32], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
@@ -1473,6 +1661,13 @@ function drawInTile(t,sx,sy,patio,horiz){
     case 'Z': { // pantalla de proyección (aula magna / salones)
       F('#3a3a4a'); R('#eceef2',1,1,14,12); R('#c8d0dc',2,2,12,10); // pantalla clara
       R('#8fb0d8',3,3,5,4); R('#d8a05a',9,4,3,3); R('#6a8a5a',4,8,7,2); return; } // "diapositiva"
+    case 'M': { // maquina expendedora
+      F('#d8c4a0');
+      R('#3a4250',2,1,12,14); R('#8fb0d8',3,2,7,9);
+      R('#c85a4a',4,3,2,2); R('#5ad68f',7,3,2,2);
+      R('#e8d65a',4,6,2,2); R('#5a8ad6',7,6,2,2);
+      R('#2a3038',11,3,2,6); R('#caa45a',3,12,8,2);
+      return; }
     case 'S': case 'V': case 'U': { // tramo de escalera
       // Los peldanos van siempre perpendiculares al sentido de subida, que
       // es como se ve una escalera de verdad: si se sube andando de lado,
@@ -1500,7 +1695,7 @@ const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
 const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
   // las puertas tambien son solidas: no se pisan, se empujan desde delante
   '1','2','3','4','5','6','A','C','J','Y','G','X','E',
-  'S','V','U']);   // la escalera tampoco se pisa: se acciona
+  'S','V','U','M']);   // la escalera y la maquina tampoco se pisan
 // patio: sólidos = muros, árboles y fuente
 const SOLID_PATIO=new Set(['#','o','F','G','X']);
 
@@ -1513,7 +1708,7 @@ const SOLID_PATIO=new Set(['#','o','F','G','X']);
 //==================================================================
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
-                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E','S','V','U']);
+                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E','S','V','U','M']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
 const PUERTAS_SALA=new Set(['1','2','3','4','5','6','A','C','J','Y','G','V']);
