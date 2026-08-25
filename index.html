@@ -2720,6 +2720,7 @@ function noise(x,y){let n=Math.sin(x*127.1+y*311.7)*43758.5; return n-Math.floor
 //  fachada, tejado con alero y volumen, ventanas, puerta y cartel.
 //==================================================================
 function shade(hex,f){ // aclara(f>0)/oscurece(f<0) un color hex
+  if(typeof hex!=='string'||!/^#[0-9a-fA-F]{6}$/.test(hex)) return '#ff00ff'; // color chillon: se ve el fallo, no se cae el dibujo
   const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
   const m=(v)=>Math.max(0,Math.min(255, Math.round(v + 255*f)));
   return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);
@@ -3137,7 +3138,12 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       R('#9a9da3',3,3,2,2); return; }
     case '<': { // coche aparcado
       F('#8f9298');
-      const car=['#c0392b','#2d6cb5','#3f8f5a','#c8a13a','#7a4a9a','#3b4453'][(sx*7+sy*13)%6];
+      // El color sale de la CASILLA, no de la posicion en pantalla: asi el
+      // coche no cambia de color al mover la camara, y el indice no puede
+      // salirse de la paleta (sx y sy son negativos en el borde de la vista).
+      const paleta=['#c0392b','#2d6cb5','#3f8f5a','#c8a13a','#7a4a9a','#3b4453'];
+      const cax=Math.round((sx+cam.x)/TILE), cay=Math.round((sy+cam.y)/TILE);
+      const car=paleta[(((cax*7+cay*13)%paleta.length)+paleta.length)%paleta.length];
       R('#2a2e34',1,1,14,14); R(car,2,2,12,12); R(shade(car,0.18),3,3,10,4);
       R('#8fb0d8',4,4,8,3); R('#8fb0d8',4,10,8,2);
       R('#e8e2d0',3,1,3,1); R('#e8e2d0',10,1,3,1); return; }
@@ -4686,12 +4692,24 @@ function newGame(){
 //==================================================================
 //  BUCLE
 //==================================================================
+// Si algo revienta dentro de un fotograma, el bucle TIENE que seguir pidiendo
+// el siguiente: una excepcion suelta dibujando una baldosa dejaba el juego
+// congelado del todo. Se avisa una vez (consola + banner) y se sigue.
+let falloDibujo=null;
 function loop(){
-  animTick++;
-  syncUIState();
-  if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
-  else if(guion){ avanzarGuion(); updateMove(); }   // escaleras: el jugador anda solo
-  updateCamera(); render();
+  try{
+    animTick++;
+    syncUIState();
+    if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
+    else if(guion){ avanzarGuion(); updateMove(); }   // escaleras: el jugador anda solo
+    updateCamera(); render();
+  }catch(e){
+    if(!falloDibujo){
+      falloDibujo=e;
+      console.error('%cFALLO EN EL FOTOGRAMA','color:#fff;background:#c0392b;padding:2px 6px;font-weight:bold', e);
+      if(typeof mostrarBannerErrores==='function') mostrarBannerErrores(['fotograma: '+e.message]);
+    }
+  }
   requestAnimationFrame(loop);
 }
 updateLocation();
