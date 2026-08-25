@@ -2,7 +2,8 @@
 html,body{margin:0;padding:0;background:#fff}canvas{display:block}
 </style></head><body><canvas id="c"></canvas><script>
 const D=DATA_PLACEHOLDER;
-const {clave,I,drawInTileSrc,marca,SOLID_IN,SOLID_PATIO}=D;
+const {clave,I,drawInTileSrc,marca,escH,SOLID_IN,SOLID_PATIO}=D;
+const ESCH=new Set(escH||[]);
 const g=I.grid, W=g[0].length, H=g.length;
 const TS=28, ML=54, MT=52, MR=330, MB=54;
 const cw=Math.max(ML+W*TS+MR, 920), ch=Math.max(MT+H*TS+MB, 420);
@@ -19,7 +20,7 @@ eval(drawInTileSrc);
 x.imageSmoothingEnabled=false;
 for(let ty=0;ty<H;ty++)for(let tx=0;tx<W;tx++){
   octx.clearRect(0,0,16,16);
-  try{ drawInTile(g[ty][tx],0,0,!!I.isPatio); }catch(e){}
+  try{ drawInTile(g[ty][tx],0,0,!!I.isPatio, ESCH.has(tx+','+ty)); }catch(e){}
   x.imageSmoothingEnabled=false;
   x.drawImage(off,T(tx),V(ty),TS,TS);
 }
@@ -79,7 +80,7 @@ const destino={}; (I.doors||[]).forEach(d=>{ destino[g[d.y][d.x]]=d.to; });
 const usados=[...new Set(g.join('').split(''))].sort();
 usados.forEach(ch2=>{
   octx.clearRect(0,0,16,16);
-  try{ drawInTile(ch2,0,0,!!I.isPatio); }catch(e){}
+  try{ drawInTile(ch2,0,0,!!I.isPatio, ESCH.size>0 && 'SVU'.includes(ch2)); }catch(e){}
   x.imageSmoothingEnabled=false; x.drawImage(off,LX,ly-13,17,17);
   x.strokeStyle='rgba(0,0,0,.25)';x.lineWidth=1;x.strokeRect(LX+.5,ly-12.5,16,16);
   x.font='bold 12px ui-monospace,monospace';x.fillStyle='#1a1a22';x.fillText(ch2,LX+24,ly);

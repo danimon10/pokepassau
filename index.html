@@ -1382,7 +1382,7 @@ function drawOutTile(t,sx,sy,tx,ty){
 //==================================================================
 //  TILES interior
 //==================================================================
-function drawInTile(t,sx,sy,patio){
+function drawInTile(t,sx,sy,patio,horiz){
   const F=(c)=>{ctx.fillStyle=c;ctx.fillRect(sx,sy,TILE,TILE);};
   const R=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(sx+x,sy+y,w,h);};
   if(patio){
@@ -1474,9 +1474,17 @@ function drawInTile(t,sx,sy,patio){
       F('#3a3a4a'); R('#eceef2',1,1,14,12); R('#c8d0dc',2,2,12,10); // pantalla clara
       R('#8fb0d8',3,3,5,4); R('#d8a05a',9,4,3,3); R('#6a8a5a',4,8,7,2); return; } // "diapositiva"
     case 'S': case 'V': case 'U': { // tramo de escalera
+      // Los peldanos van siempre perpendiculares al sentido de subida, que
+      // es como se ve una escalera de verdad: si se sube andando de lado,
+      // las lineas son verticales, y las zancas pasan a estar arriba y abajo.
       F('#a89ec0');
-      for(let i=0;i<4;i++){ R('#ded8ea',0,i*4,TILE,3); R('#8b81a6',0,i*4+3,TILE,1); }
-      R('#7a7090',0,0,1,TILE); R('#7a7090',TILE-1,0,1,TILE);   // zancas
+      if(horiz){
+        for(let i=0;i<4;i++){ R('#ded8ea',i*4,0,3,TILE); R('#8b81a6',i*4+3,0,1,TILE); }
+        R('#7a7090',0,0,TILE,1); R('#7a7090',0,TILE-1,TILE,1);
+      } else {
+        for(let i=0;i<4;i++){ R('#ded8ea',0,i*4,TILE,3); R('#8b81a6',0,i*4+3,TILE,1); }
+        R('#7a7090',0,0,1,TILE); R('#7a7090',TILE-1,0,1,TILE);
+      }
       return; }
     case 'X': F('#d8c4a0'); R('#7a5230',3,2,10,12); R('#5a3a1a',4,3,8,11); R('#e8d860',6,6,4,2); return; // salida a hub
     case 'E': F('#d8c4a0'); R('#7a5230',3,1,10,13); R('#5a3a1a',4,2,8,12); R('#8fd0f5',5,3,6,3); R('#e8d860',6,7,4,2); return; // salida al campus
@@ -1898,6 +1906,19 @@ function avanzarGuion(){
   player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
   player.tx=nx; player.ty=ny; player.moving=true;
 }
+// casillas de escalera que pertenecen a un tramo que se sube en horizontal
+let escalerasH=new Set();
+function marcarEscaleras(g){
+  const s=new Set();
+  if(!Array.isArray(g)||!g.length) return s;
+  for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
+    const c=g[y][x];
+    if(c!=='S'&&c!=='V'&&c!=='U') continue;
+    const t=tramoEscalera(g,x,y);
+    if((t.x1-t.x0)>(t.y1-t.y0)) s.add(x+','+y);
+  }
+  return s;
+}
 // bordes del tramo de escalera al que pertenece una casilla
 function tramoEscalera(g,x,y){
   const es=(a,b)=>{const c=(g[b]||'')[a]; return c==='S'||c==='V'||c==='U';};
@@ -1954,7 +1975,7 @@ function loadScene(key,at,dir){
   // cargar una posicion del mapa exterior.
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false;
+    npcs=OUT_NPCS; patioMode=false; escalerasH=new Set();
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
@@ -1965,6 +1986,7 @@ function loadScene(key,at,dir){
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
   npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
+  escalerasH=marcarEscaleras(map);
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -2117,7 +2139,7 @@ function render(){
     const t=tileAt(mx,my);
     const sx=tx*TILE-offX, sy=ty*TILE-offY;
     if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
-    else drawInTile(t,sx,sy,patioMode);
+    else drawInTile(t,sx,sy,patioMode, escalerasH.has(mx+','+my));
   }
   // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
   const ents=[];
