@@ -2644,10 +2644,18 @@ const DIRS={arrowup:'ju',arrowdown:'jd',arrowleft:'jl',arrowright:'jr'};
 const dirEl={}; for(const k in DIRS) dirEl[k]=document.getElementById(DIRS[k]);
 let curDir=null, lastAPress=0;
 
-const JOY_DEAD=0.30;    // fraccion del recorrido que no mueve (zona muerta)
-const JOY_BIAS=1.30;    // histeresis: la direccion actual aguanta un poco
+// Tacto del joystick. Todo en fracciones del radio del aro (~66 px en un
+// movil normal), asi que se puede ajustar aqui sin tocar nada mas.
+const JOY_DEAD =0.30;   // hasta aqui el dedo no mueve nada       (~20 px)
+const JOY_TOPE =0.78;   // aqui el empuje ya es el maximo         (~52 px)
+const JOY_LENTO=0.45;   // por debajo de este empuje se anda despacio
+const JOY_BIAS =1.55;   // histeresis: la direccion actual aguanta ~12 grados
 const TAP_TOL=14;       // px que se pueden mover sin dejar de ser "un toque"
 const TAP_MS=500;       // y tiempo maximo del toque
+
+// Con el joystick a medio empujar se anda despacio, como quien va con tiento;
+// a fondo —y siempre con el teclado— se anda al paso normal. Lo lee updateMove().
+let andarDespacio=false;
 
 function setDir(d){
   if(d===curDir) return;
@@ -2677,16 +2685,22 @@ function joyDireccion(dx,dy){
   return horiz ? (dx>0?'arrowright':'arrowleft') : (dy>0?'arrowdown':'arrowup');
 }
 function joySeguir(x,y){
-  const R=joyRadio(), Rk=(joyKnob.offsetWidth||R*0.46)/2;
-  const Rmax=Math.max(12, R-Rk-3);   // recorrido del pomo, sin asomar del aro
+  const R=joyRadio(), Rk=(joyKnob.offsetWidth||R*0.92)/2;
+  const Rvis=Math.max(10, R-Rk-3);           // hasta donde se dibuja el pomo
+  const muerta=R*JOY_DEAD, tope=Math.max(muerta+10, R*JOY_TOPE);
   let dx=x-joy.cx, dy=y-joy.cy, d=Math.hypot(dx,dy);
-  if(d>Rmax){                        // base pegajosa: el aro persigue al dedo
-    const k=(d-Rmax)/d;
+  if(d>tope){                                // base pegajosa: el aro persigue al dedo
+    const k=(d-tope)/d;
     joyCentrar(joy.cx+dx*k, joy.cy+dy*k);
     dx=x-joy.cx; dy=y-joy.cy; d=Math.hypot(dx,dy);
   }
-  joyKnob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';
-  setDir(d < Math.max(8, Rmax*JOY_DEAD) ? null : joyDireccion(dx,dy));
+  // el pomo recorre el aro entero, pero el dedo tiene que andar mas camino:
+  // el recorrido real (hasta 'tope') se dibuja a escala del aro (hasta Rvis)
+  const k = d>0 ? Math.min(d,tope)/tope*Rvis/d : 0;
+  joyKnob.style.transform='translate('+(dx*k).toFixed(1)+'px,'+(dy*k).toFixed(1)+'px)';
+  const empuje = Math.max(0, Math.min(1, (d-muerta)/(tope-muerta)));
+  andarDespacio = empuje < JOY_LENTO;        // empujon suave -> paso corto
+  setDir(d < muerta ? null : joyDireccion(dx,dy));
 }
 function joyAbrir(id,x,y){
   joy.id=id; joyCentrar(x,y);
@@ -2698,6 +2712,7 @@ function joySoltar(e){
   if(e && joy.id!==null && e.pointerId!==joy.id) return;
   joy.id=null; joyEl.classList.remove('on');
   joyKnob.style.transform='translate(0,0)';
+  andarDespacio=false;
   setDir(null);
 }
 
@@ -2879,7 +2894,7 @@ function tryMove(){
 }
 function updateMove(){
   if(!player.moving)return;
-  const tgx=player.tx*TILE,tgy=player.ty*TILE,sp=2;
+  const tgx=player.tx*TILE,tgy=player.ty*TILE,sp=andarDespacio?1:2;
   if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
   if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
   if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
