@@ -546,6 +546,159 @@ const INTERIORS = {
       "####X#####",
     ],
   },
+  //---------------- SPORTZENTRUM ----------------
+  // Vestíbulo: recepción en el centro, sillas y plantas a la derecha, y
+  // seis puertas — pista cubierta, gimnasio, aula, estadio y tenis.
+  sportzentrum: {
+    name:"Sportzentrum — Recepción",
+    grid:[
+      "#####################",
+      "########......#######",
+      "#######3......#######",
+      "########......4######",
+      "########......#######",
+      "5.............#######",
+      "#........c..........#",
+      "#........c.........p#",
+      "6...............pee.#",
+      "########............#",
+      "########...........p#",
+      "#######2.........ee.#",
+      "###########E#########",
+    ],
+    doors:[
+      {x:7, y:11, to:'sp_baloncesto'},
+      {x:7, y:2,  to:'sp_gimnasio'},
+      {x:14,y:3,  to:'sp_aula'},
+      {x:0, y:5,  to:'sp_estadio'},
+      {x:0, y:8,  to:'sp_tenis'},
+    ],
+    npcs:[
+      {x:8,y:6,name:"Recepcionista Frau Keller",color:"#3b86a2",dir:'right',
+       lines:["Bienvenido al Sportzentrum. ¿Vienes a entrenar o a mirar?","Arriba el gimnasio, abajo la pista cubierta. Fuera, el estadio y el tenis."],
+       careerLine:{default:"Con el carné de estudiante entras a todo sin pagar."},
+       choice:{q:"¿Te oriento?",opts:[
+         {t:"¿Dónde está el estadio?",r:["Puerta de la izquierda, la de arriba. Sales directo al campo."]},
+         {t:"¿Y las pistas de tenis?",r:["La otra puerta de la izquierda. Reserva antes, que vuelan."]},
+         {t:"Ya me apaño",r:["Como quieras. Si te pierdes, vuelves."]}]}},
+      {x:14,y:9,name:"Estudiante Bene",color:"#5ad68f",dir:'left',
+       lines:["Espero a que se libere la pista de baloncesto.","Llevo aquí sentado cuarenta minutos. Las sillas son cómodas, eso sí."]},
+    ]
+  },
+  // Estadio al aire libre: campo de fútbol rodeado por la pista de
+  // atletismo, y arbolado cerrando el recinto por el norte, sur y oeste.
+  sp_estadio: {
+    name:"Sportzentrum — Estadio",
+    grid:[
+      "hhhhhhhhhhhhhhhhhhhh#",
+      "hnnnnnnnnnnnnnnnnnnn#",
+      "hnwwwwwwwwwwwwwwwwwn#",
+      "hnwgggggggwgggggggwn#",
+      "hnwwwwggggwggggwwwwn#",
+      "hnwggwggdwwwdggwggwn#",
+      "hnwggwggwgwgwggwggwn#",
+      "hnwggwggwgwgwggwggwnX",
+      "hnwggwggwgwgwggwggwn#",
+      "hnwggwggdwwwdggwggwn#",
+      "hnwwwwggggwggggwwwwn#",
+      "hnwgggggggwgggggggwn#",
+      "hnwwwwwwwwwwwwwwwwwn#",
+      "hnnnnnnnnnnnnnnnnnnn#",
+      "hhhhhhhhhhhhhhhhhhhh#",
+    ],
+    npcs:[
+      {x:15,y:12,name:"Entrenador Sepp",color:"#c0603f",dir:'up',
+       lines:["Cuatro vueltas a la pista antes de tocar el balón. Sin excepciones.","¿Te apuntas al equipo? Entrenamos martes y jueves."]},
+      {x:6,y:7,name:"Estudiante Kata",color:"#d65a8a",dir:'right',
+       lines:["El campo está libre por las mañanas.","Por la tarde no hay quien lo pille."]},
+    ]
+  },
+  // Dos pistas de tenis paralelas, también al aire libre.
+  sp_tenis: {
+    name:"Sportzentrum — Pistas de tenis",
+    grid:[
+      "hhhhhhhhhhhhhhhhhhhh#",
+      "hggggggggggggggggggg#",
+      "hggggggggggggggggggg#",
+      "hgyyyyyyyggyyyyyyygg#",
+      "hgyqqqqqyggyqqqqqygg#",
+      "hgyqqyqqyggyqqyqqygg#",
+      "hgyqqyqqyggyqqyqqygg#",
+      "hgyyyyyyyggyyyyyyyggX",
+      "hgyqqyqqyggyqqyqqygg#",
+      "hgyqqyqqyggyqqyqqygg#",
+      "hgyqqqqqyggyqqqqqygg#",
+      "hgyyyyyyyggyyyyyyygg#",
+      "hggggggggggggggggggg#",
+      "hggggggggggggggggggg#",
+      "hhhhhhhhhhhhhhhhhhhh#",
+    ],
+    npcs:[
+      {x:9,y:7,name:"Estudiante Ola",color:"#5a8ad6",dir:'left',
+       lines:["Dos pistas para todo el campus. Haz cuentas.","Se reservan en recepción, y hay que madrugar."]},
+    ]
+  },
+  sp_baloncesto: {
+    name:"Sportzentrum — Pista cubierta",
+    grid:[
+      "#################",
+      "#aaaaaaaaaaaaaaa#",
+      "#ajjjjjjjjjjjjja#",
+      "#ajaaaaajaaaaaja#",
+      "#ajjjafjjjfajjja#",
+      "#ajajajajajajaja#",
+      "#ajajajajajajajaX",
+      "#ajajajajajajaja#",
+      "#ajjjafjjjfajjja#",
+      "#ajaaaaajaaaaaja#",
+      "#ajjjjjjjjjjjjja#",
+      "#aaaaaaaaaaaaaaa#",
+      "#################",
+    ],
+    npcs:[
+      {x:8,y:11,name:"Estudiante Malte",color:"#c87a3a",dir:'up',
+       lines:["Partido a 21, ¿te apuntas?","Aquí se juega llueva o truene, que para eso está cubierta."]},
+    ]
+  },
+  sp_gimnasio: {
+    name:"Sportzentrum — Gimnasio",
+    grid:[
+      "###############",
+      "#.............#",
+      "#.x.x.x.x.x...#",
+      "#.............#",
+      "#.............#",
+      "#.x.x.x.x.x...X",
+      "#.............#",
+      "#.............#",
+      "#.x.x.x.x.x...#",
+      "#.p.........p.#",
+      "###############",
+    ],
+    npcs:[
+      {x:7,y:9,name:"Monitor Jens",color:"#4a4a58",dir:'up',
+       lines:["Calienta antes de tocar las máquinas. Te lo digo por tu espalda.","Y limpia el banco al terminar, que no somos animales."]},
+    ]
+  },
+  sp_aula: {
+    name:"Sportzentrum — Aula",
+    grid:[
+      "############",
+      "#PPPPPPPPPP#",
+      "#aaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "Xaaaaaaaaaa#",
+      "#ammammamma#",
+      "#aeeaeeaeea#",
+      "#aaaaaaaaaa#",
+      "############",
+    ],
+    npcs:[
+      {x:5,y:8,name:"Estudiante Rana",color:"#5ad68f",dir:'up',
+       lines:["Teoría del deporte. Sí, también hay que estudiar.","Anatomía, fisiología y un examen que no perdona."]},
+    ]
+  },
   niko: {
     name:"Nikolakloster — Recepción",
     // Vestíbulo central abierto + dos pasillos laterales. 8 puertas:
@@ -1233,7 +1386,7 @@ const BUILDINGS = {
              {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
              {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
   Einkauf:{name:"Einkaufszentrum", door:[53,15], info:["Centro comercial.","Tiendas, comida rápida y ese olor a centro comercial de toda Europa."]},
-  SP:     {name:"Sportzentrum", door:[5,27], info:["Centro deportivo (Sportzentrum).","Canchas, gimnasio y clases de todo tipo. ¿Hoy toca deporte?"]},
+  SP:     {name:"Sportzentrum", door:[5,27], interior:'sportzentrum'},
   VG:     {name:"Verwaltungsgebäude", door:[12,25], info:["Edificio de administración.","Matrículas, certificados y paciencia. Mucha paciencia."],
            choice:{q:"¿Vienes a hacer un trámite?",opts:[
              {t:"Sí, un certificado",r:["Toma número… el 87. Van por el 31."]},
@@ -1570,7 +1723,7 @@ function drawOutTile(t,sx,sy,tx,ty){
 //==================================================================
 //  TILES interior
 //==================================================================
-function drawInTile(t,sx,sy,patio,horiz){
+function drawInTile(t,sx,sy,patio,horiz,conex){
   const F=(c)=>{ctx.fillStyle=c;ctx.fillRect(sx,sy,TILE,TILE);};
   const R=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(sx+x,sy+y,w,h);};
   if(patio){
@@ -1608,7 +1761,6 @@ function drawInTile(t,sx,sy,patio,horiz){
     case 'a': F('#e0d2b0'); R('#d4c49e',0,7,TILE,1);R('#d4c49e',7,0,1,TILE); return; // aula (parqué claro)
     case 'k': F('#c8d4c0'); R('#bccab2',0,7,TILE,1);R('#bccab2',7,0,1,TILE); return; // oficina (verde grisáceo)
     case 'b': case 'l': F('#c0d0d8'); R('#b0c2cc',0,7,TILE,1);R('#b0c2cc',7,0,1,TILE); return; // baños (azulejo)
-    case 'g': F('#d8c4a0'); return;
     case 'm': { // mesa de estudio con portátil abierto
       F('#e0d2b0'); R('#9b6b4a',2,4,12,9); R('#b07a4a',2,4,12,2); // mesa
       R('#3a4250',5,5,6,4); R('#6aa8d8',6,6,4,2); // portátil (tapa+pantalla)
@@ -1661,6 +1813,48 @@ function drawInTile(t,sx,sy,patio,horiz){
     case 'Z': { // pantalla de proyección (aula magna / salones)
       F('#3a3a4a'); R('#eceef2',1,1,14,12); R('#c8d0dc',2,2,12,10); // pantalla clara
       R('#8fb0d8',3,3,5,4); R('#d8a05a',9,4,3,3); R('#6a8a5a',4,8,7,2); return; } // "diapositiva"
+    // --- deporte: superficies, lineas y arbolado ---
+    case 'g': { // cesped
+      F('#5fa84f'); R('#55994a',0,7,TILE,1); R('#55994a',7,0,1,TILE);
+      R('#6ab85a',3,3,2,2); R('#6ab85a',11,10,2,2); return; }
+
+    case 'n': { // pista de atletismo
+      F('#c0603f'); R('#b0553a',0,5,TILE,1); R('#b0553a',0,11,TILE,1);
+      R('#cd6f4c',2,2,3,1); R('#cd6f4c',9,8,4,1); return; }
+    case 'q': { // pista de tenis
+      F('#3a7ac0'); R('#3470b4',0,7,TILE,1); R('#3470b4',7,0,1,TILE); return; }
+
+    case 'w': case 'y': case 'j': case 'd': case 'f': {
+      // Linea pintada del campo. Se dibuja fina y se une a las casillas de
+      // linea vecinas (conex: 1 arriba, 2 abajo, 4 izquierda, 8 derecha),
+      // asi que el trazado se ve como una raya y no como un bloque.
+      // Cada letra es un suelo distinto:  w cesped, y pista de tenis,
+      // j parque.  'd' y 'f' son las variantes curvas de w y de j: en una
+      // esquina trazan un cuarto de circulo en vez de un angulo recto, que
+      // es lo que redondea los circulos centrales.
+      const parque = (t==='j'||t==='f');
+      F(t==='y'?'#3a7ac0' : parque?'#e0d2b0' : '#5fa84f');
+      const col = parque ? '#9a6a3a' : '#eef2f8';
+      const gr=4, c0=(TILE-gr)>>1, mit=TILE>>1;
+      const ver=conex&3, hor=conex&12;
+      if((t==='d'||t==='f') && (ver===1||ver===2) && (hor===4||hor===8)){
+        const cx=sx+(hor===8?TILE:0), cy=sy+(ver===2?TILE:0);
+        const a0=(ver===1) ? (hor===8?Math.PI/2:0) : (hor===8?Math.PI:1.5*Math.PI);
+        ctx.strokeStyle=col; ctx.lineWidth=gr;
+        ctx.beginPath(); ctx.arc(cx,cy,mit,a0,a0+Math.PI/2); ctx.stroke(); return;
+      }
+      if(conex&1) R(col,c0,0,gr,mit+1);
+      if(conex&2) R(col,c0,mit-1,gr,mit+1);
+      if(conex&4) R(col,0,c0,mit+1,gr);
+      if(conex&8) R(col,mit-1,c0,mit+1,gr);
+      if(!conex)  R(col,c0,c0,gr,gr);
+      return; }
+    case 'h': { // arbolado (limite del recinto)
+      F('#5fa84f'); R('#7a5230',7,11,2,4);
+      R('#2f5f2c',3,1,10,11); R('#3f7d3a',4,2,8,8); R('#5aa84f',5,3,3,3); return; }
+    case 'x': { // maquina de gimnasio
+      F('#d8c4a0'); R('#4a4a58',2,3,12,3); R('#3a3a46',6,6,4,7);
+      R('#8a8a98',1,12,14,2); R('#c85a4a',2,1,3,2); R('#c85a4a',11,1,3,2); return; }
     case 'M': { // maquina expendedora
       F('#d8c4a0');
       R('#3a4250',2,1,12,14); R('#8fb0d8',3,2,7,9);
@@ -1695,7 +1889,7 @@ const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
 const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
   // las puertas tambien son solidas: no se pisan, se empujan desde delante
   '1','2','3','4','5','6','A','C','J','Y','G','X','E',
-  'S','V','U','M']);   // la escalera y la maquina tampoco se pisan
+  'S','V','U','M','h','x']);   // escalera, maquina, arbolado y aparatos
 // patio: sólidos = muros, árboles y fuente
 const SOLID_PATIO=new Set(['#','o','F','G','X']);
 
@@ -1708,7 +1902,7 @@ const SOLID_PATIO=new Set(['#','o','F','G','X']);
 //==================================================================
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
-                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E','S','V','U','M']);
+                           'K','B','W','L','p','I','1','2','3','4','5','6','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
 const PUERTAS_SALA=new Set(['1','2','3','4','5','6','A','C','J','Y','G','V']);
@@ -2101,6 +2295,18 @@ function avanzarGuion(){
   player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
   player.tx=nx; player.ty=ny; player.moving=true;
 }
+// como se conecta cada linea de campo con sus vecinas, para pintarla fina
+let lineasCon=new Map();
+function marcarLineas(g){
+  const m=new Map();
+  if(!Array.isArray(g)||!g.length) return m;
+  const es=(x,y)=>{const c=(g[y]||'')[x]; return c==='w'||c==='y'||c==='j'||c==='d'||c==='f';};
+  for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
+    if(!es(x,y)) continue;
+    m.set(x+','+y,(es(x,y-1)?1:0)|(es(x,y+1)?2:0)|(es(x-1,y)?4:0)|(es(x+1,y)?8:0));
+  }
+  return m;
+}
 // casillas de escalera que pertenecen a un tramo que se sube en horizontal
 let escalerasH=new Set();
 function marcarEscaleras(g){
@@ -2170,7 +2376,7 @@ function loadScene(key,at,dir){
   // cargar una posicion del mapa exterior.
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false; escalerasH=new Set();
+    npcs=OUT_NPCS; patioMode=false; escalerasH=new Set(); lineasCon=new Map();
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
@@ -2181,7 +2387,7 @@ function loadScene(key,at,dir){
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
   npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
-  escalerasH=marcarEscaleras(map);
+  escalerasH=marcarEscaleras(map); lineasCon=marcarLineas(map);
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -2334,7 +2540,7 @@ function render(){
     const t=tileAt(mx,my);
     const sx=tx*TILE-offX, sy=ty*TILE-offY;
     if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
-    else drawInTile(t,sx,sy,patioMode, escalerasH.has(mx+','+my));
+    else { const k=mx+','+my; drawInTile(t,sx,sy,patioMode, escalerasH.has(k), lineasCon.get(k)||0); }
   }
   // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
   const ents=[];

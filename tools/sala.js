@@ -26,7 +26,16 @@ for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
       if(!vis.has(k)&&esc(a+dx,b+dy)){ vis.add(k); cola.push([a+dx,b+dy]); } } }
   if((x1-x0)>(y1-y0)) escH.push(x+','+y);
 }
-const payload={clave,I,drawInTileSrc:fn,marca,escH,nota:process.argv[4]?process.argv[4].split('|'):null};
+// mascara de union de las rayas pintadas (1 arriba, 2 abajo, 4 izq, 8 der),
+// igual que marcarLineas() en el juego, para que el plano y la partida
+// dibujen exactamente el mismo trazado
+const raya=(x,y)=>{const c=(g[y]||'')[x]; return c==='w'||c==='y'||c==='j'||c==='d'||c==='f';};
+const conex={};
+for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
+  if(!raya(x,y)) continue;
+  conex[x+','+y]=(raya(x,y-1)?1:0)|(raya(x,y+1)?2:0)|(raya(x-1,y)?4:0)|(raya(x+1,y)?8:0);
+}
+const payload={clave,I,drawInTileSrc:fn,marca,escH,conex,nota:process.argv[4]?process.argv[4].split('|'):null};
 const tpl=fs.readFileSync(path.join(__dirname,'sala-template.html'),'utf8');
 const out=path.join(__dirname,'.sala-render.html');
 fs.writeFileSync(out, tpl.replace('DATA_PLACEHOLDER', JSON.stringify(payload)));
