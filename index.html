@@ -1818,16 +1818,16 @@ const INTERIORS = {
     grid:[
       "#####################",
       "#___________________#",
-      "#_<_<_<_<_<_<_<_<_<_#",
+      "#_<_:_<_:_<_:_<_:_<_#",
+      "#_>_:_>_:_>_:_>_:_>_#",
       "#___________________#",
       "#___________________#",
+      "#_<_:_<_:_<_:_<_:_<_#",
+      "#_>_:_>_:_>_:_>_:_>_#",
       "#___________________#",
-      "#_<_<_<_<_<_<_<_<_<_#",
       "#___________________#",
-      "#___________________#",
-      "#___________________#",
-      "#_<_<_<_<_<_<_<_<_<_#",
-      "#___________________#",
+      "#_<_:_<_:_<_:_<_:_<_#",
+      "#_>_:_>_:_>_:_>_:_>_#",
       "#I__________________#",
       "#___________________#",
       "##########X##########",
@@ -3136,17 +3136,36 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
     case '_': { // solera de hormigon (garaje)
       F('#8f9298'); R('#84878d',0,7,TILE,1); R('#84878d',7,0,1,TILE);
       R('#9a9da3',3,3,2,2); return; }
-    case '<': { // coche aparcado
+    case ':': { // raya que separa dos plazas
+      F('#8f9298'); R('#84878d',0,7,TILE,1); R('#d8dce0',6,0,3,TILE); return; }
+    case '<': case '>': {
+      // Un coche mide DOS baldosas de alto (16x32): en una sola no hay
+      // silueta que valga.  '<' es la mitad delantera y '>' la trasera; el
+      // dibujo se hace en coordenadas de coche y cada mitad recorta la suya.
       F('#8f9298');
-      // El color sale de la CASILLA, no de la posicion en pantalla: asi el
-      // coche no cambia de color al mover la camara, y el indice no puede
-      // salirse de la paleta (sx y sy son negativos en el borde de la vista).
+      const morro=(t==='<');
+      // El color sale de la CASILLA de la parte delantera, no de la posicion
+      // en pantalla: asi las dos mitades son del mismo color, el coche no
+      // cambia al mover la camara y el indice no se sale de la paleta.
       const paleta=['#c0392b','#2d6cb5','#3f8f5a','#c8a13a','#7a4a9a','#3b4453'];
-      const cax=Math.round((sx+cam.x)/TILE), cay=Math.round((sy+cam.y)/TILE);
+      const cax=Math.round((sx+cam.x)/TILE);
+      const cay=Math.round((sy+cam.y)/TILE)-(morro?0:1);
       const car=paleta[(((cax*7+cay*13)%paleta.length)+paleta.length)%paleta.length];
-      R('#2a2e34',1,1,14,14); R(car,2,2,12,12); R(shade(car,0.18),3,3,10,4);
-      R('#8fb0d8',4,4,8,3); R('#8fb0d8',4,10,8,2);
-      R('#e8e2d0',3,1,3,1); R('#e8e2d0',10,1,3,1); return; }
+      const off=morro?0:TILE;
+      const P=(c,x,y,w,h)=>{ const a=Math.max(y-off,0), b=Math.min(y+h-off,TILE);
+                             if(b>a) R(c,x,a,w,b-a); };
+      const rueda='#23262b', luna='#7f9fc4';
+      P(rueda,1,6,2,6);  P(rueda,13,6,2,6);          // ruedas delanteras
+      P(rueda,1,20,2,6); P(rueda,13,20,2,6);         // ruedas traseras
+      P(shade(car,-0.10),3,1,10,30);                 // carroceria
+      P(car,3,3,10,26);
+      P(shade(car,0.10),4,13,8,7);                   // techo
+      P(luna,4,8,8,5);                               // parabrisas
+      P(shade(luna,-0.06),4,20,8,4);                 // luneta trasera
+      P('#f4e6a8',4,1,2,2); P('#f4e6a8',10,1,2,2);   // faros
+      P('#d8483c',4,29,2,2); P('#d8483c',10,29,2,2); // pilotos
+      P(shade(car,-0.22),2,11,1,3); P(shade(car,-0.22),13,11,1,3); // retrovisores
+      return; }
     case '^': { // escenario de actos
       F('#8a5f3a'); R('#a3764c',0,0,TILE,2); R('#754f2f',0,7,TILE,1);
       R('#c8a860',0,TILE-2,TILE,2); return; }
@@ -3249,7 +3268,7 @@ const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u',
   '1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','X','E',
   'S','V','U','M','h','x',     // escalera, maquina, arbolado y aparatos
   'H','R','N','O','Q','T','i','v','z',   // muebles de oficina, cocina y RRII
-  '<','^','~','$','|']);                  // coche, escenario, jardinera, mesa de direccion, equipos
+  '<','>','^','~','$','|']);             // coche (dos mitades), escenario, jardinera, mesa de direccion, equipos
 // patio: sólidos = muros, árboles, fuente, muros de contención y mobiliario
 const SOLID_PATIO=new Set(['#','o','F','G','X',
   'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
@@ -3264,7 +3283,7 @@ const SOLID_PATIO=new Set(['#','o','F','G','X',
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
                            'K','B','W','L','p','I','1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
-                           'H','R','N','O','Q','T','i','v','z','_','<','^','~','$','|']);
+                           'H','R','N','O','Q','T','i','v','z','_',':','<','>','^','~','$','|']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X','b','g','m','M','s','[',']','O','a','n','k','Q','E','4','5']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
 const PUERTAS_SALA=new Set(['1','2','3','4','5','6','7','8','9','0','!','?','*',

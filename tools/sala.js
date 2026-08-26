@@ -38,7 +38,9 @@ for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
 const payload={clave,I,drawInTileSrc:fn,marca,escH,conex,nota:process.argv[4]?process.argv[4].split('|'):null};
 const tpl=fs.readFileSync(path.join(__dirname,'sala-template.html'),'utf8');
 const out=path.join(__dirname,'.sala-render.html');
-fs.writeFileSync(out, tpl.replace('DATA_PLACEHOLDER', JSON.stringify(payload)));
+// ojo: el reemplazo va con FUNCION. Con una cadena, las secuencias $' y $&
+// del codigo de dibujo se interpretan como patrones y destrozan el JSON.
+fs.writeFileSync(out, tpl.replace('DATA_PLACEHOLDER', () => JSON.stringify(payload)));
 console.log('HTML listo:', out);
 console.log('captura:  chromium --headless=new --hide-scrollbars --virtual-time-budget=4000 \\');
 console.log('            --window-size=1400,900 --screenshot=sala-'+clave+'.png "file://'+out+'"');

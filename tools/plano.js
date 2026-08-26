@@ -56,7 +56,9 @@ let fnSrc=s.slice(stI,enI); fnSrc=fnSrc.slice(0,fnSrc.lastIndexOf('}')+1);
 payload.drawInTileSrc=fnSrc;
 const tpl=fs.readFileSync(path.join(__dirname,'plano-template.html'),'utf8');
 const out=path.join(__dirname,'.plano-render.html');
-fs.writeFileSync(out, tpl.replace('DATA_PLACEHOLDER', JSON.stringify(payload)));
+// con FUNCION, no con cadena: si no, las secuencias $' del codigo de dibujo
+// se interpretan como patrones de reemplazo y destrozan el JSON
+fs.writeFileSync(out, tpl.replace('DATA_PLACEHOLDER', () => JSON.stringify(payload)));
 console.log('\nHTML listo:', out);
 console.log('Ahora captura el PNG con Chromium:\n');
 console.log('  chromium --headless=new --disable-gpu --hide-scrollbars \\');
