@@ -1859,29 +1859,29 @@ const INTERIORS = {
       "#aaaaapa#.................#",
       "#aaaaaaa#.................#",
       "#ataataa#.................#",
-      "#aeaaeaa#...####....#.#####",
-      "#aaaaaaaa...#aaa....#.SSSS#",
-      "#ataataaa.t.#ata....#.VSSS#",
-      "#aeaaeaaa.e.#aea....#.SSSS#",
+      "#aeaaeaa#...####......#####",
+      "#aaaaaaaa...#aaa......SSSS#",
+      "#ataataaa.t.#ata......VSSS#",
+      "#aeaaeaaa.e.#aea......SSSS#",
       "#aaaaaaa#...#aaa....#######",
-      "#aaaaaaa#.t.####....#######",
-      "#caccaaa#.e.####....#######",
-      "#aaaaata#...####.p..#######",
-      "#aaaaaea#.t.####....2######",
-      "#########.e.####....#######",
-      "#...........####....#######",
-      "#...........####....#######",
-      "#...........####....3######",
+      "#aacaaat#.t.####....#######",
+      "#aaaaaae#.e.####....#######",
+      "#aacaata#...####.p..#######",
+      "#aacaaea#.t.####....2######",
+      "######a##.e.####....#######",
+      "#.....a.....####....#######",
+      "#.........t.####....#######",
+      "#.........e.####....3######",
       "#...........####....#######",
       "#....###########....#######",
       "#....###########....#######",
       "#....###########....#######",
-      "#..p.###########..........#",
-      "#....###########..........#",
+      "#..p.###########....#.....#",
+      "#....###########....#.....#",
       "#....###########.p........#",
       "#....7##########..........#",
-      "#....###########..........#",
-      "#....###########..........#",
+      "#....###########....#.....#",
+      "#....###########....#.....#",
       "#....###########....#SVSS##",
       "#...................#SSSS##",
       "#...................#SSSS##",
@@ -1913,7 +1913,7 @@ const INTERIORS = {
         "Hoy hay una guitarra apoyada y nadie al lado."]},
     ],
     npcs:[
-      {x:2,y:11,name:"Barista Nora",color:"#c87a3a",dir:'down',
+      {x:3,y:11,name:"Barista Nora",color:"#c87a3a",dir:'down',
        lines:["¡Bienvenido! ¿Un café antes de clase?",
               "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
               "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
@@ -1946,33 +1946,33 @@ const INTERIORS = {
     name:"Nikolakloster — Bibliothek",
     grid:[
       "#######################",
-      "#############.........#",
-      "#############.sss.sss.#",
-      "#############.......p.#",
-      "#############.e.e.....#",
-      "#############.m.m.~~~.#",
-      "#############.....~~~.#",
-      "#############.m.m.~~~.#",
-      "#############.e.e.....#",
-      "#.....................#",
-      "#.DD..................#",
-      "#.ss.ss.ss....e.e.e...#",
-      "#.ss.ss.ss....m.m.m...#",
-      "X.....................#",
-      "#.....................#",
-      "#.ss.ss.ss....e.e.e...#",
-      "#.ss.ss.ss....m.m.m...#",
+      "#..........##.........#",
+      "#....t.....##.sss.sss.#",
+      "#....e.....##.......p.#",
+      "#..........##.e.e.e...#",
+      "#....t.....##.m.m.m.s.#",
+      "#....e.....##.......s.#",
+      "#############.m.m.m.s.#",
+      "#############.e.e.e...#",
+      "#...................s.#",
+      "#.~p~p~p~p~p~.......s.#",
+      "#Dee.ee.ee....e.e.e.s.#",
+      "#Dmm.mm.mm....m.m.m...#",
+      "X...................s.#",
+      "#...................s.#",
+      "#.ee.ee.ee....e.e.e.s.#",
+      "#.mm.mm.mm....m.m.m...#",
       "#p...................p#",
       "#######################",
     ],
     info:[
-      {x:2,y:10,name:"Mostrador de préstamo",lines:[
+      {x:1,y:11,name:"Mostrador de préstamo",lines:[
         "📕 Préstamo: cuatro semanas, renovable dos veces.",
         "Un cartel escrito a mano: «los libros de la vitrina NO salen».",
         "Debajo, otro: «tampoco los de la mesa. Ni los del carrito.»"]},
-      {x:19,y:6,name:"Rincón verde",lines:[
-        "🌿 Una jardinera larga con helechos y un ficus que se ha venido arriba.",
-        "Es el único sitio de la biblioteca donde se puede hablar bajito.",
+      {x:6,y:10,name:"Hilera verde",lines:[
+        "🌿 Jardineras y macetas separando la sala de estudio del resto.",
+        "Helechos, un ficus que se ha venido arriba y una planta sin identificar.",
         "Alguien riega esto muy bien. Nadie sabe quién."]},
       {x:16,y:2,name:"Sociedad de libros",lines:[
         "📚 SOCIEDAD DE LIBROS DEL NIKOLAKLOSTER",
@@ -2944,7 +2944,7 @@ function drawOutTile(t,sx,sy,tx,ty){
 //==================================================================
 //  TILES interior
 //==================================================================
-function drawInTile(t,sx,sy,patio,horiz,conex){
+function drawInTile(t,sx,sy,patio,girada,conex){
   const F=(c)=>{ctx.fillStyle=c;ctx.fillRect(sx,sy,TILE,TILE);};
   const R=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(sx+x,sy+y,w,h);};
   if(patio){
@@ -3048,9 +3048,13 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       R('#c85a4a',2,6,2,4);R('#5a8ad6',5,6,2,4);R('#5ad68f',8,6,2,4);R('#e8d65a',11,6,2,4);return;
     case 'D': F('#e0d2b0'); R('#8a5a3a',1,4,14,9); R('#a06a44',1,4,14,2); // escritorio
       R('#d8e8f0',3,6,4,3); R('#2a3550',9,6,3,4); return; // papel + monitor
-    case 'c': { // barra del bar
-      F('#b08a5a'); R('#7a4a2a',0,4,TILE,9); R('#a06a3a',0,4,TILE,2);
-      R('#caa45a',2,9,2,1);R('#caa45a',7,9,2,1);R('#caa45a',12,9,2,1); return; }
+    case 'c': { // barra / mostrador — se tumba segun la forma del tramo
+      F('#b08a5a');
+      if(girada){ R('#7a4a2a',4,0,9,TILE); R('#a06a3a',4,0,2,TILE);
+                  R('#caa45a',9,2,1,2);R('#caa45a',9,7,1,2);R('#caa45a',9,12,1,2); }
+      else      { R('#7a4a2a',0,4,TILE,9); R('#a06a3a',0,4,TILE,2);
+                  R('#caa45a',2,9,2,1);R('#caa45a',7,9,2,1);R('#caa45a',12,9,2,1); }
+      return; }
     case 'u': { // taburete de bar
       F('#b08a5a'); R('#5a3a1a',5,5,6,2); R('#6a4626',7,7,2,5); return; }
     case 't': F('#d8c4a0'); R('#9b6b4a',2,3,12,9); R('#b07a4a',2,3,12,2); return; // mesa
@@ -3244,7 +3248,7 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       // es como se ve una escalera de verdad: si se sube andando de lado,
       // las lineas son verticales, y las zancas pasan a estar arriba y abajo.
       F('#a89ec0');
-      if(horiz){
+      if(girada){
         for(let i=0;i<4;i++){ R('#ded8ea',i*4,0,3,TILE); R('#8b81a6',i*4+3,0,1,TILE); }
         R('#7a7090',0,0,TILE,1); R('#7a7090',0,TILE-1,TILE,1);
       } else {
@@ -3899,38 +3903,50 @@ function marcarLineas(g){
   }
   return m;
 }
-// casillas de escalera que pertenecen a un tramo que se sube en horizontal
-let escalerasH=new Set();
-function marcarEscaleras(g){
+// Casillas cuya pieza va GIRADA respecto a su dibujo por defecto. La
+// orientacion se deduce de la forma del tramo, no se escribe a mano: asi el
+// dibujo y el plano no pueden discrepar.
+//   escalera (S/V/U): girada = el tramo es mas ancho que alto (se sube de lado)
+//   mostrador  ('c'): girado = la barra es mas alta que ancha (va en vertical)
+let giradas=new Set();
+function marcarGiradas(g){
   const s=new Set();
   if(!Array.isArray(g)||!g.length) return s;
   for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
     const c=g[y][x];
-    if(c!=='S'&&c!=='V'&&c!=='U') continue;
-    const t=tramoEscalera(g,x,y);
-    if((t.x1-t.x0)>(t.y1-t.y0)) s.add(x+','+y);
+    if(c==='S'||c==='V'||c==='U'){
+      const t=tramo(g,x,y,'SVU');
+      if((t.x1-t.x0)>(t.y1-t.y0)) s.add(x+','+y);
+    }else if(c==='c'){
+      const t=tramo(g,x,y,'c',true);
+      if((t.y1-t.y0)>(t.x1-t.x0)) s.add(x+','+y);
+    }
   }
   return s;
 }
-// bordes del tramo de escalera al que pertenece una casilla
-function tramoEscalera(g,x,y){
-  const es=(a,b)=>{const c=(g[b]||'')[a]; return c==='S'||c==='V'||c==='U';};
+// Bordes del tramo de piezas iguales al que pertenece una casilla. Un
+// mostrador ademas salta un hueco de una casilla: el del dependiente parte la
+// barra en dos y las dos mitades son el mismo mueble.
+function tramo(g,x,y,letras,salta){
+  const es=(a,b)=>letras.includes((g[b]||'')[a]||'\u0000');
   const vistos=new Set([x+','+y]), cola=[[x,y]];
   let x0=x,x1=x,y0=y,y1=y;
+  const pasos = salta ? [[0,-1],[0,1],[-1,0],[1,0],[0,-2],[0,2],[-2,0],[2,0]]
+                      : [[0,-1],[0,1],[-1,0],[1,0]];
   while(cola.length){
     const [a,b]=cola.pop();
     x0=Math.min(x0,a); x1=Math.max(x1,a); y0=Math.min(y0,b); y1=Math.max(y1,b);
-    for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
-      const p=(a+dx)+','+(b+dy);
-      if(!vistos.has(p) && es(a+dx,b+dy)){ vistos.add(p); cola.push([a+dx,b+dy]); }
+    for(const [dx,dy] of pasos){
+      const k=(a+dx)+','+(b+dy);
+      if(!vistos.has(k) && es(a+dx,b+dy)){ vistos.add(k); cola.push([a+dx,b+dy]); }
     }
   }
   return {x0,x1,y0,y1};
 }
-// sentido en el que se recorre: del peldano activo hacia el resto del tramo.
+// Sentido en que se recorre: del peldano activo hacia el resto del tramo.
 // Un tramo mas ancho que alto se sube en horizontal; si no, en vertical.
 function dirEscalera(g,x,y){
-  const t=tramoEscalera(g,x,y);
+  const t=tramo(g,x,y,'SVU');
   if((t.x1-t.x0) > (t.y1-t.y0)) return x<=(t.x0+t.x1)/2 ? [1,0] : [-1,0];
   return y<=(t.y0+t.y1)/2 ? [0,1] : [0,-1];
 }
@@ -3973,7 +3989,7 @@ function loadScene(key,at,dir){
   // cargar una posicion del mapa exterior.
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false; escalerasH=new Set(); lineasCon=new Map();
+    npcs=OUT_NPCS; patioMode=false; giradas=new Set(); lineasCon=new Map();
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
@@ -3984,7 +4000,7 @@ function loadScene(key,at,dir){
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
   npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
-  escalerasH=marcarEscaleras(map); lineasCon=marcarLineas(map);
+  giradas=marcarGiradas(map); lineasCon=marcarLineas(map);
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -4149,7 +4165,7 @@ function render(){
     const t=tileAt(mx,my);
     const sx=tx*TILE-offX, sy=ty*TILE-offY;
     if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
-    else { const k=mx+','+my; drawInTile(t,sx,sy,patioMode, escalerasH.has(k), lineasCon.get(k)||0); }
+    else { const k=mx+','+my; drawInTile(t,sx,sy,patioMode, giradas.has(k), lineasCon.get(k)||0); }
   }
   // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
   const ents=[];
