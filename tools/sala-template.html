@@ -87,7 +87,12 @@ const NOMBRE={'#':'pared','=':'pared clara','.':'suelo','+':'umbral','a':'suelo 
  'v':'expositor de folletos','z':'globo terráqueo',
  '_':'solera de hormigón',':':'raya de plaza','<':'coche (mitad delantera)',
  '>':'coche (mitad trasera)','^':'escenario','~':'jardinera',
- '$':'escritorio de dirección','|':'estantería de equipos'};
+ '$':'escritorio de dirección','|':'estantería de equipos',
+ '-':'suelo del centro comercial','o':'mesa de restaurante','(':'estante de zapatos',
+ ')':'perchero de ropa','/':'plancha de hamburguesas','&':'vitrina de joyas',
+ '%':'expositor de gafas','@':'estante de droguería',',':'vitrina de panadería',
+ '[':'expositor de móviles','{':'estante de menaje',']':'televisores',
+ '}':'expositor deportivo','F':'estantería de librería'};
 const destino={}; (I.doors||[]).forEach(d=>{ destino[g[d.y][d.x]]=d.to; });
 const usados=[...new Set(g.join('').split(''))].sort();
 usados.forEach(ch2=>{
