@@ -76,13 +76,23 @@ const NOMBRE={'#':'pared','=':'pared clara','.':'suelo','+':'umbral','a':'suelo 
  'X':'SALIDA (al vestíbulo)','E':'SALIDA (al campus)','Y':'puerta al patio','G':'puerta al bar',
  'S':'tramo de escalera','V':'ESCALERA que baja','U':'ESCALERA que sube (salida)',
  '1':'puerta a sala 1','2':'puerta a sala 2','3':'puerta a sala 3','4':'puerta a sala 4',
- '5':'puerta a sala 5','6':'puerta a sala 6','A':'puerta a sala A','C':'puerta a sala C','J':'puerta lateral',
+ '5':'puerta a sala 5','6':'puerta a sala 6','7':'puerta a sala 7','8':'puerta a sala 8',
+ '9':'puerta a sala 9','0':'puerta a sala 10','!':'puerta a sala 11','?':'puerta a sala 12',
+ '*':'puerta a sala 13','A':'puerta a sala A','C':'puerta a sala C','J':'puerta lateral',
  'M':'máquina expendedora','n':'pista de atletismo','q':'pista de tenis','h':'arbolado (límite)',
  'x':'aparato de gimnasio','w':'raya del campo','d':'raya del campo (curva)',
  'y':'raya de la pista de tenis','j':'raya del parqué','f':'raya del parqué (curva)',
  'H':'archivador','R':'fotocopiadora','N':'nevera','O':'encimera con fregadero',
  'Q':'cafetera','T':'sillón de espera','i':'mapamundi de pared',
- 'v':'expositor de folletos','z':'globo terráqueo'};
+ 'v':'expositor de folletos','z':'globo terráqueo',
+ '_':'solera de hormigón',':':'raya de plaza','<':'coche (mitad delantera)',
+ '>':'coche (mitad trasera)','^':'escenario','~':'jardinera',
+ '$':'escritorio de dirección','|':'estantería de equipos',
+ '-':'suelo del centro comercial','o':'mesa de restaurante','(':'estante de zapatos',
+ ')':'perchero de ropa','/':'plancha de hamburguesas','&':'vitrina de joyas',
+ '%':'expositor de gafas','@':'estante de droguería',',':'vitrina de panadería',
+ '[':'expositor de móviles','{':'estante de menaje',']':'televisores',
+ '}':'expositor deportivo','F':'estantería de librería'};
 const destino={}; (I.doors||[]).forEach(d=>{ destino[g[d.y][d.x]]=d.to; });
 const usados=[...new Set(g.join('').split(''))].sort();
 usados.forEach(ch2=>{

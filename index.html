@@ -303,11 +303,11 @@ const OUTDOOR=[
 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
 "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
 "TT........................................................TT",
-"TT........................BBBBBBBB........................TT",
+"TT........................BBBBBBBB...................D....TT",
 "TT............t...........BBBBBBBB................BBBBBBB.TT",
 "TT......t.................BBBBBBBB................BBBBBBB.TT",
 "TTBBBBBBBB................BBBBBBBB................BBBBBBB.TT",
-"TTBBBBBBBBt..................DRRRRRRRRRRRRRRRRRRRRBBBBBBB.TT",
+"TTBBBBBBBBt..................DRRRRRRRRRRRRRRRRRRRRBBBBBBBDTT",
 "TTBBBBBBBB..........t...............RR............BBBBBBB.TT",
 "TTBBBBBBBB......t.......t...........RR............BBBBBBB.TT",
 "TTBBBBBBBB........................f.RR...............D....TT",
@@ -1818,16 +1818,16 @@ const INTERIORS = {
     grid:[
       "#####################",
       "#___________________#",
-      "#_<_<_<_<_<_<_<_<_<_#",
+      "#_<_:_<_:_<_:_<_:_<_#",
+      "#_>_:_>_:_>_:_>_:_>_#",
       "#___________________#",
       "#___________________#",
+      "#_<_:_<_:_<_:_<_:_<_#",
+      "#_>_:_>_:_>_:_>_:_>_#",
       "#___________________#",
-      "#_<_<_<_<_<_<_<_<_<_#",
       "#___________________#",
-      "#___________________#",
-      "#___________________#",
-      "#_<_<_<_<_<_<_<_<_<_#",
-      "#___________________#",
+      "#_<_:_<_:_<_:_<_:_<_#",
+      "#_>_:_>_:_>_:_>_:_>_#",
       "#I__________________#",
       "#___________________#",
       "##########X##########",
@@ -1859,29 +1859,29 @@ const INTERIORS = {
       "#aaaaapa#.................#",
       "#aaaaaaa#.................#",
       "#ataataa#.................#",
-      "#aeaaeaa#...####....#.#####",
-      "#aaaaaaaa...#aaa....#.SSSS#",
-      "#ataataaa.t.#ata....#.VSSS#",
-      "#aeaaeaaa.e.#aea....#.SSSS#",
+      "#aeaaeaa#...#####...#######",
+      "#aaaaaaaa...#aaa......SSSS#",
+      "#ataataaa.t.#ata......VSSS#",
+      "#aeaaeaaa.e.#aea......SSSS#",
       "#aaaaaaa#...#aaa....#######",
-      "#aaaaaaa#.t.####....#######",
-      "#caccaaa#.e.####....#######",
-      "#aaaaata#...####.p..#######",
-      "#aaaaaea#.t.####....2######",
-      "#########.e.####....#######",
-      "#...........####....#######",
-      "#...........####....#######",
-      "#...........####....3######",
+      "#aacaaat#.t.####....#######",
+      "#aaaaaae#.e.####....#######",
+      "#aacaaaa#...####.p..#######",
+      "#aacaaaa#.t.####....2######",
+      "######a##.e.####....#######",
+      "#.....a.....####....#######",
+      "#.........t.####....#######",
+      "#.........e.####....3######",
       "#...........####....#######",
       "#....###########....#######",
       "#....###########....#######",
       "#....###########....#######",
-      "#..p.###########..........#",
-      "#....###########..........#",
+      "#..p.###########....#.....#",
+      "#....###########....#.....#",
       "#....###########.p........#",
       "#....7##########..........#",
-      "#....###########..........#",
-      "#....###########..........#",
+      "#....###########....#.....#",
+      "#....###########....#.....#",
       "#....###########....#SVSS##",
       "#...................#SSSS##",
       "#...................#SSSS##",
@@ -1913,7 +1913,7 @@ const INTERIORS = {
         "Hoy hay una guitarra apoyada y nadie al lado."]},
     ],
     npcs:[
-      {x:2,y:11,name:"Barista Nora",color:"#c87a3a",dir:'down',
+      {x:3,y:11,name:"Barista Nora",color:"#c87a3a",dir:'down',
        lines:["¡Bienvenido! ¿Un café antes de clase?",
               "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
               "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
@@ -1945,34 +1945,30 @@ const INTERIORS = {
     // y se sale por la puerta 7.
     name:"Nikolakloster — Bibliothek",
     grid:[
-      "#######################",
-      "#############.........#",
-      "#############.sss.sss.#",
-      "#############.......p.#",
-      "#############.e.e.....#",
-      "#############.m.m.~~~.#",
-      "#############.....~~~.#",
-      "#############.m.m.~~~.#",
-      "#############.e.e.....#",
-      "#.....................#",
-      "#.DD..................#",
-      "#.ss.ss.ss....e.e.e...#",
-      "#.ss.ss.ss....m.m.m...#",
-      "X.....................#",
-      "#.....................#",
-      "#.ss.ss.ss....e.e.e...#",
-      "#.ss.ss.ss....m.m.m...#",
+      "...........############",
+      "...........##.........#",
+      ".....t.....##.sss.sss.#",
+      ".....e.....##.......p.#",
+      "...........##.e.e.e...#",
+      ".....t.....##.m.m.m.s.#",
+      "#....e.....##.......s.#",
+      "#############.m.m.m.s.#",
+      "#############.e.e.e...#",
+      "#...................s.#",
+      "#.~p~p~p~p~p~.......s.#",
+      "#.ee.ee.ee....e.e.e.s.#",
+      "#.mm.mm.mm....m.m.m...#",
+      "X...................s.#",
+      "#...................s.#",
+      "#.ee.ee.ee....e.e.e.s.#",
+      "#.mm.mm.mm....m.m.m...#",
       "#p...................p#",
       "#######################",
     ],
     info:[
-      {x:2,y:10,name:"Mostrador de préstamo",lines:[
-        "📕 Préstamo: cuatro semanas, renovable dos veces.",
-        "Un cartel escrito a mano: «los libros de la vitrina NO salen».",
-        "Debajo, otro: «tampoco los de la mesa. Ni los del carrito.»"]},
-      {x:19,y:6,name:"Rincón verde",lines:[
-        "🌿 Una jardinera larga con helechos y un ficus que se ha venido arriba.",
-        "Es el único sitio de la biblioteca donde se puede hablar bajito.",
+      {x:6,y:10,name:"Hilera verde",lines:[
+        "🌿 Jardineras y macetas separando la sala de estudio del resto.",
+        "Helechos, un ficus que se ha venido arriba y una planta sin identificar.",
         "Alguien riega esto muy bien. Nadie sabe quién."]},
       {x:16,y:2,name:"Sociedad de libros",lines:[
         "📚 SOCIEDAD DE LIBROS DEL NIKOLAKLOSTER",
@@ -2586,6 +2582,283 @@ const INTERIORS = {
        careerLine:{default:"Si algún día te toca grabar algo para clase, sube aquí antes de comprar nada."}},
     ]
   },
+  ekz1: {
+    // Las tiendas no tienen puerta: se entra por el hueco de la pared, asi
+    // que forman parte de esta misma escena. Los muebles de genero ocupan
+    // dos casillas de alto (arriba el producto, abajo el mueble).
+    name:"Einkaufszentrum — Planta baja",
+    grid:[
+      "#################################",
+      "#(a(a(a(a#)a)a)a)a)a#/////aaaapa#",
+      "#(a(a(a(a#)a)a)a)a)a#/////aaaaaa#",
+      "#aaaaaaaa#aaaaaaaaaa#aaaaaaaaaaa#",
+      "#(a(a(aca#)a)aaaa)a)#ateateateaa#",
+      "#(a(a(aca#)a)acca)a)#aaaaaaaaaaa#",
+      "#aaaaaaaa#aaaaaaaaaa#ateaaaaatep#",
+      "####--########--#########--######",
+      "#-------------------------------#",
+      "#-SSSSS---------------c---c-----#",
+      "#-SSSSV---------------c---c-----E",
+      "#-SSSSS---------------c---c-----#",
+      "#-------------------------------#",
+      "#-------------------------------#",
+      "##########----------#############",
+      "#&&a&&a&a#----p-----#a%%a%%a%%ap#",
+      "#&&a&&a&a#----------#a%%a%%a%%aa#",
+      "#aaaaaaaa-----T------aaaaaaaaaaa#",
+      "#aaaaaaaa------------aaaaaaaaaaa#",
+      "#&&a&&aca#----p-----#a%%a%%aacaa#",
+      "#&&a&&aca#----------#a%%a%%aacaa#",
+      "##########----------#############",
+      "#cccaeapa#----T-----#aaaaaaaaaaa#",
+      "#aoeaoeaa#----------#@@a@@a@@a@@#",
+      "#aaaaaaaa#----p-----#@@a@@a@@a@@#",
+      "#aeaaeaaa------------aaaaaaaaaaa#",
+      "#aoeaoeaa------------aaaaaaaaaaa#",
+      "#aaaaaaaa#----------#@@a@@a@@aca#",
+      "#aeaaeaaa#----------#@@a@@a@@aca#",
+      "#aoeaoepa#----------#aaaaaaaaaaa#",
+      "################E################",
+    ],
+    salidas:[
+      {x:16,y:30, at:[53,15]},          // 1 · puerta sur, la de siempre
+      {x:32,y:10, at:[57,12]},          // 2 · puerta este, nueva
+    ],
+    doors:[
+      {x:6,y:10, to:'ekz2'},            // 5 · escalera al primer piso
+    ],
+    rotulos:[
+      {x:2, y:7,  t:"ZAPATOS",   c:"#e8a33c"},
+      {x:12,y:7,  t:"MODA",      c:"#d65a8a"},
+      {x:23,y:7,  t:"BURGER",    c:"#e8d65a"},
+      {x:9, y:15, t:"JOYAS",     c:"#e8d860"},
+      {x:20,y:15, t:"ÓPTICA",    c:"#8fd0f5"},
+      {x:9, y:23, t:"TRATTORIA", c:"#5ad68f"},
+      {x:20,y:23, t:"DROGUERÍA", c:"#8fb0d8"},
+    ],
+    info:[
+      {x:22,y:10,name:"Mostrador de información",lines:[
+        "🛍 EINKAUFSZENTRUM PASSAU",
+        "Planta baja: zapatos, moda, hamburguesas, joyería, óptica,",
+        "restaurante italiano y droguería.",
+        "Arriba: panadería, móviles, TK Maxx, Saturn, deportes y librería."]},
+      {x:26,y:10,name:"Mostrador de atención",lines:[
+        "📋 Devoluciones, tarjetas regalo y objetos perdidos.",
+        "En la caja de objetos perdidos hay catorce paraguas y un patinete.",
+        "El patinete lleva ahí desde marzo."]},
+      {x:1,y:1,name:"Estantería de zapatos",lines:[
+        "👟 Zapatillas, botas de invierno y unas sandalias en oferta.",
+        "Las botas buenas cuestan lo que dos semanas de Mensa.",
+        "Todo el mundo acaba comprándolas igual. Aquí nieva."]},
+      {x:10,y:1,name:"Perchero",lines:[
+        "👕 Camisetas, sudaderas y abrigos ordenados por talla…",
+        "…más o menos. La M está entre la XL y la S.",
+        "Nadie sabe cómo pasa esto en todas las tiendas del mundo."]},
+      {x:21,y:1,name:"Plancha",lines:[
+        "🍔 Dos hamburguesas chisporroteando y un montón de panecillos.",
+        "Huele desde el otro extremo del pasillo. Ese es el truco."]},
+      {x:1,y:15,name:"Vitrina de joyas",lines:[
+        "💍 Anillos, cadenas y unos pendientes con el precio hacia abajo.",
+        "Le das la vuelta a la etiqueta y decides que solo mirabas."]},
+      {x:22,y:15,name:"Expositor de gafas",lines:[
+        "👓 Monturas de todos los colores y un espejo pequeño.",
+        "Te pruebas unas redondas. Te quedan raras. Te las pruebas otra vez."]},
+      {x:21,y:23,name:"Estante de droguería",lines:[
+        "🧴 Champú, pasta de dientes, vitaminas y crema para todo.",
+        "En Alemania esto es un dm, y en un dm siempre acabas comprando de más."]},
+    ],
+    npcs:[
+      {x:23,y:10,name:"Frau Sieber",color:"#c8709a",dir:'left',
+       lines:["Bienvenido al centro comercial. ¿Le oriento?",
+              "Aquí abajo tiene moda, zapatos y la droguería; arriba, la electrónica y los libros.",
+              "Y si busca los aseos, están en la primera planta, al fondo a la izquierda."],
+       careerLine:{default:"¿Estudiante? Enseñe el carné en la caja: hay tiendas que hacen descuento."}},
+      {x:25,y:10,name:"Herr Wenzl",color:"#4a7a8a",dir:'right',
+       lines:["Atención al cliente. Devoluciones, reclamaciones y paraguas perdidos.",
+              "Catorce paraguas. Ni uno solo ha venido nadie a buscarlo.",
+              "Uno es de flores y es precioso. Si es suyo, dígamelo. Y si no… tampoco pasa nada."]},
+      {x:6,y:3,name:"Dependienta Ela",color:"#e8a33c",dir:'down',
+       lines:["¿Qué número calza? Tenemos de todo menos el 42, que vuela.",
+              "Con el invierno de Passau, hágame caso: bota impermeable."]},
+      {x:15,y:4,name:"Dependiente Nils",color:"#d65a8a",dir:'down',
+       lines:["Los probadores están al fondo. Sí, esos dos de ahí.",
+              "Si no te vale la talla, prueba la de al lado. Aquí las tallas son una sugerencia."]},
+      {x:27,y:2,name:"Cocinero Ünal",color:"#e8d65a",dir:'down',
+       lines:["¡Marchando dos con queso!",
+              "Media universidad ha cenado aquí en época de exámenes. La otra media también."]},
+      {x:3,y:18,name:"Joyera Frau Adler",color:"#e8d860",dir:'down',
+       lines:["Mire con calma, que para eso está la vitrina.",
+              "El anillo de la izquierda lleva siete años esperando a alguien.",
+              "Estas cosas no se compran: se encuentran."]},
+      {x:27,y:18,name:"Óptico Herr Baum",color:"#8fd0f5",dir:'down',
+       lines:["¿Le hago una graduación? Diez minutos y sale sabiendo cuánto ve.",
+              "Los que estudian de noche siempre salen peor. Descanse la vista, hágame caso."]},
+      {x:4,y:25,name:"Signora Bruni",color:"#5ad68f",dir:'down',
+       lines:["¡Benvenuto! Hoy hay lasaña y hay que aprovechar.",
+              "La receta es de mi abuela, de Bolonia. Y no, no lleva nata. Nunca."],
+       choice:{q:"¿Se queda a comer?",opts:[
+         {t:"Lasaña, por favor",r:["¡Ottimo! Siéntese donde quiera, que hoy hay sitio.",
+                                    "Se lo aviso: la porción es generosa. Muy generosa."]},
+         {t:"Solo un café",r:["Un espresso entonces. Corto, como debe ser.",
+                               "Y una galletita, que va con el café. No se discute."]},
+         {t:"Solo estoy mirando",r:["Mire, mire. Y vuelva con hambre."]}]}},
+      {x:26,y:26,name:"Dependiente Kai",color:"#8fb0d8",dir:'down',
+       lines:["¿Busca algo en concreto o va a salir con la cesta llena como todo el mundo?",
+              "Es lo que tiene esta tienda. Entras a por pasta de dientes y sales con cuatro cosas."]},
+      {x:17,y:9,name:"Estudiante Rieke",color:"#5a8ad6",dir:'down',
+       lines:["Vengo al centro comercial cuando llueve, que es casi siempre.",
+              "La escalera de la izquierda sube a la otra planta. Allí está el Saturn."]},
+      {x:14,y:20,name:"Señora con carrito",color:"#a06a4a",dir:'up',
+       lines:["Los bancos del pasillo son lo mejor de este sitio.",
+              "Una compra, se sienta, mira pasar a la gente y vuelve a casa contenta."]},
+    ]
+  },
+  ekz2: {
+    // Planta de arriba. La puerta norte del edificio entra directamente
+    // aqui, porque el terreno sube por ese lado.
+    name:"Einkaufszentrum — Primera planta",
+    grid:[
+      "######E##########################",
+      "#----------#,,a,,a,,#[[a[aa[[a[p#",
+      "#----------#,,a,,a,,#[[a[aa[[a[a#",
+      "#----------#aaaaaaaa#aaaaaaaaaaa#",
+      "#----------#paaaaaca#[[a[aaaaaca#",
+      "#----------#ateateca#[[a[aaaaaca#",
+      "#----------#aaaaaaaa#aaaaaaaaaaa#",
+      "#----------###--######--#########",
+      "########-----------------########",
+      "#FFaFFa#-----------------#a))a))#",
+      "#FFaFFa#-----------------#a))a))#",
+      "#aaaaaa#-----------------#aaaaaa#",
+      "#FFaFFa#-----------------#a))a))#",
+      "#FFaFFa#-----------------#a))a))#",
+      "#aaaaaa------------SSSSS--aaaaaa#",
+      "#aaaaca--p-T-------VSSSS--aaaaaa#",
+      "#aaaaca#-----------SSSSS-#aaaaaa#",
+      "#FFaFFa#-----------------#a{{a{{#",
+      "#FFaFFa#-----------------#a{{a{{#",
+      "#aaaaaa#-----------------#aaaaaa#",
+      "#FFaFFa#-----------------#c{{a{{#",
+      "#FFaFFa#-----------------#c{{a{{#",
+      "#TTaaaa#-----------------#aaaaaa#",
+      "########-----------------########",
+      "#########-----------------------#",
+      "#########--###--##########--#####",
+      "########1--))aaaaaaac#]]aaaaaaac#",
+      "#########--))aaaaaaac#]]aaaaaaac#",
+      "#########--}}a}}a}}aa#]]a]]a]]aa#",
+      "########2--}}a}}a}}aa#]]a]]a]]aa#",
+      "#################################",
+    ],
+    salidas:[
+      {x:6,y:0, at:[53,8]},             // 1 · puerta norte, nueva
+    ],
+    doors:[
+      {x:19,y:15, to:'ekz1'},           // 2 · escalera de bajada
+      {x:8,y:26,  to:'ekz_bano_h'},     // 5 · aseo de hombres
+      {x:8,y:29,  to:'ekz_bano_m'},     // 6 · aseo de mujeres
+    ],
+    rotulos:[
+      {x:12,y:7,  t:"PANADERÍA", c:"#e8a33c"},
+      {x:25,y:7,  t:"MÓVILES",   c:"#8fd0f5"},
+      {x:7, y:12, t:"LIBROS",    c:"#e8d65a"},
+      {x:25,y:11, t:"TK MAXX",   c:"#d65a8a"},
+      {x:12,y:25, t:"DEPORTES",  c:"#5ad68f"},
+      {x:24,y:25, t:"SATURN",    c:"#e8631f"},
+    ],
+    info:[
+      {x:12,y:1,name:"Vitrina de la panadería",lines:[
+        "🥨 Brezel, Brötchen, Streuselkuchen y un pan de centeno enorme.",
+        "A las siete de la tarde queda la mitad y baja de precio.",
+        "Media residencia de estudiantes lo sabe."]},
+      {x:21,y:1,name:"Expositor de móviles",lines:[
+        "📱 Modelos en fila, todos encendidos, todos con la misma foto de fondo.",
+        "Las tarifas están en un cartel con letra muy pequeña.",
+        "La letra pequeña es la parte importante. Siempre lo es."]},
+      {x:1,y:9,name:"Estantería de la librería",lines:[
+        "📚 Novedades, bolsillo, manuales y una mesa de saldos al fondo.",
+        "La sección de alemán para extranjeros es la más manoseada de la tienda."]},
+      {x:27,y:9,name:"Perchero de TK Maxx",color:"#d65a8a",lines:[
+        "🏷 Marcas buenas a precio raro, sin ningún orden reconocible.",
+        "Hay que rebuscar. Rebuscar es medio placer de venir aquí."]},
+      {x:27,y:17,name:"Estante de menaje",lines:[
+        "🛋 Cojines, una lámpara, tres juegos de vasos y un cuadro enorme.",
+        "Nadie entra a por esto y todo el mundo sale con algo de esto."]},
+      {x:22,y:28,name:"Pared de televisores",lines:[
+        "📺 Doce televisores enseñando la misma imagen a la vez.",
+        "Un documental de montañas. Siempre es un documental de montañas."]},
+      {x:11,y:28,name:"Expositor deportivo",lines:[
+        "⚽ Balones, raquetas, mancuernas y ropa técnica.",
+        "En enero se llena. En febrero se vacía. Todos los años igual."]},
+    ],
+    npcs:[
+      {x:15,y:4,name:"Panadera Frau Roth",color:"#e8a33c",dir:'down',
+       lines:["¡Buenos días! ¿Brezel recién hecho?",
+              "A partir de las siete lo que queda se vende a mitad de precio.",
+              "Se lo cuento a todos los estudiantes. Es mi pequeña conspiración."],
+       choice:{q:"¿Le pido algo?",opts:[
+         {t:"Un Brezel",r:["Aquí tiene, calentito. Cuidado que quema.",
+                            "Con mantequilla está mejor, pero eso ya es cosa suya."]},
+         {t:"Pan de centeno",r:["Buena elección. Dura toda la semana.",
+                                 "Y al tercer día está mejor que el primero, ya verá."]},
+         {t:"Nada, gracias",r:["Pues vuelva a las siete. Ya sabe por qué."]}]}},
+      {x:26,y:3,name:"Dependiente Timo",color:"#8fd0f5",dir:'down',
+       lines:["¿Busca móvil o tarifa? Porque son dos conversaciones distintas.",
+              "Si es estudiante, hay tarifa de estudiante. Pregunte siempre, que no la ofrecen sola."]},
+      {x:5,y:14,name:"Librero Herr Falk",color:"#e8d65a",dir:'right',
+       lines:["Si busca algo y no lo tengo, se lo pido y llega en dos días.",
+              "Y si no sabe qué busca, siéntese ahí y cójalo de la mesa. Así se encuentran los buenos."],
+       careerLine:{Kuwi:"¿KuWi? Tengo justo lo suyo en la mesa del fondo. Siempre lo tengo.",
+                   default:"Un libro que no es de la carrera también cuenta. Sobre todo ese."}},
+      {x:29,y:14,name:"Dependienta Mira",color:"#d65a8a",dir:'down',
+       lines:["Aquí no hay dos cosas iguales, así que si le gusta, cójalo ya.",
+              "Mañana no está. Es la ley de esta tienda."]},
+      {x:26,y:27,name:"Vendedor Herr Krug",color:"#e8631f",dir:'left',
+       lines:["Televisores, portátiles, cables y más cables.",
+              "¿Portátil para la carrera? No compre el más caro. Compre el que tenga buena batería."]},
+      {x:16,y:27,name:"Entrenador Bene",color:"#5ad68f",dir:'down',
+       lines:["¿Zapatilla de correr? Pise aquí, que le miro la pisada.",
+              "Con el Inn al lado no hay excusa para no salir a correr. Llueva o no."]},
+      {x:12,y:15,name:"Estudiante Aylin",color:"#5a8ad6",dir:'down',
+       lines:["Este banco es mi sitio. Se ve todo el pasillo desde aquí.",
+              "La escalera de la derecha baja a la otra planta."]},
+      {x:10,y:24,name:"Señor con bolsas",color:"#7a8494",dir:'right',
+       lines:["Los aseos están ahí mismo, a la izquierda.",
+              "Es la información más útil de todo el edificio y no la pone en ningún cartel."]},
+    ]
+  },
+  ekz_bano_h: {
+    name:"Einkaufszentrum — Aseo de hombres",
+    grid:[
+      "###########",
+      "#bbbbbbbbb#",
+      "#bbbbbbbbb#",
+      "#bpbbbbpbbX",
+      "#bbbbbbbbb#",
+      "#WLbbbLWbb#",
+      "###########",
+    ],
+    npcs:[
+      {x:4,y:2,name:"Señor apurado",color:"#7a8494",dir:'down',
+       lines:["Cuatro plantas de tiendas y un solo aseo. Un clásico.","Al menos está limpio."]},
+    ]
+  },
+  ekz_bano_m: {
+    name:"Einkaufszentrum — Aseo de mujeres",
+    grid:[
+      "###########",
+      "#WLbbbLWbb#",
+      "#bbbbbbbbb#",
+      "#bpbbbbpbbX",
+      "#bbbbbbbbb#",
+      "#bbbbbbbbb#",
+      "###########",
+    ],
+    npcs:[
+      {x:6,y:4,name:"Estudiante Noor",color:"#d65a8a",dir:'up',
+       lines:["El espejo de aquí es el mejor del centro comercial.","Lo digo en serio. Los demás te hacen cara de examen."]},
+    ]
+  },
 };
 
 //==================================================================
@@ -2598,7 +2871,7 @@ const BUILDINGS = {
            choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
              {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
              {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
-  Einkauf:{name:"Einkaufszentrum", door:[53,15], info:["Centro comercial.","Tiendas, comida rápida y ese olor a centro comercial de toda Europa."]},
+  Einkauf:{name:"Einkaufszentrum", door:[53,15], extra:[[57,12],[53,8,'ekz2']], interior:'ekz1'},
   SP:     {name:"Sportzentrum", door:[5,27], interior:'sportzentrum'},
   VG:     {name:"Verwaltungsgebäude", door:[12,25], interior:'verwaltung'},
   I:      {name:"Informatik", door:[15,31], interior:'informatik'},
@@ -2606,7 +2879,7 @@ const BUILDINGS = {
   M:      {name:"Mensa", door:[20,32], interior:'mensa'},
   ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
   WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
-  NK:     {name:"Nikolakloster", door:[45,26], door2:[45,16], interior:'niko_patio'},
+  NK:     {name:"Nikolakloster", door:[45,26], extra:[[45,16]], interior:'niko_patio'},
   IA:     {name:"Innstegaula", door:[51,31], interior:'innstegaula'},
   WH:     {name:"Studentenwohnheim", door:[6,16], info:["Residencia de estudiantes (Studentenwohnheim).","Habitaciones individuales, cocinas compartidas y un ambiente de examen permanente."],
            choice:{q:"¿Llamas al timbre?",opts:[
@@ -2615,7 +2888,7 @@ const BUILDINGS = {
 };
 for(const k in BUILDINGS){ const b=BUILDINGS[k];
   DOOR_AT[b.door[0]+','+b.door[1]]=k;
-  if(b.door2) DOOR_AT[b.door2[0]+','+b.door2[1]]=k;   // entrada trasera
+  (b.extra||[]).forEach(d=>{ DOOR_AT[d[0]+','+d[1]]=k; });   // entradas de mas
 }
 
 //==================================================================
@@ -2626,7 +2899,7 @@ for(const k in BUILDINGS){ const b=BUILDINGS[k];
 //==================================================================
 const BLD_GEO=[
   {key:'HBf',  x0:26,y0:8, x1:33,y1:11, door:[29,12], style:'station',  roof:'#a23b3b', label:'HBF'},
-  {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
+  {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], extra:[[57,12],[53,8,'ekz2']], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
   {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
   {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
   {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[15,31], style:'modern',   roof:'#4a8a6a', label:'I'},
@@ -2634,7 +2907,7 @@ const BLD_GEO=[
   {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,32], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
   {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[31,32], style:'modern',   roof:'#b0a03a', label:'WW'},
-  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], door2:[45,16], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
+  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], extra:[[45,16]], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
   {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,31], style:'modern',   roof:'#3b9aa2', label:'IA'},
   {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
 ];
@@ -2854,12 +3127,22 @@ function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
   ctx.fillText(b.label, sgX+sgW/2, sgY+1);
   ctx.textAlign='left'; ctx.textBaseline='alphabetic';
   // puerta trasera: se marca en el borde norte del edificio
-  if(b.door2){
-    const c2=Math.min(Math.max(b.door2[0], b.x0), b.x1), dx2=(c2*TILE-cam.x);
-    ctx.fillStyle='#5a3a1a'; ctx.fillRect(dx2, y+1, 14, 6);
-    ctx.fillStyle='#7a5230'; ctx.fillRect(dx2+1, y+2, 12, 4);
-    ctx.fillStyle='#caa45a'; ctx.fillRect(dx2+3, y+4, 8, 1);
-  }
+  // entradas de mas: se marcan en el lado del edificio que les toca
+  (b.extra||[]).forEach(d=>{
+    if(d[1]<b.y0){                                   // norte
+      const c2=Math.min(Math.max(d[0], b.x0), b.x1), dx2=(c2*TILE-cam.x);
+      ctx.fillStyle='#5a3a1a'; ctx.fillRect(dx2, y+1, 14, 6);
+      ctx.fillStyle='#7a5230'; ctx.fillRect(dx2+1, y+2, 12, 4);
+      ctx.fillStyle='#caa45a'; ctx.fillRect(dx2+3, y+4, 8, 1);
+    }else{                                           // este u oeste
+      const fil=Math.min(Math.max(d[1], b.y0), b.y1);
+      const dy2=(fil*TILE-cam.y), este=(d[0]>b.x1);
+      const dx2=este ? x+w-6 : x;
+      ctx.fillStyle='#5a3a1a'; ctx.fillRect(dx2, dy2, 6, 14);
+      ctx.fillStyle='#7a5230'; ctx.fillRect(dx2+1, dy2+1, 4, 12);
+      ctx.fillStyle='#caa45a'; ctx.fillRect(dx2+2, dy2+6, 2, 2);
+    }
+  });
 }
 
 function drawOutTile(t,sx,sy,tx,ty){
@@ -2944,7 +3227,7 @@ function drawOutTile(t,sx,sy,tx,ty){
 //==================================================================
 //  TILES interior
 //==================================================================
-function drawInTile(t,sx,sy,patio,horiz,conex){
+function drawInTile(t,sx,sy,patio,girada,conex){
   const F=(c)=>{ctx.fillStyle=c;ctx.fillRect(sx,sy,TILE,TILE);};
   const R=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(sx+x,sy+y,w,h);};
   if(patio){
@@ -3048,9 +3331,13 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       R('#c85a4a',2,6,2,4);R('#5a8ad6',5,6,2,4);R('#5ad68f',8,6,2,4);R('#e8d65a',11,6,2,4);return;
     case 'D': F('#e0d2b0'); R('#8a5a3a',1,4,14,9); R('#a06a44',1,4,14,2); // escritorio
       R('#d8e8f0',3,6,4,3); R('#2a3550',9,6,3,4); return; // papel + monitor
-    case 'c': { // barra del bar
-      F('#b08a5a'); R('#7a4a2a',0,4,TILE,9); R('#a06a3a',0,4,TILE,2);
-      R('#caa45a',2,9,2,1);R('#caa45a',7,9,2,1);R('#caa45a',12,9,2,1); return; }
+    case 'c': { // barra / mostrador — se tumba segun la forma del tramo
+      F('#b08a5a');
+      if(girada){ R('#7a4a2a',4,0,9,TILE); R('#a06a3a',4,0,2,TILE);
+                  R('#caa45a',9,2,1,2);R('#caa45a',9,7,1,2);R('#caa45a',9,12,1,2); }
+      else      { R('#7a4a2a',0,4,TILE,9); R('#a06a3a',0,4,TILE,2);
+                  R('#caa45a',2,9,2,1);R('#caa45a',7,9,2,1);R('#caa45a',12,9,2,1); }
+      return; }
     case 'u': { // taburete de bar
       F('#b08a5a'); R('#5a3a1a',5,5,6,2); R('#6a4626',7,7,2,5); return; }
     case 't': F('#d8c4a0'); R('#9b6b4a',2,3,12,9); R('#b07a4a',2,3,12,2); return; // mesa
@@ -3136,17 +3423,36 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
     case '_': { // solera de hormigon (garaje)
       F('#8f9298'); R('#84878d',0,7,TILE,1); R('#84878d',7,0,1,TILE);
       R('#9a9da3',3,3,2,2); return; }
-    case '<': { // coche aparcado
+    case ':': { // raya que separa dos plazas
+      F('#8f9298'); R('#84878d',0,7,TILE,1); R('#d8dce0',6,0,3,TILE); return; }
+    case '<': case '>': {
+      // Un coche mide DOS baldosas de alto (16x32): en una sola no hay
+      // silueta que valga.  '<' es la mitad delantera y '>' la trasera; el
+      // dibujo se hace en coordenadas de coche y cada mitad recorta la suya.
       F('#8f9298');
-      // El color sale de la CASILLA, no de la posicion en pantalla: asi el
-      // coche no cambia de color al mover la camara, y el indice no puede
-      // salirse de la paleta (sx y sy son negativos en el borde de la vista).
+      const morro=(t==='<');
+      // El color sale de la CASILLA de la parte delantera, no de la posicion
+      // en pantalla: asi las dos mitades son del mismo color, el coche no
+      // cambia al mover la camara y el indice no se sale de la paleta.
       const paleta=['#c0392b','#2d6cb5','#3f8f5a','#c8a13a','#7a4a9a','#3b4453'];
-      const cax=Math.round((sx+cam.x)/TILE), cay=Math.round((sy+cam.y)/TILE);
+      const cax=Math.round((sx+cam.x)/TILE);
+      const cay=Math.round((sy+cam.y)/TILE)-(morro?0:1);
       const car=paleta[(((cax*7+cay*13)%paleta.length)+paleta.length)%paleta.length];
-      R('#2a2e34',1,1,14,14); R(car,2,2,12,12); R(shade(car,0.18),3,3,10,4);
-      R('#8fb0d8',4,4,8,3); R('#8fb0d8',4,10,8,2);
-      R('#e8e2d0',3,1,3,1); R('#e8e2d0',10,1,3,1); return; }
+      const off=morro?0:TILE;
+      const P=(c,x,y,w,h)=>{ const a=Math.max(y-off,0), b=Math.min(y+h-off,TILE);
+                             if(b>a) R(c,x,a,w,b-a); };
+      const rueda='#23262b', luna='#7f9fc4';
+      P(rueda,1,6,2,6);  P(rueda,13,6,2,6);          // ruedas delanteras
+      P(rueda,1,20,2,6); P(rueda,13,20,2,6);         // ruedas traseras
+      P(shade(car,-0.10),3,1,10,30);                 // carroceria
+      P(car,3,3,10,26);
+      P(shade(car,0.10),4,13,8,7);                   // techo
+      P(luna,4,8,8,5);                               // parabrisas
+      P(shade(luna,-0.06),4,20,8,4);                 // luneta trasera
+      P('#f4e6a8',4,1,2,2); P('#f4e6a8',10,1,2,2);   // faros
+      P('#d8483c',4,29,2,2); P('#d8483c',10,29,2,2); // pilotos
+      P(shade(car,-0.22),2,11,1,3); P(shade(car,-0.22),13,11,1,3); // retrovisores
+      return; }
     case '^': { // escenario de actos
       F('#8a5f3a'); R('#a3764c',0,0,TILE,2); R('#754f2f',0,7,TILE,1);
       R('#c8a860',0,TILE-2,TILE,2); return; }
@@ -3164,6 +3470,147 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       R('#2a3038',1,6,4,4); R('#5ad68f',2,7,2,1);
       R('#3a4250',6,6,8,4); R('#e8d65a',7,7,2,2);
       R('#2a3038',1,11,12,3); R('#8fb0d8',2,12,3,1); R('#8fb0d8',7,12,4,1); return; }
+    case '-': { // suelo pulido del centro comercial
+      F('#dcd8d0'); R('#cfcac0',0,7,TILE,1); R('#cfcac0',7,0,1,TILE);
+      R('#e8e4dc',1,1,3,3); R('#e8e4dc',9,9,3,3); return; }
+    case 'o': { // mesa de restaurante con mantel de cuadros
+      F('#e8dfd2'); R('#8a6a45',6,12,4,3);
+      R('#e4e0d8',1,1,14,12); R('#c0392b',1,1,14,2); R('#c0392b',1,11,14,2);
+      R('#c0392b',3,3,2,8); R('#c0392b',7,3,2,8); R('#c0392b',11,3,2,8);
+      R('#f4e6a8',9,5,2,3); R('#e8a33c',9,4,2,1); return; }
+
+    // ---- muebles de dos casillas: arriba el genero, abajo el mueble -----
+    case '(': { // estante de zapatos
+      F('#e8dfd2'); R('#8a6a45',0,0,TILE,TILE); R('#a4805a',0,0,TILE,1);
+      const zap=(c,x,y)=>{ R(c,x,y,5,2); R(shade(c,-0.28),x,y+2,5,1); R(c,x+3,y-1,2,1); };
+      if(conex&2){ R('#6d5236',1,4,14,1); R('#6d5236',1,10,14,1);
+                   zap('#c0392b',2,2); zap('#2d6cb5',9,2); zap('#3b4453',2,8); zap('#c8a13a',9,8); }
+      else if(conex&1){ R('#6d5236',1,5,14,1); zap('#7a4a9a',2,3); zap('#3f8f5a',9,3);
+                        R('#6d5236',0,12,TILE,4); R('#57402a',0,12,TILE,1); }
+      else { R('#6d5236',1,7,14,1); zap('#c0392b',2,5); zap('#2d6cb5',9,5); R('#6d5236',0,13,TILE,3); }
+      return; }
+    case ')': { // perchero de ropa
+      F('#e8dfd2');
+      const pr=(c,x,y,h)=>{ R(c,x,y,3,h); R(shade(c,0.16),x,y,3,1); R(shade(c,-0.22),x+1,y+h-1,1,1); };
+      if(conex&1){ pr('#c0392b',1,0,4); pr('#2d6cb5',5,0,5); pr('#3f8f5a',9,0,3); pr('#c8a13a',13,0,4);
+                   R('#8a94a2',7,5,2,8); R('#5c6470',3,13,10,2); }
+      else { R('#8a94a2',0,2,TILE,2); R('#6d7680',0,4,TILE,1);
+             pr('#c0392b',1,5,9); pr('#2d6cb5',5,5,10); pr('#3f8f5a',9,5,8); pr('#c8a13a',13,5,9); }
+      return; }
+    case '/': { // plancha y mostrador de hamburgueseria
+      F('#e8dfd2');
+      if(conex&2){ R('#3a4048',0,4,TILE,12); R('#5a626c',0,4,TILE,2);
+                   R('#2a2f36',1,7,14,7);
+                   const bur=(x)=>{ R('#d9a03c',x,8,5,2); R('#7a4a2a',x,10,5,2); R('#3f8f5a',x,12,5,1); };
+                   bur(1); bur(7); R('#c0392b',13,8,2,4); }
+      else if(conex&1){ R('#c8402f',0,0,TILE,10); R('#e05a46',0,0,TILE,2);
+                        R('#f4e6a8',2,3,12,5); R('#3a4048',3,4,4,1); R('#3a4048',3,6,8,1);
+                        R('#8a2b1e',0,10,TILE,6); }
+      else { R('#c8402f',0,2,TILE,12); R('#f4e6a8',2,5,12,5); }
+      return; }
+    case '&': { // vitrina de joyeria
+      F('#e8dfd2');
+      if(conex&2){ R('#6a4a2a',0,0,TILE,TILE); R('#2a2438',1,1,14,13);
+                   R('#8fd8e8',1,1,14,2);
+                   const joya=(x,y)=>{ R('#e8d860',x,y,3,1); R('#8fd8e8',x+1,y+1,1,1); };
+                   joya(2,4); joya(7,4); joya(12,4); joya(4,8); joya(10,8);
+                   R('#c8a13a',2,11,12,1); }
+      else if(conex&1){ R('#6a4a2a',0,0,TILE,TILE); R('#8a6a45',0,0,TILE,2);
+                        R('#57402a',2,4,12,1); R('#57402a',2,9,12,1);
+                        R('#c8a13a',4,6,2,2); R('#c8a13a',10,6,2,2); }
+      else { R('#6a4a2a',0,1,TILE,14); R('#2a2438',1,3,14,7); R('#e8d860',4,5,3,1); R('#e8d860',9,5,3,1); }
+      return; }
+    case '%': { // expositor de gafas
+      F('#e8dfd2');
+      const gafa=(c,x,y)=>{ R(c,x,y,3,3); R(c,x+4,y,3,3); R(c,x+3,y+1,1,1);
+                            R('#bfe0f5',x+1,y+1,1,1); R('#bfe0f5',x+5,y+1,1,1); };
+      if(conex&2){ R('#f2f0ec',0,0,TILE,TILE); R('#d6d2ca',0,0,TILE,1);
+                   R('#b9b4aa',1,5,14,1); R('#b9b4aa',1,11,14,1);
+                   gafa('#3b4453',1,1); gafa('#c0392b',8,1);
+                   gafa('#7a4a9a',1,7); gafa('#c8a13a',8,7); }
+      else if(conex&1){ R('#f2f0ec',0,0,TILE,12); R('#b9b4aa',1,5,14,1);
+                        gafa('#2d6cb5',1,1); gafa('#3f8f5a',8,1);
+                        R('#8a94a2',0,12,TILE,4); }
+      else { R('#f2f0ec',0,2,TILE,12); gafa('#3b4453',1,4); gafa('#c0392b',8,4); }
+      return; }
+    case '@': { // estante de drogueria
+      F('#e8dfd2'); R('#dfe6ea',0,0,TILE,TILE); R('#c6d0d6',0,0,TILE,1);
+      const bote=(c,x,y)=>{ R(c,x,y+2,3,5); R(shade(c,0.2),x,y+2,3,1); R('#e8e2d0',x+1,y,1,2); };
+      if(conex&2){ R('#aab6bc',1,8,14,1);
+                   bote('#5ad68f',1,1); bote('#5a8ad6',5,1); bote('#d65a8a',9,1); bote('#e8d65a',13,1);
+                   bote('#c0392b',2,9); bote('#7a4a9a',7,9); bote('#3f8f5a',12,9); }
+      else if(conex&1){ R('#aab6bc',1,7,14,1);
+                        bote('#e8a33c',1,0); bote('#5ad68f',6,0); bote('#5a8ad6',11,0);
+                        R('#c6d0d6',1,9,6,4); R('#aab6bc',9,9,6,4); R('#8fb0d8',2,10,4,1);
+                        R('#9aa4ae',0,14,TILE,2); }
+      else { R('#aab6bc',1,8,14,1); bote('#5ad68f',2,3); bote('#d65a8a',7,3); bote('#5a8ad6',12,3); }
+      return; }
+    case ',': { // vitrina de panaderia
+      F('#e8dfd2');
+      if(conex&2){ R('#bfe0f5',0,0,TILE,TILE); R('#e8f4fa',0,0,TILE,2); R('#8fb0d8',0,14,TILE,2);
+                   const pan=(c,x,y,w)=>{ R(c,x,y,w,4); R(shade(c,0.18),x,y,w,1); R(shade(c,-0.2),x+1,y+4,w-2,1); };
+                   pan('#c88a3c',1,3,6); pan('#a86a2a',9,3,6);
+                   pan('#d9a95c',1,9,4); pan('#c88a3c',7,9,3); pan('#8a5a2a',12,9,3); }
+      else if(conex&1){ R('#8a6a45',0,0,TILE,4); R('#a4805a',0,0,TILE,1);
+                        R('#6d5236',0,4,TILE,12); R('#57402a',2,7,12,1); R('#57402a',2,12,12,1); }
+      else { R('#bfe0f5',0,2,TILE,9); R('#c88a3c',2,4,5,4); R('#a86a2a',9,4,5,4); R('#6d5236',0,11,TILE,5); }
+      return; }
+    case '[': { // expositor de moviles
+      F('#e8dfd2'); R('#f2f0ec',0,0,TILE,TILE); R('#d6d2ca',0,0,TILE,1);
+      const movil=(c,x,y)=>{ R('#2a2f36',x,y,4,7); R(c,x+1,y+1,2,5); R('#9aa4ae',x+1,y+7,2,1); };
+      if(conex&2){ movil('#8fb0d8',1,2); movil('#5ad68f',6,2); movil('#d65a8a',11,2);
+                   R('#b9b4aa',1,11,14,1); R('#3a4048',2,12,3,2); R('#3a4048',7,12,3,2); R('#3a4048',12,12,3,2); }
+      else if(conex&1){ movil('#e8d65a',1,1); movil('#7a4a9a',6,1); movil('#c0392b',11,1);
+                        R('#dfe6ea',1,10,6,4); R('#dfe6ea',9,10,6,4);
+                        R('#8a94a2',0,14,TILE,2); }
+      else { movil('#8fb0d8',2,4); movil('#5ad68f',7,4); R('#8a94a2',0,13,TILE,3); }
+      return; }
+    case '{': { // estante de saldos: ropa doblada y menaje
+      F('#e8dfd2'); R('#8a6a45',0,0,TILE,TILE); R('#a4805a',0,0,TILE,1);
+      const pila=(c,x,y)=>{ R(c,x,y,6,2); R(shade(c,-0.18),x,y+2,6,1); R(shade(c,0.16),x,y+3,6,2); };
+      if(conex&2){ R('#6d5236',1,6,14,1);
+                   pila('#c0392b',1,1); pila('#2d6cb5',9,1);
+                   R('#e8d860',2,8,3,4); R('#f4e6a8',1,7,5,2);         // lampara
+                   R('#3f8f5a',8,9,6,4); R('#5ad68f',9,10,4,2); }      // cojin
+      else if(conex&1){ R('#6d5236',1,6,14,1);
+                        pila('#c8a13a',1,1); pila('#7a4a9a',9,1);
+                        R('#dfe6ea',2,8,4,4); R('#aab6bc',2,8,4,1);    // caja
+                        R('#c0392b',9,8,5,4);
+                        R('#57402a',0,13,TILE,3); }
+      else { R('#6d5236',1,8,14,1); pila('#c0392b',2,3); pila('#2d6cb5',9,3); }
+      return; }
+    case ']': { // pared de televisores
+      F('#e8dfd2'); R('#3a4048',0,0,TILE,TILE);
+      const tele=(x,y,w,h,c)=>{ R('#1c2026',x,y,w,h); R(c,x+1,y+1,w-2,h-3); R('#5a626c',x+1,y+h-1,w-2,1); };
+      if(conex&2){ tele(1,1,7,7,'#5a8ad6'); tele(9,1,6,7,'#3f8f5a');
+                   tele(1,9,6,6,'#c0392b'); tele(8,9,7,6,'#8fb0d8'); }
+      else if(conex&1){ tele(1,1,7,6,'#e8a33c'); tele(9,1,6,6,'#7a4a9a');
+                        R('#2a2f36',0,8,TILE,8); R('#5a626c',1,9,14,1);
+                        R('#1c2026',2,11,5,3); R('#1c2026',9,11,5,3); }
+      else { tele(2,3,12,9,'#5a8ad6'); }
+      return; }
+    case '}': { // expositor deportivo
+      F('#e8dfd2'); R('#dfe6ea',0,0,TILE,TILE); R('#c6d0d6',0,0,TILE,1);
+      if(conex&2){ R('#e8e2d0',1,1,7,7); R('#3a4048',2,2,1,5); R('#3a4048',1,4,7,1);   // balon
+                   R('#e8a33c',9,1,6,6); R('#8a5a2a',9,3,6,1); R('#8a5a2a',11,1,1,6);  // baloncesto
+                   R('#c8e05a',3,10,5,5); R('#e8e2d0',3,12,5,1);                        // tenis
+                   R('#aab6bc',10,9,2,7); R('#8a94a2',9,9,4,3); }                       // raqueta
+      else if(conex&1){ R('#c0392b',1,1,6,4); R('#e8e2d0',1,2,6,1);                     // camiseta
+                        R('#2d6cb5',9,1,6,4); R('#e8e2d0',9,2,6,1);
+                        R('#3a4048',2,7,5,3); R('#5c6470',2,7,5,1);                     // pesa
+                        R('#3a4048',9,7,5,3);
+                        R('#9aa4ae',0,12,TILE,4); }
+      else { R('#e8e2d0',3,3,7,7); R('#3a4048',4,4,1,5); R('#e8a33c',10,5,5,5); }
+      return; }
+    case 'F': { // estanteria de libreria
+      F('#e8dfd2'); R('#7a5230',0,0,TILE,TILE); R('#9a6b42',0,0,TILE,1);
+      const libros=(y)=>{ const c=['#c85a4a','#5a8ad6','#5ad68f','#e8d65a','#a05ad6','#e8a33c'];
+        for(let i=0;i<6;i++) R(c[(i+y)%6], 1+i*2.4, y, 2, 5); };
+      if(conex&2){ libros(1); R('#5a3a1a',0,6,TILE,1); libros(8); R('#5a3a1a',0,13,TILE,1); }
+      else if(conex&1){ libros(1); R('#5a3a1a',0,6,TILE,1); libros(8);
+                        R('#5a3a1a',0,13,TILE,3); }
+      else { libros(4); R('#5a3a1a',0,9,TILE,2); }
+      return; }
     case 'H': { // archivador de expedientes
       F('#c8d4c0');
       R('#7d8794',2,1,12,14);
@@ -3225,7 +3672,7 @@ function drawInTile(t,sx,sy,patio,horiz,conex){
       // es como se ve una escalera de verdad: si se sube andando de lado,
       // las lineas son verticales, y las zancas pasan a estar arriba y abajo.
       F('#a89ec0');
-      if(horiz){
+      if(girada){
         for(let i=0;i<4;i++){ R('#ded8ea',i*4,0,3,TILE); R('#8b81a6',i*4+3,0,1,TILE); }
         R('#7a7090',0,0,TILE,1); R('#7a7090',0,TILE-1,TILE,1);
       } else {
@@ -3249,7 +3696,8 @@ const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u',
   '1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','X','E',
   'S','V','U','M','h','x',     // escalera, maquina, arbolado y aparatos
   'H','R','N','O','Q','T','i','v','z',   // muebles de oficina, cocina y RRII
-  '<','^','~','$','|']);                  // coche, escenario, jardinera, mesa de direccion, equipos
+  '<','>','^','~','$','|',               // coche (dos mitades), escenario, jardinera, mesa de direccion, equipos
+  'o','(',')','/','&','%','@',',','[','{',']','}','F']); // mesa de restaurante y muebles de tienda
 // patio: sólidos = muros, árboles, fuente, muros de contención y mobiliario
 const SOLID_PATIO=new Set(['#','o','F','G','X',
   'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
@@ -3264,7 +3712,8 @@ const SOLID_PATIO=new Set(['#','o','F','G','X',
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
                            'K','B','W','L','p','I','1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
-                           'H','R','N','O','Q','T','i','v','z','_','<','^','~','$','|']);
+                           'H','R','N','O','Q','T','i','v','z','_',':','<','>','^','~','$','|',
+                           '-','o','(',')','/','&','%','@',',','[','{',']','}','F']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X','b','g','m','M','s','[',']','O','a','n','k','Q','E','4','5']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
 const PUERTAS_SALA=new Set(['1','2','3','4','5','6','7','8','9','0','!','?','*',
@@ -3283,8 +3732,8 @@ function validateMaps(){
   const puertaDe={};
   for(const k in BUILDINGS){
     const b=BUILDINGS[k];
-    // un edificio puede tener una segunda entrada (door2): se comprueban igual
-    [b.door, b.door2].filter(Boolean).forEach(d=>{
+    // un edificio puede tener mas entradas ('extra'): se comprueban igual
+    [b.door].concat(b.extra||[]).forEach(d=>{
       const dx=d[0], dy=d[1];
       const t=(OUTDOOR[dy]||'')[dx];
       if(t===undefined)      E(k+': la puerta ('+dx+','+dy+') cae fuera del mapa');
@@ -3301,7 +3750,9 @@ function validateMaps(){
       if(puertaDe[dx+','+dy]) E(k+' y '+puertaDe[dx+','+dy]+' comparten la puerta ('+dx+','+dy+')');
       puertaDe[dx+','+dy]=k;
     });
-    if(b.door2 && !b.interior) E(k+': tiene segunda puerta pero no tiene interior');
+    if((b.extra||[]).length && !b.interior) E(k+': tiene entradas de mas pero no tiene interior');
+    (b.extra||[]).forEach(d=>{ if(d[2] && !INTERIORS[d[2]])
+      E(k+": la entrada ("+d[0]+","+d[1]+") lleva a '"+d[2]+"', que no existe"); });
     if(b.interior && !INTERIORS[b.interior]) E(k+": el interior '"+b.interior+"' no existe");
     if(!b.interior && !b.info)               E(k+': no tiene ni interior ni texto info — al entrar no pasaria nada');
   }
@@ -3312,8 +3763,8 @@ function validateMaps(){
     if(!B){ E("BLD_GEO '"+b.key+"' no existe en BUILDINGS"); return; }
     if(B.door[0]!==b.door[0]||B.door[1]!==b.door[1])
       E(b.key+': la puerta de BLD_GEO ('+b.door+') no coincide con la de BUILDINGS ('+B.door+')');
-    if(String(B.door2||'')!==String(b.door2||''))
-      E(b.key+': la segunda puerta de BLD_GEO ('+b.door2+') no coincide con la de BUILDINGS ('+B.door2+')');
+    if(String(B.extra||'')!==String(b.extra||''))
+      E(b.key+': las entradas de mas de BLD_GEO ('+b.extra+') no coinciden con las de BUILDINGS ('+B.extra+')');
     if(b.x1<b.x0||b.y1<b.y0) E(b.key+': rectangulo invertido (x0,y0 debe ser la esquina superior izquierda)');
     if(b.x0<0||b.y0<0||b.x1>=ow||b.y1>=OUTDOOR.length) E(b.key+': el rectangulo se sale del mapa');
     if(!/^#[0-9a-fA-F]{6}$/.test(b.roof)) E(b.key+": color de tejado invalido '"+b.roof+"'");
@@ -3838,7 +4289,11 @@ function activarPuerta(nx,ny){
     const g=BLD_BY_KEY[key];
     if(!g || nx<g.x0 || nx>g.x1 || ny<g.y0 || ny>g.y1) return false;
     const b=BUILDINGS[key];
-    if(b.interior) enterInterior(b.interior,[player.x,player.y]);
+    // una entrada de 'extra' puede llevar a otra escena: el centro comercial
+    // se abre por el norte directamente a la planta de arriba
+    const ex=(b.extra||[]).find(d=>d[0]===player.x&&d[1]===player.y);
+    const destino=(ex&&ex[2]) ? ex[2] : b.interior;
+    if(destino) enterInterior(destino,[player.x,player.y]);
     else openDialog(b.name, b.info, b.choice||null);
     return true;
   }
@@ -3873,45 +4328,67 @@ let lineasCon=new Map();
 function marcarLineas(g){
   const m=new Map();
   if(!Array.isArray(g)||!g.length) return m;
-  const es=(x,y)=>{const c=(g[y]||'')[x]; return c==='w'||c==='y'||c==='j'||c==='d'||c==='f';};
+  const RAYA='wyjdf';
+  // Un mueble alto ocupa dos casillas: la mascara dice si tiene una igual
+  // encima o debajo, y con eso cada mitad sabe si le toca dibujar el genero
+  // (arriba) o el mueble (abajo).
+  const APILABLE='()/&%@,[{]}F';
+  const es=(x,y)=>RAYA.includes((g[y]||'')[x]||'\u0000');
   for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
-    if(!es(x,y)) continue;
-    m.set(x+','+y,(es(x,y-1)?1:0)|(es(x,y+1)?2:0)|(es(x-1,y)?4:0)|(es(x+1,y)?8:0));
+    const c=(g[y]||'')[x];
+    if(es(x,y)){
+      m.set(x+','+y,(es(x,y-1)?1:0)|(es(x,y+1)?2:0)|(es(x-1,y)?4:0)|(es(x+1,y)?8:0));
+    }else if(APILABLE.includes(c)){
+      const ig=(a,b)=>((g[b]||'')[a]===c);
+      m.set(x+','+y,(ig(x,y-1)?1:0)|(ig(x,y+1)?2:0)|(ig(x-1,y)?4:0)|(ig(x+1,y)?8:0));
+    }
   }
   return m;
 }
-// casillas de escalera que pertenecen a un tramo que se sube en horizontal
-let escalerasH=new Set();
-function marcarEscaleras(g){
+// Casillas cuya pieza va GIRADA respecto a su dibujo por defecto. La
+// orientacion se deduce de la forma del tramo, no se escribe a mano: asi el
+// dibujo y el plano no pueden discrepar.
+//   escalera (S/V/U): girada = el tramo es mas ancho que alto (se sube de lado)
+//   mostrador  ('c'): girado = la barra es mas alta que ancha (va en vertical)
+let giradas=new Set();
+function marcarGiradas(g){
   const s=new Set();
   if(!Array.isArray(g)||!g.length) return s;
   for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
     const c=g[y][x];
-    if(c!=='S'&&c!=='V'&&c!=='U') continue;
-    const t=tramoEscalera(g,x,y);
-    if((t.x1-t.x0)>(t.y1-t.y0)) s.add(x+','+y);
+    if(c==='S'||c==='V'||c==='U'){
+      const t=tramo(g,x,y,'SVU');
+      if((t.x1-t.x0)>(t.y1-t.y0)) s.add(x+','+y);
+    }else if(c==='c'){
+      const t=tramo(g,x,y,'c',true);
+      if((t.y1-t.y0)>(t.x1-t.x0)) s.add(x+','+y);
+    }
   }
   return s;
 }
-// bordes del tramo de escalera al que pertenece una casilla
-function tramoEscalera(g,x,y){
-  const es=(a,b)=>{const c=(g[b]||'')[a]; return c==='S'||c==='V'||c==='U';};
+// Bordes del tramo de piezas iguales al que pertenece una casilla. Un
+// mostrador ademas salta un hueco de una casilla: el del dependiente parte la
+// barra en dos y las dos mitades son el mismo mueble.
+function tramo(g,x,y,letras,salta){
+  const es=(a,b)=>letras.includes((g[b]||'')[a]||'\u0000');
   const vistos=new Set([x+','+y]), cola=[[x,y]];
   let x0=x,x1=x,y0=y,y1=y;
+  const pasos = salta ? [[0,-1],[0,1],[-1,0],[1,0],[0,-2],[0,2],[-2,0],[2,0]]
+                      : [[0,-1],[0,1],[-1,0],[1,0]];
   while(cola.length){
     const [a,b]=cola.pop();
     x0=Math.min(x0,a); x1=Math.max(x1,a); y0=Math.min(y0,b); y1=Math.max(y1,b);
-    for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
-      const p=(a+dx)+','+(b+dy);
-      if(!vistos.has(p) && es(a+dx,b+dy)){ vistos.add(p); cola.push([a+dx,b+dy]); }
+    for(const [dx,dy] of pasos){
+      const k=(a+dx)+','+(b+dy);
+      if(!vistos.has(k) && es(a+dx,b+dy)){ vistos.add(k); cola.push([a+dx,b+dy]); }
     }
   }
   return {x0,x1,y0,y1};
 }
-// sentido en el que se recorre: del peldano activo hacia el resto del tramo.
+// Sentido en que se recorre: del peldano activo hacia el resto del tramo.
 // Un tramo mas ancho que alto se sube en horizontal; si no, en vertical.
 function dirEscalera(g,x,y){
-  const t=tramoEscalera(g,x,y);
+  const t=tramo(g,x,y,'SVU');
   if((t.x1-t.x0) > (t.y1-t.y0)) return x<=(t.x0+t.x1)/2 ? [1,0] : [-1,0];
   return y<=(t.y0+t.y1)/2 ? [0,1] : [0,-1];
 }
@@ -3954,7 +4431,7 @@ function loadScene(key,at,dir){
   // cargar una posicion del mapa exterior.
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false; escalerasH=new Set(); lineasCon=new Map();
+    npcs=OUT_NPCS; patioMode=false; giradas=new Set(); lineasCon=new Map();
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
@@ -3965,7 +4442,7 @@ function loadScene(key,at,dir){
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
   npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
-  escalerasH=marcarEscaleras(map); lineasCon=marcarLineas(map);
+  giradas=marcarGiradas(map); lineasCon=marcarLineas(map);
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -4130,7 +4607,23 @@ function render(){
     const t=tileAt(mx,my);
     const sx=tx*TILE-offX, sy=ty*TILE-offY;
     if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
-    else { const k=mx+','+my; drawInTile(t,sx,sy,patioMode, escalerasH.has(k), lineasCon.get(k)||0); }
+    else { const k=mx+','+my; drawInTile(t,sx,sy,patioMode, giradas.has(k), lineasCon.get(k)||0); }
+  }
+  // rotulos de las tiendas: sin ellos no hay forma de saber en que tienda estas
+  if(scene!=='outdoor'){
+    const I=INTERIORS[scene];
+    if(I && I.rotulos){
+      ctx.font='7px "Courier New",monospace'; ctx.textAlign='center'; ctx.textBaseline='top';
+      I.rotulos.forEach(r=>{
+        const px=r.x*TILE-cam.x+TILE/2, py=r.y*TILE-cam.y+3;
+        if(px<-60||px>VW+60||py<-20||py>VH+20) return;
+        const an=ctx.measureText(r.t).width+6;
+        ctx.fillStyle='#2f3650'; ctx.fillRect(px-an/2, py-2, an, 10);
+        ctx.fillStyle=r.c||'#ffe9a8'; ctx.fillRect(px-an/2, py+7, an, 1);
+        ctx.fillStyle=r.c||'#ffe9a8'; ctx.fillText(r.t, px, py);
+      });
+      ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    }
   }
   // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
   const ents=[];
