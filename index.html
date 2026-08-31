@@ -2859,6 +2859,345 @@ const INTERIORS = {
        lines:["El espejo de aquí es el mejor del centro comercial.","Lo digo en serio. Los demás te hacen cara de examen."]},
     ]
   },
+  wohnheim: {
+    // Un pasillo con ocho puertas: cinco habitaciones, la cocina
+    // compartida, la lavanderia y el salon comunal.
+    name:"Studentenwohnheim — Pasillo",
+    grid:[
+      "#######################",
+      "#######################",
+      "#######################",
+      "#######################",
+      "#######################",
+      "###1####2#####3####4###",
+      "#I...................p#",
+      "#.....................#",
+      "#p...................I#",
+      "###5###6##...##7###8###",
+      "##########...##########",
+      "##########...##########",
+      "##########...##########",
+      "##########H.H##########",
+      "###########E###########",
+    ],
+    doors:[
+      {x:3, y:5, to:'wh_hab1'},        // la habitación del jugador
+      {x:8, y:5, to:'wh_hab2'},
+      {x:14,y:5, to:'wh_hab3'},
+      {x:19,y:5, to:'wh_hab4'},
+      {x:3, y:9, to:'wh_hab5'},
+      {x:7, y:9, to:'wh_cocina'},
+      {x:15,y:9, to:'wh_lavanderia'},
+      {x:19,y:9, to:'wh_salon'},
+    ],
+    info:[
+      {x:1,y:6,name:"Normas de la casa",lines:[
+        "🏠 STUDENTENWOHNHEIM — NORMAS",
+        "Silencio a partir de las 22:00 (Ruhezeit). Va en serio.",
+        "La cocina se deja como se encuentra. Esto va todavía más en serio.",
+        "Domingo: no se pone lavadora. Es ley, y nadie sabe por qué."]},
+      {x:21,y:8,name:"Tablón de anuncios",lines:[
+        "📌 «Se vende bici. Frena. Casi siempre.»",
+        "📌 «Busco compañero de tándem español–alemán. Cuarto 3.»",
+        "📌 «El que se llevó mi sartén: no estoy enfadada, solo quiero la sartén.»",
+        "📌 «Noche de juegos: jueves, salón. Traed algo de picar.»"]},
+      {x:10,y:13,name:"Buzones",lines:[
+        "📮 Ocho buzones con los nombres puestos a mano.",
+        "El tuyo tiene una carta del Studentenwerk y dos folletos de pizza.",
+        "Los folletos de pizza llegan aunque no vivas aquí. Es un misterio."]},
+      {x:12,y:13,name:"Tu buzón",lines:[
+        "Tu nombre en una etiqueta que ya se está despegando.",
+        "Dentro: un recibo, publicidad y una postal sin remite que dice «¡ánimo!».",
+        "No sabes de quién es. La has guardado igual."]},
+    ],
+    npcs:[
+      {x:16,y:7,name:"Hausmeister Herr Vogl",color:"#7a8494",dir:'left',
+       lines:["Buenas. Yo llevo la casa: la caldera, las bombillas y las broncas.",
+              "Cuarto uno es el suyo. La llave, no la pierda: la copia cuesta veinte euros.",
+              "Y a las diez, silencio. Aquí eso no es una sugerencia."],
+       careerLine:{default:"En época de exámenes hago la vista gorda con el ruido. Solo entonces."}},
+      {x:5,y:7,name:"Estudiante Jonna",color:"#5ad68f",dir:'down',
+       lines:["¿Nuevo? Bienvenido. Somos ocho puertas y una cocina, ya te harás una idea.",
+              "El jueves hay noche de juegos en el salón. Vienen todos. Todos.",
+              "Aviso: aquí un juego de mesa puede durar cuatro horas. Y nadie se levanta."]},
+    ]
+  },
+  wh_hab1: {
+    // La habitacion del jugador. Es la unica sin NPC: es suya.
+    name:"Tu habitación",
+    grid:[
+      "#############",
+      "#''aDDaaaass#",
+      "#''aaeaaaaaa#",
+      "#aaaaaaaaaaa#",
+      "#aaaaaaamaaa#",
+      "#aaaaaaaeaaa#",
+      "#pataaaaaaaI#",
+      "#aaaaaaaaaaa#",
+      "######X######",
+    ],
+    info:[
+      {x:1,y:1,name:"Tu cama",lines:[
+        "Tu cama, con el edredón a medio estirar.",
+        "Es lo primero que ves al volver de la biblioteca a las once de la noche.",
+        "Nunca te ha parecido tan cómoda como en época de exámenes."]},
+      {x:4,y:1,name:"Tu escritorio",lines:[
+        "Apuntes, un boli que no pinta y una taza con el fondo marrón.",
+        "Debajo del teclado hay un horario que hiciste el primer día.",
+        "No lo has seguido ni una semana. Lo guardas igual."]},
+      {x:11,y:6,name:"Tu pared",lines:[
+        "🗺 Un mapa de Passau con tres chinchetas: la uni, la Mensa y el Innsteg.",
+        "Al lado, una foto de casa y el horario de los autobuses.",
+        "En un post-it, tu propia letra: «salir más»."]},
+      {x:10,y:1,name:"Tu estantería",lines:[
+        "Manuales de la carrera, dos novelas y una guía de alemán con muchas esquinas dobladas.",
+        "Y una planta que sigue viva contra todo pronóstico."]},
+    ]
+  },
+  wh_hab2: {
+    name:"Habitación 2 — Lukas",
+    grid:[
+      "#############",
+      "#''aDDaaaass#",
+      "#''aaeaaaaaa#",
+      "#aaaaaaaaaaa#",
+      "#aaaaaaassss#",
+      "#aataaaaaaaa#",
+      "#paeaaaaaaaI#",
+      "#aaaaaaaaaaa#",
+      "######X######",
+    ],
+    info:[
+      {x:8,y:4,name:"Estanterías de Lukas",lines:[
+        "Cuatro baldas hasta arriba de libros, y más libros en el suelo.",
+        "Historia, filosofía, una guía de setas y un manual de contabilidad.",
+        "El de contabilidad es el único sin abrir."]},
+    ],
+    npcs:[
+      {x:6,y:5,name:"Lukas",color:"#8a6a4a",dir:'down',
+       lines:["Pasa, pasa. Perdona el desorden, es sistema, no desorden.",
+              "Sé exactamente dónde está cada libro. Si los ordeno, no encuentro ninguno.",
+              "¿Vienes el jueves al salón? Llevo yo el Carcassonne."]},
+    ]
+  },
+  wh_hab3: {
+    name:"Habitación 3 — Ying",
+    grid:[
+      "#############",
+      "#''aDDaaaass#",
+      "#''aaeaaaaap#",
+      "#aaaaaaaaaaa#",
+      "#aaaaaaaamaa#",
+      "#aaaaaaaaeap#",
+      "#paapaaapaaa#",
+      "#aaaaaaaaaaa#",
+      "######X######",
+    ],
+    info:[
+      {x:11,y:2,name:"Las plantas de Ying",lines:[
+        "🌿 Nueve macetas contadas, y eso solo las que se ven.",
+        "Un cartel escrito a mano: «regar los martes. LOS MARTES.»",
+        "Es la habitación con mejor olor de toda la residencia."]},
+    ],
+    npcs:[
+      {x:5,y:5,name:"Ying",color:"#5ad68f",dir:'down',
+       lines:["¡Hola! Cuidado con la de la esquina, que está brotando.",
+              "Vine de Taipéi hace dos años. Las plantas llegaron después, una a una.",
+              "Si te vas de vacaciones, te las cuido. Y si me voy yo… bueno, ese es el problema."],
+       careerLine:{default:"¿Sabes qué me ayudó más a aprender alemán? Hablar con la señora del vivero."}},
+    ]
+  },
+  wh_hab4: {
+    name:"Habitación 4 — Ravi",
+    grid:[
+      "#############",
+      "#''aDDaaaass#",
+      "#''aaeaaaaaa#",
+      "#aaaaaaaaaaa#",
+      "#aaaaaaa$$$a#",
+      "#aaaaaaaaeaa#",
+      "#paaaaaaaaaI#",
+      "#aaaaaaaaaaa#",
+      "######X######",
+    ],
+    info:[
+      {x:8,y:4,name:"El puesto de Ravi",lines:[
+        "🖥 Tres pantallas, dos teclados y un ventilador que no para nunca.",
+        "En una pantalla hay código; en otra, un mapa; en la tercera, un partido.",
+        "Ravi asegura que los tres son «para la carrera»."]},
+    ],
+    npcs:[
+      {x:6,y:5,name:"Ravi",color:"#5a8ad6",dir:'down',
+       lines:["Eh, ¿qué tal? No mires el reloj, no quiero saber la hora.",
+              "Tres pantallas no son un capricho: son una necesidad. Ya lo entenderás.",
+              "Si alguna vez se te cuelga el portátil, llama a esta puerta. A cualquier hora, en serio."],
+       careerLine:{Inf:"¿Inf tú también? Entonces ya sabes por qué hay tres pantallas.",
+                   default:"Aunque no sea lo tuyo: haz copia de seguridad. Hazme caso."}},
+    ]
+  },
+  wh_hab5: {
+    name:"Habitación 5 — Freya",
+    grid:[
+      "######X######",
+      "#''aDDaaaass#",
+      "#''aaeaaaaaI#",
+      "#aaaaaaaaaaa#",
+      "#aaaaaaaaaaa#",
+      "#aaaaaaaxaxa#",
+      "#paateaaaaaa#",
+      "#aaaaaaaaaaa#",
+      "#############",
+    ],
+    info:[
+      {x:11,y:2,name:"La pared de Freya",lines:[
+        "🏃 Dorsales de carreras clavados en fila, ocho o nueve.",
+        "El más viejo es de un medio maratón en Múnich.",
+        "Debajo, a boli: «el próximo, entero»."]},
+    ],
+    npcs:[
+      {x:6,y:4,name:"Freya",color:"#d65a8a",dir:'down',
+       lines:["¿Sales a correr? Yo salgo a las siete, por la orilla del Inn.",
+              "Sí, a las siete. Sí, también en enero. No, no estoy bien.",
+              "Si te animas alguna vez, llamo a tu puerta. Aviso: no espero."]},
+    ]
+  },
+  wh_cocina: {
+    name:"Cocina compartida",
+    grid:[
+      "###########X###",
+      "#NOOQbOONbbbIb#",
+      "#bbbbbbbbbbbbb#",
+      "#bbbbbbbbbbbbb#",
+      "#bbbbbbbbbbbbb#",
+      "#bbtbbbtbbbtbs#",
+      "#bbebbbebbbebs#",
+      "#bbbbbbbbbbbbb#",
+      "#bbtbbbtbbbtbb#",
+      "#pbebbbebbbebp#",
+      "###############",
+    ],
+    info:[
+      {x:1,y:1,name:"Nevera",lines:[
+        "🧊 Cuatro baldas, una por persona, y ninguna respetada.",
+        "Un táper con una nota: «ES DE MIRA. NO ES DE TODOS.»",
+        "Al lado, medio limón sin dueño desde hace tres semanas."]},
+      {x:8,y:1,name:"La otra nevera",lines:[
+        "La segunda nevera, la de las bebidas y lo que no cabe en la primera.",
+        "Dentro hay ocho cervezas, un yogur caducado y una tarta entera.",
+        "Nadie sabe de quién es la tarta. Nadie se atreve."]},
+      {x:12,y:1,name:"Cuadrante de limpieza",lines:[
+        "📋 Semana 1: Lukas. Semana 2: Ying. Semana 3: Ravi.",
+        "Las semanas 4 y 5 están en blanco desde noviembre.",
+        "Alguien ha escrito debajo: «esto no se limpia solo». Y sigue igual."]},
+    ],
+    npcs:[
+      {x:5,y:3,name:"Mira",color:"#e8a33c",dir:'down',
+       lines:["¡Hola! Estoy haciendo suficiente para cuatro, así que siéntate si quieres.",
+              "Aquí se cocina mucho, se friega poco y se habla de todo.",
+              "Regla de oro de esta cocina: si usas la sartén grande, la lavas tú."],
+       choice:{q:"¿Te quedas a cenar?",opts:[
+         {t:"Sí, gracias",r:["¡Perfecto! Coge plato del segundo cajón.",
+                              "Y prueba antes de echarle sal, que la gente aquí tiene la mano suelta."]},
+         {t:"Ya he cenado",r:["Pues siéntate igual. Aquí se viene a hablar tanto como a comer."]},
+         {t:"Solo venía a por agua",r:["El vaso limpio está arriba. Los de abajo llevan dos días esperando."]}]}},
+      {x:12,y:6,name:"Estudiante Tom",color:"#5a8ad6",dir:'up',
+       lines:["Llevo tres semestres aquí y sigo sin saber de quién es esa tarta.",
+              "Un día alguien se la comerá y se armará. Espero estar delante."]},
+    ]
+  },
+  wh_lavanderia: {
+    name:"Lavandería",
+    grid:[
+      "######X######",
+      "#b`b`bbbtbbI#",
+      "#bbbbbbbebbb#",
+      "#bbbbbbbbbbb#",
+      "#bbTTbbbbbbb#",
+      "#bbbbbbbbbbb#",
+      "#pbbbbbbbbbs#",
+      "#bbbbbbbbbbb#",
+      "#############",
+    ],
+    info:[
+      {x:2,y:1,name:"Lavadora 1",lines:[
+        "🌀 La buena. Centrifuga bien y no baila.",
+        "Siempre está ocupada. Siempre.",
+        "Hay una lista de espera escrita a mano en la puerta."]},
+      {x:4,y:1,name:"Lavadora 2",lines:[
+        "🌀 La otra. Da saltos en el centrifugado y hay que sujetarla.",
+        "En la tapa, a rotulador: «no la dejes sola».",
+        "Nadie ha explicado nunca qué pasa si la dejas sola."]},
+      {x:11,y:1,name:"Turnos de lavadora",lines:[
+        "📋 Un cuadrante con los turnos, tachado y reescrito seis veces.",
+        "Los domingos están tachados en rojo: no se pone lavadora.",
+        "Debajo: «¿por qué?». Y contestando: «porque no»."]},
+    ],
+    npcs:[
+      {x:6,y:4,name:"Estudiante Pauli",color:"#8fb0d8",dir:'down',
+       lines:["Cuarenta minutos de espera. Es el rato más honesto de la semana.",
+              "No puedes estudiar, no puedes irte. Solo puedes estar.",
+              "Yo ya vengo con un libro. Uno de los que no son de la carrera."]},
+    ]
+  },
+  wh_salon: {
+    // El salon: barra, expendedora de cerveza, mesas y el estante de juegos.
+    name:"Salón comunal",
+    grid:[
+      "#########X#########",
+      "#acccacccaMa;;;apa#",
+      "#auauauauaaaaaaaaa#",
+      "#aaaaaaaaaaaaaaaaa#",
+      "#aaeaaaaeaaaaeaaaI#",
+      "#aataaaataaaataaaa#",
+      "#aaeaaaaeaaaaeaaTT#",
+      "#aaaaaaaaaaaaaaaTT#",
+      "#aaeaaaaeaaaaeaaaa#",
+      "#aataaaataaaataaaa#",
+      "#aaeaaaaeaaaaeaaaa#",
+      "#paaaaaaaaaaaaaaap#",
+      "###################",
+    ],
+    info:[
+      {x:10,y:1,name:"Expendedora de cerveza",lines:[
+        "🍺 Una máquina de cerveza. En una residencia. En Alemania.",
+        "1,20 € la botella, y el bote de las monedas está al lado, sin candado.",
+        "Un cartel: «paga aunque no mire nadie». Y la gente paga."]},
+      {x:12,y:1,name:"Estante de juegos",lines:[
+        "🎲 Catán, Carcassonne, Dixit, Wingspan, Ticket to Ride, Uno…",
+        "Y abajo del todo, un ajedrez al que le faltan dos peones.",
+        "Se juega con dos tapones de botella. Funciona igual."]},
+      {x:2,y:1,name:"La barra",lines:[
+        "Una barra de verdad, montada por una promoción de hace años.",
+        "En la madera hay iniciales grabadas y una fecha: 2011.",
+        "Cada año alguien añade las suyas. Es la tradición de la casa."]},
+      {x:17,y:4,name:"Marcador de la casa",lines:[
+        "🏆 Una pizarra con la clasificación eterna del Catán.",
+        "Ravi va primero. Ravi lleva primero desde que existe la pizarra.",
+        "Alguien ha escrito debajo: «investigar»."]},
+    ],
+    npcs:[
+      {x:5,y:2,name:"Kasper",color:"#c87a3a",dir:'down',
+       lines:["¡Bienvenido al mejor salón de Passau! Y lo digo sin haber visto los otros.",
+              "La barra la montaron unos que se graduaron hace años. Nosotros solo la cuidamos.",
+              "La cerveza sale de la máquina; el vaso, de aquí. Y las monedas, al bote."],
+       choice:{q:"¿Te sirvo algo?",opts:[
+         {t:"Una cerveza",r:["Marchando. La máquina está ahí, tú echa la moneda.",
+                              "El vaso te lo pongo yo, que beber de botella en el salón está mal visto. Un poco."]},
+         {t:"Un agua",r:["Buena elección si mañana hay clase a las ocho.",
+                          "Nadie te va a juzgar. Bueno, Ravi sí, pero él juzga todo."]},
+         {t:"Nada, gracias",r:["Pues siéntate igual, que en un rato empieza la partida."]}]}},
+      {x:4,y:5,name:"Ravi",color:"#5a8ad6",dir:'right',
+       lines:["Estoy montando el Catán. ¿Juegas?",
+              "Aviso: aquí una partida dura tres horas y termina en discusión.",
+              "Y aviso otra vez: gano yo. Llevo ganando desde primero."]},
+      {x:6,y:5,name:"Jonna",color:"#5ad68f",dir:'left',
+       lines:["No le hagas caso, gana porque nadie le lee las reglas por encima.",
+              "Este jueves le toca perder. Lo tengo decidido."]},
+      {x:14,y:9,name:"Estudiante Bea",color:"#d65a8a",dir:'up',
+       lines:["Vine a estudiar al salón y llevo dos horas mirando una partida.",
+              "Pasa siempre. Por eso el salón es el sitio más peligroso de la casa."]},
+    ]
+  },
 };
 
 //==================================================================
@@ -2881,10 +3220,7 @@ const BUILDINGS = {
   WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
   NK:     {name:"Nikolakloster", door:[45,26], extra:[[45,16]], interior:'niko_patio'},
   IA:     {name:"Innstegaula", door:[51,31], interior:'innstegaula'},
-  WH:     {name:"Studentenwohnheim", door:[6,16], info:["Residencia de estudiantes (Studentenwohnheim).","Habitaciones individuales, cocinas compartidas y un ambiente de examen permanente."],
-           choice:{q:"¿Llamas al timbre?",opts:[
-             {t:"Sí, a ver quién abre",r:["Se oye música arriba y alguien gritando algo sobre la lavadora.","Un estudiante te abre en pijama. Son las cuatro de la tarde."]},
-             {t:"Mejor no",r:["Prudente. A estas horas ahí dentro nadie tiene clase."]}]}},
+  WH:     {name:"Studentenwohnheim", door:[6,16], interior:'wohnheim'},
 };
 for(const k in BUILDINGS){ const b=BUILDINGS[k];
   DOOR_AT[b.door[0]+','+b.door[1]]=k;
@@ -3611,6 +3947,38 @@ function drawInTile(t,sx,sy,patio,girada,conex){
                         R('#5a3a1a',0,13,TILE,3); }
       else { libros(4); R('#5a3a1a',0,9,TILE,2); }
       return; }
+    case "'": { // cama (dos casillas de alto, dos de ancho)
+      F('#d8c4a0');
+      if(conex&2){                                   // mitad de arriba
+        R('#8a5f3a',0,0,TILE,3); R('#6d4a2a',0,3,TILE,1);
+        R('#e8e2d0',1,4,14,5); R('#cfc8b4',1,8,14,1);
+        R('#5a8ad6',0,9,TILE,7); R('#7aa4e0',0,9,TILE,2);
+      }else if(conex&1){                             // mitad de abajo
+        R('#5a8ad6',0,0,TILE,11); R('#4a76b8',0,9,TILE,2);
+        R('#8a5f3a',0,11,TILE,3); R('#6d4a2a',0,14,TILE,2);
+      }else{
+        R('#8a5f3a',0,0,TILE,2); R('#e8e2d0',1,2,14,4);
+        R('#5a8ad6',0,6,TILE,8); R('#8a5f3a',0,14,TILE,2);
+      }
+      return; }
+    case '`': { // lavadora
+      F('#c0d0d8');
+      R('#e4e8ec',1,0,14,16); R('#c8ced4',1,0,14,2); R('#aab4bc',1,14,14,2);
+      R('#9aa4ae',2,2,12,3); R('#5ad68f',3,3,2,1); R('#d65a5a',7,3,1,1);
+      ctx.fillStyle='#3a4250'; ctx.beginPath(); ctx.arc(sx+8,sy+10,5,0,7); ctx.fill();
+      ctx.fillStyle='#8fb0d8'; ctx.beginPath(); ctx.arc(sx+8,sy+10,3.4,0,7); ctx.fill();
+      ctx.fillStyle='#d8e4f0'; ctx.beginPath(); ctx.arc(sx+6,sy+8,1.4,0,7); ctx.fill();
+      return; }
+    case ';': { // estante de juegos de mesa
+      F('#d8c4a0'); R('#8a5f3a',0,0,TILE,TILE); R('#a4805a',0,0,TILE,1);
+      const caja=(c,x,y,w,h)=>{ R(c,x,y,w,h); R(shade(c,0.18),x,y,w,1);
+                                R(shade(c,-0.28),x,y+h-1,w,1); R('#e8e2d0',x+1,y+1,2,1); };
+      caja('#c0392b',1,1,6,4); caja('#2d6cb5',8,1,6,4);
+      R('#6d5236',0,5,TILE,1);
+      caja('#e8a33c',1,6,4,4); caja('#3f8f5a',6,6,4,4); caja('#7a4a9a',11,6,4,4);
+      R('#6d5236',0,10,TILE,1);
+      caja('#5ad68f',1,11,6,4); caja('#e8d65a',8,11,6,4);
+      return; }
     case 'H': { // archivador de expedientes
       F('#c8d4c0');
       R('#7d8794',2,1,12,14);
@@ -3697,7 +4065,8 @@ const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u',
   'S','V','U','M','h','x',     // escalera, maquina, arbolado y aparatos
   'H','R','N','O','Q','T','i','v','z',   // muebles de oficina, cocina y RRII
   '<','>','^','~','$','|',               // coche (dos mitades), escenario, jardinera, mesa de direccion, equipos
-  'o','(',')','/','&','%','@',',','[','{',']','}','F']); // mesa de restaurante y muebles de tienda
+  'o','(',')','/','&','%','@',',','[','{',']','}','F',  // mesa de restaurante y muebles de tienda
+  "'",'`',';']);                                        // cama, lavadora y juegos de mesa
 // patio: sólidos = muros, árboles, fuente, muros de contención y mobiliario
 const SOLID_PATIO=new Set(['#','o','F','G','X',
   'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
@@ -3713,7 +4082,8 @@ const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
                            'K','B','W','L','p','I','1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
                            'H','R','N','O','Q','T','i','v','z','_',':','<','>','^','~','$','|',
-                           '-','o','(',')','/','&','%','@',',','[','{',']','}','F']);
+                           '-','o','(',')','/','&','%','@',',','[','{',']','}','F',
+                           "'",'`',';']);
 const TILES_PATIO=new Set(['#','p','.','o','F','G','X','b','g','m','M','s','[',']','O','a','n','k','Q','E','4','5']);
 // puertas que llevan a otra escena (la salida X/E se trata aparte)
 const PUERTAS_SALA=new Set(['1','2','3','4','5','6','7','8','9','0','!','?','*',
@@ -4332,7 +4702,7 @@ function marcarLineas(g){
   // Un mueble alto ocupa dos casillas: la mascara dice si tiene una igual
   // encima o debajo, y con eso cada mitad sabe si le toca dibujar el genero
   // (arriba) o el mueble (abajo).
-  const APILABLE='()/&%@,[{]}F';
+  const APILABLE="()/&%@,[{]}F'";
   const es=(x,y)=>RAYA.includes((g[y]||'')[x]||'\u0000');
   for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
     const c=(g[y]||'')[x];

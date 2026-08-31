@@ -92,7 +92,8 @@ const NOMBRE={'#':'pared','=':'pared clara','.':'suelo','+':'umbral','a':'suelo 
  ')':'perchero de ropa','/':'plancha de hamburguesas','&':'vitrina de joyas',
  '%':'expositor de gafas','@':'estante de droguería',',':'vitrina de panadería',
  '[':'expositor de móviles','{':'estante de menaje',']':'televisores',
- '}':'expositor deportivo','F':'estantería de librería'};
+ '}':'expositor deportivo','F':'estantería de librería',
+ "'":'cama',"`":'lavadora',";":'estante de juegos de mesa'};
 const destino={}; (I.doors||[]).forEach(d=>{ destino[g[d.y][d.x]]=d.to; });
 const usados=[...new Set(g.join('').split(''))].sort();
 usados.forEach(ch2=>{
