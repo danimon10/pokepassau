@@ -409,8 +409,8 @@ const INTERIORS = {
          {t:"Todavía no",r:["Pues cuando quieras, bonito. Aquí me tienes."]}]}},
       {x:15,y:3,name:"Cajera Brunhilde",color:"#6a7a8a",dir:'down',
        lines:["Tarjeta.","...","¿Necesita algo más o va a seguir ahí parado?"],
-       choice:{q:"¿Te cobro?",opts:[
-         {t:"Sí",r:["Pues la tarjeta. No tengo todo el día."]},
+       choice:{q:"¿Le cobro?",opts:[
+         {t:"Sí, cóbreme",r:["Pues la tarjeta. No tengo todo el día."]},
          {t:"Mejor voy a la otra caja",r:["Como quiera. Allí tardará el doble, pero como quiera."]}]}},
       {x:17,y:10,name:"Estudiante Hanna",color:"#d65a8a",dir:'left',
        lines:["Las mesas del fondo son las tranquilas.","Junto a la escalera no se oye ni pensar."]},
@@ -1104,7 +1104,8 @@ const INTERIORS = {
     ],
     npcs:[
       {x:4,y:5,name:"Conserje Rita",color:"#8a5ad6",dir:'down',
-       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro. ¿Te oriento?"],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.","VWL":"¿VWL? Bienvenido, futuro economista."}},
+       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro."],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.",
+                   default:"Económicas recibe a todo el mundo, estudies lo que estudies."}},
       {x:14,y:3,name:"Estudiante BWL",color:"#5a8ad6",dir:'left',
        lines:["¿BWL tú también? Nos vemos en todos los salones.","La biblioteca de economía tiene los mejores manuales."],careerLine:{"BWL":"¡Otro de BWL! Habrá que sobrevivir juntos a Estadística."}},
     ]
@@ -1186,7 +1187,7 @@ const INTERIORS = {
     ],
     npcs:[
       {x:3,y:4,name:"Bibliotecaria Ökon",color:"#8a5ad6",dir:'down',
-       lines:["Biblioteca de Economía. Silencio y buenos libros.","¿Buscas manuales de finanzas o de gestión?"]},
+       lines:["Biblioteca de Economía. Silencio y buenos libros.","Los manuales de finanzas, a la izquierda; los de gestión, al fondo."]},
       {x:10,y:6,name:"Doctorando Finanzas",color:"#5a8ad6",dir:'left',
        lines:["Tesis sobre mercados financieros. Capítulo interminable.","Estos estantes tienen justo lo que necesito."]},
     ]
@@ -2796,7 +2797,7 @@ const INTERIORS = {
        lines:["¡Buenos días! ¿Brezel recién hecho?",
               "A partir de las siete lo que queda se vende a mitad de precio.",
               "Se lo cuento a todos los estudiantes. Es mi pequeña conspiración."],
-       choice:{q:"¿Le pido algo?",opts:[
+       choice:{q:"¿Le pongo algo?",opts:[
          {t:"Un Brezel",r:["Aquí tiene, calentito. Cuidado que quema.",
                             "Con mantequilla está mejor, pero eso ya es cosa suya."]},
          {t:"Pan de centeno",r:["Buena elección. Dura toda la semana.",
@@ -3206,7 +3207,7 @@ const INTERIORS = {
 //==================================================================
 const DOOR_AT = {}; // "x,y" -> building key
 const BUILDINGS = {
-  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad… ¿ya te vas?"],
+  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad."],
            choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
              {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
              {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
@@ -3261,7 +3262,7 @@ const OUT_NPCS=[
                BWL:"¿BWL? Hasta los de empresariales bajan a relajarse aquí.",
                default:"Túmbate un rato, las diapositivas pueden esperar."}},
   {x:44,y:31,name:"Sara",color:"#5ad68f",dir:'left',
-   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","¿Ya probaste la comida de la Mensa?"],
+   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","Yo me escapo a este prado en cuanto sale el sol."],
    choice:{q:"¿Qué te trae por aquí?",opts:[
      {t:"Estudiar, supongo",r:["Jaja, eso decimos todos en octubre."]},
      {t:"El ambiente del río",r:["¡Esa es la actitud! El Inn nunca falla."]}]}},
@@ -4923,7 +4924,12 @@ const dlgBox=document.getElementById('dialog'),dlgName=document.getElementById('
       dlgChoices=document.getElementById('dlgChoices');
 let dlg={lines:[],idx:0,choice:null}, typer=null,typing=false,fullLine='';
 function openDialog(name,lines,choice){
-  state='dialog'; dlg={lines:lines.slice(),idx:0,choice:choice};
+  state='dialog';
+  lines=lines.slice();
+  // La pregunta va como ultima linea. Si no se dice, las opciones aparecen
+  // colgando de una frase que no preguntaba nada y no se entiende que se elige.
+  if(choice && choice.q) lines.push(choice.q);
+  dlg={lines:lines,idx:0,choice:choice};
   dlgName.textContent=name; dlgBox.style.display='block';
   dlgChoices.style.display='none';dlgChoices.innerHTML='';
   typeLine(lines[0]);
