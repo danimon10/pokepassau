@@ -47,9 +47,11 @@ En el móvil la pantalla entera es el mando y se reparte en dos mitades:
 - **Mitad izquierda — joystick flotante.** No hay cruceta fija: el aro nace
   justo bajo el dedo, en el punto que sea, y le persigue si te sales de él.
   Así se juega igual de bien con el móvil vertical que horizontal, sin buscar
-  a ciegas una esquina. El empuje es analógico: a medias se anda despacio, a
-  fondo al paso normal. El tacto (zona muerta, recorrido, histéresis) se
-  ajusta en las constantes `JOY_*` de `index.html`.
+  a ciegas una esquina. El empuje es analógico: a medias se anda con tiento
+  (~1,9 casillas/s), a fondo al paso normal (~3,8). Con el teclado se va al
+  doble, que es el paso de siempre. El tacto se ajusta en dos grupos de
+  constantes de `index.html`: `JOY_*` para el mando (zona muerta, recorrido,
+  histéresis) y `PASO_*` para la velocidad al andar.
 - **Mitad derecha — acción.** Un toque equivale a pulsar A (hablar, abrir
   puertas, recoger objetos). Si en vez de tocar arrastras, también sale el
   joystick, para poder jugar con la mano derecha.

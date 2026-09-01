@@ -4360,16 +4360,28 @@ let curDir=null, lastAPress=0;
 
 // Tacto del joystick. Todo en fracciones del radio del aro (~66 px en un
 // movil normal), asi que se puede ajustar aqui sin tocar nada mas.
-const JOY_DEAD =0.30;   // hasta aqui el dedo no mueve nada       (~20 px)
-const JOY_TOPE =0.78;   // aqui el empuje ya es el maximo         (~52 px)
-const JOY_LENTO=0.45;   // por debajo de este empuje se anda despacio
+const JOY_DEAD =0.36;   // hasta aqui el dedo no mueve nada       (~24 px)
+const JOY_TOPE =0.90;   // aqui el empuje ya es el maximo         (~60 px)
+const JOY_LENTO=0.50;   // por debajo de este empuje se anda despacio
 const JOY_BIAS =1.55;   // histeresis: la direccion actual aguanta ~12 grados
+
+// A que velocidad anda el personaje, en pixeles por fotograma (60 por segundo).
+// Una casilla son 16 px, asi que 1 px/fotograma = 3,75 casillas por segundo.
+// Si el movil sigue yendo rapido, baja PASO_NORMAL; para ir mas fino todavia
+// al colocarse en una puerta, baja PASO_CORTO.
+const PASO_CORTO =0.5;  // joystick a medias  -> ~1,9 casillas/s
+const PASO_NORMAL=1.0;  // joystick a fondo   -> ~3,8 casillas/s
+const PASO_LIBRE =2.0;  // teclado y escenas automaticas -> ~7,5 casillas/s
 const TAP_TOL=14;       // px que se pueden mover sin dejar de ser "un toque"
 const TAP_MS=500;       // y tiempo maximo del toque
 
 // Con el joystick a medio empujar se anda despacio, como quien va con tiento;
-// a fondo —y siempre con el teclado— se anda al paso normal. Lo lee updateMove().
+// a fondo se anda al paso normal. Con el teclado no hay medias tintas.
 let andarDespacio=false;
+function velocidadPaso(){
+  if(joy.id===null) return PASO_LIBRE;
+  return andarDespacio ? PASO_CORTO : PASO_NORMAL;
+}
 
 function setDir(d){
   if(d===curDir) return;
@@ -4604,15 +4616,24 @@ function tryMove(){
   if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
   if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
   if(isSolid(nx,ny)){player.frame=0;return;}
-  player.tx=nx;player.ty=ny;player.moving=true;
+  // la velocidad se fija al arrancar la casilla: asi no cambia a media zancada
+  player.tx=nx;player.ty=ny;player.moving=true;player.paso=velocidadPaso();
 }
+// El lienzo es de pixel entero, asi que no se puede avanzar "medio pixel": se
+// guarda el sobrante de un fotograma para el siguiente y se mueve por enteros.
+let pasoResto=0;
 function updateMove(){
   if(!player.moving)return;
-  const tgx=player.tx*TILE,tgy=player.ty*TILE,sp=andarDespacio?1:2;
-  if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
-  if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
-  if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
-  if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  const tgx=player.tx*TILE,tgy=player.ty*TILE;
+  pasoResto += player.paso || PASO_LIBRE;
+  const sp = Math.floor(pasoResto);
+  pasoResto -= sp;
+  if(sp>0){
+    if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
+    if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
+    if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
+    if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  }
   player.frame=(Math.floor((player.px+player.py)/4)%2)+1;
   if(player.px===tgx&&player.py===tgy){
     player.x=player.tx;player.y=player.ty;player.moving=false;player.frame=0;
@@ -4691,7 +4712,7 @@ function avanzarGuion(){
   if(!guion.pasos.length){ const f=guion.fin; guion=null; if(f) f(); return; }
   const [nx,ny]=guion.pasos.shift();
   player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
-  player.tx=nx; player.ty=ny; player.moving=true;
+  player.tx=nx; player.ty=ny; player.moving=true; player.paso=PASO_LIBRE;
 }
 // como se conecta cada linea de campo con sus vecinas, para pintarla fina
 let lineasCon=new Map();
