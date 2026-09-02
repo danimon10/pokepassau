@@ -53,10 +53,63 @@ la opción de entregárselo sin abrir la mochila.
 Dónde está cada cosa y a quién le corresponde se define en `ITEMS`, dentro de
 `index.html`.
 
+## Tiempo, dinero y misiones
+
+Tres contadores se guardan con la partida y se ven en la pantalla: la fecha y
+el dinero arriba a la izquierda, y las misiones en el botón de la derecha,
+debajo de la mochila.
+
+**El tiempo.** El calendario del juego tiene meses de **14 días** (dos semanas
+justas, así que todos empiezan en lunes), años de **168 días** (doce meses) y
+estaciones de **42 días** (tres meses: dic-ene-feb, mar-abr-may, jun-jul-ago,
+sep-oct-nov). La partida empieza el **1 de octubre**, cuando arranca el
+semestre de invierno.
+
+El día solo avanza durmiendo: en tu cuarto de la residencia
+(Studentenwohnheim, cuarto 1) te pones delante de la cama, pulsas acción y
+eliges «ir a dormir». La pantalla se apaga, aparece la fecha nueva y vuelve a
+encenderse. La sala del dormitorio se marca en `INTERIORS` con
+`dormitorio:true`; la cama es la pieza `'`.
+
+**El dinero.** Se empieza con **50 €** y cada noche que se duerme entran
+**10 €**. Se gasta en bebidas, comida y trámites: la Mensa, la cafetería del
+Nikolakloster, el Gmoa, la expendedora del salón de la residencia, la máquina
+de Informatik, el centro comercial, el registro de estudiantes y la
+administración del centro de idiomas.
+
+Por dentro se lleva en **céntimos** (enteros), para no arrastrar decimales
+sueltos. Cualquier opción de diálogo puede cobrar con solo añadirle un
+precio:
+
+```js
+choice:{q:"¿Qué te pongo?",opts:[
+  {t:"Un café solo", precio:160, r:["Marchando."],
+   sin:["Hoy no te llega, cielo."]},   // 'sin' es opcional
+  {t:"Nada, gracias", r:["Cuando quieras."]},
+]}
+```
+
+El precio sale en el botón, la opción se ve apagada si no llega el dinero y
+al elegirla se cobra sola. Una opción puede llevar además `fn`, una función
+que se ejecuta al cerrarse el diálogo (así es como la cama duerme).
+
+**Las misiones.** El botón de la derecha lleva la cuenta de las que están en
+curso y abre el panel (también con la tecla `M`). Cada misión se describe en
+`MISIONES` con sus pasos, y se avanza desde donde toque:
+
+```js
+cumplirPaso('primera_noche','dormir');
+```
+
+Cuando no queda ningún paso suelto la misión se da por cumplida sola, se
+cobra el premio si lo tiene y salta el aviso. Las marcadas con `inicial:true`
+arrancan al empezar la partida. De momento hay dos, de rodaje, que enseñan
+las dos mecánicas nuevas.
+
 ## Controles
 
-En el ordenador: flechas o WASD para moverse, y Z / Espacio / Enter para
-interactuar.
+En el ordenador: flechas o WASD para moverse, Z / Espacio / Enter para
+interactuar, `I` para la mochila y `M` para las misiones.
 
 En el móvil la pantalla entera es el mando y se reparte en dos mitades:
 

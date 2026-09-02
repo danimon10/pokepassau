@@ -68,6 +68,7 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 | Zona | Qué hay |
 |---|---|
 | `MAPA EXTERIOR` | la rejilla del campus como array de cadenas |
+| `TIEMPO, DINERO Y MISIONES` | calendario, cartera, misiones y dormir |
 | Leyenda interior | qué significa cada letra de las rejillas de sala |
 | `INTERIORS` | las salas: 83 rejillas con sus puertas y NPCs |
 | `EDIFICIOS` | qué puerta del exterior lleva a qué sala |
@@ -95,3 +96,13 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 - **Las escenas automáticas** (escaleras) mueven al jugador solas con
   `guion`, sin pasar por `tryMove`. Lo que cambie del movimiento hay que
   comprobarlo también ahí.
+- **El dinero va en céntimos**, siempre enteros: 1,20 € son `120`. Se cobra
+  poniéndole `precio` a una opción de diálogo, nunca restando a mano; así el
+  botón enseña el precio, se apaga si no llega y la compra cuenta para las
+  misiones. Con `fn` la opción ejecuta algo al cerrarse el cuadro.
+- **El día solo pasa durmiendo.** La cama (`'`) de la sala marcada con
+  `dormitorio:true` es el único reloj del juego: no hay horas ni minutos.
+  El mes son 14 días, el año 168 y la estación cambia cada 42.
+- **Las misiones se avanzan con `cumplirPaso(mision, paso)`**, desde donde se
+  cumplan. La misión se cierra sola cuando no le queda ningún paso suelto: no
+  hay que marcarla como hecha a mano.
