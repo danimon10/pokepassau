@@ -32,36 +32,143 @@
   #stage{position:relative;flex:0 0 auto;touch-action:none;}
   canvas{image-rendering:pixelated;image-rendering:crisp-edges;background:#000;display:block;
     box-shadow:0 0 0 4px #20243a, 0 0 30px rgba(0,0,0,.6);touch-action:none;}
-
+  /* ================== PANTALLA DE INICIO ==========================
+     Tres pantallas dentro del mismo overlay -- portada, creacion de
+     personaje y controles -- de las que solo una lleva .on a la vez.
+     De fondo, el campus de verdad: se dibuja una vez en #fondoMenu y
+     se pasea despacio por detras.                                  */
   #menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;color:#fff;text-align:center;padding:20px;overflow-y:auto;
-    background:linear-gradient(160deg,#3a6ea5 0%, #2a4d7a 55%, #1e3a5f 100%);}
-  #menu h1{font-size:clamp(26px,7vw,52px);letter-spacing:2px;line-height:1.05;
-    text-shadow:3px 3px 0 #1a2a44, 5px 5px 0 rgba(0,0,0,.3);color:#ffe9a8;margin-bottom:4px;}
-  #menu h1 .sub{display:block;font-size:.4em;color:#bfe0ff;letter-spacing:6px;margin-top:8px;text-shadow:2px 2px 0 #1a2a44;}
-  .panel{background:var(--dlg-bg);color:var(--txt);border:4px solid var(--dlg-frame);
-    border-radius:10px;box-shadow:0 6px 0 var(--dlg-shadow);padding:16px 18px;margin-top:18px;max-width:580px;width:100%;}
-  .panel h2{font-size:17px;margin-bottom:12px;color:#3a4a7a;letter-spacing:1px;}
-  .row{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;}
-  .pick{cursor:pointer;border:3px solid var(--dlg-frame);border-radius:8px;background:#fff;
-    padding:9px;width:84px;transition:transform .08s;box-shadow:0 3px 0 rgba(90,107,138,.5);}
-  .pick:hover{transform:translateY(-2px);}
-  .pick.sel{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
-  .pick canvas{box-shadow:none;background:#bfe3bf;border-radius:4px;display:block;margin:0 auto 5px;}
-  .pick .nm{font-size:12px;font-weight:bold;}
-  .career{cursor:pointer;border:3px solid var(--dlg-frame);border-radius:8px;background:#fff;
-    padding:8px 6px;width:104px;font-size:12px;transition:.08s;box-shadow:0 3px 0 rgba(90,107,138,.5);font-weight:bold;}
-  .career:hover{transform:translateY(-2px);}
-  .career.sel{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
-  .career .ic{font-size:21px;display:block;margin-bottom:3px;}
-  .career .full{display:block;font-size:9px;color:#6a7088;margin-top:2px;line-height:1.2;font-weight:normal;}
-  #startBtn{margin-top:20px;cursor:pointer;font-family:inherit;font-weight:bold;font-size:18px;color:#fff;
-    background:#e0a93a;border:4px solid #b07a1a;border-radius:10px;padding:12px 34px;
-    box-shadow:0 5px 0 #8a5e12;letter-spacing:1px;transition:transform .08s;}
-  #startBtn:hover{transform:translateY(-2px);}
-  #startBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #8a5e12;}
-  #startBtn:disabled{opacity:.45;cursor:not-allowed;}
-  .hint{margin-top:13px;font-size:12px;color:#cfe2ff;letter-spacing:.5px;line-height:1.5;}
+    justify-content:center;color:#fff;text-align:center;overflow:hidden;background:#0d1424;}
+  #fondoMenu{position:absolute;inset:0;width:100%;height:100%;display:block;background:#3a6ea5;
+    image-rendering:pixelated;image-rendering:crisp-edges;box-shadow:none;}
+  /* velo: sin el, el texto se pierde encima del campus */
+  #velo{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 48% 54% at 50% 46%, rgba(6,10,22,.52), rgba(6,10,22,0) 72%),
+               radial-gradient(ellipse at 50% 42%, rgba(10,16,32,.06) 0%, rgba(10,16,32,.40) 58%, rgba(8,11,24,.80) 100%),
+               linear-gradient(180deg, rgba(18,36,72,.22), rgba(8,11,24,.34));}
+  #velo::after{content:'';position:absolute;inset:0;opacity:.16;
+    background:repeating-linear-gradient(180deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px);}
+
+  .pant{position:relative;z-index:2;display:none;flex-direction:column;align-items:center;
+    width:100%;max-width:660px;max-height:100%;padding:22px 18px 26px;overflow-y:auto;}
+  .pant.on{display:flex;animation:entraPant .3s ease-out;}
+  @keyframes entraPant{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+
+  /* --- rotulo del juego --- */
+  .logo{margin-bottom:clamp(18px,5vh,34px);animation:respira 3.4s ease-in-out infinite;}
+  @keyframes respira{0%,100%{transform:scale(1);}50%{transform:scale(1.025);}}
+  .logo .l1{display:block;font-size:clamp(28px,8.4vw,60px);font-weight:bold;letter-spacing:3px;line-height:1;
+    color:#ffe9a8;text-shadow:0 3px 0 #b07a1a, 0 6px 0 #7a5410, 4px 9px 0 rgba(0,0,0,.45), 0 0 28px rgba(255,214,120,.4);}
+  .logo .l2{display:block;margin-top:11px;font-size:clamp(11px,3.1vw,19px);letter-spacing:9px;
+    color:#bfe0ff;text-shadow:0 2px 0 #16263f, 0 0 14px rgba(120,190,255,.55);}
+  .logo .l3{display:block;margin-top:13px;font-size:10px;letter-spacing:2.5px;color:#cfe0f5;
+    text-shadow:0 1px 3px rgba(4,8,18,.95), 0 0 10px rgba(4,8,18,.9);}
+
+  /* --- botones del menu --- */
+  .opciones{display:flex;flex-direction:column;gap:11px;width:min(100%,352px);}
+  .mbtn{position:relative;font-family:inherit;font-weight:bold;letter-spacing:1.5px;cursor:pointer;width:100%;
+    color:#3a2a08;background:linear-gradient(180deg,#ffdd8a 0%,#f0bd4e 52%,#e0a93a 100%);
+    border:3px solid #8a5e12;border-radius:9px;padding:13px 18px;font-size:16px;
+    box-shadow:0 5px 0 #6d4a0e, 0 9px 15px rgba(0,0,0,.42), inset 0 2px 0 rgba(255,255,255,.5);
+    transition:transform .07s, box-shadow .07s, filter .12s;}
+  .mbtn:hover{filter:brightness(1.08);}
+  .mbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #6d4a0e, inset 0 2px 0 rgba(255,255,255,.5);}
+  .mbtn:disabled{filter:grayscale(.75) brightness(.7);cursor:not-allowed;}
+  .mbtn.sec{background:linear-gradient(180deg,#8497bd 0%,#5a6b8a 100%);color:#fff;border-color:#38486a;
+    box-shadow:0 5px 0 #26314e, 0 9px 15px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.28);}
+  .mbtn.sec:active{box-shadow:0 1px 0 #26314e, inset 0 2px 0 rgba(255,255,255,.28);}
+
+  /* el triangulito de toda la vida: marca donde esta el foco del teclado */
+  .foco{outline:3px solid rgba(255,233,168,.92);outline-offset:2px;}
+  .pick.foco::after, .slot.foco::after{content:none;}
+  .mbtn.foco::after{content:'\25B6';position:absolute;left:11px;top:50%;color:#7a5410;font-size:13px;
+    animation:apunta .55s ease-in-out infinite alternate;}
+  .mbtn.sec.foco::after{color:#e8f0ff;}
+  @keyframes apunta{from{transform:translate(0,-50%);}to{transform:translate(5px,-50%);}}
+
+  /* --- tarjeta de la partida guardada --- */
+  .slotTit{width:100%;font-size:10px;letter-spacing:2.5px;color:#cfe0f5;text-align:left;margin-bottom:6px;
+    text-shadow:0 1px 3px rgba(4,8,18,.95);}
+  .slot{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    font-family:inherit;color:#eaf2ff;padding:10px 12px;border-radius:10px;border:3px solid #e0a93a;
+    background:linear-gradient(180deg,rgba(52,68,106,.95),rgba(28,38,66,.95));
+    box-shadow:0 5px 0 #8a5e12, 0 9px 17px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,233,168,.22);
+    transition:transform .07s, box-shadow .07s, filter .12s;}
+  .slot:hover{filter:brightness(1.14);}
+  .slot:active{transform:translateY(4px);box-shadow:0 1px 0 #8a5e12, inset 0 1px 0 rgba(255,233,168,.22);}
+  .slot canvas{flex:0 0 auto;image-rendering:pixelated;border-radius:7px;
+    background:linear-gradient(180deg,#9ad884,#63aa55);border:2px solid #47733a;box-shadow:none;}
+  .slotTxt{flex:1;min-width:0;}
+  .slotNm{font-size:14px;font-weight:bold;letter-spacing:1px;color:#ffe9a8;}
+  .slotSub{font-size:11px;color:#c2d5f0;margin-top:4px;letter-spacing:.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .slotGo{font-size:19px;color:#ffe9a8;flex:0 0 auto;}
+  .borrar{background:none;border:0;color:#c2d5f0;font-family:inherit;font-size:11px;letter-spacing:1px;
+    cursor:pointer;text-decoration:underline;padding:5px;margin-top:-3px;
+    text-shadow:0 1px 3px rgba(4,8,18,.95);}
+  .borrar:hover{color:#ff9f9f;}
+
+  /* --- creacion de personaje --- */
+  .tit{font-size:clamp(15px,4.4vw,23px);letter-spacing:4px;color:#ffe9a8;margin-bottom:14px;
+    text-shadow:0 3px 0 #7a5410, 0 0 18px rgba(255,214,120,.35);}
+  .ficha{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-bottom:16px;
+    padding:12px 14px;border:3px solid #7f93b8;border-radius:12px;
+    background:linear-gradient(180deg,rgba(48,65,104,.92),rgba(25,35,61,.92));
+    box-shadow:0 5px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.14);}
+  .ficha canvas{flex:0 0 auto;image-rendering:pixelated;border-radius:9px;
+    background:linear-gradient(180deg,#9ad884,#63aa55);border:3px solid #47733a;box-shadow:none;}
+  .fichaNm{font-size:16px;font-weight:bold;letter-spacing:1.5px;color:#ffe9a8;}
+  .fichaCar{font-size:11px;letter-spacing:1.5px;color:#8fd0ff;margin-top:4px;}
+  .fichaBio{font-size:11px;color:#c2d5f0;margin-top:6px;line-height:1.45;}
+
+  .grupo{width:100%;margin-bottom:15px;}
+  .grupo h3{font-size:10px;letter-spacing:3px;color:#cfe0f5;margin-bottom:8px;text-align:left;
+    text-shadow:0 1px 3px rgba(4,8,18,.95);}
+  .rejilla{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+  .pick{position:relative;cursor:pointer;font-family:inherit;color:#eaf2ff;padding:7px 3px 8px;border-radius:9px;
+    border:3px solid #6a7fa6;background:linear-gradient(180deg,rgba(52,70,112,.9),rgba(29,40,70,.9));
+    box-shadow:0 4px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.12);
+    transition:transform .08s, box-shadow .08s, filter .12s;}
+  .pick:hover{filter:brightness(1.15);}
+  .pick canvas{display:block;margin:0 auto 4px;image-rendering:pixelated;
+    border-radius:6px;background:linear-gradient(180deg,#9ad884,#63aa55);box-shadow:none;}
+  .pick .nm{font-size:11px;font-weight:bold;letter-spacing:.5px;}
+  .pick .ic{display:block;font-size:20px;line-height:1.25;}
+  .pick .full{display:block;font-size:8px;color:#a9c0e2;margin-top:2px;line-height:1.25;font-weight:normal;}
+  .pick.sel{color:#3a2a08;border-color:#e0a93a;background:linear-gradient(180deg,#ffe9a8,#f0c86a);
+    box-shadow:0 4px 0 #b07a1a, 0 0 20px rgba(255,214,120,.45), inset 0 1px 0 rgba(255,255,255,.6);}
+  .pick.sel .full{color:#7a6330;}
+  .acciones{display:flex;gap:10px;width:min(100%,352px);margin-top:4px;}
+  .acciones .mbtn{flex:1;}
+  .acciones .mbtn.sec{flex:0 0 38%;}
+
+  /* --- pantalla de controles --- */
+  .ayudaCaja{width:100%;text-align:left;padding:14px 16px;border:3px solid #7f93b8;border-radius:12px;
+    background:linear-gradient(180deg,rgba(48,65,104,.92),rgba(25,35,61,.92));
+    box-shadow:0 5px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.14);margin-bottom:16px;}
+  .ayudaCaja h3{font-size:11px;letter-spacing:3px;color:#8fd0ff;margin:14px 0 7px;}
+  .ayudaCaja h3:first-child{margin-top:0;}
+  .ayudaCaja p{font-size:12px;line-height:1.6;color:#dbe7f8;margin-bottom:5px;}
+  .tecla{display:inline-block;background:#f4f2e6;color:#2a3550;border:2px solid #7f93b8;border-radius:5px;
+    box-shadow:0 2px 0 #1c2540;padding:0 6px;font-size:11px;font-weight:bold;margin:0 2px;}
+
+  .conDedo{display:none;} body.tmode .conTeclado{display:none;} body.tmode .conDedo{display:inline;}
+  .pie{margin-top:20px;font-size:10px;letter-spacing:1.5px;color:#b9cbe4;line-height:1.8;
+    text-shadow:0 1px 3px rgba(4,8,18,.95), 0 0 10px rgba(4,8,18,.9);}
+
+  /* pantallas bajas (movil en horizontal): todo un poco mas apretado */
+  @media (max-height:460px){
+    .pant{padding:12px 16px 0;}
+    .acciones{position:sticky;bottom:0;padding:8px 0 12px;
+      background:linear-gradient(180deg,rgba(8,11,24,0),rgba(8,11,24,.9) 45%);}
+    .logo{margin-bottom:12px;}
+    .logo .l1{font-size:clamp(24px,6vw,38px);}
+    .logo .l3{display:none;}
+    .mbtn{padding:10px 16px;font-size:14px;}
+    .ficha{margin-bottom:10px;}
+    .ficha canvas{transform:scale(.78);transform-origin:left center;margin-right:-14px;}
+    .grupo{margin-bottom:10px;}
+  }
 
   #hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:none;pointer-events:none;z-index:20;}
   #locBadge{background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:20px;
@@ -172,11 +279,60 @@
     </div>
   </div>
   <div id="menu">
-    <h1>CAMPUS PASSAU<span class="sub">UNI · QUEST</span></h1>
-    <div class="panel"><h2>1 · ELIGE TU PERSONAJE</h2><div class="row" id="charRow"></div></div>
-    <div class="panel"><h2>2 · ELIGE TU CARRERA</h2><div class="row" id="careerRow"></div></div>
-    <button id="startBtn" disabled>¡EMPEZAR!</button>
-    <div class="hint">Teclado: flechas/WASD para mover · Z/Espacio/Enter para interactuar<br>Móvil: apoya el dedo en la mitad izquierda y desliza — el joystick aparece donde toques<br>Toca la mitad derecha (o el botón A) para interactuar · arrastra el botón A para cambiarlo de sitio<br><span style="opacity:.7">(tecla T: mostrar/ocultar controles táctiles)</span></div>
+    <canvas id="fondoMenu"></canvas>
+    <div id="velo"></div>
+
+    <!-- ---------- PORTADA ---------- -->
+    <section class="pant on" id="pPortada">
+      <div class="logo">
+        <span class="l1">CAMPUS PASSAU</span>
+        <span class="l2">UNI · QUEST</span>
+        <span class="l3">UN SEMESTRE EN LA UNIVERSITÄT PASSAU</span>
+      </div>
+      <div class="opciones">
+        <div id="slotZona"></div>
+        <button class="mbtn" id="nuevaBtn" data-nav>✦ NUEVA PARTIDA</button>
+        <button class="mbtn sec" id="ayudaBtn" data-nav>? CÓMO SE JUEGA</button>
+      </div>
+      <div class="pie"><span class="conTeclado">FLECHAS PARA ELEGIR · ENTER PARA ACEPTAR<br>O TOCA DIRECTAMENTE LA OPCIÓN</span><span class="conDedo">TOCA LA OPCIÓN QUE QUIERAS</span></div>
+    </section>
+
+    <!-- ---------- CREACIÓN DE PERSONAJE ---------- -->
+    <section class="pant" id="pCrear">
+      <div class="tit">NUEVA PARTIDA</div>
+      <div class="ficha">
+        <canvas id="retrato" width="32" height="32"></canvas>
+        <div class="fichaTxt">
+          <div class="fichaNm" id="fNm">¿QUIÉN ERES?</div>
+          <div class="fichaCar" id="fCar">Sin carrera todavía</div>
+          <div class="fichaBio" id="fBio">Elige a quién quieres ser este semestre y qué vas a estudiar.</div>
+        </div>
+      </div>
+      <div class="grupo"><h3>1 · QUIÉN ERES</h3><div class="rejilla" id="charRow"></div></div>
+      <div class="grupo"><h3>2 · QUÉ ESTUDIAS</h3><div class="rejilla" id="careerRow"></div></div>
+      <div class="acciones">
+        <button class="mbtn sec" id="volverBtn" data-nav>ATRÁS</button>
+        <button class="mbtn" id="startBtn" data-nav disabled>¡EMPEZAR!</button>
+      </div>
+    </section>
+
+    <!-- ---------- CONTROLES ---------- -->
+    <section class="pant" id="pAyuda">
+      <div class="tit">CÓMO SE JUEGA</div>
+      <div class="ayudaCaja">
+        <h3>TECLADO</h3>
+        <p><span class="tecla">←↑↓→</span> o <span class="tecla">W A S D</span> para andar por el campus.</p>
+        <p><span class="tecla">Z</span> <span class="tecla">Espacio</span> <span class="tecla">Enter</span> para hablar, abrir puertas y recoger cosas.</p>
+        <p><span class="tecla">I</span> abre la mochila · <span class="tecla">T</span> muestra u oculta el mando táctil.</p>
+        <h3>MÓVIL</h3>
+        <p>Apoya el dedo en la <b>mitad izquierda</b> y desliza: el joystick nace donde toques.</p>
+        <p>Toca la <b>mitad derecha</b> (o el botón A) para interactuar. Arrastra el botón A si te estorba.</p>
+        <h3>LO QUE HAY QUE SABER</h3>
+        <p>Las puertas no se pisan: te pones delante y empujas hacia ellas.</p>
+        <p>La partida se guarda sola. Vuelve cuando quieras y sigue donde lo dejaste.</p>
+      </div>
+      <div class="acciones"><button class="mbtn sec" id="cerrarAyudaBtn" data-nav>ATRÁS</button></div>
+    </section>
   </div>
   <div class="fade" id="fade"></div>
 </div>
@@ -3285,12 +3441,30 @@ const OUT_NPCS=[
 //==================================================================
 //  PERSONAJES Y CARRERAS
 //==================================================================
+// Ocho personajes, cuatro chicas y cuatro chicos, alternados en la rejilla
+// para que la mezcla se vea de un vistazo. 'pelo' elige el corte que dibuja
+// drawPerson; 'bio' es la linea que sale en la ficha al seleccionarlo.
 const CHARS=[
-  {id:'noa',nm:'Noa',skin:'#f1c8a0',hair:'#3a2a1a',shirt:'#d65a5a'},
-  {id:'kai',nm:'Kai',skin:'#e8b98a',hair:'#5a3a1a',shirt:'#5a8ad6'},
-  {id:'mira',nm:'Mira',skin:'#f3d0b0',hair:'#7a3a5a',shirt:'#6ab05a'},
-  {id:'finn',nm:'Finn',skin:'#d6a878',hair:'#2a2a2a',shirt:'#e0a93a'},
+  {id:'noa',  nm:'Noa',   skin:'#f1c8a0', hair:'#4a2c18', shirt:'#d65a5a', pelo:'bob',
+   bio:'Segundo de carrera. Rema en el Inn a las siete de la mañana, con niebla y todo.'},
+  {id:'kai',  nm:'Kai',   skin:'#e8b98a', hair:'#5a3a1a', shirt:'#5a8ad6', pelo:'corto',
+   bio:'Llegó de Hamburgo con una bici y ninguna intención de andar a ningún sitio.'},
+  {id:'mira', nm:'Mira',  skin:'#f3d0b0', hair:'#7a3a5a', shirt:'#6ab05a', pelo:'coleta',
+   bio:'Se tiñó el pelo la semana de exámenes. No se arrepiente en absoluto.'},
+  {id:'finn', nm:'Finn',  skin:'#d6a878', hair:'#2a2a2a', shirt:'#e0a93a', pelo:'corto',
+   bio:'Vive en la residencia y se conoce a todo el mundo del turno de noche.'},
+  {id:'lena', nm:'Lena',  skin:'#f6dcc0', hair:'#d8b45a', shirt:'#8a6ad0', pelo:'largo',
+   bio:'De Passau de toda la vida. Sabe qué mesa de la Mensa queda libre y cuándo.'},
+  {id:'omar', nm:'Omar',  skin:'#a9724a', hair:'#221a14', shirt:'#3aa89a', pelo:'corto',
+   bio:'De Erasmus. Lleva dos semanas y ya se ha perdido tres veces en el NK.'},
+  {id:'amara',nm:'Amara', skin:'#7a4a30', hair:'#1a1210', shirt:'#e07a3a', pelo:'rizado',
+   bio:'Estudia de noche en la ZB. Dice que la torre de la biblioteca es lo mejor del campus.'},
+  {id:'jonas',nm:'Jonas', skin:'#efc59a', hair:'#c98f3a', shirt:'#4a5ac0', pelo:'rizado',
+   bio:'Ha cambiado de carrera dos veces. Esta ya va en serio, dice él.'},
 ];
+// Las ocho carreras salen de la oferta real de Passau. El 'id' es la clave
+// que buscan los NPCs en careerLine; si no tienen frase propia, sale la
+// generica, asi que se pueden anadir carreras sin tocar ningun dialogo.
 const CAREERS=[
   {id:'Kuwi',ic:'🎭',full:'Kulturwirtschaft'},
   {id:'Jura',ic:'⚖️',full:'Derecho'},
@@ -3298,12 +3472,18 @@ const CAREERS=[
   {id:'MuK',ic:'📡',full:'Medien & Komm.'},
   {id:'Mathe',ic:'📐',full:'Matemáticas'},
   {id:'Inf',ic:'💻',full:'Informática'},
+  {id:'Lehramt',ic:'🍎',full:'Magisterio'},
+  {id:'Gov',ic:'🏛️',full:'Governance'},
 ];
 
 //==================================================================
 //  SPRITE de persona (top-down 16x16)
 //==================================================================
-function drawPerson(c,px,py,skin,hair,shirt,dir,frame){
+// El pelo se pinta DESPUES de la camiseta a proposito: asi una melena cae
+// por encima de los hombros en vez de quedar cortada por el cuello.
+// 'pelo' es opcional: sin el sale el corte de siempre, que es el que llevan
+// todos los estudiantes del campus.
+function drawPerson(c,px,py,skin,hair,shirt,dir,frame,pelo){
   c.fillStyle='rgba(0,0,0,.18)'; c.fillRect(px+3,py+14,10,3);
   c.fillStyle='#3a3a4a';
   c.fillRect(px+5,py+12+(frame===1?0:1),2,3);
@@ -3312,8 +3492,37 @@ function drawPerson(c,px,py,skin,hair,shirt,dir,frame){
   c.fillRect(px+3,py+8,1,4); c.fillRect(px+12,py+8,1,4);
   c.fillStyle=skin; c.fillRect(px+5,py+3,6,6);
   c.fillStyle=hair;
-  if(dir==='up'){ c.fillRect(px+5,py+2,6,5); }
-  else { c.fillRect(px+5,py+2,6,3); c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+  // casquete comun: de espaldas se ve toda la nuca, de frente solo el flequillo
+  const casquete=()=>{
+    if(dir==='up') c.fillRect(px+5,py+2,6,5);
+    else { c.fillRect(px+5,py+2,6,3); c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+  };
+  switch(pelo){
+    case 'largo':   // melena hasta los hombros
+      casquete();
+      c.fillRect(px+4,py+2,1,8); c.fillRect(px+11,py+2,1,8);
+      if(dir==='up') c.fillRect(px+5,py+7,6,3);
+      break;
+    case 'bob':     // media melena, hasta la barbilla
+      casquete();
+      c.fillRect(px+4,py+2,1,6); c.fillRect(px+11,py+2,1,6);
+      if(dir==='up') c.fillRect(px+5,py+7,6,1);
+      break;
+    case 'coleta':  // la coleta va detras: de frente apenas asoma, de
+                    // espaldas cuelga entera y de lado sale por el otro lado
+      casquete();
+      if(dir==='up')         c.fillRect(px+7,py+6,2,5);
+      else if(dir==='left')  c.fillRect(px+11,py+4,2,4);
+      else if(dir==='right') c.fillRect(px+3,py+4,2,4);
+      else                   c.fillRect(px+10,py+1,2,2);
+      break;
+    case 'rizado':  // volumen: la mata se sale del ancho de la cabeza
+      c.fillRect(px+4,py+1,8,4); c.fillRect(px+3,py+2,1,4); c.fillRect(px+12,py+2,1,4);
+      if(dir==='up') c.fillRect(px+5,py+5,6,2);
+      else { c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+      break;
+    default: casquete();   // 'corto'
+  }
   if(dir!=='up'){
     c.fillStyle='#2a2230';
     if(dir==='down'){ c.fillRect(px+6,py+6,1,1); c.fillRect(px+9,py+6,1,1); }
@@ -4289,33 +4498,228 @@ function isSolid(x,y){
 }
 
 //==================================================================
-//  MENÚ
+//  MENÚ DE INICIO
+//  Tres pantallas dentro del mismo overlay: portada, creacion de
+//  personaje y controles. Se maneja con raton, con el dedo y con el
+//  teclado (flechas + Enter), como cualquier menu de consola.
 //==================================================================
 let selChar=null, selCareer=null;
+const menuEl=document.getElementById('menu');
 const charRow=document.getElementById('charRow'), careerRow=document.getElementById('careerRow');
 const startBtn=document.getElementById('startBtn');
+
+function mostrarPant(id){
+  document.querySelectorAll('#menu .pant').forEach(p=>{
+    p.classList.toggle('on', p.id===id);
+    if(p.id===id) p.scrollTop=0;
+  });
+  focoInicial();
+}
+
+//------------------------------------------------------------------
+//  FOCO DEL TECLADO
+//  Se mueve por geometria: se busca el elemento navegable mas cercano
+//  hacia donde se ha pulsado. Asi el mismo codigo sirve para una lista
+//  de botones y para una rejilla de personajes, sin indices a mano.
+//------------------------------------------------------------------
+function navegables(){
+  const p=document.querySelector('#menu .pant.on');
+  return p ? [...p.querySelectorAll('[data-nav]')].filter(e=>!e.disabled && e.offsetParent!==null) : [];
+}
+function ponerFoco(el){
+  document.querySelectorAll('#menu .foco').forEach(e=>e.classList.remove('foco'));
+  if(!el) return;
+  el.classList.add('foco');
+  if(el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+}
+function focoInicial(){
+  const els=navegables();
+  ponerFoco(els.find(e=>e.classList.contains('sel')) || els[0]);
+}
+function moverFoco(dx,dy){
+  const els=navegables(); if(!els.length) return;
+  const act=els.find(e=>e.classList.contains('foco'));
+  if(!act){ ponerFoco(els[0]); return; }
+  const a=act.getBoundingClientRect(), ax=a.left+a.width/2, ay=a.top+a.height/2;
+  let mejor=null, dMejor=Infinity;
+  els.forEach(e=>{
+    if(e===act) return;
+    const b=e.getBoundingClientRect(), vx=b.left+b.width/2-ax, vy=b.top+b.height/2-ay;
+    // solo cuenta lo que quede claramente hacia el lado que se ha pulsado
+    if(dx && (Math.sign(vx)!==dx || Math.abs(vx)<Math.abs(vy)*0.7)) return;
+    if(dy && (Math.sign(vy)!==dy || Math.abs(vy)<Math.abs(vx)*0.7)) return;
+    const d=Math.hypot(vx,vy) + (dx?Math.abs(vy):Math.abs(vx))*2;   // penaliza salirse de la fila
+    if(d<dMejor){ dMejor=d; mejor=e; }
+  });
+  if(mejor) ponerFoco(mejor);
+}
+function teclaMenu(e){
+  switch(e.key){
+    case 'ArrowUp':    moverFoco(0,-1); return;
+    case 'ArrowDown':  moverFoco(0, 1); return;
+    case 'ArrowLeft':  moverFoco(-1,0); return;
+    case 'ArrowRight': moverFoco( 1,0); return;
+    case 'Enter': case ' ': case 'z': case 'Z': {
+      const act=document.querySelector('#menu .foco');
+      if(act) act.click();
+      return; }
+    case 'Escape': {
+      const p=document.querySelector('#menu .pant.on');
+      if(p && p.id!=='pPortada') mostrarPant('pPortada');
+      return; }
+  }
+}
+// el raton y el foco no pueden decir cosas distintas: al pasar por encima,
+// el foco se va detras del puntero
+menuEl.addEventListener('mouseover', e=>{
+  const t=e.target.closest && e.target.closest('[data-nav]');
+  if(t && !t.disabled) ponerFoco(t);
+});
+
+//------------------------------------------------------------------
+//  RETRATOS: los sprites del menu caminan en el sitio
+//  El lienzo mide 16x18 casillas de sprite (16 del muneco y 2 de
+//  margen para la sombra y el pelo alto), a escala entera.
+//------------------------------------------------------------------
+const retratos=[];      // {cx, esc, ch}
+let pasoMenu=1;
+function nuevoRetrato(esc, ch){
+  const c=document.createElement('canvas');
+  c.width=16*esc; c.height=18*esc;
+  c.style.width=c.width+'px'; c.style.height=c.height+'px';
+  const r={cv:c, cx:c.getContext('2d'), esc, ch};
+  r.cx.imageSmoothingEnabled=false;
+  retratos.push(r); pintarRetrato(r);
+  return r;
+}
+function pintarRetrato(r){
+  const cx=r.cx; cx.clearRect(0,0,r.cv.width,r.cv.height);
+  if(!r.ch){    // ficha vacia: una interrogacion, hasta que se elija
+    cx.fillStyle='rgba(255,255,255,.5)';
+    cx.font='bold '+Math.round(r.cv.height*0.55)+'px "Courier New",monospace';
+    cx.textAlign='center'; cx.textBaseline='middle';
+    cx.fillText('?', r.cv.width/2, r.cv.height/2);
+    return;
+  }
+  cx.save(); cx.scale(r.esc,r.esc);
+  drawPerson(cx,0,1,r.ch.skin,r.ch.hair,r.ch.shirt,'down',pasoMenu,r.ch.pelo);
+  cx.restore();
+}
+function animarRetratos(){
+  pasoMenu = pasoMenu===1 ? 2 : 1;    // alternar las dos piernas: anda sin moverse
+  retratos.forEach(pintarRetrato);
+}
+
+//------------------------------------------------------------------
+//  FONDO DE LA PORTADA
+//  Detras del menu se ve el campus de verdad, paseandose despacio.
+//  Se dibuja una sola vez: como drawOutTile y drawBuilding pintan
+//  sobre el lienzo del juego, se le agranda un momento al tamano del
+//  mapa entero, se copia lo pintado y se le devuelve su tamano. Todo
+//  seguido, sin soltar el hilo, asi que no se llega a ver.
+//------------------------------------------------------------------
+let campusCv=null, campusFallo=false;
+function pintarCampus(){
+  if(campusCv||campusFallo) return campusCv;
+  const W=mapW*TILE, H=mapH*TILE;
+  const vw=VW, vh=VH, cx0=cam.x, cy0=cam.y;
+  try{
+    setViewSize(W,H); cam.x=0; cam.y=0;
+    ctx.fillStyle='#5fa84f'; ctx.fillRect(0,0,W,H);
+    for(let y=0;y<mapH;y++) for(let x=0;x<mapW;x++) drawOutTile(map[y][x], x*TILE, y*TILE, x, y);
+    // edificios y gente por orden de profundidad, igual que en el juego
+    const ents=BLD_GEO.map(b=>({y:b.y1, dib:()=>drawBuilding(b)}));
+    OUT_NPCS.forEach(n=>ents.push({y:n.y,
+      dib:()=>drawPerson(ctx,n.x*TILE,n.y*TILE,'#f1c8a0','#3a2a1a',n.color,n.dir,0)}));
+    ents.sort((a,b)=>a.y-b.y).forEach(e=>e.dib());
+    const off=document.createElement('canvas'); off.width=W; off.height=H;
+    off.getContext('2d').drawImage(cv,0,0);
+    campusCv=off;
+  }catch(e){
+    console.warn('PORTADA: no se ha podido dibujar el campus de fondo', e);
+    campusFallo=true;   // se queda el color liso del CSS y a seguir
+  }finally{
+    setViewSize(vw,vh); cam.x=cx0; cam.y=cy0;
+  }
+  return campusCv;
+}
+const fondoCv=document.getElementById('fondoMenu');
+const fondoCx=fondoCv.getContext('2d');
+fondoCx.imageSmoothingEnabled=false;
+function pintarFondoMenu(){
+  const src=pintarCampus(); if(!src) return;
+  // nunca menos de 3 px de pantalla por pixel de juego, y lo bastante
+  // ampliado como para que el mapa cubra la pantalla entera
+  const zoom=Math.max(2, fondoCv.clientWidth/src.width, fondoCv.clientHeight/src.height);
+  const w=Math.max(16,Math.round(fondoCv.clientWidth/zoom));
+  const h=Math.max(16,Math.round(fondoCv.clientHeight/zoom));
+  if(fondoCv.width!==w||fondoCv.height!==h){
+    fondoCv.width=w; fondoCv.height=h; fondoCx.imageSmoothingEnabled=false;
+  }
+  // vaiven de lado a lado (un minuto de ida) con un balanceo vertical mas lento
+  const u=(1-Math.cos(animTick/1150))/2, v=(1-Math.cos(animTick/1900))/2;
+  const mx=Math.max(0,src.width-w);
+  // el paseo se queda en el campus: ni el Danubio de arriba ni el Inn de abajo,
+  // que son filas de agua y sola no dicen nada
+  const y0=Math.min(6*TILE, Math.max(0,src.height-h));
+  const y1=Math.max(y0, Math.min(src.height-h, src.height-4*TILE-h));
+  fondoCx.drawImage(src, Math.round(u*mx), Math.round(y0+v*(y1-y0)), w, h, 0,0, w,h);
+}
+// se llama desde el bucle mientras el menu esta a la vista
+function animarMenu(){
+  if(state!=='menu' || menuEl.style.display==='none') return;
+  pintarFondoMenu();
+  if(animTick%14===0) animarRetratos();
+}
+
+//------------------------------------------------------------------
+//  ELEGIR PERSONAJE Y CARRERA
+//------------------------------------------------------------------
+const retFicha=nuevoRetrato(4,null);
+(function montarFicha(){
+  const hueco=document.getElementById('retrato');
+  hueco.parentNode.replaceChild(retFicha.cv, hueco);
+})();
+const fNm=document.getElementById('fNm'), fCar=document.getElementById('fCar'), fBio=document.getElementById('fBio');
+
 CHARS.forEach(ch=>{
-  const d=document.createElement('div'); d.className='pick';
-  const cc=document.createElement('canvas'); cc.width=32;cc.height=32;
-  const cx=cc.getContext('2d'); cx.imageSmoothingEnabled=false;
-  cx.fillStyle='#bfe3bf';cx.fillRect(0,0,32,32);
-  cx.save();cx.scale(2,2);drawPerson(cx,0,1,ch.skin,ch.hair,ch.shirt,'down',0);cx.restore();
-  d.appendChild(cc);
-  const nm=document.createElement('div');nm.className='nm';nm.textContent=ch.nm;d.appendChild(nm);
-  d.onclick=()=>{document.querySelectorAll('#charRow .pick').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');selChar=ch;checkStart();};
-  charRow.appendChild(d);
+  const b=document.createElement('button');
+  b.type='button'; b.className='pick'; b.setAttribute('data-nav','');
+  b.appendChild(nuevoRetrato(3,ch).cv);
+  const nm=document.createElement('span'); nm.className='nm'; nm.textContent=ch.nm;
+  b.appendChild(nm);
+  b.onclick=()=>{
+    charRow.querySelectorAll('.pick').forEach(e=>e.classList.remove('sel'));
+    b.classList.add('sel'); selChar=ch; refrescarFicha();
+  };
+  charRow.appendChild(b);
 });
 CAREERS.forEach(ca=>{
-  const d=document.createElement('div'); d.className='career';
-  d.innerHTML=`<span class="ic">${ca.ic}</span>${ca.id}<span class="full">${ca.full}</span>`;
-  d.onclick=()=>{document.querySelectorAll('.career').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');selCareer=ca;checkStart();};
-  careerRow.appendChild(d);
+  const b=document.createElement('button');
+  b.type='button'; b.className='pick'; b.setAttribute('data-nav','');
+  b.innerHTML=`<span class="ic">${ca.ic}</span><span class="nm">${ca.id}</span><span class="full">${ca.full}</span>`;
+  b.onclick=()=>{
+    careerRow.querySelectorAll('.pick').forEach(e=>e.classList.remove('sel'));
+    b.classList.add('sel'); selCareer=ca; refrescarFicha();
+  };
+  careerRow.appendChild(b);
 });
-function checkStart(){ startBtn.disabled=!(selChar&&selCareer); }
+
+function refrescarFicha(){
+  fNm.textContent  = selChar ? selChar.nm.toUpperCase() : '¿QUIÉN ERES?';
+  fBio.textContent = selChar ? selChar.bio
+                   : 'Elige a quién quieres ser este semestre y qué vas a estudiar.';
+  fCar.textContent = selCareer ? selCareer.full+' · '+selCareer.id : 'Sin carrera todavía';
+  retFicha.ch=selChar; pintarRetrato(retFicha);
+  startBtn.disabled=!(selChar&&selCareer);
+}
+refrescarFicha();
+
 startBtn.onclick=()=>{
+  if(startBtn.disabled) return;
   newGame();                          // partida desde cero (borra guardado previo)
   player.char=selChar; player.career=selCareer.id;
-  document.getElementById('menu').style.display='none';
+  menuEl.style.display='none';
   document.getElementById('hud').style.display='flex';
   enterPlayUI();
   invBtn.style.display='flex';        // mostrar botón de inventario
@@ -4323,6 +4727,10 @@ startBtn.onclick=()=>{
   saveGame();                         // guardado inicial
   showToast(`¡${selChar.nm} (${selCareer.id}) llega a la Innwiese!`);
 };
+document.getElementById('nuevaBtn').onclick      =()=>mostrarPant('pCrear');
+document.getElementById('volverBtn').onclick     =()=>mostrarPant('pPortada');
+document.getElementById('ayudaBtn').onclick      =()=>mostrarPant('pAyuda');
+document.getElementById('cerrarAyudaBtn').onclick=()=>mostrarPant('pPortada');
 
 //==================================================================
 //  ENTRADA
@@ -4331,6 +4739,9 @@ const keys={};
 window.addEventListener('keydown',e=>{
   if(escribiendo(e)) return;   // espacio, flechas y demas son del texto que se escribe
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  // el menu de inicio tiene su propio manejo: flechas para moverse por las
+  // opciones y Enter para aceptar; el juego no ve nada de esto
+  if(state==='menu'){ teclaMenu(e); return; }
   // overlay abierto: Esc cierra; no procesar movimiento/interacción
   if(state==='overlay'){
     if(e.key==='Escape') closeOverlay();
@@ -5059,7 +5470,7 @@ function render(){
   }
   npcs.forEach(n=>ents.push({y:n.y,draw:()=>drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,'#f1c8a0','#3a2a1a',n.color,n.dir,0)}));
   worldItemsInScene().forEach(o=>ents.push({y:o.y-0.1,draw:()=>drawWorldItemAt(ctx,o.x,o.y,o.id)}));
-  ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame)});
+  ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame,player.char.pelo)});
   ents.sort((a,b)=>a.y-b.y).forEach(e=>e.draw());
   // indicador '!' frente a NPC o puerta interactuable
   if(state==='play'){
@@ -5714,20 +6125,71 @@ function newGame(){
               entregados:[],savedAt:null,char:null,career:null,pos:null};
 }
 
-// Insertar botón "Continuar" en el menú si hay guardado
-(function setupMenu(){
-  const menu=document.getElementById('menu');
-  const cont=document.createElement('button');
-  cont.id='continueBtn'; cont.textContent='▶ CONTINUAR PARTIDA';
-  cont.style.cssText='margin-bottom:10px;display:none;';
-  // insertar antes del startBtn
-  startBtn.parentNode.insertBefore(cont, startBtn);
-  if(hasSave()){
-    cont.style.display='';
-    // no autohabilitar start; continuar es independiente de elegir personaje
-  }
-  cont.onclick=()=>continueGame();
-})();
+// --- TARJETA DE LA PARTIDA GUARDADA -------------------------------
+// En la portada, en vez de un boton pelado, se enseña la ficha de la
+// partida: quien eres, que estudias, donde te quedaste y cuando. Se
+// vuelve a montar cada vez que se entra al menu, por si el guardado
+// ha cambiado.
+function haceCuanto(ms){
+  if(!ms) return 'sin fecha';
+  const s=Math.max(0,Math.floor((Date.now()-ms)/1000));
+  if(s<90)  return 'hace un momento';
+  const m=Math.floor(s/60);  if(m<60) return 'hace '+m+' min';
+  const h=Math.floor(m/60);  if(h<24) return 'hace '+h+(h===1?' hora':' horas');
+  const d=Math.floor(h/24);  if(d<30) return 'hace '+d+(d===1?' día':' días');
+  return new Date(ms).toLocaleDateString('es-ES');
+}
+function nombreDelSitio(pos){
+  if(!pos) return 'Campus';
+  if(pos.scene==='outdoor') return 'Por el campus';
+  return (INTERIORS[pos.scene] && INTERIORS[pos.scene].name) || 'Campus';
+}
+function pintarSlot(){
+  const zona=document.getElementById('slotZona');
+  zona.innerHTML='';
+  let d=null;
+  const raw=loadSaveRaw();
+  if(raw){ try{ d=JSON.parse(raw); }catch(e){ d=null; } }
+  document.getElementById('nuevaBtn').classList.toggle('sec', !!d);
+  if(!d) return;                       // sin partida: solo se ofrece empezar
+
+  const ch=CHARS.find(c=>c.id===d.char) || CHARS[0];
+  const ca=CAREERS.find(c=>c.id===d.career);
+  const objetos=(d.inventory||[]).length;
+
+  const tit=document.createElement('div');
+  tit.className='slotTit'; tit.textContent='TU PARTIDA';
+  zona.appendChild(tit);
+
+  const b=document.createElement('button');
+  b.type='button'; b.className='slot'; b.id='continueBtn'; b.setAttribute('data-nav','');
+  b.appendChild(nuevoRetrato(2,ch).cv);
+  const txt=document.createElement('div'); txt.className='slotTxt';
+  const l1=document.createElement('div'); l1.className='slotNm';
+  l1.textContent=ch.nm.toUpperCase()+(ca?' · '+ca.full:'');
+  const l2=document.createElement('div'); l2.className='slotSub';
+  l2.textContent=nombreDelSitio(d.pos);
+  const l3=document.createElement('div'); l3.className='slotSub';
+  l3.textContent=haceCuanto(d.savedAt)+' · '+(objetos===1?'1 objeto':objetos+' objetos');
+  txt.appendChild(l1); txt.appendChild(l2); txt.appendChild(l3);
+  b.appendChild(txt);
+  const go=document.createElement('div'); go.className='slotGo'; go.textContent='▶';
+  b.appendChild(go);
+  b.onclick=()=>continueGame();
+  zona.appendChild(b);
+
+  // borrar pide confirmacion en el propio boton: nada de dialogos del sistema
+  const del=document.createElement('button');
+  del.type='button'; del.className='borrar'; del.textContent='borrar esta partida';
+  let armado=false;
+  del.onclick=()=>{
+    if(!armado){ armado=true; del.textContent='¿seguro? toca otra vez para borrarla'; return; }
+    deleteSave(); pintarSlot(); focoInicial();
+  };
+  zona.appendChild(del);
+}
+pintarSlot();
+focoInicial();
 
 
 //==================================================================
@@ -5741,6 +6203,7 @@ function loop(){
   try{
     animTick++;
     syncUIState();
+    if(state==='menu') animarMenu();   // portada: campus de fondo y sprites andando
     if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
     else if(guion){ avanzarGuion(); updateMove(); }   // escaleras: el jugador anda solo
     updateCamera(); render();
