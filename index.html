@@ -409,8 +409,8 @@ const INTERIORS = {
          {t:"Todavía no",r:["Pues cuando quieras, bonito. Aquí me tienes."]}]}},
       {x:15,y:3,name:"Cajera Brunhilde",color:"#6a7a8a",dir:'down',
        lines:["Tarjeta.","...","¿Necesita algo más o va a seguir ahí parado?"],
-       choice:{q:"¿Te cobro?",opts:[
-         {t:"Sí",r:["Pues la tarjeta. No tengo todo el día."]},
+       choice:{q:"¿Le cobro?",opts:[
+         {t:"Sí, cóbreme",r:["Pues la tarjeta. No tengo todo el día."]},
          {t:"Mejor voy a la otra caja",r:["Como quiera. Allí tardará el doble, pero como quiera."]}]}},
       {x:17,y:10,name:"Estudiante Hanna",color:"#d65a8a",dir:'left',
        lines:["Las mesas del fondo son las tranquilas.","Junto a la escalera no se oye ni pensar."]},
@@ -452,7 +452,8 @@ const INTERIORS = {
     npcs:[
       {x:11,y:6,name:"Estudiante Timo",color:"#5a8ad6",dir:'left',
        lines:["Cuatro salones y ninguno libre. Siempre igual en época de prácticas.","Si buscas los servidores, están abajo, en el sótano."],
-       careerLine:{"Inf":"¿Inf tú también? Bienvenido al edificio donde nunca es de día."}},
+       careerLine:{"Inf":"¿Inf tú también? Bienvenido al edificio donde nunca es de día.",
+                   default:"Estudies lo que estudies, aquí hay enchufes y silencio. Ya es algo."}},
       {x:6,y:9,name:"Técnico Herr Amsel",color:"#4a8a6a",dir:'down',
        lines:["Bajo al sótano veinte veces al día. Veinte.","Si algo no va, es el cable. Siempre es el cable."]},
     ]
@@ -1072,7 +1073,7 @@ const INTERIORS = {
     npcs:[
       {x:4,y:2,name:"Prof. Weber",color:"#8a5ad6",dir:'down',
        lines:["Bienvenido al aula magna de la Innstegaula.","Aquí caben cientos de estudiantes. Hoy toca una clase magistral.","La pantalla de proyección está lista, ¿te sientas?"],careerLine:{"default":"Sea cual sea tu carrera, alguna clase magistral darás aquí."}},
-      {x:11,y:5,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+      {x:11,y:5,name:"Estudiante Malin",color:"#5a8ad6",dir:'left',
        lines:["Estas clases junto al Inn tienen las mejores vistas.","Aunque en un aula tan grande, mejor llegar temprano por sitio."]},
       {x:6,y:11,name:"Estudiante Klara",color:"#d65a8a",dir:'right',
        lines:["Shhh, que ya va a empezar la proyección.","Esta aula es enorme, la voz del profe resuena."]},
@@ -1104,9 +1105,12 @@ const INTERIORS = {
     ],
     npcs:[
       {x:4,y:5,name:"Conserje Rita",color:"#8a5ad6",dir:'down',
-       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro. ¿Te oriento?"],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.","VWL":"¿VWL? Bienvenido, futuro economista."}},
-      {x:14,y:3,name:"Estudiante BWL",color:"#5a8ad6",dir:'left',
-       lines:["¿BWL tú también? Nos vemos en todos los salones.","La biblioteca de economía tiene los mejores manuales."],careerLine:{"BWL":"¡Otro de BWL! Habrá que sobrevivir juntos a Estadística."}},
+       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro."],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.",
+                   default:"Económicas recibe a todo el mundo, estudies lo que estudies."}},
+      {x:14,y:3,name:"Estudiante Lasse",color:"#5a8ad6",dir:'left',
+       lines:["Estudio BWL. Nos vemos por todos los salones, tarde o temprano.","La biblioteca de economía tiene los mejores manuales."],
+       careerLine:{"BWL":"¡Anda, tú también! Habrá que sobrevivir juntos a Estadística.",
+                   default:"Y si estudias otra cosa, los manuales de aquí también se dejan leer."}},
     ]
   },
   ww_salon1: {
@@ -1162,7 +1166,7 @@ const INTERIORS = {
       "############",
     ],
     npcs:[
-      {x:4,y:5,name:"Estudiante VWL",color:"#8a5ad6",dir:'down',
+      {x:4,y:5,name:"Estudiante Hedda",color:"#8a5ad6",dir:'down',
        lines:["Salón 3, esperando que llegue el profe.","VWL es dura, pero Passau lo compensa."]},
     ]
   },
@@ -1185,9 +1189,9 @@ const INTERIORS = {
       {x:7,y:1,name:"Sección · Economía",lines:["📚 Biblioteca de Economía","Micro, Macro, Finanzas, Gestión.","Devoluciones en dos semanas."]},
     ],
     npcs:[
-      {x:3,y:4,name:"Bibliotecaria Ökon",color:"#8a5ad6",dir:'down',
-       lines:["Biblioteca de Economía. Silencio y buenos libros.","¿Buscas manuales de finanzas o de gestión?"]},
-      {x:10,y:6,name:"Doctorando Finanzas",color:"#5a8ad6",dir:'left',
+      {x:3,y:4,name:"Bibliotecaria Frau Sommer",color:"#8a5ad6",dir:'down',
+       lines:["Biblioteca de Economía. Silencio y buenos libros.","Los manuales de finanzas, a la izquierda; los de gestión, al fondo."]},
+      {x:10,y:6,name:"Doctorando Ansgar",color:"#5a8ad6",dir:'left',
        lines:["Tesis sobre mercados financieros. Capítulo interminable.","Estos estantes tienen justo lo que necesito."]},
     ]
   },
@@ -1286,7 +1290,7 @@ const INTERIORS = {
       "###########",
     ],
     npcs:[
-      {x:8,y:7,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+      {x:8,y:7,name:"Estudiante Oskar",color:"#5a8ad6",dir:'left',
        lines:["Aquí damos los seminarios pequeños, nada de conferencias.","Se agradece un aula normal después del aula magna."]},
     ]
   },
@@ -1387,7 +1391,7 @@ const INTERIORS = {
        lines:["Personal. Contratos, nóminas y horas que nadie cuadra.",
               "Si vienes por un puesto de HiWi, la solicitud es la hoja azul. La verde es para bajas."],
        careerLine:{default:"Con tu carrera hay puestos de ayudante casi todos los semestres. Pregunta en tu cátedra."}},
-      {x:8,y:5,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+      {x:8,y:5,name:"Estudiante Valentin",color:"#5a8ad6",dir:'left',
        lines:["Vengo a firmar el contrato de HiWi. Tercera vez que lo traigo.",
               "Las dos primeras faltaba una firma. Adivina de quién."]},
     ]
@@ -1421,7 +1425,7 @@ const INTERIORS = {
        lines:["Administración económica. Aquí entra el dinero y sale… en formato tabla.",
               "¿Vienes por la tasa del semestre? Está pagada o no está pagada. No hay tercer estado."],
        careerLine:{default:"Tu tasa está al día. Lo he mirado antes de que preguntaras."}},
-      {x:6,y:5,name:"Estudiante Lena",color:"#d69a5a",dir:'up',
+      {x:6,y:5,name:"Estudiante Silke",color:"#d69a5a",dir:'up',
        lines:["Pagué dos veces por error y llevo un mes intentando que me devuelvan una.",
               "Dicen que el sistema lo ve como «una donación voluntaria»."]},
     ]
@@ -1519,7 +1523,7 @@ const INTERIORS = {
               "No, todavía no están. No, no puedo decirte la tuya. No, tampoco «solo si aprobé».",
               "Vuelve el jueves. O no vuelvas: te llegará un correo."],
        careerLine:{default:"Lo tuyo lo corrige tu cátedra, no yo. Yo solo las guardo y las publico."}},
-      {x:4,y:6,name:"Estudiante Timo",color:"#5a8ad6",dir:'up',
+      {x:4,y:6,name:"Estudiante Henrik",color:"#5a8ad6",dir:'up',
        lines:["Llevo tres días viniendo a la misma hora.",
               "Creo que ya me reconoce. Creo que eso no me ayuda."]},
     ]
@@ -1666,7 +1670,8 @@ const INTERIORS = {
            "Y si algo no funciona, esta puerta está siempre abierta."]}]},
        careerLine:{Kuwi:"Con KuWi tienes media Europa abierta. Literalmente: es la carrera con más convenios.",
                    Inf:"Los de Inf os vais poco y no sé por qué. Hay plazas en Taipéi y en Uppsala esperando.",
-                   BWL:"BWL tiene doble titulación con Lyon. Se pide un año antes, aviso."}},
+                   BWL:"BWL tiene doble titulación con Lyon. Se pide un año antes, aviso.",
+                   default:"Estudies lo que estudies, hay convenio para ti en alguna parte."}},
       {x:13,y:7,name:"Yuki, estudiante de intercambio",color:"#d65a8a",dir:'left',
        lines:["Vine de Kioto por un semestre. Llevo tres.",
               "Cada vez que voy a pedir el papel para volverme, encuentro una excusa para quedarme.",
@@ -1741,7 +1746,7 @@ const INTERIORS = {
        lines:["Estos tilos llevan aquí más años que yo, y mira que llevo.",
               "La terraza de arriba y el patio de abajo son el mismo claustro, ojo.",
               "Pero para subir hay que usar la escalera. Por el murete no, que ya se cayó uno."]},
-      {x:21,y:16,name:"Estudiante Mara",color:"#5ad68f",dir:'left',
+      {x:21,y:16,name:"Estudiante Greta",color:"#5ad68f",dir:'left',
        lines:["La terraza de arriba es mi rincón favorito del Nikolakloster.",
               "En cuanto sale el sol, todo el mundo sube su café a estos bancos."],
        careerLine:{Kuwi:"¿KuWi? Este claustro es prácticamente nuestra segunda aula.",
@@ -1922,7 +1927,7 @@ const INTERIORS = {
          {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero, lo hago yo."]},
          {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla. Ya caerás."]}]},
        careerLine:{default:"A ti te veo cara de segundo café. Y no son ni las once."}},
-      {x:11,y:8,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
+      {x:11,y:8,name:"Estudiante Bastian",color:"#5a8ad6",dir:'left',
        lines:["Entre clase y clase siempre acabo aquí.",
               "Esta cafetería es más barata que bajar a la ciudad, y encima hay conciertos."]},
       {x:15,y:8,name:"Estudiante Selma",color:"#d65a8a",dir:'up',
@@ -1984,7 +1989,7 @@ const INTERIORS = {
          {t:"Un sitio para estudiar",r:["Sube por la derecha. Las mesas del fondo tienen enchufe."]},
          {t:"Un libro concreto",r:["Dime el título… bueno, dímelo cuando lo sepas. Pasa mucho."]},
          {t:"Solo estoy mirando",r:["Mira, mira. Aquí mirar también cuenta como leer."]}]}},
-      {x:15,y:11,name:"Estudiante Lena",color:"#5ad68f",dir:'up',
+      {x:15,y:11,name:"Estudiante Janne",color:"#5ad68f",dir:'up',
        lines:["Llevo toda la mañana con los apuntes y el portátil.",
               "Esta biblioteca tiene algo… se concentra una bien."],
        careerLine:{Inf:"¿Informática? Yo también. ¿Ya te compila el proyecto?",
@@ -2074,7 +2079,7 @@ const INTERIORS = {
       {x:6,y:8,name:"Pizarra",lines:["📝 Seminario de Historia Moderna","Hoy: la Paz de Westfalia y por qué nadie se puso de acuerdo.","En una esquina: «examen 12.02»."]},
     ],
     npcs:[
-      {x:4,y:3,name:"Estudiante Ida",color:"#5ad68f",dir:'right',
+      {x:4,y:3,name:"Estudiante Merle",color:"#5ad68f",dir:'right',
        lines:["Aula 001. La más fría del edificio en invierno.","Nos sentamos todos en la fila del fondo, junto al radiador."]},
     ]
   },
@@ -2161,7 +2166,7 @@ const INTERIORS = {
       {x:22,y:12, to:'nk3'},                // escalera de subida y bajada
     ],
     npcs:[
-      {x:19,y:12,name:"Estudiante Nele",color:"#5ad68f",dir:'left',
+      {x:19,y:12,name:"Estudiante Ronja",color:"#5ad68f",dir:'left',
        lines:["Esta planta es un anillo: des igual por dónde vayas, acabas volviendo aquí.",
               "Los despachos del centro de idiomas están todos en este lado.",
               "Las aulas, del otro. Yo tardé dos semestres en aprendérmelo."]},
@@ -2282,7 +2287,7 @@ const INTERIORS = {
       {x:1,y:1,name:"Pizarra",lines:["📝 Español B1","« Pretérito indefinido vs. imperfecto »","Debajo: «fui / iba». Y un corazón roto."]},
     ],
     npcs:[
-      {x:2,y:1,name:"Estudiante Jonas",color:"#5a8ad6",dir:'down',
+      {x:2,y:1,name:"Estudiante Anouk",color:"#5a8ad6",dir:'down',
        lines:["El español se me da bien hasta que llega el subjuntivo.","María dice que el subjuntivo es cuestión de fe. Empiezo a creerla."]},
     ]
   },
@@ -2348,7 +2353,7 @@ const INTERIORS = {
       {x:11,y:1,name:"Pizarra",lines:["📝 Latín I","« Rosa, rosae, rosae, rosam, rosa, rosa. »","Debajo: «¿por qué?». Sin respuesta."]},
     ],
     npcs:[
-      {x:10,y:1,name:"Estudiante Bene",color:"#8a6a4a",dir:'down',
+      {x:10,y:1,name:"Estudiante Clemens",color:"#8a6a4a",dir:'down',
        lines:["Latín obligatorio para Filosofía. Obligatorio.","Al final le coges cariño. Al final del todo."]},
     ]
   },
@@ -2796,7 +2801,7 @@ const INTERIORS = {
        lines:["¡Buenos días! ¿Brezel recién hecho?",
               "A partir de las siete lo que queda se vende a mitad de precio.",
               "Se lo cuento a todos los estudiantes. Es mi pequeña conspiración."],
-       choice:{q:"¿Le pido algo?",opts:[
+       choice:{q:"¿Le pongo algo?",opts:[
          {t:"Un Brezel",r:["Aquí tiene, calentito. Cuidado que quema.",
                             "Con mantequilla está mejor, pero eso ya es cosa suya."]},
          {t:"Pan de centeno",r:["Buena elección. Dura toda la semana.",
@@ -3206,7 +3211,7 @@ const INTERIORS = {
 //==================================================================
 const DOOR_AT = {}; // "x,y" -> building key
 const BUILDINGS = {
-  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad… ¿ya te vas?"],
+  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad."],
            choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
              {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
              {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
@@ -3261,11 +3266,11 @@ const OUT_NPCS=[
                BWL:"¿BWL? Hasta los de empresariales bajan a relajarse aquí.",
                default:"Túmbate un rato, las diapositivas pueden esperar."}},
   {x:44,y:31,name:"Sara",color:"#5ad68f",dir:'left',
-   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","¿Ya probaste la comida de la Mensa?"],
+   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","Yo me escapo a este prado en cuanto sale el sol."],
    choice:{q:"¿Qué te trae por aquí?",opts:[
      {t:"Estudiar, supongo",r:["Jaja, eso decimos todos en octubre."]},
      {t:"El ambiente del río",r:["¡Esa es la actitud! El Inn nunca falla."]}]}},
-  {x:25,y:27,name:"Tutora Lena",color:"#5ab0d6",dir:'down',
+  {x:25,y:27,name:"Tutora Wiebke",color:"#5ab0d6",dir:'down',
    lines:["¿Buscas tu aula? Los seminarios cambian de sala cada semana, es tradición.","Revisa Stud.IP… y luego revísalo otra vez."],
    careerLine:{Inf:"¿Informática? El laboratorio está en el sótano. Lleva sudadera, hace frío.",
                Mathe:"¿Mates? Tercer piso, sin ascensor. Ánimo.",
@@ -4360,16 +4365,28 @@ let curDir=null, lastAPress=0;
 
 // Tacto del joystick. Todo en fracciones del radio del aro (~66 px en un
 // movil normal), asi que se puede ajustar aqui sin tocar nada mas.
-const JOY_DEAD =0.30;   // hasta aqui el dedo no mueve nada       (~20 px)
-const JOY_TOPE =0.78;   // aqui el empuje ya es el maximo         (~52 px)
-const JOY_LENTO=0.45;   // por debajo de este empuje se anda despacio
+const JOY_DEAD =0.36;   // hasta aqui el dedo no mueve nada       (~24 px)
+const JOY_TOPE =0.90;   // aqui el empuje ya es el maximo         (~60 px)
+const JOY_LENTO=0.50;   // por debajo de este empuje se anda despacio
 const JOY_BIAS =1.55;   // histeresis: la direccion actual aguanta ~12 grados
+
+// A que velocidad anda el personaje, en pixeles por fotograma (60 por segundo).
+// Una casilla son 16 px, asi que 1 px/fotograma = 3,75 casillas por segundo.
+// Si el movil sigue yendo rapido, baja PASO_NORMAL; para ir mas fino todavia
+// al colocarse en una puerta, baja PASO_CORTO.
+const PASO_CORTO =0.5;  // joystick a medias  -> ~1,9 casillas/s
+const PASO_NORMAL=1.0;  // joystick a fondo   -> ~3,8 casillas/s
+const PASO_LIBRE =2.0;  // teclado y escenas automaticas -> ~7,5 casillas/s
 const TAP_TOL=14;       // px que se pueden mover sin dejar de ser "un toque"
 const TAP_MS=500;       // y tiempo maximo del toque
 
 // Con el joystick a medio empujar se anda despacio, como quien va con tiento;
-// a fondo —y siempre con el teclado— se anda al paso normal. Lo lee updateMove().
+// a fondo se anda al paso normal. Con el teclado no hay medias tintas.
 let andarDespacio=false;
+function velocidadPaso(){
+  if(joy.id===null) return PASO_LIBRE;
+  return andarDespacio ? PASO_CORTO : PASO_NORMAL;
+}
 
 function setDir(d){
   if(d===curDir) return;
@@ -4604,15 +4621,24 @@ function tryMove(){
   if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
   if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
   if(isSolid(nx,ny)){player.frame=0;return;}
-  player.tx=nx;player.ty=ny;player.moving=true;
+  // la velocidad se fija al arrancar la casilla: asi no cambia a media zancada
+  player.tx=nx;player.ty=ny;player.moving=true;player.paso=velocidadPaso();
 }
+// El lienzo es de pixel entero, asi que no se puede avanzar "medio pixel": se
+// guarda el sobrante de un fotograma para el siguiente y se mueve por enteros.
+let pasoResto=0;
 function updateMove(){
   if(!player.moving)return;
-  const tgx=player.tx*TILE,tgy=player.ty*TILE,sp=andarDespacio?1:2;
-  if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
-  if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
-  if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
-  if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  const tgx=player.tx*TILE,tgy=player.ty*TILE;
+  pasoResto += player.paso || PASO_LIBRE;
+  const sp = Math.floor(pasoResto);
+  pasoResto -= sp;
+  if(sp>0){
+    if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
+    if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
+    if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
+    if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  }
   player.frame=(Math.floor((player.px+player.py)/4)%2)+1;
   if(player.px===tgx&&player.py===tgy){
     player.x=player.tx;player.y=player.ty;player.moving=false;player.frame=0;
@@ -4691,7 +4717,7 @@ function avanzarGuion(){
   if(!guion.pasos.length){ const f=guion.fin; guion=null; if(f) f(); return; }
   const [nx,ny]=guion.pasos.shift();
   player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
-  player.tx=nx; player.ty=ny; player.moving=true;
+  player.tx=nx; player.ty=ny; player.moving=true; player.paso=PASO_LIBRE;
 }
 // como se conecta cada linea de campo con sus vecinas, para pintarla fina
 let lineasCon=new Map();
@@ -4902,7 +4928,12 @@ const dlgBox=document.getElementById('dialog'),dlgName=document.getElementById('
       dlgChoices=document.getElementById('dlgChoices');
 let dlg={lines:[],idx:0,choice:null}, typer=null,typing=false,fullLine='';
 function openDialog(name,lines,choice){
-  state='dialog'; dlg={lines:lines.slice(),idx:0,choice:choice};
+  state='dialog';
+  lines=lines.slice();
+  // La pregunta va como ultima linea. Si no se dice, las opciones aparecen
+  // colgando de una frase que no preguntaba nada y no se entiende que se elige.
+  if(choice && choice.q) lines.push(choice.q);
+  dlg={lines:lines,idx:0,choice:choice};
   dlgName.textContent=name; dlgBox.style.display='block';
   dlgChoices.style.display='none';dlgChoices.innerHTML='';
   typeLine(lines[0]);
