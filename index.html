@@ -252,6 +252,48 @@
   body.tmode.ovl #invBtn{display:none !important;}
   @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(3px);}}
   .fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .3s;z-index:50;}
+
+  /* ---- CONTADORES: FECHA, DINERO Y MISIONES -------------------------
+     La fecha y el dinero van arriba a la izquierda, bajo el rotulo de
+     ubicacion (ese va centrado y se estira al salir un aviso, asi que
+     compartir fila con el acaba en solape) y sin capturar el tacto, que
+     esa mitad de la pantalla es del joystick. El contador de misiones va
+     a la derecha, debajo de la mochila.                              */
+  #hudEstado{position:absolute;top:calc(var(--fs) + 26px);left:8px;z-index:20;pointer-events:none;
+    display:none;flex-direction:column;align-items:flex-start;gap:4px;}
+  body.playing #hudEstado{display:flex;}
+  body.tmode.ovl #hudEstado{display:none;}
+  #hudEstado .pill{background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:20px;
+    box-shadow:0 3px 0 var(--dlg-shadow);padding:2px 10px;color:var(--txt);font-weight:bold;
+    font-size:calc(var(--fs) * .72);letter-spacing:.5px;white-space:nowrap;}
+  body.tmode #hudEstado .pill{background:rgba(248,248,240,.82);}
+  #hudEstado .pill.destello{animation:destello .7s ease-out;}
+  @keyframes destello{0%{background:#ffe9a8;transform:scale(1.14);}100%{background:var(--dlg-bg);transform:scale(1);}}
+
+  #misBtn{position:absolute;top:62px;right:12px;z-index:40;cursor:pointer;width:44px;height:44px;
+    background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:10px;
+    box-shadow:0 3px 0 var(--dlg-shadow);display:none;align-items:center;justify-content:center;
+    font-size:22px;padding:0;font-family:inherit;}
+  body.playing #misBtn{display:flex;}
+  body.tmode #misBtn{width:var(--ib);height:var(--ib);font-size:calc(var(--ib) * .5);
+    background:rgba(248,248,240,.7);opacity:.85;top:calc(var(--ib) + 16px);right:8px;}
+  body.tmode.ovl #misBtn{display:none !important;}
+  #misBtn:active{transform:translateY(2px);}
+  #misBtn .num{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 3px;
+    background:#e0a93a;border:2px solid #8a5e12;border-radius:10px;color:#fff;
+    font-size:11px;line-height:15px;font-weight:bold;}
+  #misBtn.vacio .num{background:#8a90a8;border-color:#5a6b8a;}
+  /* opcion de dialogo que no se puede pagar */
+  .choice.nopuedo{opacity:.5;}
+
+  /* ---- LA NOCHE: se duerme, se oscurece y cambia el dia ---- */
+  #noche{position:absolute;inset:0;z-index:70;background:#080a12;opacity:0;pointer-events:none;
+    transition:opacity .75s ease;display:flex;align-items:center;justify-content:center;text-align:center;}
+  #noche.on{opacity:1;pointer-events:auto;}
+  #nocheTxt{opacity:0;transition:opacity .5s ease;color:#ffe9a8;font-weight:bold;padding:0 24px;
+    font-size:calc(var(--fs) * 1.05);line-height:1.7;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.8);}
+  #noche.txt #nocheTxt{opacity:1;}
+  #nocheTxt .peq{display:block;font-size:.78em;color:#bfe0ff;letter-spacing:.5px;margin-top:10px;}
 </style>
 </head>
 <body>
@@ -259,6 +301,11 @@
   <div id="stage">
     <canvas id="cv" width="240" height="160"></canvas>
     <div id="hud"><div id="locBadge">Campus</div></div>
+    <div id="hudEstado">
+      <div class="pill" id="pillFecha">🍂 Lun 1 oct</div>
+      <div class="pill" id="pillDinero">💶 50,00 €</div>
+    </div>
+    <button id="misBtn" title="Misiones (M)">📋<span class="num" id="misNum">0</span></button>
     <div id="dialog">
       <div id="dlgName">NPC</div><div id="dlgText"></div>
       <div id="dlgChoices"></div><div id="dlgArrow">▼</div>
@@ -323,7 +370,7 @@
         <h3>TECLADO</h3>
         <p><span class="tecla">←↑↓→</span> o <span class="tecla">W A S D</span> para andar por el campus.</p>
         <p><span class="tecla">Z</span> <span class="tecla">Espacio</span> <span class="tecla">Enter</span> para hablar, abrir puertas y recoger cosas.</p>
-        <p><span class="tecla">I</span> abre la mochila · <span class="tecla">T</span> muestra u oculta el mando táctil.</p>
+        <p><span class="tecla">I</span> abre la mochila · <span class="tecla">M</span> las misiones · <span class="tecla">T</span> muestra u oculta el mando táctil.</p>
         <h3>MÓVIL</h3>
         <p>Apoya el dedo en la <b>mitad izquierda</b> y desliza: el joystick nace donde toques.</p>
         <p>Toca la <b>mitad derecha</b> (o el botón A) para interactuar. Arrastra el botón A si te estorba.</p>
@@ -335,6 +382,7 @@
     </section>
   </div>
   <div class="fade" id="fade"></div>
+  <div id="noche"><div id="nocheTxt"></div></div>
 </div>
 <script>
 //==================================================================
@@ -555,8 +603,11 @@ const INTERIORS = {
       {x:8,y:2,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
        lines:["¡Hoy hay Schnitzel con patatas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
        choice:{q:"¿Qué te sirvo?",opts:[
-         {t:"El menú del día",r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"]},
-         {t:"Solo un café",r:["Un café para sobrevivir al seminario. Lo entiendo."]}]}},
+         {t:"El menú del día",precio:320,r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"],
+          sin:["Con eso no te llega ni al postre. Pásate por el cajero y vuelves."]},
+         {t:"La sopa del día",precio:120,r:["Crema de calabaza. Poca cosa, pero entra caliente."]},
+         {t:"Solo un café",precio:150,r:["Un café para sobrevivir al seminario. Lo entiendo."]},
+         {t:"Nada, gracias",r:["Pues pasa, mira y vuelve con hambre."]}]}},
       {x:11,y:3,name:"Cajera Rosi",color:"#e08aa8",dir:'down',
        lines:["¡Hola, guapo! Tienes cara de examen, ¿me equivoco?","Tú tranquilo, que aquí no se cobra con prisa."],
        careerLine:{default:"Sea lo que sea que estudies, hoy has hecho bien en bajar a comer."},
@@ -603,7 +654,13 @@ const INTERIORS = {
       {x:5, y:12, to:'informatik_sotano'},
     ],
     info:[
-      {x:2,y:12,name:"Máquina expendedora",lines:["🥤 Bebidas y sándwiches. Se paga con la tarjeta.","La fila E7 lleva atascada desde el semestre pasado.","Todo el mundo lo sabe. Nadie la arregla."]},
+      {x:2,y:12,name:"Máquina expendedora",lines:["🥤 Bebidas y sándwiches. Se paga con la tarjeta.","La fila E7 lleva atascada desde el semestre pasado.","Todo el mundo lo sabe. Nadie la arregla."],
+       choice:{q:"¿Qué pulsas?",opts:[
+         {t:"Una bebida (B2)",precio:150,r:["La lata baja a la primera. Hoy es tu día."]},
+         {t:"Un sándwich (E7)",precio:280,r:["El sándwich se queda colgando en la espiral.",
+                                             "Un golpe seco en el cristal y cae. Todo el mundo sabe hacerlo."],
+          sin:["(La máquina parpadea: saldo insuficiente. La E7 sigue atascada, por cierto.)"]},
+         {t:"Nada",r:["Mejor. La E7 se traga una de cada tres monedas."]}]}},
     ],
     npcs:[
       {x:11,y:6,name:"Estudiante Timo",color:"#5a8ad6",dir:'left',
@@ -971,7 +1028,9 @@ const INTERIORS = {
               "Doce idiomas, cuatro niveles cada uno y un solo archivador. Bueno, cuatro.",
               "¿Vienes por tu Notenbescheinigung? Dime el idioma y el semestre."],
        choice:{q:"¿Qué necesitas?",opts:[
-         {t:"Un certificado de notas",r:["Rellena este formulario por triplicado. El sello está en la otra mesa."]},
+         {t:"Un certificado de notas",precio:500,r:["Cinco euros de tasa, y no los pongo yo: los pone el reglamento.",
+                                                    "Rellena este formulario por triplicado. El sello está en la otra mesa."],
+          sin:["Sin la tasa no hay sello, y sin sello no hay certificado. Lo siento: es el reglamento."]},
          {t:"Nada, gracias",r:["Como quieras. La puerta siempre está abierta. Casi siempre."]}]}},
       {x:8,y:3,name:"Administrativo Kurt",color:"#8a5ad6",dir:'down',
        lines:["Papeleo, papeleo y más papeleo.","Pero sin nosotros nadie certifica un B2. Recuérdalo."]},
@@ -1033,8 +1092,9 @@ const INTERIORS = {
       {x:2,y:3,name:"Tabernero Wast",color:"#c87a3a",dir:'down',
        lines:["Servus! Bienvenido al Gmoa, la barra más querida del campus.","Aquí la cerveza está fría y las charlas son largas."],
        choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Una Weißbier",r:["¡Marchando una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"]},
-         {t:"Una Radler",r:["Buena elección para seguir estudiando después: media cerveza, media limonada."]},
+         {t:"Una Weißbier",precio:390,r:["¡Marchando una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"],
+          sin:["Servus, que aquí no se fía. Vuelve con monedas y te la guardo fría."]},
+         {t:"Una Radler",precio:340,r:["Buena elección para seguir estudiando después: media cerveza, media limonada."]},
          {t:"Solo agua, gracias",r:["…¿agua? ¿En el Gmoa? Bueno, tú mandas. Va por la casa."]}]}},
       {x:7,y:9,name:"Estudiante Vroni",color:"#d65a8a",dir:'down',
        lines:["Después de un examen, la primera parada es el Gmoa.","Dicen que aquí se aprueban más asignaturas que en la biblioteca. En las charlas, ya sabes."],
@@ -1752,7 +1812,14 @@ const INTERIORS = {
        careerLine:{Kuwi:"KuWi… tu carpeta es la naranja. Bienvenida, bienvenido.",
                    Inf:"Inf. La carpeta azul. Y el aula de ordenadores está en el sótano.",
                    BWL:"BWL. Carpeta verde. Sois muchos este año, mucho ánimo.",
-                   default:"Tu carpeta es la gris. Guárdala mejor que los demás."}},
+                   default:"Tu carpeta es la gris. Guárdala mejor que los demás."},
+       choice:{q:"¿Necesitas algún papel?",opts:[
+         {t:"Certificado de matrícula",precio:500,r:["Cinco euros la copia sellada. Te la doy ahora mismo.",
+                                                     "Guárdala: te la van a pedir en el banco, en el ayuntamiento y en el gimnasio."],
+          sin:["Sin la tasa no puedo sellarlo. Vuelve cuando la tengas, que no me voy a ninguna parte."]},
+         {t:"Certificado de empadronamiento",precio:1000,r:["Ese es del ayuntamiento, pero el impreso te lo tramito yo.",
+                                                            "Diez euros y dos semanas. Bienvenido a Alemania."]},
+         {t:"Nada, solo miraba",r:["Pues mira con calma. Aquí empieza todo el mundo."]}]}},
       {x:4,y:2,name:"Novata Mira",color:"#d65a8a",dir:'right',
        lines:["Llegué ayer. Todavía no sé dónde está nada.",
               "Me han dicho que la Mensa está bien y que la biblioteca tiene una torre de libros.",
@@ -2079,8 +2146,9 @@ const INTERIORS = {
               "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
               "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
        choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Un café solo",r:["Marchando. Cargadito, que se nota el lunes."]},
-         {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero, lo hago yo."]},
+         {t:"Un café solo",precio:160,r:["Marchando. Cargadito, que se nota el lunes."]},
+         {t:"Café con Apfelstrudel",precio:420,r:["¡Excelente elección! El strudel es casero, lo hago yo."],
+          sin:["Hoy no te llega, cielo. Y fiado no hago, que empecé así y acabé regalando el horno."]},
          {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla. Ya caerás."]}]},
        careerLine:{default:"A ti te veo cara de segundo café. Y no son ni las once."}},
       {x:11,y:8,name:"Estudiante Bastian",color:"#5a8ad6",dir:'left',
@@ -2846,7 +2914,12 @@ const INTERIORS = {
               "Si no te vale la talla, prueba la de al lado. Aquí las tallas son una sugerencia."]},
       {x:27,y:2,name:"Cocinero Ünal",color:"#e8d65a",dir:'down',
        lines:["¡Marchando dos con queso!",
-              "Media universidad ha cenado aquí en época de exámenes. La otra media también."]},
+              "Media universidad ha cenado aquí en época de exámenes. La otra media también."],
+       choice:{q:"¿Le pongo una?",opts:[
+         {t:"Hamburguesa con queso",precio:650,r:["¡Marchando! Con cebolla frita, que va incluida y no se discute."]},
+         {t:"El menú con patatas",precio:890,r:["Buena decisión. Se come de pie, junto al cristal, como manda la tradición."],
+          sin:["Hoy no llega, amigo. Pero la cebolla huele gratis, aprovéchate."]},
+         {t:"Solo estaba oliendo",r:["Eso hace todo el mundo. Y todo el mundo vuelve."]}]}},
       {x:3,y:18,name:"Joyera Frau Adler",color:"#e8d860",dir:'down',
        lines:["Mire con calma, que para eso está la vitrina.",
               "El anillo de la izquierda lleva siete años esperando a alguien.",
@@ -2858,9 +2931,10 @@ const INTERIORS = {
        lines:["¡Benvenuto! Hoy hay lasaña y hay que aprovechar.",
               "La receta es de mi abuela, de Bolonia. Y no, no lleva nata. Nunca."],
        choice:{q:"¿Se queda a comer?",opts:[
-         {t:"Lasaña, por favor",r:["¡Ottimo! Siéntese donde quiera, que hoy hay sitio.",
-                                    "Se lo aviso: la porción es generosa. Muy generosa."]},
-         {t:"Solo un café",r:["Un espresso entonces. Corto, como debe ser.",
+         {t:"Lasaña, por favor",precio:950,r:["¡Ottimo! Siéntese donde quiera, que hoy hay sitio.",
+                                    "Se lo aviso: la porción es generosa. Muy generosa."],
+          sin:["Hoy va justo, ¿eh? No pasa nada: la lasaña estará aquí la semana que viene."]},
+         {t:"Solo un café",precio:220,r:["Un espresso entonces. Corto, como debe ser.",
                                "Y una galletita, que va con el café. No se discute."]},
          {t:"Solo estoy mirando",r:["Mire, mire. Y vuelva con hambre."]}]}},
       {x:26,y:26,name:"Dependiente Kai",color:"#8fb0d8",dir:'down',
@@ -3085,7 +3159,9 @@ const INTERIORS = {
   },
   wh_hab1: {
     // La habitacion del jugador. Es la unica sin NPC: es suya.
-    name:"Tu habitación",
+    // 'dormitorio' marca la sala en la que la cama (') se puede accionar
+    // para dormir y pasar de dia (ver preguntarDormir/dormir).
+    name:"Tu habitación", dormitorio:true,
     grid:[
       "#############",
       "#''aDDaaaass#",
@@ -3098,10 +3174,7 @@ const INTERIORS = {
       "######X######",
     ],
     info:[
-      {x:1,y:1,name:"Tu cama",lines:[
-        "Tu cama, con el edredón a medio estirar.",
-        "Es lo primero que ves al volver de la biblioteca a las once de la noche.",
-        "Nunca te ha parecido tan cómoda como en época de exámenes."]},
+      // (la cama no lleva cartel: se acciona y sale el dialogo de dormir)
       {x:4,y:1,name:"Tu escritorio",lines:[
         "Apuntes, un boli que no pinta y una taza con el fondo marrón.",
         "Debajo del teclado hay un horario que hiciste el primer día.",
@@ -3322,7 +3395,12 @@ const INTERIORS = {
       {x:10,y:1,name:"Expendedora de cerveza",lines:[
         "🍺 Una máquina de cerveza. En una residencia. En Alemania.",
         "1,20 € la botella, y el bote de las monedas está al lado, sin candado.",
-        "Un cartel: «paga aunque no mire nadie». Y la gente paga."]},
+        "Un cartel: «paga aunque no mire nadie». Y la gente paga."],
+       choice:{q:"¿Echas la moneda?",opts:[
+         {t:"Una botella",precio:120,r:["Cae la botella con un ruido enorme. Suena a jueves.",
+                                        "Echas la moneda en el bote. Nadie mira. Da igual."],
+          sin:["(No te llega, y el bote no acepta promesas. Mejor otro día.)"]},
+         {t:"Hoy no",r:["Mañana hay clase a las ocho. Mañana hay clase a las ocho."]}]}},
       {x:12,y:1,name:"Estante de juegos",lines:[
         "🎲 Catán, Carcassonne, Dixit, Wingspan, Ticket to Ride, Uno…",
         "Y abajo del todo, un ajedrez al que le faltan dos peones.",
@@ -3342,9 +3420,10 @@ const INTERIORS = {
               "La barra la montaron unos que se graduaron hace años. Nosotros solo la cuidamos.",
               "La cerveza sale de la máquina; el vaso, de aquí. Y las monedas, al bote."],
        choice:{q:"¿Te sirvo algo?",opts:[
-         {t:"Una cerveza",r:["Marchando. La máquina está ahí, tú echa la moneda.",
-                              "El vaso te lo pongo yo, que beber de botella en el salón está mal visto. Un poco."]},
-         {t:"Un agua",r:["Buena elección si mañana hay clase a las ocho.",
+         {t:"Una cerveza",precio:120,r:["Marchando. La máquina está ahí, tú echa la moneda.",
+                              "El vaso te lo pongo yo, que beber de botella en el salón está mal visto. Un poco."],
+          sin:["Sin monedas no hay botella. El bote es sagrado, aquí no se fía a nadie."]},
+         {t:"Un agua",precio:80,r:["Buena elección si mañana hay clase a las ocho.",
                           "Nadie te va a juzgar. Bueno, Ravi sí, pero él juzga todo."]},
          {t:"Nada, gracias",r:["Pues siéntate igual, que en un rato empieza la partida."]}]}},
       {x:4,y:5,name:"Ravi",color:"#5a8ad6",dir:'right',
@@ -4286,6 +4365,277 @@ const SOLID_PATIO=new Set(['#','o','F','G','X',
   'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
 
 //==================================================================
+//  TIEMPO, DINERO Y MISIONES
+//  Tres contadores que se guardan con la partida:
+//   · TIEMPO   — el calendario. Los meses son de 14 dias (dos semanas
+//     justas), el ano de 168 (doce meses) y la estacion cambia cada 42
+//     (tres meses). El dia SOLO avanza durmiendo en tu cama.
+//   · DINERO   — se empieza con 50 € y cada noche entran 10 €. Se gasta
+//     en bebidas, comida y tramites: cualquier opcion de dialogo que
+//     lleve 'precio' cobra al elegirla (ver showChoices).
+//   · MISIONES — el contador de la derecha. Cada mision son unos pasos;
+//     se marcan con cumplirPaso() desde donde se cumplan.
+//==================================================================
+
+//------------------------------------------------------------------
+//  CALENDARIO
+//------------------------------------------------------------------
+const DIAS_MES=14;                        // un mes son dos semanas justas
+const MESES_ANO=12;
+const DIAS_ANO=DIAS_MES*MESES_ANO;        // 168 dias
+const DIAS_ESTACION=DIAS_ANO/4;           // 42 dias por estacion
+const SEMANA  =['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+const SEMANA_C=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const MESES  =['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_C=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+// Las estaciones van de tres meses en tres meses empezando en diciembre
+// (dic-ene-feb, mar-abr-may, jun-jul-ago, sep-oct-nov), asi que cambian
+// cada 42 dias exactos.
+const ESTACIONES=[{n:'Invierno',ic:'❄️'},{n:'Primavera',ic:'🌸'},
+                  {n:'Verano',  ic:'☀️'},{n:'Otoño',    ic:'🍂'}];
+// La partida empieza el 1 de octubre, que es cuando arranca el semestre de
+// invierno: nueve meses de 14 dias desde el 1 de enero.
+const DIA_INICIO=9*DIAS_MES;
+const ANO_INICIO=2026;
+
+// Traduce el contador de noches dormidas a una fecha del calendario.
+function fecha(d){
+  const dias=(d==null ? (gameData.dia||0) : d);
+  const t=DIA_INICIO+dias;
+  const delAno=((t%DIAS_ANO)+DIAS_ANO)%DIAS_ANO;
+  const mes=Math.floor(delAno/DIAS_MES);
+  const dia=delAno%DIAS_MES+1;                     // 1..14
+  return {
+    ano:  ANO_INICIO+Math.floor(t/DIAS_ANO),
+    mes, dia,
+    semana:(dia-1)%7,                              // todos los meses empiezan en lunes
+    quincena: dia<=7 ? 1 : 2,
+    est:  Math.floor(((mes+1)%MESES_ANO)/3),       // 0 invierno … 3 otono
+    total: dias,                                   // dias jugados desde el principio
+  };
+}
+function fechaCorta(f){ f=f||fecha(); return SEMANA_C[f.semana]+' '+f.dia+' '+MESES_C[f.mes]; }
+function fechaLarga(f){ f=f||fecha(); return SEMANA[f.semana]+', '+f.dia+' de '+MESES[f.mes]+' de '+f.ano; }
+function estacion(f){ return ESTACIONES[(f||fecha()).est]; }
+
+//------------------------------------------------------------------
+//  DINERO  (por dentro en centimos, para no arrastrar decimales sueltos)
+//------------------------------------------------------------------
+const DINERO_INICIAL=5000;   // 50,00 € al empezar la partida
+const DINERO_NOCHE  =1000;   // 10,00 € que entran cada noche que se duerme
+function dinero(){ return gameData.dinero||0; }
+function fmtEuros(c){ return (c/100).toFixed(2).replace('.',',')+' €'; }
+function puedePagar(c){ return dinero()>=c; }
+function ingresar(c){ gameData.dinero=dinero()+c; actualizarHud(true); }
+// Cobra si llega el dinero; si no llega no toca nada y devuelve false.
+function cobrar(c){
+  if(!puedePagar(c)) return false;
+  gameData.dinero=dinero()-c;
+  actualizarHud(true);
+  return true;
+}
+// Una compra completa: cobra, avisa y deja constancia para las misiones.
+function comprar(precio, concepto){
+  if(!cobrar(precio)) return false;
+  avisar('💶 '+(concepto||'Pagas')+' · '+fmtEuros(precio));
+  cumplirPaso('primer_gasto','gastar');
+  saveGame();
+  return true;
+}
+
+//------------------------------------------------------------------
+//  CONTADORES DE LA PANTALLA
+//------------------------------------------------------------------
+const pillFecha =document.getElementById('pillFecha'),
+      pillDinero=document.getElementById('pillDinero'),
+      misBtn    =document.getElementById('misBtn'),
+      misNum    =document.getElementById('misNum');
+function actualizarHud(destelloDinero){
+  const f=fecha();
+  pillFecha.textContent=estacion(f).ic+' '+fechaCorta(f);
+  pillFecha.title=fechaLarga(f)+' · '+estacion(f).n;
+  pillDinero.textContent='💶 '+fmtEuros(dinero());
+  // el contador lleva las misiones en curso; con todo cumplido, un visto
+  const n=misionesActivas().length;
+  misNum.textContent = n ? n : (misionesHechas().length ? '✓' : '0');
+  misBtn.classList.toggle('vacio', n===0);
+  if(destelloDinero){                       // reiniciar la animacion a mano
+    pillDinero.classList.remove('destello');
+    void pillDinero.offsetWidth;
+    pillDinero.classList.add('destello');
+  }
+}
+misBtn.onclick=()=>{ if(state==='play') openMisiones(); };
+
+// Los avisos se ponen en cola: si se cobra y ademas se cumple una mision,
+// el segundo mensaje no debe borrar al primero antes de que se lea.
+let colaAvisos=[];
+function avisar(txt){ colaAvisos.push(txt); if(colaAvisos.length===1) soltarAviso(); }
+function soltarAviso(){
+  if(!colaAvisos.length) return;
+  showToast(colaAvisos[0]);
+  setTimeout(()=>{ colaAvisos.shift(); soltarAviso(); }, 2400);
+}
+
+//------------------------------------------------------------------
+//  MISIONES
+//  El estado vivo esta en gameData.misiones:
+//      id -> {estado:'activa'|'hecha', pasos:{idPaso:true}, desde:dia}
+//  Para anadir una mision nueva basta con describirla aqui y llamar a
+//  cumplirPaso('id','paso') donde se cumpla (un NPC, una compra, una
+//  sala a la que se entra...). El contador y el panel se enteran solos.
+//------------------------------------------------------------------
+const MISIONES={
+  primera_noche:{
+    nombre:"La primera noche", ic:"🛏️", inicial:true,
+    desc:"Busca tu cuarto en la residencia y duerme allí. Los días solo pasan cuando decides acostarte.",
+    pista:"Studentenwohnheim, cuarto 1. La cama está en la esquina de arriba a la izquierda.",
+    pasos:[{id:'dormir', t:"Dormir una noche en tu cama"}],
+    premio:{dinero:500},
+  },
+  primer_gasto:{
+    nombre:"El primer gasto", ic:"💶", inicial:true,
+    desc:"Un café, una cerveza, un menú de la Mensa o un trámite: paga algo por primera vez y mira bajar el contador.",
+    pista:"La Mensa, la cafetería del Nikolakloster o la expendedora del salón de la residencia.",
+    pasos:[{id:'gastar', t:"Pagar algo por primera vez"}],
+    premio:null,
+  },
+};
+
+function estadoMision(id){ return (gameData.misiones||{})[id]||null; }
+function misionActiva(id){ const e=estadoMision(id); return !!e && e.estado==='activa'; }
+function misionHecha(id){  const e=estadoMision(id); return !!e && e.estado==='hecha';  }
+function misionesPor(est){
+  const M=gameData.misiones||{};
+  return Object.keys(M).filter(id=>MISIONES[id] && M[id].estado===est);
+}
+function misionesActivas(){ return misionesPor('activa'); }
+function misionesHechas(){  return misionesPor('hecha');  }
+
+function activarMision(id, callada){
+  const m=MISIONES[id];
+  if(!m || estadoMision(id)) return false;
+  if(!gameData.misiones) gameData.misiones={};
+  gameData.misiones[id]={estado:'activa', pasos:{}, desde:gameData.dia||0};
+  actualizarHud();
+  if(!callada) avisar('📋 Nueva misión: '+m.nombre);
+  saveGame();
+  return true;
+}
+// Marca un paso. Cuando no queda ninguno suelto, la mision se da por hecha.
+function cumplirPaso(idM, idP){
+  const m=MISIONES[idM], e=estadoMision(idM);
+  if(!m || !e || e.estado!=='activa') return false;
+  if(!m.pasos.some(p=>p.id===idP) || e.pasos[idP]) return false;
+  e.pasos[idP]=true;
+  const hechos=m.pasos.filter(p=>e.pasos[p.id]).length;
+  if(hechos>=m.pasos.length){ completarMision(idM); return true; }
+  avisar('📋 '+m.nombre+' · '+hechos+'/'+m.pasos.length);
+  actualizarHud(); saveGame();
+  return true;
+}
+function completarMision(id){
+  const m=MISIONES[id], e=estadoMision(id);
+  if(!m || !e || e.estado==='hecha') return;
+  e.estado='hecha'; e.dia=gameData.dia||0;
+  m.pasos.forEach(p=>e.pasos[p.id]=true);
+  let extra='';
+  if(m.premio && m.premio.dinero){ ingresar(m.premio.dinero); extra=' · +'+fmtEuros(m.premio.dinero); }
+  actualizarHud();
+  avisar('✅ Misión cumplida: '+m.nombre+extra);
+  saveGame();
+}
+// Las misiones marcadas como 'inicial' arrancan solas al empezar, y tambien
+// al cargar una partida vieja que todavia no las tuviera.
+function arrancarMisiones(){
+  for(const id in MISIONES) if(MISIONES[id].inicial) activarMision(id, true);
+}
+
+// --- panel de misiones (boton de la derecha o tecla M) ---
+function openMisiones(){
+  const f=fecha(), activas=misionesActivas(), hechas=misionesHechas();
+  const tarjeta=(id,hecha)=>{
+    const m=MISIONES[id], e=estadoMision(id);
+    const pasos=m.pasos.map(p=>
+      `<div class="paso${e.pasos[p.id]?' ok':''}">${e.pasos[p.id]?'☑':'☐'} ${esc(p.t)}</div>`).join('');
+    const n=m.pasos.filter(p=>e.pasos[p.id]).length;
+    return `<div class="mision${hecha?' hecha':''}">
+      <div class="cab"><span class="ic">${m.ic||'📋'}</span><b>${esc(m.nombre)}</b>
+        <span class="prog">${hecha?'cumplida':n+'/'+m.pasos.length}</span></div>
+      <div class="txt">${esc(m.desc)}</div>${pasos}
+      ${(!hecha&&m.pista)?`<div class="pista">💡 ${esc(m.pista)}</div>`:''}</div>`;
+  };
+  let cuerpo='';
+  if(!activas.length && !hechas.length){
+    cuerpo='<div class="invempty">Todavía no tienes ninguna misión.<br>Habla con la gente del campus: alguien acabará pidiéndote algo.</div>';
+  }else{
+    if(activas.length) cuerpo+='<div class="sec">EN CURSO</div>'+activas.map(id=>tarjeta(id,false)).join('');
+    if(hechas.length)  cuerpo+='<div class="sec">CUMPLIDAS</div>' +hechas .map(id=>tarjeta(id,true )).join('');
+  }
+  showOverlay(`<button class="close">✕</button><h3>📋 Misiones</h3>
+    <div class="estado">
+      <span>${estacion(f).ic} ${esc(fechaLarga(f))}</span>
+      <span>${esc(estacion(f).n)} · día ${f.total+1} en Passau</span>
+      <span>💶 ${fmtEuros(dinero())}</span>
+    </div>${cuerpo}
+    <div class="hintline">Tecla M · duerme en tu cama para pasar de día</div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+}
+
+//------------------------------------------------------------------
+//  DORMIR — el unico reloj del juego
+//  Se acciona la cama de tu cuarto (la sala lleva 'dormitorio:true'):
+//  la pantalla se apaga, cambia la fecha, entran los 10 € de la noche
+//  y vuelve a encenderse.
+//------------------------------------------------------------------
+const noche=document.getElementById('noche'), nocheTxt=document.getElementById('nocheTxt');
+let durmiendo=false;
+
+function preguntarDormir(){
+  const pend=misionesActivas().length;
+  const lineas=[
+    "Tu cama, con el edredón a medio estirar.",
+    "Hoy es "+fechaLarga()+".",
+    pend ? "Tienes "+pend+(pend===1?" misión pendiente":" misiones pendientes")+", pero la cama no se va a ir a ninguna parte."
+         : "No te queda nada pendiente. Buena noche para dormir de un tirón.",
+  ];
+  openDialog("Tu cama", lineas, {q:"¿Te vas a dormir?", opts:[
+    {t:"Ir a dormir", r:["Te tapas hasta las orejas y en dos minutos estás dormido."], alCerrar:dormir},
+    {t:"Todavía no",  r:["Todavía no. Queda día por delante."]},
+  ]});
+}
+
+function dormir(){
+  if(durmiendo) return;
+  durmiendo=true;
+  state='transition';
+  punteroArriba(null);              // suelta el mando: dormido no se anda
+  nocheTxt.innerHTML='';
+  noche.classList.add('on');
+  // a oscuras: pasa el dia, entra el dinero y se ensena la fecha nueva
+  setTimeout(()=>{
+    gameData.dia=(gameData.dia||0)+1;
+    gameData.dinero=dinero()+DINERO_NOCHE;
+    const f=fecha();
+    nocheTxt.innerHTML=estacion(f).ic+' '+esc(fechaLarga(f))
+      +'<span class="peq">'+esc(estacion(f).n)+' · día '+(f.total+1)+' en Passau</span>'
+      +'<span class="peq">💶 +'+fmtEuros(DINERO_NOCHE)+'</span>';
+    noche.classList.add('txt');
+    actualizarHud(true);
+    cumplirPaso('primera_noche','dormir');
+  }, 850);
+  setTimeout(()=>{ noche.classList.remove('txt'); }, 2500);
+  setTimeout(()=>{
+    noche.classList.remove('on');
+    durmiendo=false;
+    if(!guion) state='play';        // si arranco un guion, manda el guion
+    saveGame();
+    avisar('☀️ '+fechaCorta()+' · +'+fmtEuros(DINERO_NOCHE));
+  }, 3050);
+}
+
+//==================================================================
 //  VALIDADOR DE MAPAS
 //  Se ejecuta al cargar la pagina. Comprueba la geometria de cada
 //  sala y el cableado de cada puerta, para que un fallo de diseno
@@ -4434,6 +4784,55 @@ function validateMaps(){
     (I.info||[]).forEach(n=>{
       if(at(n.x,n.y)===undefined) E(key+': el cartel "'+n.name+'" en ('+n.x+','+n.y+') cae fuera de la sala');
     });
+  }
+
+  // ---------------- ECONOMIA, MISIONES Y CAMA ----------------
+  // Un precio escrito en euros en vez de en centimos no rompe el mapa, pero
+  // si la partida: una cerveza de 1,20 € pasaria a costar 120 €.
+  const revisaOpts=(donde,ch)=>{
+    if(!ch) return;
+    if(!ch.opts||!ch.opts.length){ E(donde+': tiene opciones (choice) pero ninguna opcion'); return; }
+    ch.opts.forEach(o=>{
+      if(!o.t) E(donde+': una opcion sin texto');
+      if(o.precio!=null){
+        if(!Number.isInteger(o.precio)||o.precio<=0)
+          E(donde+' · "'+o.t+'": el precio va en centimos enteros mayores que cero, no '+o.precio);
+        else if(o.precio>20000)
+          Wn(donde+' · "'+o.t+'": '+(o.precio/100)+' € — ¿esta escrito en euros en vez de centimos?');
+      }
+      ['fn','alCerrar'].forEach(k=>{
+        if(o[k]!=null && typeof o[k]!=='function') E(donde+' · "'+o.t+'": '+k+' tiene que ser una funcion');
+      });
+      if(!o.r && !o.fn && !o.alCerrar) Wn(donde+' · "'+o.t+'": ni responde nada ni hace nada');
+    });
+  };
+  for(const key in INTERIORS){
+    const I=INTERIORS[key];
+    (I.npcs||[]).forEach(n=>revisaOpts(key+' · '+n.name, n.choice));
+    (I.info||[]).forEach(n=>revisaOpts(key+' · '+n.name, n.choice));
+    if(I.dormitorio && !(I.grid||[]).some(r=>r.indexOf("'")>=0))
+      E(key+": marcada como dormitorio pero no tiene ninguna cama (') que accionar");
+  }
+  OUT_NPCS.forEach(n=>revisaOpts('exterior · '+n.name, n.choice));
+  if(!Object.keys(INTERIORS).some(k=>INTERIORS[k].dormitorio))
+    Wn("ninguna sala esta marcada como dormitorio: no se podria dormir ni pasar de dia");
+
+  for(const id in MISIONES){
+    const m=MISIONES[id];
+    if(!m.nombre) E('mision '+id+': sin nombre');
+    if(!m.pasos||!m.pasos.length) E('mision '+id+': sin pasos, no habria forma de cumplirla');
+    else{
+      const vistos=new Set();
+      m.pasos.forEach(pa=>{
+        if(!pa.id)             E('mision '+id+': hay un paso sin id');
+        else if(vistos.has(pa.id)) E('mision '+id+': el paso "'+pa.id+'" esta repetido');
+        if(!pa.t)              Wn('mision '+id+': el paso "'+pa.id+'" no tiene texto');
+        vistos.add(pa.id);
+      });
+    }
+    if(m.premio && m.premio.dinero!=null &&
+       (!Number.isInteger(m.premio.dinero)||m.premio.dinero<0))
+      E('mision '+id+': el premio en dinero va en centimos enteros');
   }
 
   // ---------------- INFORME ----------------
@@ -4724,6 +5123,8 @@ startBtn.onclick=()=>{
   enterPlayUI();
   invBtn.style.display='flex';        // mostrar botón de inventario
   state='play';
+  arrancarMisiones();                 // las misiones de salida
+  actualizarHud();                    // fecha, dinero y contador de misiones
   saveGame();                         // guardado inicial
   showToast(`¡${selChar.nm} (${selCareer.id}) llega a la Innwiese!`);
 };
@@ -4749,6 +5150,7 @@ window.addEventListener('keydown',e=>{
   }
   keys[e.key.toLowerCase()]=true;
   if((e.key==='i'||e.key==='I')&&state==='play'&&!e.repeat){ openInventory(); return; }
+  if((e.key==='m'||e.key==='M')&&state==='play'&&!e.repeat){ openMisiones(); return; }
   if(e.key===' '||e.key==='Enter'||e.key==='z'||e.key==='Z'){
     if(state==='dialog') advanceDialog();
     else if(state==='play'&&!e.repeat) interact();
@@ -5325,8 +5727,10 @@ function interact(){
   if(activarPuerta(f.x,f.y)) return;
   if(scene!=='outdoor'){
     const I=INTERIORS[scene];
-    // tablón de información
-    if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines); return; } }
+    // tu cama: es donde se duerme y pasa el dia
+    if(I.dormitorio && tileAt(f.x,f.y)==="'"){ preguntarDormir(); return; }
+    // tablón de información (puede llevar opciones: expendedoras, tramites...)
+    if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines, inf.choice||null); return; } }
   }
 }
 function startNPC(npc){
@@ -5363,7 +5767,7 @@ function openDialog(name,lines,choice){
   // La pregunta va como ultima linea. Si no se dice, las opciones aparecen
   // colgando de una frase que no preguntaba nada y no se entiende que se elige.
   if(choice && choice.q) lines.push(choice.q);
-  dlg={lines:lines,idx:0,choice:choice};
+  dlg={lines:lines,idx:0,choice:choice,alCerrar:null};
   dlgName.textContent=name; dlgBox.style.display='block';
   dlgChoices.style.display='none';dlgChoices.innerHTML='';
   typeLine(lines[0]);
@@ -5381,17 +5785,41 @@ function advanceDialog(){
   if(dlg.choice){ showChoices(dlg.choice); dlg.choice=null; return; }
   closeDialog();
 }
+// Una opcion puede llevar ademas:
+//   fn       — lo que hace elegirla al momento (entregar un objeto, p.ej.)
+//   precio   — en centimos: se cobra al elegirla, y si no llega el dinero se
+//              responde con 'sin' (o con un aviso generico) sin cobrar nada
+//   alCerrar — lo que pasa con el cuadro ya cerrado (dormir, que necesita la
+//              pantalla despejada)
 function showChoices(choice){
   dlgArrow.style.display='none';
   dlgChoices.style.display='flex';dlgChoices.innerHTML='';
   choice.opts.forEach(o=>{
-    const b=document.createElement('button');b.className='choice';b.textContent='▸ '+o.t;
-    // 'fn': lo que ademas hace elegir esta opcion (p.ej. entregar un objeto)
-    b.onclick=()=>{dlgChoices.style.display='none';if(o.fn)o.fn();dlg.lines=o.r.slice();dlg.idx=0;typeLine(o.r[0]);};
+    const b=document.createElement('button');b.className='choice';
+    b.textContent='▸ '+o.t+(o.precio?'   ('+fmtEuros(o.precio)+')':'');
+    if(o.precio && !puedePagar(o.precio)) b.classList.add('nopuedo');
+    b.onclick=()=>{
+      dlgChoices.style.display='none';
+      // si no llega el dinero no se cobra nada y se responde con otra cosa
+      if(o.precio && !comprar(o.precio, o.t)){
+        const faltan=o.sin||['(No te llega. Te faltan '+fmtEuros(o.precio-dinero())+'.)'];
+        dlg.lines=faltan.slice();dlg.idx=0;typeLine(faltan[0]);return;
+      }
+      if(o.fn) o.fn();
+      dlg.alCerrar=o.alCerrar||null;
+      const lineas=o.r||['...'];
+      dlg.lines=lineas.slice();dlg.idx=0;typeLine(lineas[0]);
+    };
     dlgChoices.appendChild(b);
   });
 }
-function closeDialog(){dlgBox.style.display='none';state='play';}
+function closeDialog(){
+  dlgBox.style.display='none';state='play';
+  // lo que haya que hacer con el cuadro ya cerrado (dormir) va despues de
+  // devolver el control: asi la escena no arranca con el dialogo delante
+  const fin=dlg.alCerrar; dlg.alCerrar=null;
+  if(fin) fin();
+}
 
 //==================================================================
 //  TOAST / UBICACIÓN
@@ -5486,6 +5914,7 @@ function render(){
       if(I.doors&&I.doors.some(d=>d.x===f.x&&d.y===f.y))inter=true;
       if(I.salidas&&I.salidas.some(d=>d.x===f.x&&d.y===f.y))inter=true;
       if(I.info&&I.info.some(s=>s.x===f.x&&s.y===f.y))inter=true;
+      if(I.dormitorio&&t==="'")inter=true;
     }
     if(inter){
       const ex=f.x*TILE-cam.x, ey=f.y*TILE-cam.y;
@@ -5512,6 +5941,10 @@ let gameData = {
   savedAt: null,
   char: null, career: null,
   pos: null,            // {scene, x, y}
+  // --- tiempo, dinero y misiones (ver la seccion de mas arriba) ---
+  dia: 0,                     // noches dormidas desde que empezo la partida
+  dinero: DINERO_INICIAL,     // en centimos
+  misiones: {},               // id -> {estado, pasos, desde}
 };
 
 // --- Definición de objetos recolectables ---
@@ -5669,6 +6102,23 @@ uiStyle.textContent=`
   #overlay .listitem{background:#fff;border:2px solid var(--dlg-frame);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;}
   #overlay .listitem .meta{font-size:11px;color:#8a90a8;margin-bottom:3px;}
   #overlay .hintline{font-size:11px;color:#8a90a8;margin-top:10px;text-align:center;}
+  /* --- panel de misiones --- */
+  #overlay .estado{display:flex;flex-direction:column;gap:2px;font-size:12px;color:#6a7088;
+    border:2px dashed var(--dlg-frame);border-radius:8px;padding:7px 10px;margin-bottom:12px;}
+  #overlay .sec{font-size:11px;font-weight:bold;letter-spacing:2px;color:#8a90a8;
+    margin:12px 0 6px;border-bottom:2px solid rgba(90,107,138,.28);padding-bottom:3px;}
+  #overlay .mision{background:#fff;border:3px solid var(--dlg-frame);border-radius:10px;
+    padding:9px 11px;margin-bottom:8px;box-shadow:0 3px 0 rgba(90,107,138,.4);}
+  #overlay .mision.hecha{background:#eef3ea;border-color:#7aa86a;box-shadow:0 3px 0 rgba(90,138,90,.35);opacity:.85;}
+  #overlay .mision .cab{display:flex;align-items:center;gap:7px;font-size:14px;color:#3a4a7a;}
+  #overlay .mision .cab .ic{font-size:17px;}
+  #overlay .mision .prog{margin-left:auto;font-size:11px;font-weight:bold;color:#fff;
+    background:#e0a93a;border-radius:9px;padding:2px 8px;white-space:nowrap;}
+  #overlay .mision.hecha .prog{background:#7aa86a;}
+  #overlay .mision .txt{font-size:12.5px;line-height:1.45;margin:5px 0 7px;}
+  #overlay .mision .paso{font-size:12px;color:#6a7088;line-height:1.6;}
+  #overlay .mision .paso.ok{color:#4a7a3a;text-decoration:line-through;}
+  #overlay .mision .pista{font-size:11px;color:#8a90a8;margin-top:6px;font-style:italic;}
   #invBtn{position:absolute;top:10px;right:12px;z-index:40;cursor:pointer;width:44px;height:44px;
     background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:10px;box-shadow:0 3px 0 var(--dlg-shadow);
     display:none;align-items:center;justify-content:center;font-size:22px;padding:0;}
@@ -6106,6 +6556,8 @@ function applyLoadedGame(){
     loadScene('outdoor',[39,31],'up');
   }
   state='play';
+  arrancarMisiones();     // por si la partida es anterior a las misiones
+  actualizarHud();
   showToast('Partida cargada');
 }
 function continueGame(){
@@ -6114,15 +6566,19 @@ function continueGame(){
   try{
     const data=JSON.parse(raw);
     // fusionar con estructura por defecto (por si faltan campos)
+    // fusionar con la estructura por defecto: una partida guardada antes de
+    // que existieran el calendario o el dinero entra con los valores de salida
     gameData = Object.assign({inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],
-                              notebook:[],entregados:[]}, data);
+                              notebook:[],entregados:[],
+                              dia:0,dinero:DINERO_INICIAL,misiones:{}}, data);
   }catch(e){ return; }
   applyLoadedGame();
 }
 function newGame(){
   deleteSave();
   gameData = {inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[],
-              entregados:[],savedAt:null,char:null,career:null,pos:null};
+              entregados:[],savedAt:null,char:null,career:null,pos:null,
+              dia:0,dinero:DINERO_INICIAL,misiones:{}};
 }
 
 // --- TARJETA DE LA PARTIDA GUARDADA -------------------------------
