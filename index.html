@@ -954,7 +954,7 @@ const INTERIORS = {
       "C.mm.....USSS.......#",
       "#........SSSS.......#",
       "########.#########A##",
-      "#mmm.......mmm..#####",
+      "#mtm.......mmm..#####",
       "#...............#####",
       "#mmm.......mmm..#####",
       "#...............#####",
@@ -1955,7 +1955,7 @@ const INTERIORS = {
       ".....t.....##.sss.sss.#",
       ".....e.....##.......p.#",
       "...........##.e.e.e...#",
-      ".....t.....##.m.m.m.s.#",
+      ".....t.....##.m.t.m.s.#",
       "#....e.....##.......s.#",
       "#############.m.m.m.s.#",
       "#############.e.e.e...#",
@@ -4901,11 +4901,15 @@ function facing(){const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[player.
 function opposite(d){return{up:'down',down:'up',left:'right',right:'left'}[d];}
 function interact(){
   const f=facing();
-  // ¿objeto recolectable enfrente o bajo el jugador?
-  const objId=worldItemAt(f.x,f.y) || worldItemAt(player.x,player.y);
-  if(objId){ promptPickup(objId); return; }
+  // objeto recolectable justo enfrente
+  const delante=worldItemAt(f.x,f.y);
+  if(delante){ promptPickup(delante); return; }
   const npc=npcs.find(n=>n.x===f.x&&n.y===f.y);
   if(npc){ npc.dir=opposite(player.dir); startNPC(npc); return; }
+  // objeto bajo los pies: solo si no hay nadie delante con quien hablar,
+  // que si no, de pie sobre un objeto no se puede entregar nada a nadie
+  const debajo=worldItemAt(player.x,player.y);
+  if(debajo){ promptPickup(debajo); return; }
   // puerta enfrente: el boton de accion abre la misma puerta que el movimiento
   if(activarPuerta(f.x,f.y)) return;
   if(scene!=='outdoor'){
@@ -4917,7 +4921,22 @@ function interact(){
 function startNPC(npc){
   let lines=[...npc.lines];
   if(npc.careerLine){ const cl=npc.careerLine[player.career]||npc.careerLine.default; if(cl)lines.push(cl); }
-  openDialog(npc.name, lines, npc.choice||null);
+  // lo que ya le entregaste, lo comenta al volver a hablar con el
+  (gameData.entregados||[]).forEach(id=>{
+    const e=ITEMS[id]&&ITEMS[id].entrega;
+    if(e&&e.npc===npc.name&&e.despues) lines=lines.concat(e.despues);
+  });
+  let choice=npc.choice||null;
+  // si llevas encima algo suyo, se lo puedes dar aqui mismo
+  const suyo=gameData.inventory.find(id=>esSuDueno(id,npc));
+  if(suyo){
+    const it=ITEMS[suyo], antes=(choice&&choice.opts)||[];
+    const dar={t:"Entregarle "+(it.art||'el')+' '+it.name.toLowerCase(),
+               r:it.entrega.gracias.slice(), fn:()=>soltarEntrega(suyo)};
+    const salida=antes.length?[]:[{t:"Nada, gracias",r:["Cuando quieras. Aquí me tienes."]}];
+    choice={q:(choice&&choice.q)||"¿Querías algo?", opts:[dar].concat(antes,salida)};
+  }
+  openDialog(npc.name, lines, choice);
 }
 
 //==================================================================
@@ -4956,7 +4975,8 @@ function showChoices(choice){
   dlgChoices.style.display='flex';dlgChoices.innerHTML='';
   choice.opts.forEach(o=>{
     const b=document.createElement('button');b.className='choice';b.textContent='▸ '+o.t;
-    b.onclick=()=>{dlgChoices.style.display='none';dlg.lines=o.r.slice();dlg.idx=0;typeLine(o.r[0]);};
+    // 'fn': lo que ademas hace elegir esta opcion (p.ej. entregar un objeto)
+    b.onclick=()=>{dlgChoices.style.display='none';if(o.fn)o.fn();dlg.lines=o.r.slice();dlg.idx=0;typeLine(o.r[0]);};
     dlgChoices.appendChild(b);
   });
 }
@@ -5077,6 +5097,7 @@ let gameData = {
   emails: [],           // {to, subject, body, date}
   documents: [],        // {title, body, date}
   notebook: [],         // páginas del cuaderno: [{text, date}]
+  entregados: [],       // ids de objetos ya entregados a su dueño
   savedAt: null,
   char: null, career: null,
   pos: null,            // {scene, x, y}
@@ -5085,31 +5106,74 @@ let gameData = {
 // --- Definición de objetos recolectables ---
 // spawn: {scene, x, y} donde aparece en el mundo
 // guess: texto de "¿qué es esto?"  | icon: dibujo | type: 'laptop'|'notebook'|'doc'|'ring'
+// entrega: de quien es el objeto -> {npc, scene, gracias, despues}. Si no lo
+//   lleva, no es de nadie: quien lo reciba te lo devolvera.
+// rechazo: lo que dice quien no es su dueno  | pistas: respuesta a medida de
+//   ciertos personajes, que ademas te dicen donde llevarlo.
+// art: articulo del nombre para las frases ("el" si no se dice).
 const ITEMS = {
   laptop: {
     name:"Portátil", type:'laptop', icon:'laptop',
-    spawn:{scene:'niko_biblio', x:6, y:3},  // sobre una mesa de la biblioteca del NK
+    spawn:{scene:'niko_biblio', x:16, y:5},  // sobre una mesa del estudio silencioso del NK
     guess:"Parece un ordenador portátil. Alguien lo dejó abierto sobre la mesa.",
     desc:"Un portátil funcional. Puedes escribir emails y documentos con él.",
+    rechazo:["¿Un portátil? No es mío, quédatelo.",
+             "Y si aparece el dueño, ya te buscará. Aquí siempre acaban encontrándose."],
+    pistas:{
+      "Doctorando Ali":["No, el mío lo tengo aquí. Ese lleva días en esa mesa.",
+                        "Quédatelo tú, que le darás mejor uso que el polvo."],
+    },
   },
   ring: {
     name:"Anillo", type:'ring', icon:'ring',
     spawn:{scene:'outdoor', x:40, y:31},    // en la Innwiese
     guess:"Un anillo pequeño y brillante. ¿Se le habrá caído a alguien en el prado?",
     desc:"Un anillo elegante. Quizá alguien lo esté buscando.",
+    entrega:{npc:"Herr Wenzl", scene:'ekz1',
+      gracias:["¿Un anillo? Vaya. Esto no es un paraguas de los míos.",
+               "Lo apunto en el libro y lo guardo bajo llave, no en la caja de los perdidos.",
+               "Gracias. Ya verá como esta vez sí viene alguien a buscarlo."],
+      despues:["El anillo sigue bajo llave, esperando. Con este tengo fe."]},
+    rechazo:["No es mío. Yo lo llevaría a objetos perdidos, que para eso están."],
+    pistas:{
+      "Joyera Frau Adler":["Bonito, pero no es de mi vitrina: este ya ha vivido.",
+                           "Llévelo al mostrador de atención, ahí en el pasillo.",
+                           "Allí guardan lo que aparece. Y a veces alguien vuelve a por ello."],
+      "Estudiante Max":["¡No es mío! Yo al prado bajo sin nada que perder.",
+                        "Prueba en objetos perdidos, en el centro comercial."],
+      "Sara":["No, qué va. Pero no lo dejes tirado.",
+              "En el centro comercial, en atención al cliente, recogen lo que aparece."],
+    },
   },
   cert_fr: {
     name:"Certificado de francés", type:'doc', icon:'cert',
-    spawn:{scene:'niko_bano_m', x:2, y:2},  // baño femenino del NK
+    spawn:{scene:'niko_secretaria', x:6, y:6},  // en el suelo de la oficina de notas del NK
     guess:"Un certificado oficial. Parece un diploma de idioma.",
     desc:"Certificado de idioma francés (DELF B2) a nombre de Lisa Müller. Alguien lo perdió.",
     readable:["📜 CERTIFICAT — DELF B2","Langue française","Titulaire: Lisa Müller","Mention: Bien · Passau"],
+    entrega:{npc:"Herr Kim", scene:'niko_secretaria',
+      gracias:["A ver… DELF B2, Lisa Müller. ¡Pero si lleva dos semanas buscándolo!",
+               "Se le caería al salir. Aquí todo el mundo sale con las manos llenas de papeles.",
+               "Lo sello, lo archivo y la aviso hoy mismo. Gracias, de verdad."],
+      despues:["Lo de Lisa Müller ya está archivado. Vino a por él y casi me abraza."]},
+    rechazo:["No es mío. Eso hay que devolverlo en alguna oficina, digo yo."],
+    pistas:{
+      "Administrativo Kurt":["¿Un DELF? Es de esta casa, pero no es cosa mía.",
+                             "Dáselo a Herr Kim, en la mesa de al lado. Él lleva los idiomas."],
+      "Profesora Irene":["¡Un DELF B2! Qué pena perder eso.",
+                         "Llévalo a la oficina de notas del centro de idiomas, aquí mismo en el claustro."],
+    },
   },
   notebook: {
     name:"Cuaderno de notas", type:'notebook', icon:'notebook',
-    spawn:{scene:'niko_cafeteria', x:11, y:3}, // cafetería del NK
+    spawn:{scene:'zb2', x:2, y:9},  // sobre una mesa de la sala de estudio de la biblioteca central
     guess:"Un cuaderno de anotaciones. Tiene hojas en blanco para escribir.",
     desc:"Un cuaderno personal. Puedes abrirlo y escribir notas que se guardan.",
+    rechazo:["¿Un cuaderno con las hojas en blanco? Quédatelo y llénalo tú."],
+    pistas:{
+      "Estudiante Mira":["No es mío, el mío está a reventar.",
+                         "Ese lleva ahí desde ayer. Llévatelo antes de que lo tire alguien."],
+    },
   },
 };
 
@@ -5209,9 +5273,26 @@ invBtn.onclick=()=>{ if(state==='play') openInventory(); };
 
 // --- helpers de overlay ---
 let overlayStack=[];
+// El toque que abre un panel (boton A, boton de la mochila, mitad derecha de la
+// pantalla) suelta al levantar el dedo un 'click' de cortesia que ya cae dentro
+// del panel recien puesto: cerraba el panel —o pulsaba un boton— sin que nadie
+// lo hubiera tocado, y asi en el movil no habia manera de recoger nada. Se
+// descarta ese click huerfano, y solo ese: el que viene de un dedo apoyado
+// fuera del panel y antes de que el panel existiera.
+let overlayAbierto=0, ultimoDown={t:-1e9, dentro:false};
+document.addEventListener('pointerdown',e=>{
+  ultimoDown={t:Date.now(), dentro:overlay.contains(e.target)};
+},true);
+overlay.addEventListener('click',e=>{
+  if(ultimoDown.dentro) return;                       // el dedo se apoyo en el panel: va en serio
+  if(ultimoDown.t>overlayAbierto) return;             // se apoyo con el panel ya abierto
+  if(Date.now()-ultimoDown.t>600) return;             // teclado o click sintetico, no un toque
+  e.stopPropagation(); e.preventDefault();
+},true);
 function showOverlay(html, cls){
   overlay.style.display='block';
   overlay.innerHTML='<div class="scrim"></div><div class="panel2 '+(cls||'')+'">'+html+'</div>';
+  overlayAbierto=Date.now();
   const scrim=overlay.querySelector('.scrim');
   scrim.onclick=()=>closeOverlay();
   prevState = (state==='play')?'play':prevState;
@@ -5291,7 +5372,8 @@ function openItem(id){
       <button class="ui" data-a="give">🤝 Entregar</button>
       <button class="ui danger" data-a="drop">🗑️ Dejar aquí</button>
       <button class="ui" data-a="back">← Volver</button>
-    </div>`);
+    </div>
+    <div class="hintline">Para entregarlo, ponte antes al lado de esa persona</div>`);
   overlay.querySelector('.close').onclick=closeOverlay;
   overlay.querySelectorAll('button[data-a]').forEach(b=>{
     b.onclick=()=>{
@@ -5312,13 +5394,77 @@ function showRead(it){
   overlay.querySelector('.close').onclick=closeOverlay;
   overlay.querySelector('button[data-a]').onclick=()=>openInventory();
 }
+
+//------------------------------------------------------------------
+//  ENTREGAR UN OBJETO A ALGUIEN
+//  La entrega es en mano: hay que tener a la persona delante (o al lado)
+//  y abrir la mochila. Cada objeto sabe de quien es; quien no lo sea te lo
+//  devuelve, y algunos ademas te dicen donde llevarlo. Tambien se puede
+//  entregar desde la conversacion: al hablar con el dueno sale la opcion.
+//------------------------------------------------------------------
+// Personas a las que se les puede dar algo desde donde estas, empezando por
+// aquella a la que estas mirando.
+function personasAlLado(){
+  const f=facing(), out=[];
+  const meter=n=>{ if(n && out.indexOf(n)<0) out.push(n); };
+  meter(npcs.find(n=>n.x===f.x&&n.y===f.y));
+  [[0,-1],[0,1],[-1,0],[1,0]].forEach(([ox,oy])=>
+    meter(npcs.find(n=>n.x===player.x+ox&&n.y===player.y+oy)));
+  return out;
+}
+function esSuDueno(id,npc){
+  const e=ITEMS[id]&&ITEMS[id].entrega;
+  return !!(e && e.npc===npc.name && (!e.scene || e.scene===scene));
+}
+// La persona se gira hacia ti antes de contestarte.
+function mirarAlJugador(npc){
+  const dx=player.x-npc.x, dy=player.y-npc.y;
+  if(!dx&&!dy) return;
+  if(Math.abs(dx)>=Math.abs(dy)) npc.dir = dx>0?'right':'left';
+  else                           npc.dir = dy>0?'down':'up';
+}
+// El objeto sale de la mochila para siempre: ya tiene dueno.
+function soltarEntrega(id){
+  gameData.inventory   = gameData.inventory.filter(x=>x!==id);
+  gameData.droppedItems= gameData.droppedItems.filter(d=>d.id!==id);
+  gameData.worldItems[id]='entregado';
+  if(!gameData.entregados) gameData.entregados=[];
+  if(gameData.entregados.indexOf(id)<0) gameData.entregados.push(id);
+  saveGame();
+}
 function giveItem(id){
+  const gente=personasAlLado();
+  if(!gente.length){
+    showOverlay(`<button class="close">✕</button><h3>Entregar ${esc(ITEMS[id].name)}</h3>
+      <p style="font-size:14px;line-height:1.5">No tienes a nadie al lado.<br>
+      Ponte junto a la persona —mejor mirándola de frente— y vuelve a abrir la mochila.</p>
+      <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`);
+    overlay.querySelector('.close').onclick=closeOverlay;
+    overlay.querySelector('button[data-a]').onclick=()=>openInventory();
+    return;
+  }
+  if(gente.length===1) return entregarA(id,gente[0]);
+  const quienes=gente.map((n,i)=>`<button class="ui" data-p="${i}">${esc(n.name)}</button>`).join('');
   showOverlay(`<button class="close">✕</button><h3>Entregar ${esc(ITEMS[id].name)}</h3>
-    <p style="font-size:14px">No hay nadie cerca a quien entregárselo ahora mismo. Acércate a la persona indicada y vuelve a intentarlo.</p>
-    <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`);
+    <p style="font-size:14px">¿A quién se lo das?</p>
+    <div class="btnrow">${quienes}<button class="ui" data-a="back">← Volver</button></div>`);
   overlay.querySelector('.close').onclick=closeOverlay;
   overlay.querySelector('button[data-a]').onclick=()=>openInventory();
-  // (La entrega a NPCs concretos se puede ampliar luego; por ahora informa.)
+  overlay.querySelectorAll('button[data-p]').forEach(b=>
+    b.onclick=()=>entregarA(id,gente[+b.dataset.p]));
+}
+// Le pones el objeto en la mano y contesta: si es suyo se lo queda.
+function entregarA(id,npc){
+  const it=ITEMS[id];
+  mirarAlJugador(npc);
+  closeOverlay();
+  if(esSuDueno(id,npc)){
+    soltarEntrega(id);
+    openDialog(npc.name, it.entrega.gracias.slice());
+    return;
+  }
+  const dice=(it.pistas&&it.pistas[npc.name]) || it.rechazo || ["Esto no es mío. Gracias de todas formas."];
+  openDialog(npc.name, dice.slice());
 }
 function dropItem(id){
   // quitar del inventario y dejar tirado en la posición actual
@@ -5496,7 +5642,7 @@ function promptPickup(id){
 function worldItemAt(x,y){
   for(const id in ITEMS){
     const st=gameData.worldItems[id];
-    if(st==='taken'||st==='dropped') continue;
+    if(st) continue;                    // cogido, tirado o entregado: no esta en su sitio
     const sp=ITEMS[id].spawn;
     if(sp.scene===scene && sp.x===x && sp.y===y) return id;
   }
@@ -5508,7 +5654,7 @@ function worldItemsInScene(){
   const out=[];
   for(const id in ITEMS){
     const st=gameData.worldItems[id];
-    if(st==='taken'||st==='dropped') continue;
+    if(st) continue;                    // cogido, tirado o entregado: no esta en su sitio
     const sp=ITEMS[id].spawn;
     if(sp.scene===scene) out.push({id,x:sp.x,y:sp.y});
   }
@@ -5557,14 +5703,15 @@ function continueGame(){
   try{
     const data=JSON.parse(raw);
     // fusionar con estructura por defecto (por si faltan campos)
-    gameData = Object.assign({inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[]}, data);
+    gameData = Object.assign({inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],
+                              notebook:[],entregados:[]}, data);
   }catch(e){ return; }
   applyLoadedGame();
 }
 function newGame(){
   deleteSave();
   gameData = {inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[],
-              savedAt:null,char:null,career:null,pos:null};
+              entregados:[],savedAt:null,char:null,career:null,pos:null};
 }
 
 // Insertar botón "Continuar" en el menú si hay guardado
