@@ -37,6 +37,22 @@ que cada puerta exterior esté sobre una casilla `D`, que cada puerta interior
 tenga un destino existente y una casilla de llegada pisable, que ninguna sala
 se quede sin salida y que los edificios no se solapen.
 
+## Objetos
+
+Por el campus hay objetos sueltos que se recogen con el botón de acción,
+poniéndose delante (o encima) y pulsando. Van a la mochila —tecla `I` o el
+botón 🎒— y desde ahí se usan, se dejan caer o **se entregan**.
+
+Entregar es en mano: hay que estar al lado de la persona, mejor mirándola de
+frente, y darle el objeto desde la mochila. Si hay varias alrededor, el juego
+pregunta a quién. Cada objeto sabe de quién es: su dueño se lo queda y lo
+agradece, y quien no lo sea te lo devuelve, a veces diciéndote dónde llevarlo.
+Cuando llevas encima algo de alguien, al hablar con esa persona sale también
+la opción de entregárselo sin abrir la mochila.
+
+Dónde está cada cosa y a quién le corresponde se define en `ITEMS`, dentro de
+`index.html`.
+
 ## Controles
 
 En el ordenador: flechas o WASD para moverse, y Z / Espacio / Enter para
