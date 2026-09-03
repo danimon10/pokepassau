@@ -131,10 +131,11 @@ En el móvil la pantalla entera es el mando y se reparte en dos mitades:
   justo bajo el dedo, en el punto que sea, y le persigue si te sales de él.
   Así se juega igual de bien con el móvil vertical que horizontal, sin buscar
   a ciegas una esquina. El empuje es analógico: a medias se anda con tiento
-  (~1,9 casillas/s), a fondo al paso normal (~3,8). Con el teclado se va al
-  doble, que es el paso de siempre. El tacto se ajusta en dos grupos de
-  constantes de `index.html`: `JOY_*` para el mando (zona muerta, recorrido,
-  histéresis) y `PASO_*` para la velocidad al andar.
+  (2,5 casillas/s), a fondo al paso normal (6,5). Con el teclado se va a 7,5,
+  que es el paso de siempre. El tacto se ajusta en dos grupos de constantes de
+  `index.html`: `JOY_*` para el mando (zona muerta, recorrido, histéresis) y
+  `CASILLAS_*` para la velocidad al andar, escrita directamente en casillas
+  por segundo.
 - **Mitad derecha — acción.** Un toque equivale a pulsar A (hablar, abrir
   puertas, recoger objetos). Si en vez de tocar arrastras, también sale el
   joystick, para poder jugar con la mano derecha.
