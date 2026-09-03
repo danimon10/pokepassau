@@ -102,6 +102,7 @@
   .slotNm{font-size:14px;font-weight:bold;letter-spacing:1px;color:#ffe9a8;}
   .slotSub{font-size:11px;color:#c2d5f0;margin-top:4px;letter-spacing:.5px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .slotSub.peq{font-size:10px;color:#93aacd;margin-top:3px;}
   .slotGo{font-size:19px;color:#ffe9a8;flex:0 0 auto;}
   .borrar{background:none;border:0;color:#c2d5f0;font-family:inherit;font-size:11px;letter-spacing:1px;
     cursor:pointer;text-decoration:underline;padding:5px;margin-top:-3px;
@@ -5182,9 +5183,11 @@ function animarRetratos(){
 //  mapa entero, se copia lo pintado y se le devuelve su tamano. Todo
 //  seguido, sin soltar el hilo, asi que no se llega a ver.
 //------------------------------------------------------------------
-let campusCv=null, campusFallo=false;
+let campusCv=null, campusEst=-1, campusFallo=false;
 function pintarCampus(){
-  if(campusCv||campusFallo) return campusCv;
+  if(campusFallo) return null;
+  const est=PALETAS.indexOf(PAL);
+  if(campusCv && campusEst===est) return campusCv;   // ya pintado en esta estacion
   const W=mapW*TILE, H=mapH*TILE;
   const vw=VW, vh=VH, cx0=cam.x, cy0=cam.y;
   try{
@@ -5198,7 +5201,7 @@ function pintarCampus(){
     ents.sort((a,b)=>a.y-b.y).forEach(e=>e.dib());
     const off=document.createElement('canvas'); off.width=W; off.height=H;
     off.getContext('2d').drawImage(cv,0,0);
-    campusCv=off;
+    campusCv=off; campusEst=est;
   }catch(e){
     console.warn('PORTADA: no se ha podido dibujar el campus de fondo', e);
     campusFallo=true;   // se queda el color liso del CSS y a seguir
@@ -6778,6 +6781,10 @@ function pintarSlot(){
   const ch=CHARS.find(c=>c.id===d.char) || CHARS[0];
   const ca=CAREERS.find(c=>c.id===d.career);
   const objetos=(d.inventory||[]).length;
+  const f=fecha(d.dia||0);
+  // el campus del fondo, en la estacion de la partida: si la dejaste en
+  // invierno, al volver te la encuentras nevada
+  PAL = PALETAS[f.est] || PAL;
 
   const tit=document.createElement('div');
   tit.className='slotTit'; tit.textContent='TU PARTIDA';
@@ -6785,15 +6792,18 @@ function pintarSlot(){
 
   const b=document.createElement('button');
   b.type='button'; b.className='slot'; b.id='continueBtn'; b.setAttribute('data-nav','');
-  b.appendChild(nuevoRetrato(2,ch).cv);
+  b.appendChild(nuevoRetrato(3,ch).cv);
   const txt=document.createElement('div'); txt.className='slotTxt';
   const l1=document.createElement('div'); l1.className='slotNm';
   l1.textContent=ch.nm.toUpperCase()+(ca?' · '+ca.full:'');
   const l2=document.createElement('div'); l2.className='slotSub';
   l2.textContent=nombreDelSitio(d.pos);
   const l3=document.createElement('div'); l3.className='slotSub';
-  l3.textContent=haceCuanto(d.savedAt)+' · '+(objetos===1?'1 objeto':objetos+' objetos');
-  txt.appendChild(l1); txt.appendChild(l2); txt.appendChild(l3);
+  l3.textContent=estacion(f).ic+' '+fechaCorta(f)+' · día '+(f.total+1);
+  const l4=document.createElement('div'); l4.className='slotSub peq';
+  l4.textContent=fmtEuros(d.dinero==null?DINERO_INICIAL:d.dinero)
+    +' · '+(objetos===1?'1 objeto':objetos+' objetos')+' · '+haceCuanto(d.savedAt);
+  txt.appendChild(l1); txt.appendChild(l2); txt.appendChild(l3); txt.appendChild(l4);
   b.appendChild(txt);
   const go=document.createElement('div'); go.className='slotGo'; go.textContent='▶';
   b.appendChild(go);
