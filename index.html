@@ -3524,7 +3524,7 @@ const OUT_NPCS=[
 // para que la mezcla se vea de un vistazo. 'pelo' elige el corte que dibuja
 // drawPerson; 'bio' es la linea que sale en la ficha al seleccionarlo.
 const CHARS=[
-  {id:'noa',  nm:'Noa',   skin:'#f1c8a0', hair:'#4a2c18', shirt:'#d65a5a', pelo:'bob',
+  {id:'noa',  nm:'Noa',   skin:'#f1c8a0', hair:'#4a2c18', shirt:'#d65a5a', pelo:'largo',
    bio:'Segundo de carrera. Rema en el Inn a las siete de la mañana, con niebla y todo.'},
   {id:'kai',  nm:'Kai',   skin:'#e8b98a', hair:'#5a3a1a', shirt:'#5a8ad6', pelo:'corto',
    bio:'Llegó de Hamburgo con una bici y ninguna intención de andar a ningún sitio.'},
@@ -3536,7 +3536,7 @@ const CHARS=[
    bio:'De Passau de toda la vida. Sabe qué mesa de la Mensa queda libre y cuándo.'},
   {id:'omar', nm:'Omar',  skin:'#a9724a', hair:'#221a14', shirt:'#3aa89a', pelo:'corto',
    bio:'De Erasmus. Lleva dos semanas y ya se ha perdido tres veces en el NK.'},
-  {id:'amara',nm:'Amara', skin:'#7a4a30', hair:'#1a1210', shirt:'#e07a3a', pelo:'rizado',
+  {id:'amara',nm:'Amara', skin:'#7a4a30', hair:'#1a1210', shirt:'#e07a3a', pelo:'trenzas',
    bio:'Estudia de noche en la ZB. Dice que la torre de la biblioteca es lo mejor del campus.'},
   {id:'jonas',nm:'Jonas', skin:'#efc59a', hair:'#c98f3a', shirt:'#4a5ac0', pelo:'rizado',
    bio:'Ha cambiado de carrera dos veces. Esta ya va en serio, dice él.'},
@@ -3595,6 +3595,12 @@ function drawPerson(c,px,py,skin,hair,shirt,dir,frame,pelo){
       else if(dir==='right') c.fillRect(px+3,py+4,2,4);
       else                   c.fillRect(px+10,py+1,2,2);
       break;
+    case 'trenzas': // recogido con volumen y dos trenzas cayendo por delante
+      c.fillRect(px+4,py+1,8,4); c.fillRect(px+3,py+2,1,3); c.fillRect(px+12,py+2,1,3);
+      c.fillRect(px+3,py+5,1,6); c.fillRect(px+12,py+5,1,6);
+      if(dir==='up') c.fillRect(px+5,py+5,6,2);
+      else { c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+      break;
     case 'rizado':  // volumen: la mata se sale del ancho de la cabeza
       c.fillRect(px+4,py+1,8,4); c.fillRect(px+3,py+2,1,4); c.fillRect(px+12,py+2,1,4);
       if(dir==='up') c.fillRect(px+5,py+5,6,2);
@@ -3608,6 +3614,58 @@ function drawPerson(c,px,py,skin,hair,shirt,dir,frame,pelo){
     if(dir==='left'){ c.fillRect(px+6,py+6,1,1); }
     if(dir==='right'){ c.fillRect(px+9,py+6,1,1); }
   }
+}
+
+//------------------------------------------------------------------
+//  ASPECTO DE LA GENTE DEL CAMPUS
+//  Los 157 NPCs se dibujaban todos con el mismo tono de piel, el mismo
+//  color de pelo y el mismo corte: solo cambiaba la camiseta. El campus
+//  entero era la misma persona repetida, y las setenta mujeres que hay
+//  por nombre no se distinguian de nadie.
+//  Aqui cada uno saca su aspecto de su propio nombre: el mismo NPC sale
+//  siempre igual, no hay que escribirlo a mano en las 83 salas, y quien
+//  anada gente nueva la vera variada sin tocar esto.
+//------------------------------------------------------------------
+const PIELES=['#f6dcc0','#f1c8a0','#e8b98a','#d6a878','#c08c5e','#a9724a','#8a5a38','#6f4526'];
+const PELOS =['#2a2a2a','#3a2a1a','#4a2c18','#5a3a1a','#7a4a22','#a8712e','#c98f3a','#d8b45a','#8a8a92','#6a3a4a'];
+// El corte tiene que leerse a 16 pixeles: 'bob' se reserva para ellas, y
+// 'rizado' se queda solo en ellos, que si no todo el campus sale ambiguo.
+const CORTES_ELLA=['largo','coleta','trenzas','bob','largo','coleta','trenzas'];
+const CORTES_EL  =['corto','corto','corto','corto','rizado'];
+// El tratamiento o el oficio ya dicen el genero en 75 de los 157
+const ES_ELLA=/\b(Frau|Cajera|Bibliotecaria|Profesora|Becaria|Dependienta|Panadera|Joyera|Signora|Sor|Bedelin|Tutora|Novata|Señora|Barista|Cafetera|Recepcionista|apurada)\b/;
+const ES_EL  =/\b(Herr|Cocinero|Bibliotecario|Profesor|Prof\.|Becario|Dependiente|Librero|Vendedor|Óptico|Tabernero|Parroquiano|Archivero|Jardinero|Ujier|Doctorando|Rektor|Lector|Señor|Hausmeister|Administrativo|Técnico|Monitor|Entrenador|Jubilado|director|apurado)\b/;
+// y a los otros 82 les queda el nombre de pila (o el apellido, si va solo)
+const N_ELLA=new Set(('Amelie Anouk Aylin Bea Freya Frida Greta Hanna Hedda Ida Janne Jonna Kata '+
+  'Klara Lea Lena Malin Mara Marlene Marta Merle Mira Nele Nina Noor Ola Pia Rana Rieke Rita '+
+  'Ronja Sara Selma Silke Vera Vroni Ying Yuki').split(' '));
+const N_EL=new Set(('Bastian Bene Bruno Clemens Fabi Ferdi Fischer Henrik Ilias Jonas Jost Kasper '+
+  'Konrad Lang Lasse Lukas Malte Max Mirek Nils Oskar Otto Paolo Paul Pauli Rasmus Ravi Tim Timo '+
+  'Tobias Tom Uwe Valentin Weber Wen Yannik').split(' '));
+
+const CON_EDAD=/\b(Prof|Rektor|Jubilado|Dr|Herr|Frau|Sor|Signora|Conserje|Hausmeister|Bedelin|Archivero|Ujier|Bibliotecari[ao])\b/;
+function revuelto(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return Math.abs(h); }
+const _aspectos=new Map();
+function aspectoNPC(nombre){
+  nombre=nombre||'';
+  let a=_aspectos.get(nombre);
+  if(a) return a;
+  const h=revuelto(nombre);
+  const ella = ES_ELLA.test(nombre) ? true
+             : ES_EL.test(nombre)   ? false
+             : nombre.split(/[\s,.]+/).some(w=>N_ELLA.has(w)) ? true
+             : nombre.split(/[\s,.]+/).some(w=>N_EL.has(w))   ? false
+             : (h>>7)%2===0;          // nombres que no dicen nada: a suertes, pero siempre la misma
+  const iPiel=h%PIELES.length;
+  // en las pieles mas oscuras, solo pelo oscuro: el rubio quedaba postizo
+  let pelos = iPiel>=5 ? PELOS.slice(0,4) : PELOS;
+  // las canas, solo para quien el nombre le echa anos: un Erasmus con el
+  // pelo blanco quedaba raro
+  if(!CON_EDAD.test(nombre)) pelos=pelos.filter(c=>c!=='#8a8a92');
+  const cortes = ella ? CORTES_ELLA : CORTES_EL;
+  a={ skin:PIELES[iPiel], hair:pelos[(h>>3)%pelos.length], pelo:cortes[(h>>5)%cortes.length] };
+  _aspectos.set(nombre,a);
+  return a;
 }
 
 //==================================================================
@@ -5133,8 +5191,8 @@ function pintarCampus(){
     for(let y=0;y<mapH;y++) for(let x=0;x<mapW;x++) drawOutTile(map[y][x], x*TILE, y*TILE, x, y);
     // edificios y gente por orden de profundidad, igual que en el juego
     const ents=BLD_GEO.map(b=>({y:b.y1, dib:()=>drawBuilding(b)}));
-    OUT_NPCS.forEach(n=>ents.push({y:n.y,
-      dib:()=>drawPerson(ctx,n.x*TILE,n.y*TILE,'#f1c8a0','#3a2a1a',n.color,n.dir,0)}));
+    OUT_NPCS.forEach(n=>ents.push({y:n.y, dib:()=>{ const a=aspectoNPC(n.name);
+      drawPerson(ctx,n.x*TILE,n.y*TILE,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
     ents.sort((a,b)=>a.y-b.y).forEach(e=>e.dib());
     const off=document.createElement('canvas'); off.width=W; off.height=H;
     off.getContext('2d').drawImage(cv,0,0);
@@ -6001,7 +6059,8 @@ function render(){
       ents.push({y:b.y1, draw:()=>drawBuilding(b)});
     });
   }
-  npcs.forEach(n=>ents.push({y:n.y,draw:()=>drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,'#f1c8a0','#3a2a1a',n.color,n.dir,0)}));
+  npcs.forEach(n=>ents.push({y:n.y,draw:()=>{ const a=aspectoNPC(n.name);
+    drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
   worldItemsInScene().forEach(o=>ents.push({y:o.y-0.1,draw:()=>drawWorldItemAt(ctx,o.x,o.y,o.id)}));
   ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame,player.char.pelo)});
   ents.sort((a,b)=>a.y-b.y).forEach(e=>e.draw());
