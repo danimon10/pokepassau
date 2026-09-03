@@ -3524,7 +3524,9 @@ const OUT_NPCS=[
 // para que la mezcla se vea de un vistazo. 'pelo' elige el corte que dibuja
 // drawPerson; 'bio' es la linea que sale en la ficha al seleccionarlo.
 const CHARS=[
-  {id:'noa',  nm:'Noa',   skin:'#f1c8a0', hair:'#4a2c18', shirt:'#d65a5a', pelo:'largo',
+  // el 'id' es lo que va escrito en las partidas guardadas: se llamaba Noa y
+  // se queda 'noa' aunque ahora ponga Nora, para no romperle el personaje a nadie
+  {id:'noa',  nm:'Nora',  skin:'#f1c8a0', hair:'#4a2c18', shirt:'#d65a5a', pelo:'largo',
    bio:'Segundo de carrera. Rema en el Inn a las siete de la mañana, con niebla y todo.'},
   {id:'kai',  nm:'Kai',   skin:'#e8b98a', hair:'#5a3a1a', shirt:'#5a8ad6', pelo:'corto',
    bio:'Llegó de Hamburgo con una bici y ninguna intención de andar a ningún sitio.'},
@@ -3537,7 +3539,7 @@ const CHARS=[
   {id:'omar', nm:'Omar',  skin:'#a9724a', hair:'#221a14', shirt:'#3aa89a', pelo:'corto',
    bio:'De Erasmus. Lleva dos semanas y ya se ha perdido tres veces en el NK.'},
   {id:'amara',nm:'Amara', skin:'#7a4a30', hair:'#1a1210', shirt:'#e07a3a', pelo:'trenzas',
-   bio:'Estudia de noche en la ZB. Dice que la torre de la biblioteca es lo mejor del campus.'},
+   bio:'De intercambio, un semestre entero. Se ha instalado en la torre de la ZB y de ahí no hay quien la saque.'},
   {id:'jonas',nm:'Jonas', skin:'#efc59a', hair:'#c98f3a', shirt:'#4a5ac0', pelo:'rizado',
    bio:'Ha cambiado de carrera dos veces. Esta ya va en serio, dice él.'},
 ];
