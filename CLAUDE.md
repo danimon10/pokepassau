@@ -85,8 +85,11 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   acumula el sobrante entre fotogramas y se avanza por enteros.
 - **El tacto del mando se ajusta en dos grupos de constantes**, sin tocar
   nada más: `JOY_*` (zona muerta, recorrido, histéresis, en fracciones del
-  radio del aro) y `PASO_*` (velocidad al andar, en píxeles por fotograma).
-  Si el usuario dice que va rápido en el móvil, el número es `PASO_NORMAL`.
+  radio del aro) y `CASILLAS_*` (velocidad al andar, **en casillas por
+  segundo**, tal como se nota al jugar). Si el usuario dice que va rápido en
+  el móvil, el número es `CASILLAS_NORMAL`: se pone la cifra que pida, sin
+  convertir nada. Vale cualquier valor, no solo los múltiplos de 60/n: el
+  acumulador de píxeles guarda el sobrante también al cambiar de casilla.
 - **Mientras se escribe, el teclado no es del juego.** El correo, los
   documentos y el cuaderno llevan `<input>` y `<textarea>` de verdad; los
   manejadores de teclado se saltan el evento con `escribiendo(e)` para no

@@ -5183,13 +5183,18 @@ const JOY_TOPE =0.90;   // aqui el empuje ya es el maximo         (~60 px)
 const JOY_LENTO=0.50;   // por debajo de este empuje se anda despacio
 const JOY_BIAS =1.55;   // histeresis: la direccion actual aguanta ~12 grados
 
-// A que velocidad anda el personaje, en pixeles por fotograma (60 por segundo).
-// Una casilla son 16 px, asi que 1 px/fotograma = 3,75 casillas por segundo.
-// Si el movil sigue yendo rapido, baja PASO_NORMAL; para ir mas fino todavia
-// al colocarse en una puerta, baja PASO_CORTO.
-const PASO_CORTO =0.5;  // joystick a medias  -> ~1,9 casillas/s
-const PASO_NORMAL=1.0;  // joystick a fondo   -> ~3,8 casillas/s
-const PASO_LIBRE =2.0;  // teclado y escenas automaticas -> ~7,5 casillas/s
+// A que velocidad anda el personaje, EN CASILLAS POR SEGUNDO, que es como se
+// nota al jugar. Si va rapido o lento en el movil, el numero a tocar es este,
+// tal cual: no hay que convertir nada.
+const CASILLAS_CORTO =2.5;   // joystick a medias, para colocarse con tiento
+const CASILLAS_NORMAL=6.5;   // joystick a fondo
+const CASILLAS_LIBRE =7.5;   // teclado y escenas automaticas (escaleras)
+
+// ...y lo que de verdad usa el motor: pixeles por fotograma. Una casilla son
+// 16 px y el juego va a 60 fotogramas por segundo.
+const PASO_CORTO = CASILLAS_CORTO *TILE/60;
+const PASO_NORMAL= CASILLAS_NORMAL*TILE/60;
+const PASO_LIBRE = CASILLAS_LIBRE *TILE/60;
 const TAP_TOL=14;       // px que se pueden mover sin dejar de ser "un toque"
 const TAP_MS=500;       // y tiempo maximo del toque
 
@@ -5444,9 +5449,15 @@ function updateMove(){
   if(!player.moving)return;
   const tgx=player.tx*TILE,tgy=player.ty*TILE;
   pasoResto += player.paso || PASO_LIBRE;
-  const sp = Math.floor(pasoResto);
+  let sp = Math.floor(pasoResto);
   pasoResto -= sp;
   if(sp>0){
+    // Al llegar a la casilla casi siempre sobran pixeles. Si se tiran, cada
+    // casilla acaba costando un numero entero de fotogramas y la velocidad se
+    // redondea sola a 60/n casillas por segundo: pedir 6,5 daria 6. Se guardan
+    // para la casilla siguiente y la velocidad sale la que se pidio.
+    const falta = Math.abs(player.px-tgx) + Math.abs(player.py-tgy);
+    if(sp>falta){ pasoResto += sp-falta; sp=falta; }
     if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
     if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
     if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
