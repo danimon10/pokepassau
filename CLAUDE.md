@@ -103,6 +103,10 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 - **El día solo pasa durmiendo.** La cama (`'`) de la sala marcada con
   `dormitorio:true` es el único reloj del juego: no hay horas ni minutos.
   El mes son 14 días, el año 168 y la estación cambia cada 42.
+- **La estación se pinta, no se mapea.** Los colores del exterior salen de
+  `PALETAS[estación]` a través de `PAL`; el mapa no cambia. Si tocas un color
+  de `drawOutTile`, ponlo en las cuatro paletas, no como literal. Verano es la
+  de siempre: cualquier cambio ahí se nota en el juego que ya existía.
 - **Las misiones se avanzan con `cumplirPaso(mision, paso)`**, desde donde se
   cumplan. La misión se cierra sola cuando no le queda ningún paso suelto: no
   hay que marcarla como hecha a mano.

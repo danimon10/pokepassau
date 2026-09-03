@@ -3627,6 +3627,22 @@ function shade(hex,f){ // aclara(f>0)/oscurece(f<0) un color hex
   const m=(v)=>Math.max(0,Math.min(255, Math.round(v + 255*f)));
   return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);
 }
+// La nieve del tejado se pinta despues de las tejas, tapandolas: es nieve
+// posada, no un tejado blanco. Sirve para los dos estilos de edificio.
+function nieveEnTejado(b,x,y,w,roofH){
+  if(!PAL.nieve) return;
+  const alto=Math.max(3,Math.round(roofH*0.34));
+  ctx.fillStyle='#eef4fb'; ctx.fillRect(x, y+3, w, alto);
+  // el borde de abajo no es recto: la nieve se descuelga a trozos. El azar va
+  // por la posicion del edificio en el mapa, no por la pantalla, o temblaria
+  // al mover la camara.
+  for(let k=0, px=x; px<x+w; k++, px+=5){
+    const d=Math.round(noise(b.x0+k, b.y0)*4);
+    if(d) ctx.fillRect(px, y+3+alto, Math.min(5,x+w-px), d);
+  }
+  ctx.fillStyle='#ffffff'; ctx.fillRect(x+2, y+2, w-4, 2);            // cumbrera
+}
+
 function drawBuilding(b){
   // píxeles en pantalla (mundo - cámara)
   const x=b.x0*TILE-cam.x, y=b.y0*TILE-cam.y;
@@ -3674,6 +3690,7 @@ function drawBuilding(b){
   // textura de tejas (líneas verticales suaves)
   ctx.fillStyle=roofDk;
   for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i, y+4, 1, roofH-5);
+  nieveEnTejado(b,x,y,w,roofH);
 
   if(b.style==='station'){ // reloj en la estación
     const cxp=x+Math.round(w/2), cyp=y+Math.round(roofH/2)+1;
@@ -3708,8 +3725,8 @@ function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
     ctx.fillStyle=shade(stone,-0.18);
     for(let ax=px+2;ax<px+pw-3;ax+=8){ ctx.fillRect(ax,py-4,5,3); ctx.fillRect(ax,py+ph+1,5,3); }
     // un arbolito en el patio
-    ctx.fillStyle='#2f5f2c'; ctx.fillRect(px+pw/2-3,py+ph/2-3,6,6);
-    ctx.fillStyle='#3f7d3a'; ctx.fillRect(px+pw/2-2,py+ph/2-2,3,3);
+    ctx.fillStyle=PAL.copa1; ctx.fillRect(px+pw/2-3,py+ph/2-3,6,6);
+    ctx.fillStyle=PAL.copa2; ctx.fillRect(px+pw/2-2,py+ph/2-2,3,3);
   }
   // ventanas arqueadas
   ctx.fillStyle=shade(stone,-0.2);
@@ -3726,9 +3743,11 @@ function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
   ctx.fillStyle=roofLt; ctx.fillRect(x,y+3,w,Math.round(roofH*0.45));
   ctx.fillStyle=shade(roof,0.22); ctx.fillRect(x+2,y+2,w-4,2);
   ctx.fillStyle=roofDk; for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i,y+4,1,roofH-5);
+  nieveEnTejado(b,x,y,w,roofH);
   // torreta central
   ctx.fillStyle=stone; ctx.fillRect(x+w/2-5,y-6,10,10);
   ctx.fillStyle=roof; ctx.fillRect(x+w/2-6,y-9,12,4);
+  if(PAL.nieve){ ctx.fillStyle='#eef4fb'; ctx.fillRect(x+w/2-6,y-9,12,2); }
   ctx.fillStyle=shade(roof,0.2); ctx.fillRect(x+w/2-1,y-13,2,5);
   drawDoorAndSign(b,x,y,w,h,wallY,wallH);
 }
@@ -3775,84 +3794,107 @@ function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
 }
 
 function drawOutTile(t,sx,sy,tx,ty){
+  const P=PAL;                       // los colores los pone la estacion
+  // motas del suelo: flores en primavera, hoja caida en otono, nada el resto
+  const mota=(x,y)=>{
+    if(!P.mota) return;
+    const r=noise(tx+7,ty+3); if(r<=0.6) return;
+    ctx.fillStyle=P.mota[(tx*3+ty*5)%P.mota.length];
+    ctx.fillRect(sx+x,sy+y,2,2);
+    if(r>0.85) ctx.fillRect(sx+(x+6)%13, sy+(y+7)%13, 1,1);
+  };
+  // la copa del arbol: nevada en invierno, encendida en otono, en flor en primavera
+  const arbol=()=>{
+    ctx.fillStyle=P.tronco; ctx.fillRect(sx+7,sy+11,2,4);
+    ctx.fillStyle=P.copa1;  ctx.fillRect(sx+3,sy+1,10,11);
+    ctx.fillStyle=P.copa2;  ctx.fillRect(sx+4,sy+2,8,8);
+    ctx.fillStyle=P.copa3;
+    if(P.nieve){ ctx.fillRect(sx+4,sy+1,9,3); ctx.fillRect(sx+5,sy+4,3,2); }  // nieve encima
+    else       { ctx.fillRect(sx+5,sy+3,3,3); }
+  };
   switch(t){
     case '.': {
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#6fb85f'; const r=noise(tx,ty);
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.hierba2; const r=noise(tx,ty);
       if(r>0.6){ctx.fillRect(sx+3,sy+5,1,2);ctx.fillRect(sx+9,sy+9,1,2);}
+      mota(6,7);
       break;}
     case ',': { // innwiese
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#76bd62'; const r=noise(tx,ty);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto2; const r=noise(tx,ty);
       ctx.fillRect(sx+2,sy+4,2,3); if(r>.5)ctx.fillRect(sx+10,sy+8,2,3);
+      mota(7,10);
       break;}
     case 'I': { // placa innwiese
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#76bd62'; ctx.fillRect(sx+3,sy+3,2,3);ctx.fillRect(sx+9,sy+9,2,3);ctx.fillRect(sx+6,sy+11,2,3);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto2; ctx.fillRect(sx+3,sy+3,2,3);ctx.fillRect(sx+9,sy+9,2,3);ctx.fillRect(sx+6,sy+11,2,3);
       break;}
     case 'W': { // agua
-      ctx.fillStyle='#5aa9d6'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7dc3e8'; const w=(animTick/30+tx*0.7+ty*0.3); const off=(Math.sin(w)*2)|0;
+      ctx.fillStyle=P.agua; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.agua2; const w=(animTick/30+tx*0.7+ty*0.3); const off=(Math.sin(w)*2)|0;
       ctx.fillRect(sx+2+off,sy+4,5,1); ctx.fillRect(sx+9-off,sy+10,4,1);
       break;}
     case 'o': { // orilla
-      ctx.fillStyle='#e8dcc0'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#d8c8a0'; ctx.fillRect(sx,sy,TILE,3);
-      ctx.fillStyle='#cdbf95'; ctx.fillRect(sx+4,sy+8,3,2);ctx.fillRect(sx+10,sy+11,2,2);
+      ctx.fillStyle=P.orilla; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.orilla2; ctx.fillRect(sx,sy,TILE,3);
+      ctx.fillStyle=P.orilla3; ctx.fillRect(sx+4,sy+8,3,2);ctx.fillRect(sx+10,sy+11,2,2);
       break;}
     case 'R': { // carretera asfalto
-      ctx.fillStyle='#8a8f9a'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7a7f8a'; const r=noise(tx,ty); if(r>.7)ctx.fillRect(sx+(r*10|0),sy+6,2,2);
+      ctx.fillStyle=P.asfalto; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.asfalto2; const r=noise(tx,ty); if(r>.7)ctx.fillRect(sx+(r*10|0),sy+6,2,2);
       break;}
     case '|': { // linea central carretera
-      ctx.fillStyle='#8a8f9a'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.asfalto; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#e8d860'; ctx.fillRect(sx+6,sy+2,4,6);
       break;}
     case 'P': { // sendero peatonal (adoquin claro)
-      ctx.fillStyle='#e2cfa0'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#d2bb85'; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+7,sy,1,TILE);
+      ctx.fillStyle=P.senda; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.senda2; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+7,sy,1,TILE);
       break;}
     case 'B': case 'N': case 'H': { // huella de edificio: suelo base (el edificio se dibuja encima)
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
       break;}
     case 'D': { // baldosa frente a la puerta (la hoja la dibuja el edificio)
-      ctx.fillStyle='#e2cfa0'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#d2bb85'; ctx.fillRect(sx,sy+7,TILE,1);ctx.fillRect(sx+7,sy,1,TILE);
+      ctx.fillStyle=P.senda; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.senda2; ctx.fillRect(sx,sy+7,TILE,1);ctx.fillRect(sx+7,sy,1,TILE);
       break;}
     case 'T': { // arbol borde
-      ctx.fillStyle='#5fa84f'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+7,sy+11,2,4);
-      ctx.fillStyle='#2f5f2c'; ctx.fillRect(sx+3,sy+1,10,11);
-      ctx.fillStyle='#3f7d3a'; ctx.fillRect(sx+4,sy+2,8,8);
-      ctx.fillStyle='#5aa84f'; ctx.fillRect(sx+5,sy+3,3,3);
+      ctx.fillStyle=P.bosque; ctx.fillRect(sx,sy,TILE,TILE);
+      arbol();
       break;}
     case 't': { // arbol suelto sobre hierba
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+7,sy+11,2,4);
-      ctx.fillStyle='#2f5f2c'; ctx.fillRect(sx+3,sy+1,10,11);
-      ctx.fillStyle='#3f7d3a'; ctx.fillRect(sx+4,sy+2,8,8);
-      ctx.fillStyle='#5aa84f'; ctx.fillRect(sx+5,sy+3,3,3);
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      arbol();
       break;}
     case 'f': { // flores
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
-      const cols=['#e85a7a','#e8d65a','#e89a5a','#d65ad6'];
-      ctx.fillStyle=cols[(tx+ty)%4];
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      if(P.nieve){   // en invierno no hay flores: hay un monton de nieve
+        ctx.fillStyle=P.copa3; ctx.fillRect(sx+4,sy+8,7,4); ctx.fillRect(sx+6,sy+6,4,3);
+        ctx.fillStyle=P.hierba2; ctx.fillRect(sx+4,sy+11,7,1);
+        break;
+      }
+      const cols=P.mota||['#e85a7a','#e8d65a','#e89a5a','#d65ad6'];
+      ctx.fillStyle=cols[(tx+ty)%cols.length];
       ctx.fillRect(sx+4,sy+5,2,2);ctx.fillRect(sx+10,sy+8,2,2);ctx.fillRect(sx+7,sy+11,2,2);
+      if(P.mota){   // en primavera y otono la mata va mas cargada
+        ctx.fillStyle=cols[(tx+ty+2)%cols.length];
+        ctx.fillRect(sx+11,sy+4,2,2);ctx.fillRect(sx+3,sy+10,2,2);
+      }
       break;}
     case 'L': { // farola
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#4a4a5a'; ctx.fillRect(sx+7,sy+4,2,10);
       ctx.fillStyle='#ffe9a8'; ctx.fillRect(sx+6,sy+2,4,3);
       break;}
     case 'b': { // banco
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#9b6b4a'; ctx.fillRect(sx+2,sy+7,12,3);ctx.fillRect(sx+3,sy+10,2,3);ctx.fillRect(sx+11,sy+10,2,3);
       ctx.fillStyle='#7a5230'; ctx.fillRect(sx+2,sy+5,12,2);
+      if(P.nieve){ ctx.fillStyle=P.copa3; ctx.fillRect(sx+2,sy+4,12,1); ctx.fillRect(sx+2,sy+7,12,1); }
       break;}
-    default: ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+    default: ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
   }
 }
-
 //==================================================================
 //  TILES interior
 //==================================================================
@@ -4394,6 +4436,63 @@ const MESES_C=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov'
 // cada 42 dias exactos.
 const ESTACIONES=[{n:'Invierno',ic:'❄️'},{n:'Primavera',ic:'🌸'},
                   {n:'Verano',  ic:'☀️'},{n:'Otoño',    ic:'🍂'}];
+
+//------------------------------------------------------------------
+//  PALETA DE LA ESTACION
+//  El campus se dibuja entero por codigo, asi que la estacion no
+//  cambia el mapa: cambia los colores con los que se pinta. Verano es
+//  la paleta de siempre y las otras tres la desvian. Solo afecta al
+//  exterior; los interiores no tienen estacion.
+//  El indice es el mismo que el de ESTACIONES.
+//------------------------------------------------------------------
+const PALETAS=[
+  { // 0 · INVIERNO — nieve en el suelo, en los arboles y en los tejados
+    nieve:true,
+    hierba:'#e2e9f0', hierba2:'#cfdae6', bosque:'#c6d3df',
+    pasto: '#e9eff5', pasto2: '#d7e1ea',
+    tronco:'#6a4a33', copa1:'#33513e', copa2:'#456a4e', copa3:'#f2f8fd',
+    agua:  '#86b0cc', agua2: '#c2dcec',
+    orilla:'#e9ecf1', orilla2:'#d8dee6', orilla3:'#c9d1db',
+    senda: '#e0d6c2', senda2:'#c9bda4',           // el camino, despejado a paladas
+    asfalto:'#9aa1ab', asfalto2:'#8a919b',
+    mota:null,                                     // ni flores ni hojas
+  },
+  { // 1 · PRIMAVERA — verde tierno, flores en el suelo y en los arboles
+    hierba:'#86d072', hierba2:'#75c25f', bosque:'#68b455',
+    pasto: '#93d97c', pasto2: '#7fc966',
+    tronco:'#7a5230', copa1:'#356b32', copa2:'#4b9440', copa3:'#f6c2dc',
+    agua:  '#5aa9d6', agua2: '#8ad0f0',
+    orilla:'#e8dcc0', orilla2:'#d8c8a0', orilla3:'#cdbf95',
+    senda: '#e2cfa0', senda2:'#d2bb85',
+    asfalto:'#8a8f9a', asfalto2:'#7a7f8a',
+    mota:['#f2a0c0','#f4e08a','#ffffff','#c9a6e8'],   // flores
+  },
+  { // 2 · VERANO — la paleta de siempre
+    hierba:'#7cc36b', hierba2:'#6fb85f', bosque:'#5fa84f',
+    pasto: '#8ace74', pasto2: '#76bd62',
+    tronco:'#7a5230', copa1:'#2f5f2c', copa2:'#3f7d3a', copa3:'#5aa84f',
+    agua:  '#5aa9d6', agua2: '#7dc3e8',
+    orilla:'#e8dcc0', orilla2:'#d8c8a0', orilla3:'#cdbf95',
+    senda: '#e2cfa0', senda2:'#d2bb85',
+    asfalto:'#8a8f9a', asfalto2:'#7a7f8a',
+    mota:null,
+  },
+  { // 3 · OTONO — hoja seca en los arboles y por el suelo
+    hierba:'#93bb63', hierba2:'#84ad57', bosque:'#7fa44e',
+    pasto: '#a3c46a', pasto2: '#8fb45c',
+    tronco:'#6f4a2b', copa1:'#8a4a22', copa2:'#c9792a', copa3:'#e8b64a',
+    agua:  '#5a9ec4', agua2: '#84c0dc',
+    orilla:'#e4d5b4', orilla2:'#d3c096', orilla3:'#c5b189',
+    senda: '#ddc796', senda2:'#cbb37c',
+    asfalto:'#8a8f9a', asfalto2:'#7a7f8a',
+    mota:['#d1712c','#e0a03a','#b8562a','#e8c25a'],  // hojas caidas
+  },
+];
+// Arranca en la del dia 0 (1 de octubre). aplicarEstacion() la pone al dia
+// desde actualizarHud(), que es lo que se llama al empezar, al cargar y al
+// despertarse: no hace falta consultarla en cada baldosa.
+let PAL=PALETAS[3];
+function aplicarEstacion(){ PAL = PALETAS[fecha().est] || PALETAS[2]; }
 // La partida empieza el 1 de octubre, que es cuando arranca el semestre de
 // invierno: nueve meses de 14 dias desde el 1 de enero.
 const DIA_INICIO=9*DIAS_MES;
@@ -4453,6 +4552,7 @@ const pillFecha =document.getElementById('pillFecha'),
       misNum    =document.getElementById('misNum');
 function actualizarHud(destelloDinero){
   const f=fecha();
+  PAL = PALETAS[f.est] || PALETAS[2];   // el campus se pinta con la estacion
   pillFecha.textContent=estacion(f).ic+' '+fechaCorta(f);
   pillFecha.title=fechaLarga(f)+' · '+estacion(f).n;
   pillDinero.textContent='💶 '+fmtEuros(dinero());
@@ -4608,6 +4708,7 @@ function preguntarDormir(){
 
 function dormir(){
   if(durmiendo) return;
+  const estAyer=fecha().est;         // para saber si la noche cambia de estacion
   durmiendo=true;
   state='transition';
   punteroArriba(null);              // suelta el mando: dormido no se anda
@@ -4622,7 +4723,9 @@ function dormir(){
       +'<span class="peq">'+esc(estacion(f).n)+' · día '+(f.total+1)+' en Passau</span>'
       +'<span class="peq">💶 +'+fmtEuros(DINERO_NOCHE)+'</span>';
     noche.classList.add('txt');
-    actualizarHud(true);
+    actualizarHud(true);              // aqui entra tambien la paleta nueva
+    if(f.est!==estAyer) nocheTxt.innerHTML+=
+      '<span class="peq">'+estacion(f).ic+' Empieza el '+esc(estacion(f).n.toLowerCase())+'</span>';
     cumplirPaso('primera_noche','dormir');
   }, 850);
   setTimeout(()=>{ noche.classList.remove('txt'); }, 2500);
@@ -4631,7 +4734,9 @@ function dormir(){
     durmiendo=false;
     if(!guion) state='play';        // si arranco un guion, manda el guion
     saveGame();
-    avisar('☀️ '+fechaCorta()+' · +'+fmtEuros(DINERO_NOCHE));
+    const f=fecha();
+    avisar('☀️ '+fechaCorta(f)+' · +'+fmtEuros(DINERO_NOCHE));
+    if(f.est!==estAyer) avisar(estacion(f).ic+' Empieza el '+estacion(f).n.toLowerCase()+' en Passau');
   }, 3050);
 }
 
@@ -5857,7 +5962,7 @@ function updateCamera(){
   if(mapH*TILE<VH) cam.y=(mapH*TILE-VH)/2;
 }
 function render(){
-  ctx.fillStyle = scene==='outdoor'?'#5fa84f':'#8a7a9a';
+  ctx.fillStyle = scene==='outdoor'?PAL.bosque:'#8a7a9a';
   ctx.fillRect(0,0,VW,VH);
   const startX=Math.floor(cam.x/TILE),startY=Math.floor(cam.y/TILE);
   const offX=((cam.x%TILE)+TILE)%TILE, offY=((cam.y%TILE)+TILE)%TILE;
