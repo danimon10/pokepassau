@@ -71,6 +71,20 @@ eliges «ir a dormir». La pantalla se apaga, aparece la fecha nueva y vuelve a
 encenderse. La sala del dormitorio se marca en `INTERIORS` con
 `dormitorio:true`; la cama es la pieza `'`.
 
+**Las estaciones se ven.** El campus se dibuja entero por código, así que la
+estación no cambia el mapa: cambia los colores con los que se pinta. En
+invierno hay nieve en el suelo, en las copas, en los bancos y en los tejados,
+y el río se vuelve gris azulado; en primavera el verde es tierno, hay flores
+por la hierba y los árboles florecen en rosa; en otoño las copas se encienden
+en naranja y quedan hojas caídas por el suelo. Verano es la paleta de siempre,
+idéntica al píxel.
+
+Todo sale de `PALETAS`, una tabla de colores por estación en `index.html`
+(mismo orden que `ESTACIONES`). `PAL` guarda la que toca y `actualizarHud()`
+la pone al día, así que no hay que consultarla en cada baldosa. Para retocar
+una estación se cambian sus colores ahí y ya está; solo afecta al exterior,
+los interiores no tienen estación.
+
 **El dinero.** Se empieza con **50 €** y cada noche que se duerme entran
 **10 €**. Se gasta en bebidas, comida y trámites: la Mensa, la cafetería del
 Nikolakloster, el Gmoa, la expendedora del salón de la residencia, la máquina
