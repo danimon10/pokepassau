@@ -1185,7 +1185,9 @@ const INTERIORS = {
     npcs:[
       {x:1,y:7,name:"Archivero Herr Brand",color:"#8a5ad6",dir:'left',
        lines:["Esa puerta da a la torre de los libros. Cuatro pisos de estanterías.","Ahí dentro no hay ventanas y el silencio es distinto. Ya lo notarás."]},
-      {x:4,y:10,name:"Estudiante Mira",color:"#5a8ad6",dir:'right',
+      // No puede quedarse en (4,10): esa casilla es la boca del pasillo de
+      // arriba y, plantada ahi, dejaba incomunicado el fondo con sus mesas.
+      {x:4,y:11,name:"Estudiante Mira",color:"#5a8ad6",dir:'left',
        lines:["Esta sala es la buena: mesas grandes y nadie hablando.","Los de abajo vienen a socializar; nosotros venimos a sufrir."]},
       {x:14,y:2,name:"Estudiante Tobias",color:"#d6a05a",dir:'down',
        lines:["Cuidado al bajar la escalera con la pila de libros.","Lo digo por experiencia."]},
@@ -5001,6 +5003,41 @@ function validateMaps(){
       E('mision '+id+': el premio en dinero va en centimos enteros');
   }
 
+  // ---------------- OBJETOS ----------------
+  // Un objeto al que no se llega andando no se puede recoger jamas: o esta en
+  // una casilla que no se pisa y sin ninguna libre al lado, o la gente de la
+  // sala tapa el unico paso. Se comprueba andando de verdad desde donde
+  // aparece el jugador, con los NPCs de obstaculo como en tryMove.
+  for(const id in ITEMS){
+    const sp=ITEMS[id].spawn, fuera=(sp.scene==='outdoor');
+    const I=fuera?null:INTERIORS[sp.scene];
+    if(!fuera && !I){ E("objeto '"+id+"': sale en la sala '"+sp.scene+"', que no existe"); continue; }
+    const g=fuera?OUTDOOR:I.grid, alto=g.length, ancho=g[0].length;
+    if(sp.x<0||sp.y<0||sp.x>=ancho||sp.y>=alto){
+      E("objeto '"+id+"': ("+sp.x+","+sp.y+') cae fuera de '+sp.scene); continue; }
+    const SOL=fuera?SOLID_OUT:(I.isPatio?SOLID_PATIO:SOLID_IN);
+    const gente=new Set((fuera?OUT_NPCS:(I.npcs||[])).map(n=>n.x+','+n.y));
+    const pisa=(x,y)=>x>=0&&y>=0&&x<ancho&&y<alto&&!SOL.has(g[y][x]);
+    const anda=(x,y)=>pisa(x,y)&&!gente.has(x+','+y);
+    // se aparece en la casilla de entrada aunque haya alguien plantado en ella
+    const ini=[];
+    if(fuera) ini.push([39,31]);                  // la Innwiese, donde arranca la partida
+    else{
+      ini.push(frenteASalida(sp.scene).at);
+      for(const k in INTERIORS) (INTERIORS[k].doors||[]).forEach(d=>{
+        if(d.to===sp.scene && d.at) ini.push(d.at); });
+    }
+    const visto=new Set(), pila=[];
+    ini.forEach(([x,y])=>{ if(pisa(x,y)&&!visto.has(x+','+y)){ visto.add(x+','+y); pila.push([x,y]); } });
+    while(pila.length){ const [x,y]=pila.pop();
+      [[0,-1],[0,1],[-1,0],[1,0]].forEach(([ox,oy])=>{ const nx=x+ox, ny=y+oy;
+        if(anda(nx,ny)&&!visto.has(nx+','+ny)){ visto.add(nx+','+ny); pila.push([nx,ny]); } }); }
+    // vale ponerse encima o en cualquiera de los cuatro lados
+    if(![[0,0],[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>visto.has((sp.x+ox)+','+(sp.y+oy))))
+      E("objeto '"+id+"' en "+sp.scene+' ('+sp.x+','+sp.y+'): no se puede llegar a recogerlo — '+
+        'no hay ninguna casilla libre a su lado a la que se llegue andando');
+  }
+
   // ---------------- INFORME ----------------
   const salas=Object.keys(INTERIORS).length;
   if(errs.length){
@@ -5037,8 +5074,6 @@ function mostrarBannerErrores(errs){
   };
   if(document.body) pinta(); else document.addEventListener('DOMContentLoaded',pinta);
 }
-
-try{ validateMaps(); }catch(e){ console.error('VALIDADOR: fallo interno',e); }
 
 let scene='outdoor';        // 'outdoor' | interior key
 let map=OUTDOOR, mapW=OUTDOOR[0].length, mapH=OUTDOOR.length;
@@ -6231,6 +6266,11 @@ function deleteSave(){
   sessionSave=null;
   if(storageOK){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
 }
+
+
+// El validador se lanza aqui, y no pegado a su funcion, porque comprueba
+// tambien que se pueda llegar a cada objeto y ITEMS se declara justo arriba.
+try{ validateMaps(); }catch(e){ console.error('VALIDADOR: fallo interno',e); }
 
 
 //==================================================================
