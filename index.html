@@ -519,11 +519,11 @@ const OUTDOOR=[
 "TTRR|RD|RR|RR|RR|RR|RRR.............RR.......D.......P....TT",
 "TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR..NNNNNNNNNNNN.P....TT",
 "TT....................RRRRRRRR......RR..NNNNNNNNNNNN.P....TT",
-"TT........................RRRRRRRR..RR..NNNHHHHHHNNN.P....TT",
-"TT....f...................f...RRRRRRRR..NNNHHHHHHNNN.P....TT",
-"TT........BBBBBB..................RRRR..NNNHHHHHHNNN.P....TT",
-"TT........BBBBBB..BBBBBB................NNNHHHHHHNNN.P....TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNHHHHHHNNN.P....TT",
+"TT........................RRRRRRRR..RR..NNNNNNNNNNNN.P....TT",
+"TT....f...................f...RRRRRRRR..NNNNNNNNNNNN.P....TT",
+"TT........BBBBBB..................RRRR..NNNNNNNNNNNN.P....TT",
+"TT........BBBBBB..BBBBBB................NNNNNNNNNNNN.P....TT",
+"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
 "TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
 "TT.BBBBB....D.....BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
 "TT.BBBBB....P.......D.......BBBBBB...........D...P...P....TT",
@@ -3486,7 +3486,7 @@ const BLD_GEO=[
   {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,32], style:'modern',   roof:'#c87a3a', label:'M'},
   {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
   {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[31,32], style:'modern',   roof:'#b0a03a', label:'WW'},
-  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], extra:[[45,16]], style:'historic', roof:'#9b6b4a', label:'NK', courtyard:[43,19,48,23]},
+  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], extra:[[45,16]], style:'historic', roof:'#9b6b4a', label:'NK'},
   {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,31], style:'modern',   roof:'#3b9aa2', label:'IA'},
   {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
 ];
@@ -3768,38 +3768,104 @@ function drawBuilding(b){
 }
 
 function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
-  // Nikolakloster: muros de piedra clara, tejado rojizo a dos aguas, patio interior visible
-  const stone='#ddcfb2';
+  // Nikolakloster: alzado frontal clasico, sin vista en escorzo del claustro.
+  // El muro de silleria corre de esquina a esquina y lleva dos hileras de
+  // ventanas de arco por toda la fachada. En el eje de la puerta sobresale el
+  // cuerpo del portal, con oculo, cartel y un arco de medio punto abierto que
+  // se atraviesa como un tunel hacia el interior.
+  const stone='#ddcfb2', suelo=y+h;
+  const colP=Math.min(Math.max(b.door[0],b.x0),b.x1);
+  const cxp=colP*TILE-cam.x+TILE/2;          // eje del portal
+  const bw=44, bx0=cxp-bw/2;                 // cuerpo saliente del portal
+
+  // --- pieza con remate de arco (sirve para ventanas y para el vano) ---
+  const arcado=(col,cx,cy,r,base)=>{
+    ctx.fillStyle=col; ctx.beginPath();
+    ctx.moveTo(cx-r,base); ctx.lineTo(cx-r,cy); ctx.arc(cx,cy,r,Math.PI,0); ctx.lineTo(cx+r,base);
+    ctx.closePath(); ctx.fill();
+  };
+
+  // --- muro corrido + cuerpo del portal + silleria comun a los dos ---
   ctx.fillStyle=stone; ctx.fillRect(x,wallY,w,wallH);
-  // sillería (bloques de piedra)
-  ctx.fillStyle=shade(stone,-0.1);
-  for(let ry=wallY+4;ry<y+h-2;ry+=6){ ctx.fillRect(x,ry,w,1); }
-  for(let rx=x+8;rx<x+w;rx+=14){ ctx.fillRect(rx,wallY,1,wallH); }
-  // patio interior (courtyard) — hueco con suelo y arcos
-  if(b.courtyard){
-    const [cx0,cy0,cx1,cy1]=b.courtyard;
-    const px=cx0*TILE-cam.x, py=cy0*TILE-cam.y;
-    const pw=(cx1-cx0+1)*TILE, ph=(cy1-cy0+1)*TILE;
-    ctx.fillStyle='#cdbf95'; ctx.fillRect(px,py,pw,ph);              // suelo patio
-    ctx.fillStyle=shade('#cdbf95',-0.08);
-    for(let gx=px;gx<px+pw;gx+=8) ctx.fillRect(gx,py,1,ph);
-    for(let gy=py;gy<py+ph;gy+=8) ctx.fillRect(px,gy,pw,1);
-    // arcos del claustro alrededor del patio
-    ctx.fillStyle=shade(stone,-0.18);
-    for(let ax=px+2;ax<px+pw-3;ax+=8){ ctx.fillRect(ax,py-4,5,3); ctx.fillRect(ax,py+ph+1,5,3); }
-    // un arbolito en el patio
-    ctx.fillStyle=PAL.copa1; ctx.fillRect(px+pw/2-3,py+ph/2-3,6,6);
-    ctx.fillStyle=PAL.copa2; ctx.fillRect(px+pw/2-2,py+ph/2-2,3,3);
+  ctx.fillStyle='rgba(0,0,0,.10)'; ctx.fillRect(bx0+bw,wallY,3,wallH);      // sombra del resalte
+  ctx.fillStyle=shade(stone,0.07);  ctx.fillRect(bx0,wallY-1,bw,wallH+1);
+  ctx.fillStyle=shade(stone,-0.1);                                          // hiladas y juntas
+  for(let ry=wallY+5,fila=0; ry<suelo-4; ry+=6,fila++){
+    ctx.fillRect(x,ry,w,1);
+    for(let rx=x+(fila%2?7:0); rx<x+w; rx+=14) ctx.fillRect(rx,ry,1,6);
   }
-  // ventanas arqueadas
-  ctx.fillStyle=shade(stone,-0.2);
-  const cols=Math.floor((w-6)/14);
-  for(let c=0;c<cols;c++){ const wx=x+6+c*14, wy=wallY+5;
-    if(b.courtyard && wx> (b.courtyard[0]*TILE-cam.x)-8 && wx<(b.courtyard[2]*TILE-cam.x)+8) continue;
-    ctx.fillStyle=shade(stone,-0.2); ctx.fillRect(wx-1,wy-1,7,9);
-    ctx.fillStyle='#9bb8c8'; ctx.fillRect(wx,wy,5,7); ctx.fillRect(wx+1,wy-1,3,1);
+  ctx.fillStyle=shade(stone,-0.16); ctx.fillRect(x,suelo-4,w,4);            // zocalo
+  ctx.fillStyle=shade(stone,-0.26); ctx.fillRect(x,suelo-1,w,1);
+  ctx.fillStyle=shade(stone,0.06);                                          // esquinas reforzadas
+  ctx.fillRect(x,wallY,3,wallH); ctx.fillRect(x+w-3,wallY,3,wallH);
+  ctx.fillStyle=shade(stone,-0.14);                                         // aristas del resalte
+  ctx.fillRect(bx0,wallY-1,1,wallH+1); ctx.fillRect(bx0+bw-1,wallY-1,1,wallH+1);
+
+  // --- imposta entre las dos plantas (se interrumpe en el cuerpo del portal) ---
+  ctx.fillStyle=shade(stone,0.12);
+  ctx.fillRect(x,wallY+34,bx0-x,3); ctx.fillRect(bx0+bw,wallY+34,x+w-bx0-bw,3);
+  ctx.fillStyle=shade(stone,-0.18);
+  ctx.fillRect(x,wallY+37,bx0-x,1); ctx.fillRect(bx0+bw,wallY+37,x+w-bx0-bw,1);
+
+  // --- ventanas de arco: una por baldosa, en toda la fachada ---
+  const ventana=(cx,top,alto)=>{
+    const r=4, cy=top+r, base=top+alto;
+    arcado(shade(stone,-0.3), cx,cy,  r,  base);            // mocheta de piedra
+    arcado('#6f8ea4',         cx,cy,  r-1,base-1);          // vidrio en penumbra
+    ctx.fillStyle='#9dbccd'; ctx.fillRect(cx-2,cy,2,3);     // reflejo
+    ctx.fillStyle=shade(stone,-0.34);
+    ctx.fillRect(cx,cy-1,1,base-cy);                        // parteluz
+    ctx.fillRect(cx-r+1,cy+Math.round((base-cy)*0.45),(r-1)*2,1);
+    ctx.fillStyle=shade(stone,0.14); ctx.fillRect(cx-r-2,base,(r+2)*2,2);   // alfeizar
+    ctx.fillStyle=shade(stone,-0.2); ctx.fillRect(cx-r-2,base+2,(r+2)*2,1);
+  };
+  const hilera=(top,alto)=>{                                // un pano a cada lado del portal
+    for(const [pa,pb] of [[x+3,bx0],[bx0+bw,x+w-3]]){
+      const anc=pb-pa, n=Math.max(1,Math.round((anc-4)/16)), paso=anc/n;
+      for(let i=0;i<n;i++) ventana(Math.round(pa+paso*(i+0.5)),top,alto);
+    }
+  };
+  hilera(wallY+10,16);
+  hilera(wallY+42,20);
+
+  // --- oculo del portal ---
+  const ocy=wallY+16, ocr=7;
+  ctx.fillStyle=shade(stone,-0.3); ctx.beginPath(); ctx.arc(cxp,ocy,ocr,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#6f8ea4';         ctx.beginPath(); ctx.arc(cxp,ocy,ocr-2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=shade(stone,-0.34);
+  ctx.fillRect(cxp-ocr+2,ocy,(ocr-2)*2,1); ctx.fillRect(cxp,ocy-ocr+2,1,(ocr-2)*2);
+  ctx.fillStyle='#9dbccd'; ctx.fillRect(cxp-4,ocy-4,2,2);
+
+  // --- portal de medio punto: vano pasante, sin hojas ---
+  const rP=11, imp=suelo-32;                                // radio y linea de imposta
+  const dov=shade(stone,-0.1), dovDk=shade(stone,-0.32);    // piedra labrada y juntas
+  arcado('#3a332c', cxp,imp,  rP,  suelo-1);                // boca del vano
+  arcado('#241f1e', cxp,imp+2,rP-2,suelo-1);
+  arcado('#141117', cxp,imp+5,rP-5,suelo-1);                // fondo del pasaje
+  ctx.fillStyle='#544b3d'; ctx.beginPath();                 // suelo del zaguan, en fuga
+  ctx.moveTo(cxp-rP+1,suelo-1); ctx.lineTo(cxp+rP-1,suelo-1);
+  ctx.lineTo(cxp+rP-6,suelo-9); ctx.lineTo(cxp-rP+6,suelo-9); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#3e372c'; ctx.fillRect(cxp-rP+4,suelo-6,(rP-4)*2,1);
+  ctx.fillStyle=dov;                                        // jambas
+  ctx.fillRect(cxp-rP-4,imp,4,suelo-imp); ctx.fillRect(cxp+rP,imp,4,suelo-imp);
+  ctx.fillStyle=dovDk;
+  ctx.fillRect(cxp-rP-4,imp,1,suelo-imp); ctx.fillRect(cxp+rP+3,imp,1,suelo-imp);
+  for(let jy=imp+6;jy<suelo-1;jy+=7){ ctx.fillRect(cxp-rP-4,jy,4,1); ctx.fillRect(cxp+rP,jy,4,1); }
+  ctx.strokeStyle=dov; ctx.lineWidth=4;                     // rosca de dovelas
+  ctx.beginPath(); ctx.arc(cxp,imp,rP+2,Math.PI,0); ctx.stroke();
+  ctx.strokeStyle=dovDk; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cxp,imp,rP+4,Math.PI,0); ctx.stroke();
+  for(let a=Math.PI+Math.PI/9;a<2*Math.PI-0.01;a+=Math.PI/9){   // juntas, sin salirse de la rosca
+    ctx.beginPath();
+    ctx.moveTo(cxp+Math.cos(a)*(rP+0.5),imp+Math.sin(a)*(rP+0.5));
+    ctx.lineTo(cxp+Math.cos(a)*(rP+3.5),imp+Math.sin(a)*(rP+3.5));
+    ctx.stroke();
   }
-  // tejado rojizo a dos aguas (perímetro)
+  ctx.fillStyle=stone; ctx.fillRect(cxp-4,imp-rP-6,8,6);    // clave
+  ctx.strokeStyle=dovDk; ctx.strokeRect(cxp-3.5,imp-rP-5.5,7,6);
+  ctx.fillStyle=shade(stone,0.1); ctx.fillRect(cxp-rP-4,suelo-1,(rP+4)*2,2); // umbral
+
+  // --- tejado rojizo a dos aguas y torreta con chimenea ---
   const roof=b.roof,roofLt=shade(roof,0.12),roofDk=shade(roof,-0.18);
   ctx.fillStyle=roofDk; ctx.fillRect(x-2,wallY-2,w+4,3);
   ctx.fillStyle=roof; ctx.fillRect(x,y+3,w,roofH-3);
@@ -3807,31 +3873,35 @@ function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
   ctx.fillStyle=shade(roof,0.22); ctx.fillRect(x+2,y+2,w-4,2);
   ctx.fillStyle=roofDk; for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i,y+4,1,roofH-5);
   nieveEnTejado(b,x,y,w,roofH);
-  // torreta central
-  ctx.fillStyle=stone; ctx.fillRect(x+w/2-5,y-6,10,10);
-  ctx.fillStyle=roof; ctx.fillRect(x+w/2-6,y-9,12,4);
-  if(PAL.nieve){ ctx.fillStyle='#eef4fb'; ctx.fillRect(x+w/2-6,y-9,12,2); }
-  ctx.fillStyle=shade(roof,0.2); ctx.fillRect(x+w/2-1,y-13,2,5);
+  ctx.fillStyle=stone; ctx.fillRect(cxp-5,y-6,10,10);       // torreta sobre el eje del portal
+  ctx.fillStyle=roof; ctx.fillRect(cxp-6,y-9,12,4);
+  if(PAL.nieve){ ctx.fillStyle='#eef4fb'; ctx.fillRect(cxp-6,y-9,12,2); }
+  ctx.fillStyle=shade(roof,0.2); ctx.fillRect(cxp-1,y-13,2,5);
   drawDoorAndSign(b,x,y,w,h,wallY,wallH);
 }
-
 function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
   // La puerta se dibuja siempre en la fachada (cara sur). Si la baldosa de
   // entrada queda a un costado, la hoja se pega a ese extremo de la fachada
   // en lugar de salirse del sprite.
   const col=Math.min(Math.max(b.door[0], b.x0), b.x1);
   const dxp=(col*TILE-cam.x);
+  // Los edificios historicos no llevan hoja: el vano es el arco pasante que
+  // dibuja drawHistoric, y el cartel sube hasta quedar sobre la clave.
+  const arco=(b.style==='historic');
   const doorW=14, doorH=Math.min(18, wallH-2);
   const doorY=y+h-doorH-1, doorX=dxp+1;
-  ctx.fillStyle='#5a3a1a'; ctx.fillRect(doorX-1,doorY-1,doorW+2,doorH+1); // marco
-  ctx.fillStyle='#7a5230'; ctx.fillRect(doorX,doorY,doorW,doorH);
-  // doble hoja
-  ctx.fillStyle='#6a4626'; ctx.fillRect(doorX+doorW/2-0.5,doorY,1,doorH);
-  ctx.fillStyle='#caa45a'; ctx.fillRect(doorX+3,doorY+doorH/2,1,2); ctx.fillRect(doorX+doorW-5,doorY+doorH/2,1,2); // pomos
-  // felpudo
-  ctx.fillStyle='#caa45a'; ctx.fillRect(doorX-1,y+h-1,doorW+2,2);
-  // cartel con siglas: justo encima de la puerta (sobre el dintel)
-  const sgW=Math.max(16,b.label.length*7+6), sgX=dxp+7-sgW/2, sgY=doorY-11;
+  if(!arco){
+    ctx.fillStyle='#5a3a1a'; ctx.fillRect(doorX-1,doorY-1,doorW+2,doorH+1); // marco
+    ctx.fillStyle='#7a5230'; ctx.fillRect(doorX,doorY,doorW,doorH);
+    // doble hoja
+    ctx.fillStyle='#6a4626'; ctx.fillRect(doorX+doorW/2-0.5,doorY,1,doorH);
+    ctx.fillStyle='#caa45a'; ctx.fillRect(doorX+3,doorY+doorH/2,1,2); ctx.fillRect(doorX+doorW-5,doorY+doorH/2,1,2); // pomos
+    // felpudo
+    ctx.fillStyle='#caa45a'; ctx.fillRect(doorX-1,y+h-1,doorW+2,2);
+  }
+  // cartel con siglas: justo encima de la puerta (sobre el dintel o la clave)
+  const sgW=Math.max(16,b.label.length*7+6);
+  const sgX=(arco?dxp+8:dxp+7)-sgW/2, sgY=arco?(y+h-60):(doorY-11);
   ctx.fillStyle='#2f3650'; ctx.fillRect(sgX,sgY,sgW,9);
   ctx.fillStyle='#1f2640'; ctx.fillRect(sgX,sgY+8,sgW,1);
   ctx.fillStyle='#ffe9a8'; ctx.font='7px "Courier New",monospace'; ctx.textBaseline='top'; ctx.textAlign='center';
