@@ -3441,6 +3441,95 @@ const INTERIORS = {
               "Pasa siempre. Por eso el salón es el sitio más peligroso de la casa."]},
     ]
   },
+  //---------------- HAUPTBAHNHOF (estacion central) ----------------
+  // Una sola escena: el vestibulo con cuatro tiendas en las esquinas
+  // (prensa, Yorma's, panaderia y taquilla DB), bancos y maquinas de
+  // billetes; arriba el anden (Gleis 1) con el tren rojo de la DB pintado
+  // como capa (no gasta tiles, igual que los rotulos). La puerta del tren
+  // lleva el dialogo de salir de Passau, que antes vivia en el edificio.
+  hbf: {
+    name:"Hauptbahnhof",
+    grid:[
+      "##############################",
+      "##############################",
+      "##############################",
+      "#____________________________#",
+      "#____________________________#",
+      "##############..##############",
+      "#FFFFFFF#------------#@@@@@@@#",
+      "#-------#------------#-------#",
+      "#ccccc--#-p--------p-#--ccccc#",
+      "#----------------------------#",
+      "#----------------------------#",
+      "#-----------TT--TT-----------#",
+      "#-------------------M--------#",
+      "#-----------TT--TT--M--------#",
+      "#----------------------------#",
+      "#----------------------------#",
+      "#ccccc-#--------------#-ccccc#",
+      "#------#--------------#------#",
+      "#,,,,,,#--------------#----ID#",
+      "###############E##############"
+    ],
+    tren:{x0:1,x1:28,y0:0,y1:2,puerta:15},
+    rotulos:[
+      {x:3, y:6,  t:"PRENSA",      c:"#e0a93a"},
+      {x:25,y:6,  t:"YORMA'S",     c:"#5ad68f"},
+      {x:3, y:15, t:"PANADERÍA",   c:"#e8a33c"},
+      {x:25,y:15, t:"TAQUILLA DB", c:"#e2141e"},
+    ],
+    info:[
+      {x:15,y:2,name:"Puerta del tren · Gleis 1",lines:[
+        "🚆 Tren regional de la DB, con destino Múnich y Viena.",
+        "Sube por aquí… si de verdad quieres marcharte de Passau."],
+       choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
+         {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.",
+                                    "(En una próxima versión saldrás de verdad 😉)"]},
+         {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
+      {x:18,y:5,name:"Panel de salidas",lines:[
+        "🕑 ABFAHRT · SALIDAS",
+        "Gleis 1 · RE Múnich … 4 min · con retraso, como siempre.",
+        "Gleis 1 · RJX Viena … 26 min.",
+        "Debajo, en letras pequeñas: «Wir bitten um Verständnis»."]},
+    ],
+    npcs:[
+      {x:3,y:7,name:"Kioskera Frau Vogt",color:"#e0a93a",dir:'down',
+       lines:["Prensa, tabaco, chicles y billetes de lotería. Lo de siempre.",
+              "¿Un periódico para el tren? Aunque sea para taparse la cara y dormir."],
+       choice:{q:"¿Le pongo algo?",opts:[
+         {t:"El periódico",precio:280,r:["Aquí tiene. Las páginas de deportes ya se las ha llevado alguien, como cada día."]},
+         {t:"Un café para llevar",precio:190,r:["Cuidado que quema. Y sí, el vaso es pequeño; esto no es América."]},
+         {t:"Solo miraba",r:["Mire, mire. El quiosco lleva aquí desde antes que el edificio nuevo."]}]}},
+      {x:25,y:7,name:"Dependiente Timo",color:"#5ad68f",dir:'down',
+       lines:["¡Bienvenido a Yorma's! Bocadillos, Leberkäse y bebida fría para el viaje.",
+              "En toda estación alemana hay un Yorma's. Es una ley no escrita."],
+       choice:{q:"¿Qué te preparo?",opts:[
+         {t:"Panecillo de Leberkäse",precio:390,r:["¡Marchando! Con mostaza dulce, que es como se come de verdad."]},
+         {t:"Una bebida fría",precio:250,r:["Fresquita del todo. Te la bebes en el andén mirando el panel."]},
+         {t:"Nada, gracias",r:["Otra vez será. Aquí abrimos hasta que sale el último tren."]}]}},
+      {x:3,y:17,name:"Panadera Frau Kilic",color:"#e8a33c",dir:'up',
+       lines:["Brezel recién hechos, Brötchen y bollos. Huele a mañana de examen.",
+              "El pan de la estación tiene fama de malo. El mío no. Pruébelo."],
+       choice:{q:"¿Qué le apetece?",opts:[
+         {t:"Un Brezel",precio:150,r:["Salado y crujiente. El desayuno de media Baviera."]},
+         {t:"Café y bollo",precio:290,r:["El clásico. Se lo toma de pie, mirando llegar los trenes."],
+          sin:["Hoy va justo de suelto, ¿eh? No pasa nada, el Brezel espera."]},
+         {t:"Solo estaba oliendo",r:["Eso hace todo el mundo al pasar. Y casi todo el mundo vuelve."]}]}},
+      {x:25,y:17,name:"Taquillero Herr Frei",color:"#5a8ad6",dir:'up',
+       lines:["Taquilla de la DB. Billetes, enlaces y reclamaciones por retraso.",
+              "¿Reclamación? Rellene el formulario. Con 60 minutos de retraso le devuelven un cuarto.",
+              "Para trayectos cortos, use mejor las máquinas de ahí: más rápido que esta cola."]},
+      {x:18,y:3,name:"Revisor Herr Ott",color:"#c8506a",dir:'down',
+       lines:["El regional a Múnich sale de la Gleis 1. Suba por la puerta del centro.",
+              "¿Que si llega a tiempo? Estadísticamente… mejor lleve algo para leer."]},
+      {x:9,y:10,name:"Estudiante con mochila",color:"#8a6ad6",dir:'right',
+       lines:["Voy a casa el fin de semana. Bolsa de ropa sucia para mamá, clásico.",
+              "El truco es sentarse del lado del río; las vistas valen el billete."]},
+      {x:19,y:15,name:"Viajera con maleta",color:"#4a9a8a",dir:'left',
+       lines:["Llevo veinte minutos mirando el panel. El tren no adelanta por mirarlo, pero una insiste.",
+              "Si oye el aviso en alemán y todos suspiran a la vez, es que hay más retraso."]},
+    ]
+  },
 };
 
 //==================================================================
@@ -3449,10 +3538,7 @@ const INTERIORS = {
 //==================================================================
 const DOOR_AT = {}; // "x,y" -> building key
 const BUILDINGS = {
-  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad."],
-           choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
-             {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
-             {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
+  HBf:    {name:"Hauptbahnhof", door:[29,12], interior:'hbf'},
   Einkauf:{name:"Einkaufszentrum", door:[53,15], extra:[[57,12],[53,8,'ekz2']], interior:'ekz1'},
   SP:     {name:"Sportzentrum", door:[5,27], interior:'sportzentrum'},
   VG:     {name:"Verwaltungsgebäude", door:[12,25], interior:'verwaltung'},
@@ -6179,6 +6265,50 @@ function updateCamera(){
   if(mapW*TILE<VW) cam.x=(mapW*TILE-VW)/2;
   if(mapH*TILE<VH) cam.y=(mapH*TILE-VH)/2;
 }
+//==================================================================
+//  TREN DE LA DB (capa del anden, no gasta tiles)
+//  Se pinta sobre las filas de muro de arriba de la estacion: cuerpo rojo,
+//  banda de ventanas, faldon oscuro que hace de borde de anden, y una
+//  puerta doble en la columna 'puerta' por la que se aborda.
+//==================================================================
+function drawTren(T){
+  const x=T.x0*TILE-cam.x, y=T.y0*TILE-cam.y;
+  const w=(T.x1-T.x0+1)*TILE, h=(T.y1-T.y0+1)*TILE;
+  if(x+w<0||x>VW||y+h<0||y>VH) return;
+  const rojo='#d0211c', rojoDk=shade(rojo,-0.16), rojoLt=shade(rojo,0.12);
+  const techo='#c9ccd2';
+  // banda de ventanas centrada; queda cuerpo rojo arriba y abajo
+  const by=y+Math.round(h*0.34), bh=Math.round(h*0.30);
+  ctx.fillStyle=techo;   ctx.fillRect(x,y,w,3);                 // techo
+  ctx.fillStyle=rojoLt;  ctx.fillRect(x,y+3,w,2);
+  ctx.fillStyle=rojo;    ctx.fillRect(x,y+5,w,h-11);            // cuerpo rojo
+  ctx.fillStyle=rojoDk;  ctx.fillRect(x,by-2,w,1); ctx.fillRect(x,by+bh+1,w,1); // filetes
+  ctx.fillStyle='#2b2f36'; ctx.fillRect(x,y+h-5,w,4);          // faldon (borde de anden)
+  ctx.fillStyle='#14161b'; ctx.fillRect(x,y+h-1,w,1);          // hueco a via
+  // banda blanca con ventanas
+  const pc=T.puerta*TILE-cam.x;                                // centro de la puerta
+  ctx.fillStyle='#eef1f5'; ctx.fillRect(x,by,w,bh);
+  for(let vx=x+3; vx<x+w-5; vx+=13){
+    if(vx> pc-12 && vx< pc+9) continue;                        // hueco de la puerta
+    ctx.fillStyle='#33404f'; ctx.fillRect(vx,by+1,10,bh-2);
+    ctx.fillStyle='#8fb0cc'; ctx.fillRect(vx,by+1,10,2);
+    ctx.fillStyle='#5f7488'; ctx.fillRect(vx+5,by+1,1,bh-2);
+  }
+  // puerta doble de la DB (de techo a faldon)
+  const dx=pc-8, dw=16;
+  ctx.fillStyle=rojoDk; ctx.fillRect(dx-1,y+4,dw+2,h-8);
+  ctx.fillStyle=shade(rojo,-0.05); ctx.fillRect(dx,y+5,dw,h-10);
+  ctx.fillStyle='#2b2f36'; ctx.fillRect(dx+dw/2-0.5,y+5,1,h-10);   // junta de hojas
+  ctx.fillStyle='#33404f'; ctx.fillRect(dx+2,by,5,bh); ctx.fillRect(dx+dw-7,by,5,bh);
+  ctx.fillStyle='#8fb0cc'; ctx.fillRect(dx+2,by,5,2); ctx.fillRect(dx+dw-7,by,5,2);
+  ctx.fillStyle='#f4f6f9'; ctx.fillRect(dx+dw/2-2,by+bh+2,4,2);    // boton de apertura
+  // logotipo DB
+  ctx.fillStyle='#ffffff'; ctx.font='bold 7px "Courier New",monospace';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('DB', x+5, y+6);
+  ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+}
+
 function render(){
   ctx.fillStyle = scene==='outdoor'?PAL.bosque:'#8a7a9a';
   ctx.fillRect(0,0,VW,VH);
@@ -6207,6 +6337,7 @@ function render(){
       });
       ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     }
+    if(I && I.tren) drawTren(I.tren);
   }
   // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
   const ents=[];
