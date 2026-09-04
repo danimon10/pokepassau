@@ -40,11 +40,28 @@ for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
 // mascara de union de las rayas pintadas (1 arriba, 2 abajo, 4 izq, 8 der),
 // igual que marcarLineas() en el juego, para que el plano y la partida
 // dibujen exactamente el mismo trazado
-const raya=(x,y)=>{const c=(g[y]||'')[x]; return c==='w'||c==='y'||c==='j'||c==='d'||c==='f';};
+const RAYA='wyjdf', APILABLE="()/&%@,[{]}F'";
+const raya=(x,y)=>RAYA.includes((g[y]||'')[x]||'\u0000');
 const conex={};
 for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
-  if(!raya(x,y)) continue;
-  conex[x+','+y]=(raya(x,y-1)?1:0)|(raya(x,y+1)?2:0)|(raya(x-1,y)?4:0)|(raya(x+1,y)?8:0);
+  const c=(g[y]||'')[x];
+  const mask=(f)=>(f(x,y-1)?1:0)|(f(x,y+1)?2:0)|(f(x-1,y)?4:0)|(f(x+1,y)?8:0);
+  if(raya(x,y))            conex[x+','+y]=mask(raya);
+  else if(APILABLE.includes(c)) conex[x+','+y]=mask((a,b)=>((g[b]||'')[a]===c));
+  else if('SVU'.includes(c)){
+    let bits=mask((a,b)=>'SVU'.includes((g[b]||'')[a]||'\u0000'));
+    const tr=tramo(x,y,'SVU');           // bit 16: extremo cerrado del tramo
+    let vx=-1, vy=-1;
+    for(let b=tr.y0;b<=tr.y1;b++)for(let a=tr.x0;a<=tr.x1;a++){
+      const q=(g[b]||'')[a]; if(q==='V'||q==='U'){ vx=a; vy=b; }
+    }
+    if(vx>=0){
+      const ancho=(tr.x1-tr.x0)>(tr.y1-tr.y0);
+      if(ancho ? (vx<=(tr.x0+tr.x1)/2 ? x===tr.x1 : x===tr.x0)
+               : (vy<=(tr.y0+tr.y1)/2 ? y===tr.y1 : y===tr.y0)) bits|=16;
+    }
+    conex[x+','+y]=bits;
+  }
 }
 const payload={clave,I,drawInTileSrc:fn,marca,escH,conex,nota:process.argv[4]?process.argv[4].split('|'):null};
 const tpl=fs.readFileSync(path.join(__dirname,'sala-template.html'),'utf8');
