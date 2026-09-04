@@ -4039,13 +4039,18 @@ function drawInTile(t,sx,sy,patio,girada,conex){
       // Los peldanos van siempre perpendiculares al sentido de subida, que
       // es como se ve una escalera de verdad: si se sube andando de lado,
       // las lineas son verticales, y las zancas pasan a estar arriba y abajo.
+      // Las zancas van solo en el BORDE del tramo, no en cada baldosa: si se
+      // pintan en todas, un tramo de tres de ancho parece tres escaleras
+      // estrechas en vez de una sola.
       F('#a89ec0');
       if(girada){
         for(let i=0;i<4;i++){ R('#ded8ea',i*4,0,3,TILE); R('#8b81a6',i*4+3,0,1,TILE); }
-        R('#7a7090',0,0,TILE,1); R('#7a7090',0,TILE-1,TILE,1);
+        if(!(conex&1)){ R('#7a7090',0,0,TILE,2); R('#605780',0,0,TILE,1); }
+        if(!(conex&2)){ R('#7a7090',0,TILE-2,TILE,2); R('#605780',0,TILE-1,TILE,1); }
       } else {
         for(let i=0;i<4;i++){ R('#ded8ea',0,i*4,TILE,3); R('#8b81a6',0,i*4+3,TILE,1); }
-        R('#7a7090',0,0,1,TILE); R('#7a7090',TILE-1,0,1,TILE);
+        if(!(conex&4)){ R('#7a7090',0,0,2,TILE); R('#605780',0,0,1,TILE); }
+        if(!(conex&8)){ R('#7a7090',TILE-2,0,2,TILE); R('#605780',TILE-1,0,1,TILE); }
       }
       return; }
     case 'X': F('#d8c4a0'); R('#7a5230',3,2,10,12); R('#5a3a1a',4,3,8,11); R('#e8d860',6,6,4,2); return; // salida a hub
@@ -4672,8 +4677,18 @@ function activarPuerta(nx,ny){
   const d=(I.doors||[]).find(d=>d.x===nx&&d.y===ny);
   const sal=(I.salidas||[]).find(s=>s.x===nx&&s.y===ny);
   if(sal){ salirAlCampus(sal.at); return true; }
-  if(d){ if(t==='V') usarEscalera(nx,ny,d.to,false); else gotoScene(d.to,d.at,d.dir); return true; }
-  if(t==='U'){ usarEscalera(nx,ny,null,true); return true; }
+  // Una escalera se coge por CUALQUIER punto de su ancho, no solo por la
+  // casilla que lleva el cableado: uno sube por donde le pilla, y el guion
+  // arranca en la columna (o fila) por la que ha entrado.
+  if(t==='S'||t==='V'||t==='U'){
+    const tr=tramo(I.grid,nx,ny,'SVU');
+    const dentro=(x,y)=>x>=tr.x0&&x<=tr.x1&&y>=tr.y0&&y<=tr.y1;
+    const baja=(I.doors||[]).find(q=>dentro(q.x,q.y)&&(I.grid[q.y]||'')[q.x]==='V');
+    if(baja){ usarEscalera(nx,ny,baja.to,false); return true; }
+    for(let y=tr.y0;y<=tr.y1;y++)for(let x=tr.x0;x<=tr.x1;x++)
+      if((I.grid[y]||'')[x]==='U'){ usarEscalera(nx,ny,null,true); return true; }
+  }
+  if(d){ gotoScene(d.to,d.at,d.dir); return true; }
   if(t==='X'||t==='E'){ exitInterior(); return true; }
   return false;
 }
@@ -4711,6 +4726,9 @@ function marcarLineas(g){
     }else if(APILABLE.includes(c)){
       const ig=(a,b)=>((g[b]||'')[a]===c);
       m.set(x+','+y,(ig(x,y-1)?1:0)|(ig(x,y+1)?2:0)|(ig(x-1,y)?4:0)|(ig(x+1,y)?8:0));
+    }else if(c==='S'||c==='V'||c==='U'){
+      const pe=(a,b)=>'SVU'.includes((g[b]||'')[a]||'\u0000');
+      m.set(x+','+y,(pe(x,y-1)?1:0)|(pe(x,y+1)?2:0)|(pe(x-1,y)?4:0)|(pe(x+1,y)?8:0));
     }
   }
   return m;
@@ -5019,7 +5037,7 @@ function render(){
     if(scene==='outdoor'&&DOOR_AT[f.x+','+f.y])inter=true;
     if(scene!=='outdoor'){
       const t=tileAt(f.x,f.y);
-      if('XEU'.includes(t)||PUERTAS_SALA.has(t))inter=true;
+      if('XEUS'.includes(t)||PUERTAS_SALA.has(t))inter=true;
       const I=INTERIORS[scene];
       if(I.doors&&I.doors.some(d=>d.x===f.x&&d.y===f.y))inter=true;
       if(I.salidas&&I.salidas.some(d=>d.x===f.x&&d.y===f.y))inter=true;
