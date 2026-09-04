@@ -32,36 +32,144 @@
   #stage{position:relative;flex:0 0 auto;touch-action:none;}
   canvas{image-rendering:pixelated;image-rendering:crisp-edges;background:#000;display:block;
     box-shadow:0 0 0 4px #20243a, 0 0 30px rgba(0,0,0,.6);touch-action:none;}
-
+  /* ================== PANTALLA DE INICIO ==========================
+     Tres pantallas dentro del mismo overlay -- portada, creacion de
+     personaje y controles -- de las que solo una lleva .on a la vez.
+     De fondo, el campus de verdad: se dibuja una vez en #fondoMenu y
+     se pasea despacio por detras.                                  */
   #menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;color:#fff;text-align:center;padding:20px;overflow-y:auto;
-    background:linear-gradient(160deg,#3a6ea5 0%, #2a4d7a 55%, #1e3a5f 100%);}
-  #menu h1{font-size:clamp(26px,7vw,52px);letter-spacing:2px;line-height:1.05;
-    text-shadow:3px 3px 0 #1a2a44, 5px 5px 0 rgba(0,0,0,.3);color:#ffe9a8;margin-bottom:4px;}
-  #menu h1 .sub{display:block;font-size:.4em;color:#bfe0ff;letter-spacing:6px;margin-top:8px;text-shadow:2px 2px 0 #1a2a44;}
-  .panel{background:var(--dlg-bg);color:var(--txt);border:4px solid var(--dlg-frame);
-    border-radius:10px;box-shadow:0 6px 0 var(--dlg-shadow);padding:16px 18px;margin-top:18px;max-width:580px;width:100%;}
-  .panel h2{font-size:17px;margin-bottom:12px;color:#3a4a7a;letter-spacing:1px;}
-  .row{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;}
-  .pick{cursor:pointer;border:3px solid var(--dlg-frame);border-radius:8px;background:#fff;
-    padding:9px;width:84px;transition:transform .08s;box-shadow:0 3px 0 rgba(90,107,138,.5);}
-  .pick:hover{transform:translateY(-2px);}
-  .pick.sel{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
-  .pick canvas{box-shadow:none;background:#bfe3bf;border-radius:4px;display:block;margin:0 auto 5px;}
-  .pick .nm{font-size:12px;font-weight:bold;}
-  .career{cursor:pointer;border:3px solid var(--dlg-frame);border-radius:8px;background:#fff;
-    padding:8px 6px;width:104px;font-size:12px;transition:.08s;box-shadow:0 3px 0 rgba(90,107,138,.5);font-weight:bold;}
-  .career:hover{transform:translateY(-2px);}
-  .career.sel{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
-  .career .ic{font-size:21px;display:block;margin-bottom:3px;}
-  .career .full{display:block;font-size:9px;color:#6a7088;margin-top:2px;line-height:1.2;font-weight:normal;}
-  #startBtn{margin-top:20px;cursor:pointer;font-family:inherit;font-weight:bold;font-size:18px;color:#fff;
-    background:#e0a93a;border:4px solid #b07a1a;border-radius:10px;padding:12px 34px;
-    box-shadow:0 5px 0 #8a5e12;letter-spacing:1px;transition:transform .08s;}
-  #startBtn:hover{transform:translateY(-2px);}
-  #startBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #8a5e12;}
-  #startBtn:disabled{opacity:.45;cursor:not-allowed;}
-  .hint{margin-top:13px;font-size:12px;color:#cfe2ff;letter-spacing:.5px;line-height:1.5;}
+    justify-content:center;color:#fff;text-align:center;overflow:hidden;background:#0d1424;}
+  #fondoMenu{position:absolute;inset:0;width:100%;height:100%;display:block;background:#3a6ea5;
+    image-rendering:pixelated;image-rendering:crisp-edges;box-shadow:none;}
+  /* velo: sin el, el texto se pierde encima del campus */
+  #velo{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 48% 54% at 50% 46%, rgba(6,10,22,.52), rgba(6,10,22,0) 72%),
+               radial-gradient(ellipse at 50% 42%, rgba(10,16,32,.06) 0%, rgba(10,16,32,.40) 58%, rgba(8,11,24,.80) 100%),
+               linear-gradient(180deg, rgba(18,36,72,.22), rgba(8,11,24,.34));}
+  #velo::after{content:'';position:absolute;inset:0;opacity:.16;
+    background:repeating-linear-gradient(180deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px);}
+
+  .pant{position:relative;z-index:2;display:none;flex-direction:column;align-items:center;
+    width:100%;max-width:660px;max-height:100%;padding:22px 18px 26px;overflow-y:auto;}
+  .pant.on{display:flex;animation:entraPant .3s ease-out;}
+  @keyframes entraPant{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+
+  /* --- rotulo del juego --- */
+  .logo{margin-bottom:clamp(18px,5vh,34px);animation:respira 3.4s ease-in-out infinite;}
+  @keyframes respira{0%,100%{transform:scale(1);}50%{transform:scale(1.025);}}
+  .logo .l1{display:block;font-size:clamp(28px,8.4vw,60px);font-weight:bold;letter-spacing:3px;line-height:1;
+    color:#ffe9a8;text-shadow:0 3px 0 #b07a1a, 0 6px 0 #7a5410, 4px 9px 0 rgba(0,0,0,.45), 0 0 28px rgba(255,214,120,.4);}
+  .logo .l2{display:block;margin-top:11px;font-size:clamp(11px,3.1vw,19px);letter-spacing:9px;
+    color:#bfe0ff;text-shadow:0 2px 0 #16263f, 0 0 14px rgba(120,190,255,.55);}
+  .logo .l3{display:block;margin-top:13px;font-size:10px;letter-spacing:2.5px;color:#cfe0f5;
+    text-shadow:0 1px 3px rgba(4,8,18,.95), 0 0 10px rgba(4,8,18,.9);}
+
+  /* --- botones del menu --- */
+  .opciones{display:flex;flex-direction:column;gap:11px;width:min(100%,352px);}
+  .mbtn{position:relative;font-family:inherit;font-weight:bold;letter-spacing:1.5px;cursor:pointer;width:100%;
+    color:#3a2a08;background:linear-gradient(180deg,#ffdd8a 0%,#f0bd4e 52%,#e0a93a 100%);
+    border:3px solid #8a5e12;border-radius:9px;padding:13px 18px;font-size:16px;
+    box-shadow:0 5px 0 #6d4a0e, 0 9px 15px rgba(0,0,0,.42), inset 0 2px 0 rgba(255,255,255,.5);
+    transition:transform .07s, box-shadow .07s, filter .12s;}
+  .mbtn:hover{filter:brightness(1.08);}
+  .mbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #6d4a0e, inset 0 2px 0 rgba(255,255,255,.5);}
+  .mbtn:disabled{filter:grayscale(.75) brightness(.7);cursor:not-allowed;}
+  .mbtn.sec{background:linear-gradient(180deg,#8497bd 0%,#5a6b8a 100%);color:#fff;border-color:#38486a;
+    box-shadow:0 5px 0 #26314e, 0 9px 15px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.28);}
+  .mbtn.sec:active{box-shadow:0 1px 0 #26314e, inset 0 2px 0 rgba(255,255,255,.28);}
+
+  /* el triangulito de toda la vida: marca donde esta el foco del teclado */
+  .foco{outline:3px solid rgba(255,233,168,.92);outline-offset:2px;}
+  .pick.foco::after, .slot.foco::after{content:none;}
+  .mbtn.foco::after{content:'\25B6';position:absolute;left:11px;top:50%;color:#7a5410;font-size:13px;
+    animation:apunta .55s ease-in-out infinite alternate;}
+  .mbtn.sec.foco::after{color:#e8f0ff;}
+  @keyframes apunta{from{transform:translate(0,-50%);}to{transform:translate(5px,-50%);}}
+
+  /* --- tarjeta de la partida guardada --- */
+  .slotTit{width:100%;font-size:10px;letter-spacing:2.5px;color:#cfe0f5;text-align:left;margin-bottom:6px;
+    text-shadow:0 1px 3px rgba(4,8,18,.95);}
+  .slot{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    font-family:inherit;color:#eaf2ff;padding:10px 12px;border-radius:10px;border:3px solid #e0a93a;
+    background:linear-gradient(180deg,rgba(52,68,106,.95),rgba(28,38,66,.95));
+    box-shadow:0 5px 0 #8a5e12, 0 9px 17px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,233,168,.22);
+    transition:transform .07s, box-shadow .07s, filter .12s;}
+  .slot:hover{filter:brightness(1.14);}
+  .slot:active{transform:translateY(4px);box-shadow:0 1px 0 #8a5e12, inset 0 1px 0 rgba(255,233,168,.22);}
+  .slot canvas{flex:0 0 auto;image-rendering:pixelated;border-radius:7px;
+    background:linear-gradient(180deg,#9ad884,#63aa55);border:2px solid #47733a;box-shadow:none;}
+  .slotTxt{flex:1;min-width:0;}
+  .slotNm{font-size:14px;font-weight:bold;letter-spacing:1px;color:#ffe9a8;}
+  .slotSub{font-size:11px;color:#c2d5f0;margin-top:4px;letter-spacing:.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .slotSub.peq{font-size:10px;color:#93aacd;margin-top:3px;}
+  .slotGo{font-size:19px;color:#ffe9a8;flex:0 0 auto;}
+  .borrar{background:none;border:0;color:#c2d5f0;font-family:inherit;font-size:11px;letter-spacing:1px;
+    cursor:pointer;text-decoration:underline;padding:5px;margin-top:-3px;
+    text-shadow:0 1px 3px rgba(4,8,18,.95);}
+  .borrar:hover{color:#ff9f9f;}
+
+  /* --- creacion de personaje --- */
+  .tit{font-size:clamp(15px,4.4vw,23px);letter-spacing:4px;color:#ffe9a8;margin-bottom:14px;
+    text-shadow:0 3px 0 #7a5410, 0 0 18px rgba(255,214,120,.35);}
+  .ficha{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-bottom:16px;
+    padding:12px 14px;border:3px solid #7f93b8;border-radius:12px;
+    background:linear-gradient(180deg,rgba(48,65,104,.92),rgba(25,35,61,.92));
+    box-shadow:0 5px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.14);}
+  .ficha canvas{flex:0 0 auto;image-rendering:pixelated;border-radius:9px;
+    background:linear-gradient(180deg,#9ad884,#63aa55);border:3px solid #47733a;box-shadow:none;}
+  .fichaNm{font-size:16px;font-weight:bold;letter-spacing:1.5px;color:#ffe9a8;}
+  .fichaCar{font-size:11px;letter-spacing:1.5px;color:#8fd0ff;margin-top:4px;}
+  .fichaBio{font-size:11px;color:#c2d5f0;margin-top:6px;line-height:1.45;}
+
+  .grupo{width:100%;margin-bottom:15px;}
+  .grupo h3{font-size:10px;letter-spacing:3px;color:#cfe0f5;margin-bottom:8px;text-align:left;
+    text-shadow:0 1px 3px rgba(4,8,18,.95);}
+  .rejilla{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+  .pick{position:relative;cursor:pointer;font-family:inherit;color:#eaf2ff;padding:7px 3px 8px;border-radius:9px;
+    border:3px solid #6a7fa6;background:linear-gradient(180deg,rgba(52,70,112,.9),rgba(29,40,70,.9));
+    box-shadow:0 4px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.12);
+    transition:transform .08s, box-shadow .08s, filter .12s;}
+  .pick:hover{filter:brightness(1.15);}
+  .pick canvas{display:block;margin:0 auto 4px;image-rendering:pixelated;
+    border-radius:6px;background:linear-gradient(180deg,#9ad884,#63aa55);box-shadow:none;}
+  .pick .nm{font-size:11px;font-weight:bold;letter-spacing:.5px;}
+  .pick .ic{display:block;font-size:20px;line-height:1.25;}
+  .pick .full{display:block;font-size:8px;color:#a9c0e2;margin-top:2px;line-height:1.25;font-weight:normal;}
+  .pick.sel{color:#3a2a08;border-color:#e0a93a;background:linear-gradient(180deg,#ffe9a8,#f0c86a);
+    box-shadow:0 4px 0 #b07a1a, 0 0 20px rgba(255,214,120,.45), inset 0 1px 0 rgba(255,255,255,.6);}
+  .pick.sel .full{color:#7a6330;}
+  .acciones{display:flex;gap:10px;width:min(100%,352px);margin-top:4px;}
+  .acciones .mbtn{flex:1;}
+  .acciones .mbtn.sec{flex:0 0 38%;}
+
+  /* --- pantalla de controles --- */
+  .ayudaCaja{width:100%;text-align:left;padding:14px 16px;border:3px solid #7f93b8;border-radius:12px;
+    background:linear-gradient(180deg,rgba(48,65,104,.92),rgba(25,35,61,.92));
+    box-shadow:0 5px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.14);margin-bottom:16px;}
+  .ayudaCaja h3{font-size:11px;letter-spacing:3px;color:#8fd0ff;margin:14px 0 7px;}
+  .ayudaCaja h3:first-child{margin-top:0;}
+  .ayudaCaja p{font-size:12px;line-height:1.6;color:#dbe7f8;margin-bottom:5px;}
+  .tecla{display:inline-block;background:#f4f2e6;color:#2a3550;border:2px solid #7f93b8;border-radius:5px;
+    box-shadow:0 2px 0 #1c2540;padding:0 6px;font-size:11px;font-weight:bold;margin:0 2px;}
+
+  .conDedo{display:none;} body.tmode .conTeclado{display:none;} body.tmode .conDedo{display:inline;}
+  .pie{margin-top:20px;font-size:10px;letter-spacing:1.5px;color:#b9cbe4;line-height:1.8;
+    text-shadow:0 1px 3px rgba(4,8,18,.95), 0 0 10px rgba(4,8,18,.9);}
+
+  /* pantallas bajas (movil en horizontal): todo un poco mas apretado */
+  @media (max-height:460px){
+    .pant{padding:12px 16px 0;}
+    .acciones{position:sticky;bottom:0;padding:8px 0 12px;
+      background:linear-gradient(180deg,rgba(8,11,24,0),rgba(8,11,24,.9) 45%);}
+    .logo{margin-bottom:12px;}
+    .logo .l1{font-size:clamp(24px,6vw,38px);}
+    .logo .l3{display:none;}
+    .mbtn{padding:10px 16px;font-size:14px;}
+    .ficha{margin-bottom:10px;}
+    .ficha canvas{transform:scale(.78);transform-origin:left center;margin-right:-14px;}
+    .grupo{margin-bottom:10px;}
+  }
 
   #hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:none;pointer-events:none;z-index:20;}
   #locBadge{background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:20px;
@@ -145,6 +253,48 @@
   body.tmode.ovl #invBtn{display:none !important;}
   @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(3px);}}
   .fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .3s;z-index:50;}
+
+  /* ---- CONTADORES: FECHA, DINERO Y MISIONES -------------------------
+     La fecha y el dinero van arriba a la izquierda, bajo el rotulo de
+     ubicacion (ese va centrado y se estira al salir un aviso, asi que
+     compartir fila con el acaba en solape) y sin capturar el tacto, que
+     esa mitad de la pantalla es del joystick. El contador de misiones va
+     a la derecha, debajo de la mochila.                              */
+  #hudEstado{position:absolute;top:calc(var(--fs) + 26px);left:8px;z-index:20;pointer-events:none;
+    display:none;flex-direction:column;align-items:flex-start;gap:4px;}
+  body.playing #hudEstado{display:flex;}
+  body.tmode.ovl #hudEstado{display:none;}
+  #hudEstado .pill{background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:20px;
+    box-shadow:0 3px 0 var(--dlg-shadow);padding:2px 10px;color:var(--txt);font-weight:bold;
+    font-size:calc(var(--fs) * .72);letter-spacing:.5px;white-space:nowrap;}
+  body.tmode #hudEstado .pill{background:rgba(248,248,240,.82);}
+  #hudEstado .pill.destello{animation:destello .7s ease-out;}
+  @keyframes destello{0%{background:#ffe9a8;transform:scale(1.14);}100%{background:var(--dlg-bg);transform:scale(1);}}
+
+  #misBtn{position:absolute;top:62px;right:12px;z-index:40;cursor:pointer;width:44px;height:44px;
+    background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:10px;
+    box-shadow:0 3px 0 var(--dlg-shadow);display:none;align-items:center;justify-content:center;
+    font-size:22px;padding:0;font-family:inherit;}
+  body.playing #misBtn{display:flex;}
+  body.tmode #misBtn{width:var(--ib);height:var(--ib);font-size:calc(var(--ib) * .5);
+    background:rgba(248,248,240,.7);opacity:.85;top:calc(var(--ib) + 16px);right:8px;}
+  body.tmode.ovl #misBtn{display:none !important;}
+  #misBtn:active{transform:translateY(2px);}
+  #misBtn .num{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 3px;
+    background:#e0a93a;border:2px solid #8a5e12;border-radius:10px;color:#fff;
+    font-size:11px;line-height:15px;font-weight:bold;}
+  #misBtn.vacio .num{background:#8a90a8;border-color:#5a6b8a;}
+  /* opcion de dialogo que no se puede pagar */
+  .choice.nopuedo{opacity:.5;}
+
+  /* ---- LA NOCHE: se duerme, se oscurece y cambia el dia ---- */
+  #noche{position:absolute;inset:0;z-index:70;background:#080a12;opacity:0;pointer-events:none;
+    transition:opacity .75s ease;display:flex;align-items:center;justify-content:center;text-align:center;}
+  #noche.on{opacity:1;pointer-events:auto;}
+  #nocheTxt{opacity:0;transition:opacity .5s ease;color:#ffe9a8;font-weight:bold;padding:0 24px;
+    font-size:calc(var(--fs) * 1.05);line-height:1.7;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.8);}
+  #noche.txt #nocheTxt{opacity:1;}
+  #nocheTxt .peq{display:block;font-size:.78em;color:#bfe0ff;letter-spacing:.5px;margin-top:10px;}
 </style>
 </head>
 <body>
@@ -152,6 +302,11 @@
   <div id="stage">
     <canvas id="cv" width="240" height="160"></canvas>
     <div id="hud"><div id="locBadge">Campus</div></div>
+    <div id="hudEstado">
+      <div class="pill" id="pillFecha">🍂 Lun 1 oct</div>
+      <div class="pill" id="pillDinero">💶 50,00 €</div>
+    </div>
+    <button id="misBtn" title="Misiones (M)">📋<span class="num" id="misNum">0</span></button>
     <div id="dialog">
       <div id="dlgName">NPC</div><div id="dlgText"></div>
       <div id="dlgChoices"></div><div id="dlgArrow">▼</div>
@@ -172,13 +327,63 @@
     </div>
   </div>
   <div id="menu">
-    <h1>CAMPUS PASSAU<span class="sub">UNI · QUEST</span></h1>
-    <div class="panel"><h2>1 · ELIGE TU PERSONAJE</h2><div class="row" id="charRow"></div></div>
-    <div class="panel"><h2>2 · ELIGE TU CARRERA</h2><div class="row" id="careerRow"></div></div>
-    <button id="startBtn" disabled>¡EMPEZAR!</button>
-    <div class="hint">Teclado: flechas/WASD para mover · Z/Espacio/Enter para interactuar<br>Móvil: apoya el dedo en la mitad izquierda y desliza — el joystick aparece donde toques<br>Toca la mitad derecha (o el botón A) para interactuar · arrastra el botón A para cambiarlo de sitio<br><span style="opacity:.7">(tecla T: mostrar/ocultar controles táctiles)</span></div>
+    <canvas id="fondoMenu"></canvas>
+    <div id="velo"></div>
+
+    <!-- ---------- PORTADA ---------- -->
+    <section class="pant on" id="pPortada">
+      <div class="logo">
+        <span class="l1">CAMPUS PASSAU</span>
+        <span class="l2">UNI · QUEST</span>
+        <span class="l3">UN SEMESTRE EN LA UNIVERSITÄT PASSAU</span>
+      </div>
+      <div class="opciones">
+        <div id="slotZona"></div>
+        <button class="mbtn" id="nuevaBtn" data-nav>✦ NUEVA PARTIDA</button>
+        <button class="mbtn sec" id="ayudaBtn" data-nav>? CÓMO SE JUEGA</button>
+      </div>
+      <div class="pie"><span class="conTeclado">FLECHAS PARA ELEGIR · ENTER PARA ACEPTAR<br>O TOCA DIRECTAMENTE LA OPCIÓN</span><span class="conDedo">TOCA LA OPCIÓN QUE QUIERAS</span></div>
+    </section>
+
+    <!-- ---------- CREACIÓN DE PERSONAJE ---------- -->
+    <section class="pant" id="pCrear">
+      <div class="tit">NUEVA PARTIDA</div>
+      <div class="ficha">
+        <canvas id="retrato" width="32" height="32"></canvas>
+        <div class="fichaTxt">
+          <div class="fichaNm" id="fNm">¿QUIÉN ERES?</div>
+          <div class="fichaCar" id="fCar">Sin carrera todavía</div>
+          <div class="fichaBio" id="fBio">Elige a quién quieres ser este semestre y qué vas a estudiar.</div>
+        </div>
+      </div>
+      <div class="grupo"><h3>1 · QUIÉN ERES</h3><div class="rejilla" id="charRow"></div></div>
+      <div class="grupo"><h3>2 · QUÉ ESTUDIAS</h3><div class="rejilla" id="careerRow"></div></div>
+      <div class="acciones">
+        <button class="mbtn sec" id="volverBtn" data-nav>ATRÁS</button>
+        <button class="mbtn" id="startBtn" data-nav disabled>¡EMPEZAR!</button>
+      </div>
+    </section>
+
+    <!-- ---------- CONTROLES ---------- -->
+    <section class="pant" id="pAyuda">
+      <div class="tit">CÓMO SE JUEGA</div>
+      <div class="ayudaCaja">
+        <h3>TECLADO</h3>
+        <p><span class="tecla">←↑↓→</span> o <span class="tecla">W A S D</span> para andar por el campus.</p>
+        <p><span class="tecla">Z</span> <span class="tecla">Espacio</span> <span class="tecla">Enter</span> para hablar, abrir puertas y recoger cosas.</p>
+        <p><span class="tecla">I</span> abre la mochila · <span class="tecla">M</span> las misiones · <span class="tecla">T</span> muestra u oculta el mando táctil.</p>
+        <h3>MÓVIL</h3>
+        <p>Apoya el dedo en la <b>mitad izquierda</b> y desliza: el joystick nace donde toques.</p>
+        <p>Toca la <b>mitad derecha</b> (o el botón A) para interactuar. Arrastra el botón A si te estorba.</p>
+        <h3>LO QUE HAY QUE SABER</h3>
+        <p>Las puertas no se pisan: te pones delante y empujas hacia ellas.</p>
+        <p>La partida se guarda sola. Vuelve cuando quieras y sigue donde lo dejaste.</p>
+      </div>
+      <div class="acciones"><button class="mbtn sec" id="cerrarAyudaBtn" data-nav>ATRÁS</button></div>
+    </section>
   </div>
   <div class="fade" id="fade"></div>
+  <div id="noche"><div id="nocheTxt"></div></div>
 </div>
 <script>
 //==================================================================
@@ -399,8 +604,11 @@ const INTERIORS = {
       {x:8,y:2,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
        lines:["¡Hoy hay Schnitzel con patatas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
        choice:{q:"¿Qué te sirvo?",opts:[
-         {t:"El menú del día",r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"]},
-         {t:"Solo un café",r:["Un café para sobrevivir al seminario. Lo entiendo."]}]}},
+         {t:"El menú del día",precio:320,r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"],
+          sin:["Con eso no te llega ni al postre. Pásate por el cajero y vuelves."]},
+         {t:"La sopa del día",precio:120,r:["Crema de calabaza. Poca cosa, pero entra caliente."]},
+         {t:"Solo un café",precio:150,r:["Un café para sobrevivir al seminario. Lo entiendo."]},
+         {t:"Nada, gracias",r:["Pues pasa, mira y vuelve con hambre."]}]}},
       {x:11,y:3,name:"Cajera Rosi",color:"#e08aa8",dir:'down',
        lines:["¡Hola, guapo! Tienes cara de examen, ¿me equivoco?","Tú tranquilo, que aquí no se cobra con prisa."],
        careerLine:{default:"Sea lo que sea que estudies, hoy has hecho bien en bajar a comer."},
@@ -409,8 +617,8 @@ const INTERIORS = {
          {t:"Todavía no",r:["Pues cuando quieras, bonito. Aquí me tienes."]}]}},
       {x:15,y:3,name:"Cajera Brunhilde",color:"#6a7a8a",dir:'down',
        lines:["Tarjeta.","...","¿Necesita algo más o va a seguir ahí parado?"],
-       choice:{q:"¿Te cobro?",opts:[
-         {t:"Sí",r:["Pues la tarjeta. No tengo todo el día."]},
+       choice:{q:"¿Le cobro?",opts:[
+         {t:"Sí, cóbreme",r:["Pues la tarjeta. No tengo todo el día."]},
          {t:"Mejor voy a la otra caja",r:["Como quiera. Allí tardará el doble, pero como quiera."]}]}},
       {x:17,y:10,name:"Estudiante Hanna",color:"#d65a8a",dir:'left',
        lines:["Las mesas del fondo son las tranquilas.","Junto a la escalera no se oye ni pensar."]},
@@ -447,12 +655,19 @@ const INTERIORS = {
       {x:5, y:12, to:'informatik_sotano'},
     ],
     info:[
-      {x:2,y:12,name:"Máquina expendedora",lines:["🥤 Bebidas y sándwiches. Se paga con la tarjeta.","La fila E7 lleva atascada desde el semestre pasado.","Todo el mundo lo sabe. Nadie la arregla."]},
+      {x:2,y:12,name:"Máquina expendedora",lines:["🥤 Bebidas y sándwiches. Se paga con la tarjeta.","La fila E7 lleva atascada desde el semestre pasado.","Todo el mundo lo sabe. Nadie la arregla."],
+       choice:{q:"¿Qué pulsas?",opts:[
+         {t:"Una bebida (B2)",precio:150,r:["La lata baja a la primera. Hoy es tu día."]},
+         {t:"Un sándwich (E7)",precio:280,r:["El sándwich se queda colgando en la espiral.",
+                                             "Un golpe seco en el cristal y cae. Todo el mundo sabe hacerlo."],
+          sin:["(La máquina parpadea: saldo insuficiente. La E7 sigue atascada, por cierto.)"]},
+         {t:"Nada",r:["Mejor. La E7 se traga una de cada tres monedas."]}]}},
     ],
     npcs:[
       {x:11,y:6,name:"Estudiante Timo",color:"#5a8ad6",dir:'left',
        lines:["Cuatro salones y ninguno libre. Siempre igual en época de prácticas.","Si buscas los servidores, están abajo, en el sótano."],
-       careerLine:{"Inf":"¿Inf tú también? Bienvenido al edificio donde nunca es de día."}},
+       careerLine:{"Inf":"¿Inf tú también? Bienvenido al edificio donde nunca es de día.",
+                   default:"Estudies lo que estudies, aquí hay enchufes y silencio. Ya es algo."}},
       {x:6,y:9,name:"Técnico Herr Amsel",color:"#4a8a6a",dir:'down',
        lines:["Bajo al sótano veinte veces al día. Veinte.","Si algo no va, es el cable. Siempre es el cable."]},
     ]
@@ -814,7 +1029,9 @@ const INTERIORS = {
               "Doce idiomas, cuatro niveles cada uno y un solo archivador. Bueno, cuatro.",
               "¿Vienes por tu Notenbescheinigung? Dime el idioma y el semestre."],
        choice:{q:"¿Qué necesitas?",opts:[
-         {t:"Un certificado de notas",r:["Rellena este formulario por triplicado. El sello está en la otra mesa."]},
+         {t:"Un certificado de notas",precio:500,r:["Cinco euros de tasa, y no los pongo yo: los pone el reglamento.",
+                                                    "Rellena este formulario por triplicado. El sello está en la otra mesa."],
+          sin:["Sin la tasa no hay sello, y sin sello no hay certificado. Lo siento: es el reglamento."]},
          {t:"Nada, gracias",r:["Como quieras. La puerta siempre está abierta. Casi siempre."]}]}},
       {x:8,y:3,name:"Administrativo Kurt",color:"#8a5ad6",dir:'down',
        lines:["Papeleo, papeleo y más papeleo.","Pero sin nosotros nadie certifica un B2. Recuérdalo."]},
@@ -876,8 +1093,9 @@ const INTERIORS = {
       {x:2,y:3,name:"Tabernero Wast",color:"#c87a3a",dir:'down',
        lines:["Servus! Bienvenido al Gmoa, la barra más querida del campus.","Aquí la cerveza está fría y las charlas son largas."],
        choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Una Weißbier",r:["¡Marchando una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"]},
-         {t:"Una Radler",r:["Buena elección para seguir estudiando después: media cerveza, media limonada."]},
+         {t:"Una Weißbier",precio:390,r:["¡Marchando una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"],
+          sin:["Servus, que aquí no se fía. Vuelve con monedas y te la guardo fría."]},
+         {t:"Una Radler",precio:340,r:["Buena elección para seguir estudiando después: media cerveza, media limonada."]},
          {t:"Solo agua, gracias",r:["…¿agua? ¿En el Gmoa? Bueno, tú mandas. Va por la casa."]}]}},
       {x:7,y:9,name:"Estudiante Vroni",color:"#d65a8a",dir:'down',
        lines:["Después de un examen, la primera parada es el Gmoa.","Dicen que aquí se aprueban más asignaturas que en la biblioteca. En las charlas, ya sabes."],
@@ -953,7 +1171,7 @@ const INTERIORS = {
       "C.mm.....USSS.......#",
       "#........SSSS.......#",
       "########.#########A##",
-      "#mmm.......mmm..#####",
+      "#mtm.......mmm..#####",
       "#...............#####",
       "#mmm.......mmm..#####",
       "#...............#####",
@@ -967,7 +1185,9 @@ const INTERIORS = {
     npcs:[
       {x:1,y:7,name:"Archivero Herr Brand",color:"#8a5ad6",dir:'left',
        lines:["Esa puerta da a la torre de los libros. Cuatro pisos de estanterías.","Ahí dentro no hay ventanas y el silencio es distinto. Ya lo notarás."]},
-      {x:4,y:10,name:"Estudiante Mira",color:"#5a8ad6",dir:'right',
+      // No puede quedarse en (4,10): esa casilla es la boca del pasillo de
+      // arriba y, plantada ahi, dejaba incomunicado el fondo con sus mesas.
+      {x:4,y:11,name:"Estudiante Mira",color:"#5a8ad6",dir:'left',
        lines:["Esta sala es la buena: mesas grandes y nadie hablando.","Los de abajo vienen a socializar; nosotros venimos a sufrir."]},
       {x:14,y:2,name:"Estudiante Tobias",color:"#d6a05a",dir:'down',
        lines:["Cuidado al bajar la escalera con la pila de libros.","Lo digo por experiencia."]},
@@ -1072,7 +1292,7 @@ const INTERIORS = {
     npcs:[
       {x:4,y:2,name:"Prof. Weber",color:"#8a5ad6",dir:'down',
        lines:["Bienvenido al aula magna de la Innstegaula.","Aquí caben cientos de estudiantes. Hoy toca una clase magistral.","La pantalla de proyección está lista, ¿te sientas?"],careerLine:{"default":"Sea cual sea tu carrera, alguna clase magistral darás aquí."}},
-      {x:11,y:5,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+      {x:11,y:5,name:"Estudiante Malin",color:"#5a8ad6",dir:'left',
        lines:["Estas clases junto al Inn tienen las mejores vistas.","Aunque en un aula tan grande, mejor llegar temprano por sitio."]},
       {x:6,y:11,name:"Estudiante Klara",color:"#d65a8a",dir:'right',
        lines:["Shhh, que ya va a empezar la proyección.","Esta aula es enorme, la voz del profe resuena."]},
@@ -1104,9 +1324,12 @@ const INTERIORS = {
     ],
     npcs:[
       {x:4,y:5,name:"Conserje Rita",color:"#8a5ad6",dir:'down',
-       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro. ¿Te oriento?"],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.","VWL":"¿VWL? Bienvenido, futuro economista."}},
-      {x:14,y:3,name:"Estudiante BWL",color:"#5a8ad6",dir:'left',
-       lines:["¿BWL tú también? Nos vemos en todos los salones.","La biblioteca de economía tiene los mejores manuales."],careerLine:{"BWL":"¡Otro de BWL! Habrá que sobrevivir juntos a Estadística."}},
+       lines:["Bienvenido a Económicas. Tres salones y la biblioteca de economía.","Los salones arriba, la biblio en el centro."],careerLine:{"BWL":"¿BWL? Estás en tu casa, este es tu edificio.",
+                   default:"Económicas recibe a todo el mundo, estudies lo que estudies."}},
+      {x:14,y:3,name:"Estudiante Lasse",color:"#5a8ad6",dir:'left',
+       lines:["Estudio BWL. Nos vemos por todos los salones, tarde o temprano.","La biblioteca de economía tiene los mejores manuales."],
+       careerLine:{"BWL":"¡Anda, tú también! Habrá que sobrevivir juntos a Estadística.",
+                   default:"Y si estudias otra cosa, los manuales de aquí también se dejan leer."}},
     ]
   },
   ww_salon1: {
@@ -1162,7 +1385,7 @@ const INTERIORS = {
       "############",
     ],
     npcs:[
-      {x:4,y:5,name:"Estudiante VWL",color:"#8a5ad6",dir:'down',
+      {x:4,y:5,name:"Estudiante Hedda",color:"#8a5ad6",dir:'down',
        lines:["Salón 3, esperando que llegue el profe.","VWL es dura, pero Passau lo compensa."]},
     ]
   },
@@ -1185,9 +1408,9 @@ const INTERIORS = {
       {x:7,y:1,name:"Sección · Economía",lines:["📚 Biblioteca de Economía","Micro, Macro, Finanzas, Gestión.","Devoluciones en dos semanas."]},
     ],
     npcs:[
-      {x:3,y:4,name:"Bibliotecaria Ökon",color:"#8a5ad6",dir:'down',
-       lines:["Biblioteca de Economía. Silencio y buenos libros.","¿Buscas manuales de finanzas o de gestión?"]},
-      {x:10,y:6,name:"Doctorando Finanzas",color:"#5a8ad6",dir:'left',
+      {x:3,y:4,name:"Bibliotecaria Frau Sommer",color:"#8a5ad6",dir:'down',
+       lines:["Biblioteca de Economía. Silencio y buenos libros.","Los manuales de finanzas, a la izquierda; los de gestión, al fondo."]},
+      {x:10,y:6,name:"Doctorando Ansgar",color:"#5a8ad6",dir:'left',
        lines:["Tesis sobre mercados financieros. Capítulo interminable.","Estos estantes tienen justo lo que necesito."]},
     ]
   },
@@ -1286,7 +1509,7 @@ const INTERIORS = {
       "###########",
     ],
     npcs:[
-      {x:8,y:7,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+      {x:8,y:7,name:"Estudiante Oskar",color:"#5a8ad6",dir:'left',
        lines:["Aquí damos los seminarios pequeños, nada de conferencias.","Se agradece un aula normal después del aula magna."]},
     ]
   },
@@ -1387,7 +1610,7 @@ const INTERIORS = {
        lines:["Personal. Contratos, nóminas y horas que nadie cuadra.",
               "Si vienes por un puesto de HiWi, la solicitud es la hoja azul. La verde es para bajas."],
        careerLine:{default:"Con tu carrera hay puestos de ayudante casi todos los semestres. Pregunta en tu cátedra."}},
-      {x:8,y:5,name:"Estudiante Jonas",color:"#5a8ad6",dir:'left',
+      {x:8,y:5,name:"Estudiante Valentin",color:"#5a8ad6",dir:'left',
        lines:["Vengo a firmar el contrato de HiWi. Tercera vez que lo traigo.",
               "Las dos primeras faltaba una firma. Adivina de quién."]},
     ]
@@ -1421,7 +1644,7 @@ const INTERIORS = {
        lines:["Administración económica. Aquí entra el dinero y sale… en formato tabla.",
               "¿Vienes por la tasa del semestre? Está pagada o no está pagada. No hay tercer estado."],
        careerLine:{default:"Tu tasa está al día. Lo he mirado antes de que preguntaras."}},
-      {x:6,y:5,name:"Estudiante Lena",color:"#d69a5a",dir:'up',
+      {x:6,y:5,name:"Estudiante Silke",color:"#d69a5a",dir:'up',
        lines:["Pagué dos veces por error y llevo un mes intentando que me devuelvan una.",
               "Dicen que el sistema lo ve como «una donación voluntaria»."]},
     ]
@@ -1519,7 +1742,7 @@ const INTERIORS = {
               "No, todavía no están. No, no puedo decirte la tuya. No, tampoco «solo si aprobé».",
               "Vuelve el jueves. O no vuelvas: te llegará un correo."],
        careerLine:{default:"Lo tuyo lo corrige tu cátedra, no yo. Yo solo las guardo y las publico."}},
-      {x:4,y:6,name:"Estudiante Timo",color:"#5a8ad6",dir:'up',
+      {x:4,y:6,name:"Estudiante Henrik",color:"#5a8ad6",dir:'up',
        lines:["Llevo tres días viniendo a la misma hora.",
               "Creo que ya me reconoce. Creo que eso no me ayuda."]},
     ]
@@ -1592,7 +1815,14 @@ const INTERIORS = {
        careerLine:{Kuwi:"KuWi… tu carpeta es la naranja. Bienvenida, bienvenido.",
                    Inf:"Inf. La carpeta azul. Y el aula de ordenadores está en el sótano.",
                    BWL:"BWL. Carpeta verde. Sois muchos este año, mucho ánimo.",
-                   default:"Tu carpeta es la gris. Guárdala mejor que los demás."}},
+                   default:"Tu carpeta es la gris. Guárdala mejor que los demás."},
+       choice:{q:"¿Necesitas algún papel?",opts:[
+         {t:"Certificado de matrícula",precio:500,r:["Cinco euros la copia sellada. Te la doy ahora mismo.",
+                                                     "Guárdala: te la van a pedir en el banco, en el ayuntamiento y en el gimnasio."],
+          sin:["Sin la tasa no puedo sellarlo. Vuelve cuando la tengas, que no me voy a ninguna parte."]},
+         {t:"Certificado de empadronamiento",precio:1000,r:["Ese es del ayuntamiento, pero el impreso te lo tramito yo.",
+                                                            "Diez euros y dos semanas. Bienvenido a Alemania."]},
+         {t:"Nada, solo miraba",r:["Pues mira con calma. Aquí empieza todo el mundo."]}]}},
       {x:4,y:2,name:"Novata Mira",color:"#d65a8a",dir:'right',
        lines:["Llegué ayer. Todavía no sé dónde está nada.",
               "Me han dicho que la Mensa está bien y que la biblioteca tiene una torre de libros.",
@@ -1666,7 +1896,8 @@ const INTERIORS = {
            "Y si algo no funciona, esta puerta está siempre abierta."]}]},
        careerLine:{Kuwi:"Con KuWi tienes media Europa abierta. Literalmente: es la carrera con más convenios.",
                    Inf:"Los de Inf os vais poco y no sé por qué. Hay plazas en Taipéi y en Uppsala esperando.",
-                   BWL:"BWL tiene doble titulación con Lyon. Se pide un año antes, aviso."}},
+                   BWL:"BWL tiene doble titulación con Lyon. Se pide un año antes, aviso.",
+                   default:"Estudies lo que estudies, hay convenio para ti en alguna parte."}},
       {x:13,y:7,name:"Yuki, estudiante de intercambio",color:"#d65a8a",dir:'left',
        lines:["Vine de Kioto por un semestre. Llevo tres.",
               "Cada vez que voy a pedir el papel para volverme, encuentro una excusa para quedarme.",
@@ -1741,7 +1972,7 @@ const INTERIORS = {
        lines:["Estos tilos llevan aquí más años que yo, y mira que llevo.",
               "La terraza de arriba y el patio de abajo son el mismo claustro, ojo.",
               "Pero para subir hay que usar la escalera. Por el murete no, que ya se cayó uno."]},
-      {x:21,y:16,name:"Estudiante Mara",color:"#5ad68f",dir:'left',
+      {x:21,y:16,name:"Estudiante Greta",color:"#5ad68f",dir:'left',
        lines:["La terraza de arriba es mi rincón favorito del Nikolakloster.",
               "En cuanto sale el sol, todo el mundo sube su café a estos bancos."],
        careerLine:{Kuwi:"¿KuWi? Este claustro es prácticamente nuestra segunda aula.",
@@ -1918,11 +2149,12 @@ const INTERIORS = {
               "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
               "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
        choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Un café solo",r:["Marchando. Cargadito, que se nota el lunes."]},
-         {t:"Café con Apfelstrudel",r:["¡Excelente elección! El strudel es casero, lo hago yo."]},
+         {t:"Un café solo",precio:160,r:["Marchando. Cargadito, que se nota el lunes."]},
+         {t:"Café con Apfelstrudel",precio:420,r:["¡Excelente elección! El strudel es casero, lo hago yo."],
+          sin:["Hoy no te llega, cielo. Y fiado no hago, que empecé así y acabé regalando el horno."]},
          {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla. Ya caerás."]}]},
        careerLine:{default:"A ti te veo cara de segundo café. Y no son ni las once."}},
-      {x:11,y:8,name:"Estudiante Tobias",color:"#5a8ad6",dir:'left',
+      {x:11,y:8,name:"Estudiante Bastian",color:"#5a8ad6",dir:'left',
        lines:["Entre clase y clase siempre acabo aquí.",
               "Esta cafetería es más barata que bajar a la ciudad, y encima hay conciertos."]},
       {x:15,y:8,name:"Estudiante Selma",color:"#d65a8a",dir:'up',
@@ -1950,7 +2182,7 @@ const INTERIORS = {
       ".....t.....##.sss.sss.#",
       ".....e.....##.......p.#",
       "...........##.e.e.e...#",
-      ".....t.....##.m.m.m.s.#",
+      ".....t.....##.m.t.m.s.#",
       "#....e.....##.......s.#",
       "#############.m.m.m.s.#",
       "#############.e.e.e...#",
@@ -1984,7 +2216,7 @@ const INTERIORS = {
          {t:"Un sitio para estudiar",r:["Sube por la derecha. Las mesas del fondo tienen enchufe."]},
          {t:"Un libro concreto",r:["Dime el título… bueno, dímelo cuando lo sepas. Pasa mucho."]},
          {t:"Solo estoy mirando",r:["Mira, mira. Aquí mirar también cuenta como leer."]}]}},
-      {x:15,y:11,name:"Estudiante Lena",color:"#5ad68f",dir:'up',
+      {x:15,y:11,name:"Estudiante Janne",color:"#5ad68f",dir:'up',
        lines:["Llevo toda la mañana con los apuntes y el portátil.",
               "Esta biblioteca tiene algo… se concentra una bien."],
        careerLine:{Inf:"¿Informática? Yo también. ¿Ya te compila el proyecto?",
@@ -2074,7 +2306,7 @@ const INTERIORS = {
       {x:6,y:8,name:"Pizarra",lines:["📝 Seminario de Historia Moderna","Hoy: la Paz de Westfalia y por qué nadie se puso de acuerdo.","En una esquina: «examen 12.02»."]},
     ],
     npcs:[
-      {x:4,y:3,name:"Estudiante Ida",color:"#5ad68f",dir:'right',
+      {x:4,y:3,name:"Estudiante Merle",color:"#5ad68f",dir:'right',
        lines:["Aula 001. La más fría del edificio en invierno.","Nos sentamos todos en la fila del fondo, junto al radiador."]},
     ]
   },
@@ -2161,7 +2393,7 @@ const INTERIORS = {
       {x:22,y:12, to:'nk3'},                // escalera de subida y bajada
     ],
     npcs:[
-      {x:19,y:12,name:"Estudiante Nele",color:"#5ad68f",dir:'left',
+      {x:19,y:12,name:"Estudiante Ronja",color:"#5ad68f",dir:'left',
        lines:["Esta planta es un anillo: des igual por dónde vayas, acabas volviendo aquí.",
               "Los despachos del centro de idiomas están todos en este lado.",
               "Las aulas, del otro. Yo tardé dos semestres en aprendérmelo."]},
@@ -2282,7 +2514,7 @@ const INTERIORS = {
       {x:1,y:1,name:"Pizarra",lines:["📝 Español B1","« Pretérito indefinido vs. imperfecto »","Debajo: «fui / iba». Y un corazón roto."]},
     ],
     npcs:[
-      {x:2,y:1,name:"Estudiante Jonas",color:"#5a8ad6",dir:'down',
+      {x:2,y:1,name:"Estudiante Anouk",color:"#5a8ad6",dir:'down',
        lines:["El español se me da bien hasta que llega el subjuntivo.","María dice que el subjuntivo es cuestión de fe. Empiezo a creerla."]},
     ]
   },
@@ -2348,7 +2580,7 @@ const INTERIORS = {
       {x:11,y:1,name:"Pizarra",lines:["📝 Latín I","« Rosa, rosae, rosae, rosam, rosa, rosa. »","Debajo: «¿por qué?». Sin respuesta."]},
     ],
     npcs:[
-      {x:10,y:1,name:"Estudiante Bene",color:"#8a6a4a",dir:'down',
+      {x:10,y:1,name:"Estudiante Clemens",color:"#8a6a4a",dir:'down',
        lines:["Latín obligatorio para Filosofía. Obligatorio.","Al final le coges cariño. Al final del todo."]},
     ]
   },
@@ -2685,7 +2917,12 @@ const INTERIORS = {
               "Si no te vale la talla, prueba la de al lado. Aquí las tallas son una sugerencia."]},
       {x:27,y:2,name:"Cocinero Ünal",color:"#e8d65a",dir:'down',
        lines:["¡Marchando dos con queso!",
-              "Media universidad ha cenado aquí en época de exámenes. La otra media también."]},
+              "Media universidad ha cenado aquí en época de exámenes. La otra media también."],
+       choice:{q:"¿Le pongo una?",opts:[
+         {t:"Hamburguesa con queso",precio:650,r:["¡Marchando! Con cebolla frita, que va incluida y no se discute."]},
+         {t:"El menú con patatas",precio:890,r:["Buena decisión. Se come de pie, junto al cristal, como manda la tradición."],
+          sin:["Hoy no llega, amigo. Pero la cebolla huele gratis, aprovéchate."]},
+         {t:"Solo estaba oliendo",r:["Eso hace todo el mundo. Y todo el mundo vuelve."]}]}},
       {x:3,y:18,name:"Joyera Frau Adler",color:"#e8d860",dir:'down',
        lines:["Mire con calma, que para eso está la vitrina.",
               "El anillo de la izquierda lleva siete años esperando a alguien.",
@@ -2697,9 +2934,10 @@ const INTERIORS = {
        lines:["¡Benvenuto! Hoy hay lasaña y hay que aprovechar.",
               "La receta es de mi abuela, de Bolonia. Y no, no lleva nata. Nunca."],
        choice:{q:"¿Se queda a comer?",opts:[
-         {t:"Lasaña, por favor",r:["¡Ottimo! Siéntese donde quiera, que hoy hay sitio.",
-                                    "Se lo aviso: la porción es generosa. Muy generosa."]},
-         {t:"Solo un café",r:["Un espresso entonces. Corto, como debe ser.",
+         {t:"Lasaña, por favor",precio:950,r:["¡Ottimo! Siéntese donde quiera, que hoy hay sitio.",
+                                    "Se lo aviso: la porción es generosa. Muy generosa."],
+          sin:["Hoy va justo, ¿eh? No pasa nada: la lasaña estará aquí la semana que viene."]},
+         {t:"Solo un café",precio:220,r:["Un espresso entonces. Corto, como debe ser.",
                                "Y una galletita, que va con el café. No se discute."]},
          {t:"Solo estoy mirando",r:["Mire, mire. Y vuelva con hambre."]}]}},
       {x:26,y:26,name:"Dependiente Kai",color:"#8fb0d8",dir:'down',
@@ -2796,7 +3034,7 @@ const INTERIORS = {
        lines:["¡Buenos días! ¿Brezel recién hecho?",
               "A partir de las siete lo que queda se vende a mitad de precio.",
               "Se lo cuento a todos los estudiantes. Es mi pequeña conspiración."],
-       choice:{q:"¿Le pido algo?",opts:[
+       choice:{q:"¿Le pongo algo?",opts:[
          {t:"Un Brezel",r:["Aquí tiene, calentito. Cuidado que quema.",
                             "Con mantequilla está mejor, pero eso ya es cosa suya."]},
          {t:"Pan de centeno",r:["Buena elección. Dura toda la semana.",
@@ -2924,7 +3162,9 @@ const INTERIORS = {
   },
   wh_hab1: {
     // La habitacion del jugador. Es la unica sin NPC: es suya.
-    name:"Tu habitación",
+    // 'dormitorio' marca la sala en la que la cama (') se puede accionar
+    // para dormir y pasar de dia (ver preguntarDormir/dormir).
+    name:"Tu habitación", dormitorio:true,
     grid:[
       "#############",
       "#''aDDaaaass#",
@@ -2937,10 +3177,7 @@ const INTERIORS = {
       "######X######",
     ],
     info:[
-      {x:1,y:1,name:"Tu cama",lines:[
-        "Tu cama, con el edredón a medio estirar.",
-        "Es lo primero que ves al volver de la biblioteca a las once de la noche.",
-        "Nunca te ha parecido tan cómoda como en época de exámenes."]},
+      // (la cama no lleva cartel: se acciona y sale el dialogo de dormir)
       {x:4,y:1,name:"Tu escritorio",lines:[
         "Apuntes, un boli que no pinta y una taza con el fondo marrón.",
         "Debajo del teclado hay un horario que hiciste el primer día.",
@@ -3161,7 +3398,12 @@ const INTERIORS = {
       {x:10,y:1,name:"Expendedora de cerveza",lines:[
         "🍺 Una máquina de cerveza. En una residencia. En Alemania.",
         "1,20 € la botella, y el bote de las monedas está al lado, sin candado.",
-        "Un cartel: «paga aunque no mire nadie». Y la gente paga."]},
+        "Un cartel: «paga aunque no mire nadie». Y la gente paga."],
+       choice:{q:"¿Echas la moneda?",opts:[
+         {t:"Una botella",precio:120,r:["Cae la botella con un ruido enorme. Suena a jueves.",
+                                        "Echas la moneda en el bote. Nadie mira. Da igual."],
+          sin:["(No te llega, y el bote no acepta promesas. Mejor otro día.)"]},
+         {t:"Hoy no",r:["Mañana hay clase a las ocho. Mañana hay clase a las ocho."]}]}},
       {x:12,y:1,name:"Estante de juegos",lines:[
         "🎲 Catán, Carcassonne, Dixit, Wingspan, Ticket to Ride, Uno…",
         "Y abajo del todo, un ajedrez al que le faltan dos peones.",
@@ -3181,9 +3423,10 @@ const INTERIORS = {
               "La barra la montaron unos que se graduaron hace años. Nosotros solo la cuidamos.",
               "La cerveza sale de la máquina; el vaso, de aquí. Y las monedas, al bote."],
        choice:{q:"¿Te sirvo algo?",opts:[
-         {t:"Una cerveza",r:["Marchando. La máquina está ahí, tú echa la moneda.",
-                              "El vaso te lo pongo yo, que beber de botella en el salón está mal visto. Un poco."]},
-         {t:"Un agua",r:["Buena elección si mañana hay clase a las ocho.",
+         {t:"Una cerveza",precio:120,r:["Marchando. La máquina está ahí, tú echa la moneda.",
+                              "El vaso te lo pongo yo, que beber de botella en el salón está mal visto. Un poco."],
+          sin:["Sin monedas no hay botella. El bote es sagrado, aquí no se fía a nadie."]},
+         {t:"Un agua",precio:80,r:["Buena elección si mañana hay clase a las ocho.",
                           "Nadie te va a juzgar. Bueno, Ravi sí, pero él juzga todo."]},
          {t:"Nada, gracias",r:["Pues siéntate igual, que en un rato empieza la partida."]}]}},
       {x:4,y:5,name:"Ravi",color:"#5a8ad6",dir:'right',
@@ -3206,7 +3449,7 @@ const INTERIORS = {
 //==================================================================
 const DOOR_AT = {}; // "x,y" -> building key
 const BUILDINGS = {
-  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad… ¿ya te vas?"],
+  HBf:    {name:"Hauptbahnhof", door:[29,12], info:["Estación central de Passau.","Aquí tomarías el tren para salir de la ciudad."],
            choice:{q:"¿Tomar el tren y salir de Passau?",opts:[
              {t:"Sí, llévame lejos",r:["¡Buen viaje! La ciudad te esperará para el próximo semestre.","(En una próxima versión saldrás de verdad 😉)"]},
              {t:"Todavía no",r:["Buena decisión. Passau tiene mucho que ofrecer."]}]}},
@@ -3261,11 +3504,11 @@ const OUT_NPCS=[
                BWL:"¿BWL? Hasta los de empresariales bajan a relajarse aquí.",
                default:"Túmbate un rato, las diapositivas pueden esperar."}},
   {x:44,y:31,name:"Sara",color:"#5ad68f",dir:'left',
-   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","¿Ya probaste la comida de la Mensa?"],
+   lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","Yo me escapo a este prado en cuanto sale el sol."],
    choice:{q:"¿Qué te trae por aquí?",opts:[
      {t:"Estudiar, supongo",r:["Jaja, eso decimos todos en octubre."]},
      {t:"El ambiente del río",r:["¡Esa es la actitud! El Inn nunca falla."]}]}},
-  {x:25,y:27,name:"Tutora Lena",color:"#5ab0d6",dir:'down',
+  {x:25,y:27,name:"Tutora Wiebke",color:"#5ab0d6",dir:'down',
    lines:["¿Buscas tu aula? Los seminarios cambian de sala cada semana, es tradición.","Revisa Stud.IP… y luego revísalo otra vez."],
    careerLine:{Inf:"¿Informática? El laboratorio está en el sótano. Lleva sudadera, hace frío.",
                Mathe:"¿Mates? Tercer piso, sin ascensor. Ánimo.",
@@ -3280,12 +3523,32 @@ const OUT_NPCS=[
 //==================================================================
 //  PERSONAJES Y CARRERAS
 //==================================================================
+// Ocho personajes, cuatro chicas y cuatro chicos, alternados en la rejilla
+// para que la mezcla se vea de un vistazo. 'pelo' elige el corte que dibuja
+// drawPerson; 'bio' es la linea que sale en la ficha al seleccionarlo.
 const CHARS=[
-  {id:'noa',nm:'Noa',skin:'#f1c8a0',hair:'#3a2a1a',shirt:'#d65a5a'},
-  {id:'kai',nm:'Kai',skin:'#e8b98a',hair:'#5a3a1a',shirt:'#5a8ad6'},
-  {id:'mira',nm:'Mira',skin:'#f3d0b0',hair:'#7a3a5a',shirt:'#6ab05a'},
-  {id:'finn',nm:'Finn',skin:'#d6a878',hair:'#2a2a2a',shirt:'#e0a93a'},
+  // el 'id' es lo que va escrito en las partidas guardadas: se llamaba Noa y
+  // se queda 'noa' aunque ahora ponga Nora, para no romperle el personaje a nadie
+  {id:'noa',  nm:'Nora',  skin:'#f1c8a0', hair:'#4a2c18', shirt:'#d65a5a', pelo:'largo',
+   bio:'Segundo de carrera. Rema en el Inn a las siete de la mañana, con niebla y todo.'},
+  {id:'kai',  nm:'Kai',   skin:'#e8b98a', hair:'#5a3a1a', shirt:'#5a8ad6', pelo:'corto',
+   bio:'Llegó de Hamburgo con una bici y ninguna intención de andar a ningún sitio.'},
+  {id:'mira', nm:'Mira',  skin:'#f3d0b0', hair:'#7a3a5a', shirt:'#6ab05a', pelo:'coleta',
+   bio:'Se tiñó el pelo la semana de exámenes. No se arrepiente en absoluto.'},
+  {id:'finn', nm:'Finn',  skin:'#d6a878', hair:'#2a2a2a', shirt:'#e0a93a', pelo:'corto',
+   bio:'Vive en la residencia y se conoce a todo el mundo del turno de noche.'},
+  {id:'lena', nm:'Lena',  skin:'#f6dcc0', hair:'#d8b45a', shirt:'#8a6ad0', pelo:'largo',
+   bio:'De Passau de toda la vida. Sabe qué mesa de la Mensa queda libre y cuándo.'},
+  {id:'omar', nm:'Omar',  skin:'#a9724a', hair:'#221a14', shirt:'#3aa89a', pelo:'corto',
+   bio:'De Erasmus. Lleva dos semanas y ya se ha perdido tres veces en el NK.'},
+  {id:'amara',nm:'Amara', skin:'#7a4a30', hair:'#1a1210', shirt:'#e07a3a', pelo:'trenzas',
+   bio:'De intercambio, un semestre entero. Se ha instalado en la torre de la ZB y de ahí no hay quien la saque.'},
+  {id:'jonas',nm:'Jonas', skin:'#efc59a', hair:'#c98f3a', shirt:'#4a5ac0', pelo:'rizado',
+   bio:'Ha cambiado de carrera dos veces. Esta ya va en serio, dice él.'},
 ];
+// Las ocho carreras salen de la oferta real de Passau. El 'id' es la clave
+// que buscan los NPCs en careerLine; si no tienen frase propia, sale la
+// generica, asi que se pueden anadir carreras sin tocar ningun dialogo.
 const CAREERS=[
   {id:'Kuwi',ic:'🎭',full:'Kulturwirtschaft'},
   {id:'Jura',ic:'⚖️',full:'Derecho'},
@@ -3293,12 +3556,18 @@ const CAREERS=[
   {id:'MuK',ic:'📡',full:'Medien & Komm.'},
   {id:'Mathe',ic:'📐',full:'Matemáticas'},
   {id:'Inf',ic:'💻',full:'Informática'},
+  {id:'Lehramt',ic:'🍎',full:'Magisterio'},
+  {id:'Gov',ic:'🏛️',full:'Governance'},
 ];
 
 //==================================================================
 //  SPRITE de persona (top-down 16x16)
 //==================================================================
-function drawPerson(c,px,py,skin,hair,shirt,dir,frame){
+// El pelo se pinta DESPUES de la camiseta a proposito: asi una melena cae
+// por encima de los hombros en vez de quedar cortada por el cuello.
+// 'pelo' es opcional: sin el sale el corte de siempre, que es el que llevan
+// todos los estudiantes del campus.
+function drawPerson(c,px,py,skin,hair,shirt,dir,frame,pelo){
   c.fillStyle='rgba(0,0,0,.18)'; c.fillRect(px+3,py+14,10,3);
   c.fillStyle='#3a3a4a';
   c.fillRect(px+5,py+12+(frame===1?0:1),2,3);
@@ -3307,14 +3576,101 @@ function drawPerson(c,px,py,skin,hair,shirt,dir,frame){
   c.fillRect(px+3,py+8,1,4); c.fillRect(px+12,py+8,1,4);
   c.fillStyle=skin; c.fillRect(px+5,py+3,6,6);
   c.fillStyle=hair;
-  if(dir==='up'){ c.fillRect(px+5,py+2,6,5); }
-  else { c.fillRect(px+5,py+2,6,3); c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+  // casquete comun: de espaldas se ve toda la nuca, de frente solo el flequillo
+  const casquete=()=>{
+    if(dir==='up') c.fillRect(px+5,py+2,6,5);
+    else { c.fillRect(px+5,py+2,6,3); c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+  };
+  switch(pelo){
+    case 'largo':   // melena hasta los hombros
+      casquete();
+      c.fillRect(px+4,py+2,1,8); c.fillRect(px+11,py+2,1,8);
+      if(dir==='up') c.fillRect(px+5,py+7,6,3);
+      break;
+    case 'bob':     // media melena, hasta la barbilla
+      casquete();
+      c.fillRect(px+4,py+2,1,6); c.fillRect(px+11,py+2,1,6);
+      if(dir==='up') c.fillRect(px+5,py+7,6,1);
+      break;
+    case 'coleta':  // la coleta va detras: de frente apenas asoma, de
+                    // espaldas cuelga entera y de lado sale por el otro lado
+      casquete();
+      if(dir==='up')         c.fillRect(px+7,py+6,2,5);
+      else if(dir==='left')  c.fillRect(px+11,py+4,2,4);
+      else if(dir==='right') c.fillRect(px+3,py+4,2,4);
+      else                   c.fillRect(px+10,py+1,2,2);
+      break;
+    case 'trenzas': // recogido con volumen y dos trenzas cayendo por delante
+      c.fillRect(px+4,py+1,8,4); c.fillRect(px+3,py+2,1,3); c.fillRect(px+12,py+2,1,3);
+      c.fillRect(px+3,py+5,1,6); c.fillRect(px+12,py+5,1,6);
+      if(dir==='up') c.fillRect(px+5,py+5,6,2);
+      else { c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+      break;
+    case 'rizado':  // volumen: la mata se sale del ancho de la cabeza
+      c.fillRect(px+4,py+1,8,4); c.fillRect(px+3,py+2,1,4); c.fillRect(px+12,py+2,1,4);
+      if(dir==='up') c.fillRect(px+5,py+5,6,2);
+      else { c.fillRect(px+4,py+3,1,2); c.fillRect(px+11,py+3,1,2); }
+      break;
+    default: casquete();   // 'corto'
+  }
   if(dir!=='up'){
     c.fillStyle='#2a2230';
     if(dir==='down'){ c.fillRect(px+6,py+6,1,1); c.fillRect(px+9,py+6,1,1); }
     if(dir==='left'){ c.fillRect(px+6,py+6,1,1); }
     if(dir==='right'){ c.fillRect(px+9,py+6,1,1); }
   }
+}
+
+//------------------------------------------------------------------
+//  ASPECTO DE LA GENTE DEL CAMPUS
+//  Los 157 NPCs se dibujaban todos con el mismo tono de piel, el mismo
+//  color de pelo y el mismo corte: solo cambiaba la camiseta. El campus
+//  entero era la misma persona repetida, y las setenta mujeres que hay
+//  por nombre no se distinguian de nadie.
+//  Aqui cada uno saca su aspecto de su propio nombre: el mismo NPC sale
+//  siempre igual, no hay que escribirlo a mano en las 83 salas, y quien
+//  anada gente nueva la vera variada sin tocar esto.
+//------------------------------------------------------------------
+const PIELES=['#f6dcc0','#f1c8a0','#e8b98a','#d6a878','#c08c5e','#a9724a','#8a5a38','#6f4526'];
+const PELOS =['#2a2a2a','#3a2a1a','#4a2c18','#5a3a1a','#7a4a22','#a8712e','#c98f3a','#d8b45a','#8a8a92','#6a3a4a'];
+// El corte tiene que leerse a 16 pixeles: 'bob' se reserva para ellas, y
+// 'rizado' se queda solo en ellos, que si no todo el campus sale ambiguo.
+const CORTES_ELLA=['largo','coleta','trenzas','bob','largo','coleta','trenzas'];
+const CORTES_EL  =['corto','corto','corto','corto','rizado'];
+// El tratamiento o el oficio ya dicen el genero en 75 de los 157
+const ES_ELLA=/\b(Frau|Cajera|Bibliotecaria|Profesora|Becaria|Dependienta|Panadera|Joyera|Signora|Sor|Bedelin|Tutora|Novata|Señora|Barista|Cafetera|Recepcionista|apurada)\b/;
+const ES_EL  =/\b(Herr|Cocinero|Bibliotecario|Profesor|Prof\.|Becario|Dependiente|Librero|Vendedor|Óptico|Tabernero|Parroquiano|Archivero|Jardinero|Ujier|Doctorando|Rektor|Lector|Señor|Hausmeister|Administrativo|Técnico|Monitor|Entrenador|Jubilado|director|apurado)\b/;
+// y a los otros 82 les queda el nombre de pila (o el apellido, si va solo)
+const N_ELLA=new Set(('Amelie Anouk Aylin Bea Freya Frida Greta Hanna Hedda Ida Janne Jonna Kata '+
+  'Klara Lea Lena Malin Mara Marlene Marta Merle Mira Nele Nina Noor Ola Pia Rana Rieke Rita '+
+  'Ronja Sara Selma Silke Vera Vroni Ying Yuki').split(' '));
+const N_EL=new Set(('Bastian Bene Bruno Clemens Fabi Ferdi Fischer Henrik Ilias Jonas Jost Kasper '+
+  'Konrad Lang Lasse Lukas Malte Max Mirek Nils Oskar Otto Paolo Paul Pauli Rasmus Ravi Tim Timo '+
+  'Tobias Tom Uwe Valentin Weber Wen Yannik').split(' '));
+
+const CON_EDAD=/\b(Prof|Rektor|Jubilado|Dr|Herr|Frau|Sor|Signora|Conserje|Hausmeister|Bedelin|Archivero|Ujier|Bibliotecari[ao])\b/;
+function revuelto(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return Math.abs(h); }
+const _aspectos=new Map();
+function aspectoNPC(nombre){
+  nombre=nombre||'';
+  let a=_aspectos.get(nombre);
+  if(a) return a;
+  const h=revuelto(nombre);
+  const ella = ES_ELLA.test(nombre) ? true
+             : ES_EL.test(nombre)   ? false
+             : nombre.split(/[\s,.]+/).some(w=>N_ELLA.has(w)) ? true
+             : nombre.split(/[\s,.]+/).some(w=>N_EL.has(w))   ? false
+             : (h>>7)%2===0;          // nombres que no dicen nada: a suertes, pero siempre la misma
+  const iPiel=h%PIELES.length;
+  // en las pieles mas oscuras, solo pelo oscuro: el rubio quedaba postizo
+  let pelos = iPiel>=5 ? PELOS.slice(0,4) : PELOS;
+  // las canas, solo para quien el nombre le echa anos: un Erasmus con el
+  // pelo blanco quedaba raro
+  if(!CON_EDAD.test(nombre)) pelos=pelos.filter(c=>c!=='#8a8a92');
+  const cortes = ella ? CORTES_ELLA : CORTES_EL;
+  a={ skin:PIELES[iPiel], hair:pelos[(h>>3)%pelos.length], pelo:cortes[(h>>5)%cortes.length] };
+  _aspectos.set(nombre,a);
+  return a;
 }
 
 //==================================================================
@@ -3334,6 +3690,22 @@ function shade(hex,f){ // aclara(f>0)/oscurece(f<0) un color hex
   const m=(v)=>Math.max(0,Math.min(255, Math.round(v + 255*f)));
   return '#'+((1<<24)+(m(r)<<16)+(m(g)<<8)+m(b)).toString(16).slice(1);
 }
+// La nieve del tejado se pinta despues de las tejas, tapandolas: es nieve
+// posada, no un tejado blanco. Sirve para los dos estilos de edificio.
+function nieveEnTejado(b,x,y,w,roofH){
+  if(!PAL.nieve) return;
+  const alto=Math.max(3,Math.round(roofH*0.34));
+  ctx.fillStyle='#eef4fb'; ctx.fillRect(x, y+3, w, alto);
+  // el borde de abajo no es recto: la nieve se descuelga a trozos. El azar va
+  // por la posicion del edificio en el mapa, no por la pantalla, o temblaria
+  // al mover la camara.
+  for(let k=0, px=x; px<x+w; k++, px+=5){
+    const d=Math.round(noise(b.x0+k, b.y0)*4);
+    if(d) ctx.fillRect(px, y+3+alto, Math.min(5,x+w-px), d);
+  }
+  ctx.fillStyle='#ffffff'; ctx.fillRect(x+2, y+2, w-4, 2);            // cumbrera
+}
+
 function drawBuilding(b){
   // píxeles en pantalla (mundo - cámara)
   const x=b.x0*TILE-cam.x, y=b.y0*TILE-cam.y;
@@ -3381,6 +3753,7 @@ function drawBuilding(b){
   // textura de tejas (líneas verticales suaves)
   ctx.fillStyle=roofDk;
   for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i, y+4, 1, roofH-5);
+  nieveEnTejado(b,x,y,w,roofH);
 
   if(b.style==='station'){ // reloj en la estación
     const cxp=x+Math.round(w/2), cyp=y+Math.round(roofH/2)+1;
@@ -3499,8 +3872,10 @@ function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
   ctx.fillStyle=roofLt; ctx.fillRect(x,y+3,w,Math.round(roofH*0.45));
   ctx.fillStyle=shade(roof,0.22); ctx.fillRect(x+2,y+2,w-4,2);
   ctx.fillStyle=roofDk; for(let i=x+6;i<x+w-2;i+=8) ctx.fillRect(i,y+4,1,roofH-5);
+  nieveEnTejado(b,x,y,w,roofH);
   ctx.fillStyle=stone; ctx.fillRect(cxp-5,y-6,10,10);       // torreta sobre el eje del portal
   ctx.fillStyle=roof; ctx.fillRect(cxp-6,y-9,12,4);
+  if(PAL.nieve){ ctx.fillStyle='#eef4fb'; ctx.fillRect(cxp-6,y-9,12,2); }
   ctx.fillStyle=shade(roof,0.2); ctx.fillRect(cxp-1,y-13,2,5);
   drawDoorAndSign(b,x,y,w,h,wallY,wallH);
 }
@@ -3552,84 +3927,107 @@ function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
 }
 
 function drawOutTile(t,sx,sy,tx,ty){
+  const P=PAL;                       // los colores los pone la estacion
+  // motas del suelo: flores en primavera, hoja caida en otono, nada el resto
+  const mota=(x,y)=>{
+    if(!P.mota) return;
+    const r=noise(tx+7,ty+3); if(r<=0.6) return;
+    ctx.fillStyle=P.mota[(tx*3+ty*5)%P.mota.length];
+    ctx.fillRect(sx+x,sy+y,2,2);
+    if(r>0.85) ctx.fillRect(sx+(x+6)%13, sy+(y+7)%13, 1,1);
+  };
+  // la copa del arbol: nevada en invierno, encendida en otono, en flor en primavera
+  const arbol=()=>{
+    ctx.fillStyle=P.tronco; ctx.fillRect(sx+7,sy+11,2,4);
+    ctx.fillStyle=P.copa1;  ctx.fillRect(sx+3,sy+1,10,11);
+    ctx.fillStyle=P.copa2;  ctx.fillRect(sx+4,sy+2,8,8);
+    ctx.fillStyle=P.copa3;
+    if(P.nieve){ ctx.fillRect(sx+4,sy+1,9,3); ctx.fillRect(sx+5,sy+4,3,2); }  // nieve encima
+    else       { ctx.fillRect(sx+5,sy+3,3,3); }
+  };
   switch(t){
     case '.': {
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#6fb85f'; const r=noise(tx,ty);
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.hierba2; const r=noise(tx,ty);
       if(r>0.6){ctx.fillRect(sx+3,sy+5,1,2);ctx.fillRect(sx+9,sy+9,1,2);}
+      mota(6,7);
       break;}
     case ',': { // innwiese
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#76bd62'; const r=noise(tx,ty);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto2; const r=noise(tx,ty);
       ctx.fillRect(sx+2,sy+4,2,3); if(r>.5)ctx.fillRect(sx+10,sy+8,2,3);
+      mota(7,10);
       break;}
     case 'I': { // placa innwiese
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#76bd62'; ctx.fillRect(sx+3,sy+3,2,3);ctx.fillRect(sx+9,sy+9,2,3);ctx.fillRect(sx+6,sy+11,2,3);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto2; ctx.fillRect(sx+3,sy+3,2,3);ctx.fillRect(sx+9,sy+9,2,3);ctx.fillRect(sx+6,sy+11,2,3);
       break;}
     case 'W': { // agua
-      ctx.fillStyle='#5aa9d6'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7dc3e8'; const w=(animTick/30+tx*0.7+ty*0.3); const off=(Math.sin(w)*2)|0;
+      ctx.fillStyle=P.agua; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.agua2; const w=(animTick/30+tx*0.7+ty*0.3); const off=(Math.sin(w)*2)|0;
       ctx.fillRect(sx+2+off,sy+4,5,1); ctx.fillRect(sx+9-off,sy+10,4,1);
       break;}
     case 'o': { // orilla
-      ctx.fillStyle='#e8dcc0'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#d8c8a0'; ctx.fillRect(sx,sy,TILE,3);
-      ctx.fillStyle='#cdbf95'; ctx.fillRect(sx+4,sy+8,3,2);ctx.fillRect(sx+10,sy+11,2,2);
+      ctx.fillStyle=P.orilla; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.orilla2; ctx.fillRect(sx,sy,TILE,3);
+      ctx.fillStyle=P.orilla3; ctx.fillRect(sx+4,sy+8,3,2);ctx.fillRect(sx+10,sy+11,2,2);
       break;}
     case 'R': { // carretera asfalto
-      ctx.fillStyle='#8a8f9a'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7a7f8a'; const r=noise(tx,ty); if(r>.7)ctx.fillRect(sx+(r*10|0),sy+6,2,2);
+      ctx.fillStyle=P.asfalto; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.asfalto2; const r=noise(tx,ty); if(r>.7)ctx.fillRect(sx+(r*10|0),sy+6,2,2);
       break;}
     case '|': { // linea central carretera
-      ctx.fillStyle='#8a8f9a'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.asfalto; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#e8d860'; ctx.fillRect(sx+6,sy+2,4,6);
       break;}
     case 'P': { // sendero peatonal (adoquin claro)
-      ctx.fillStyle='#e2cfa0'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#d2bb85'; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+7,sy,1,TILE);
+      ctx.fillStyle=P.senda; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.senda2; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+7,sy,1,TILE);
       break;}
     case 'B': case 'N': case 'H': { // huella de edificio: suelo base (el edificio se dibuja encima)
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
       break;}
     case 'D': { // baldosa frente a la puerta (la hoja la dibuja el edificio)
-      ctx.fillStyle='#e2cfa0'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#d2bb85'; ctx.fillRect(sx,sy+7,TILE,1);ctx.fillRect(sx+7,sy,1,TILE);
+      ctx.fillStyle=P.senda; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.senda2; ctx.fillRect(sx,sy+7,TILE,1);ctx.fillRect(sx+7,sy,1,TILE);
       break;}
     case 'T': { // arbol borde
-      ctx.fillStyle='#5fa84f'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+7,sy+11,2,4);
-      ctx.fillStyle='#2f5f2c'; ctx.fillRect(sx+3,sy+1,10,11);
-      ctx.fillStyle='#3f7d3a'; ctx.fillRect(sx+4,sy+2,8,8);
-      ctx.fillStyle='#5aa84f'; ctx.fillRect(sx+5,sy+3,3,3);
+      ctx.fillStyle=P.bosque; ctx.fillRect(sx,sy,TILE,TILE);
+      arbol();
       break;}
     case 't': { // arbol suelto sobre hierba
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle='#7a5230'; ctx.fillRect(sx+7,sy+11,2,4);
-      ctx.fillStyle='#2f5f2c'; ctx.fillRect(sx+3,sy+1,10,11);
-      ctx.fillStyle='#3f7d3a'; ctx.fillRect(sx+4,sy+2,8,8);
-      ctx.fillStyle='#5aa84f'; ctx.fillRect(sx+5,sy+3,3,3);
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      arbol();
       break;}
     case 'f': { // flores
-      ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
-      const cols=['#e85a7a','#e8d65a','#e89a5a','#d65ad6'];
-      ctx.fillStyle=cols[(tx+ty)%4];
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      if(P.nieve){   // en invierno no hay flores: hay un monton de nieve
+        ctx.fillStyle=P.copa3; ctx.fillRect(sx+4,sy+8,7,4); ctx.fillRect(sx+6,sy+6,4,3);
+        ctx.fillStyle=P.hierba2; ctx.fillRect(sx+4,sy+11,7,1);
+        break;
+      }
+      const cols=P.mota||['#e85a7a','#e8d65a','#e89a5a','#d65ad6'];
+      ctx.fillStyle=cols[(tx+ty)%cols.length];
       ctx.fillRect(sx+4,sy+5,2,2);ctx.fillRect(sx+10,sy+8,2,2);ctx.fillRect(sx+7,sy+11,2,2);
+      if(P.mota){   // en primavera y otono la mata va mas cargada
+        ctx.fillStyle=cols[(tx+ty+2)%cols.length];
+        ctx.fillRect(sx+11,sy+4,2,2);ctx.fillRect(sx+3,sy+10,2,2);
+      }
       break;}
     case 'L': { // farola
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#4a4a5a'; ctx.fillRect(sx+7,sy+4,2,10);
       ctx.fillStyle='#ffe9a8'; ctx.fillRect(sx+6,sy+2,4,3);
       break;}
     case 'b': { // banco
-      ctx.fillStyle='#8ace74'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#9b6b4a'; ctx.fillRect(sx+2,sy+7,12,3);ctx.fillRect(sx+3,sy+10,2,3);ctx.fillRect(sx+11,sy+10,2,3);
       ctx.fillStyle='#7a5230'; ctx.fillRect(sx+2,sy+5,12,2);
+      if(P.nieve){ ctx.fillStyle=P.copa3; ctx.fillRect(sx+2,sy+4,12,1); ctx.fillRect(sx+2,sy+7,12,1); }
       break;}
-    default: ctx.fillStyle='#7cc36b'; ctx.fillRect(sx,sy,TILE,TILE);
+    default: ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
   }
 }
-
 //==================================================================
 //  TILES interior
 //==================================================================
@@ -4155,6 +4553,340 @@ const SOLID_PATIO=new Set(['#','o','F','G','X',
   'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
 
 //==================================================================
+//  TIEMPO, DINERO Y MISIONES
+//  Tres contadores que se guardan con la partida:
+//   · TIEMPO   — el calendario. Los meses son de 14 dias (dos semanas
+//     justas), el ano de 168 (doce meses) y la estacion cambia cada 42
+//     (tres meses). El dia SOLO avanza durmiendo en tu cama.
+//   · DINERO   — se empieza con 50 € y cada noche entran 10 €. Se gasta
+//     en bebidas, comida y tramites: cualquier opcion de dialogo que
+//     lleve 'precio' cobra al elegirla (ver showChoices).
+//   · MISIONES — el contador de la derecha. Cada mision son unos pasos;
+//     se marcan con cumplirPaso() desde donde se cumplan.
+//==================================================================
+
+//------------------------------------------------------------------
+//  CALENDARIO
+//------------------------------------------------------------------
+const DIAS_MES=14;                        // un mes son dos semanas justas
+const MESES_ANO=12;
+const DIAS_ANO=DIAS_MES*MESES_ANO;        // 168 dias
+const DIAS_ESTACION=DIAS_ANO/4;           // 42 dias por estacion
+const SEMANA  =['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+const SEMANA_C=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const MESES  =['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_C=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+// Las estaciones van de tres meses en tres meses empezando en diciembre
+// (dic-ene-feb, mar-abr-may, jun-jul-ago, sep-oct-nov), asi que cambian
+// cada 42 dias exactos.
+const ESTACIONES=[{n:'Invierno',ic:'❄️'},{n:'Primavera',ic:'🌸'},
+                  {n:'Verano',  ic:'☀️'},{n:'Otoño',    ic:'🍂'}];
+
+//------------------------------------------------------------------
+//  PALETA DE LA ESTACION
+//  El campus se dibuja entero por codigo, asi que la estacion no
+//  cambia el mapa: cambia los colores con los que se pinta. Verano es
+//  la paleta de siempre y las otras tres la desvian. Solo afecta al
+//  exterior; los interiores no tienen estacion.
+//  El indice es el mismo que el de ESTACIONES.
+//------------------------------------------------------------------
+const PALETAS=[
+  { // 0 · INVIERNO — nieve en el suelo, en los arboles y en los tejados
+    nieve:true,
+    hierba:'#e2e9f0', hierba2:'#cfdae6', bosque:'#c6d3df',
+    pasto: '#e9eff5', pasto2: '#d7e1ea',
+    tronco:'#6a4a33', copa1:'#33513e', copa2:'#456a4e', copa3:'#f2f8fd',
+    agua:  '#86b0cc', agua2: '#c2dcec',
+    orilla:'#e9ecf1', orilla2:'#d8dee6', orilla3:'#c9d1db',
+    senda: '#e0d6c2', senda2:'#c9bda4',           // el camino, despejado a paladas
+    asfalto:'#9aa1ab', asfalto2:'#8a919b',
+    mota:null,                                     // ni flores ni hojas
+  },
+  { // 1 · PRIMAVERA — verde tierno, flores en el suelo y en los arboles
+    hierba:'#86d072', hierba2:'#75c25f', bosque:'#68b455',
+    pasto: '#93d97c', pasto2: '#7fc966',
+    tronco:'#7a5230', copa1:'#356b32', copa2:'#4b9440', copa3:'#f6c2dc',
+    agua:  '#5aa9d6', agua2: '#8ad0f0',
+    orilla:'#e8dcc0', orilla2:'#d8c8a0', orilla3:'#cdbf95',
+    senda: '#e2cfa0', senda2:'#d2bb85',
+    asfalto:'#8a8f9a', asfalto2:'#7a7f8a',
+    mota:['#f2a0c0','#f4e08a','#ffffff','#c9a6e8'],   // flores
+  },
+  { // 2 · VERANO — la paleta de siempre
+    hierba:'#7cc36b', hierba2:'#6fb85f', bosque:'#5fa84f',
+    pasto: '#8ace74', pasto2: '#76bd62',
+    tronco:'#7a5230', copa1:'#2f5f2c', copa2:'#3f7d3a', copa3:'#5aa84f',
+    agua:  '#5aa9d6', agua2: '#7dc3e8',
+    orilla:'#e8dcc0', orilla2:'#d8c8a0', orilla3:'#cdbf95',
+    senda: '#e2cfa0', senda2:'#d2bb85',
+    asfalto:'#8a8f9a', asfalto2:'#7a7f8a',
+    mota:null,
+  },
+  { // 3 · OTONO — hoja seca en los arboles y por el suelo
+    hierba:'#93bb63', hierba2:'#84ad57', bosque:'#7fa44e',
+    pasto: '#a3c46a', pasto2: '#8fb45c',
+    tronco:'#6f4a2b', copa1:'#8a4a22', copa2:'#c9792a', copa3:'#e8b64a',
+    agua:  '#5a9ec4', agua2: '#84c0dc',
+    orilla:'#e4d5b4', orilla2:'#d3c096', orilla3:'#c5b189',
+    senda: '#ddc796', senda2:'#cbb37c',
+    asfalto:'#8a8f9a', asfalto2:'#7a7f8a',
+    mota:['#d1712c','#e0a03a','#b8562a','#e8c25a'],  // hojas caidas
+  },
+];
+// Arranca en la del dia 0 (1 de octubre). aplicarEstacion() la pone al dia
+// desde actualizarHud(), que es lo que se llama al empezar, al cargar y al
+// despertarse: no hace falta consultarla en cada baldosa.
+let PAL=PALETAS[3];
+function aplicarEstacion(){ PAL = PALETAS[fecha().est] || PALETAS[2]; }
+// La partida empieza el 1 de octubre, que es cuando arranca el semestre de
+// invierno: nueve meses de 14 dias desde el 1 de enero.
+const DIA_INICIO=9*DIAS_MES;
+const ANO_INICIO=2026;
+
+// Traduce el contador de noches dormidas a una fecha del calendario.
+function fecha(d){
+  const dias=(d==null ? (gameData.dia||0) : d);
+  const t=DIA_INICIO+dias;
+  const delAno=((t%DIAS_ANO)+DIAS_ANO)%DIAS_ANO;
+  const mes=Math.floor(delAno/DIAS_MES);
+  const dia=delAno%DIAS_MES+1;                     // 1..14
+  return {
+    ano:  ANO_INICIO+Math.floor(t/DIAS_ANO),
+    mes, dia,
+    semana:(dia-1)%7,                              // todos los meses empiezan en lunes
+    quincena: dia<=7 ? 1 : 2,
+    est:  Math.floor(((mes+1)%MESES_ANO)/3),       // 0 invierno … 3 otono
+    total: dias,                                   // dias jugados desde el principio
+  };
+}
+function fechaCorta(f){ f=f||fecha(); return SEMANA_C[f.semana]+' '+f.dia+' '+MESES_C[f.mes]; }
+function fechaLarga(f){ f=f||fecha(); return SEMANA[f.semana]+', '+f.dia+' de '+MESES[f.mes]+' de '+f.ano; }
+function estacion(f){ return ESTACIONES[(f||fecha()).est]; }
+
+//------------------------------------------------------------------
+//  DINERO  (por dentro en centimos, para no arrastrar decimales sueltos)
+//------------------------------------------------------------------
+const DINERO_INICIAL=5000;   // 50,00 € al empezar la partida
+const DINERO_NOCHE  =1000;   // 10,00 € que entran cada noche que se duerme
+function dinero(){ return gameData.dinero||0; }
+function fmtEuros(c){ return (c/100).toFixed(2).replace('.',',')+' €'; }
+function puedePagar(c){ return dinero()>=c; }
+function ingresar(c){ gameData.dinero=dinero()+c; actualizarHud(true); }
+// Cobra si llega el dinero; si no llega no toca nada y devuelve false.
+function cobrar(c){
+  if(!puedePagar(c)) return false;
+  gameData.dinero=dinero()-c;
+  actualizarHud(true);
+  return true;
+}
+// Una compra completa: cobra, avisa y deja constancia para las misiones.
+function comprar(precio, concepto){
+  if(!cobrar(precio)) return false;
+  avisar('💶 '+(concepto||'Pagas')+' · '+fmtEuros(precio));
+  cumplirPaso('primer_gasto','gastar');
+  saveGame();
+  return true;
+}
+
+//------------------------------------------------------------------
+//  CONTADORES DE LA PANTALLA
+//------------------------------------------------------------------
+const pillFecha =document.getElementById('pillFecha'),
+      pillDinero=document.getElementById('pillDinero'),
+      misBtn    =document.getElementById('misBtn'),
+      misNum    =document.getElementById('misNum');
+function actualizarHud(destelloDinero){
+  const f=fecha();
+  PAL = PALETAS[f.est] || PALETAS[2];   // el campus se pinta con la estacion
+  pillFecha.textContent=estacion(f).ic+' '+fechaCorta(f);
+  pillFecha.title=fechaLarga(f)+' · '+estacion(f).n;
+  pillDinero.textContent='💶 '+fmtEuros(dinero());
+  // el contador lleva las misiones en curso; con todo cumplido, un visto
+  const n=misionesActivas().length;
+  misNum.textContent = n ? n : (misionesHechas().length ? '✓' : '0');
+  misBtn.classList.toggle('vacio', n===0);
+  if(destelloDinero){                       // reiniciar la animacion a mano
+    pillDinero.classList.remove('destello');
+    void pillDinero.offsetWidth;
+    pillDinero.classList.add('destello');
+  }
+}
+misBtn.onclick=()=>{ if(state==='play') openMisiones(); };
+
+// Los avisos se ponen en cola: si se cobra y ademas se cumple una mision,
+// el segundo mensaje no debe borrar al primero antes de que se lea.
+let colaAvisos=[];
+function avisar(txt){ colaAvisos.push(txt); if(colaAvisos.length===1) soltarAviso(); }
+function soltarAviso(){
+  if(!colaAvisos.length) return;
+  showToast(colaAvisos[0]);
+  setTimeout(()=>{ colaAvisos.shift(); soltarAviso(); }, 2400);
+}
+
+//------------------------------------------------------------------
+//  MISIONES
+//  El estado vivo esta en gameData.misiones:
+//      id -> {estado:'activa'|'hecha', pasos:{idPaso:true}, desde:dia}
+//  Para anadir una mision nueva basta con describirla aqui y llamar a
+//  cumplirPaso('id','paso') donde se cumpla (un NPC, una compra, una
+//  sala a la que se entra...). El contador y el panel se enteran solos.
+//------------------------------------------------------------------
+const MISIONES={
+  primera_noche:{
+    nombre:"La primera noche", ic:"🛏️", inicial:true,
+    desc:"Busca tu cuarto en la residencia y duerme allí. Los días solo pasan cuando decides acostarte.",
+    pista:"Studentenwohnheim, cuarto 1. La cama está en la esquina de arriba a la izquierda.",
+    pasos:[{id:'dormir', t:"Dormir una noche en tu cama"}],
+    premio:{dinero:500},
+  },
+  primer_gasto:{
+    nombre:"El primer gasto", ic:"💶", inicial:true,
+    desc:"Un café, una cerveza, un menú de la Mensa o un trámite: paga algo por primera vez y mira bajar el contador.",
+    pista:"La Mensa, la cafetería del Nikolakloster o la expendedora del salón de la residencia.",
+    pasos:[{id:'gastar', t:"Pagar algo por primera vez"}],
+    premio:null,
+  },
+};
+
+function estadoMision(id){ return (gameData.misiones||{})[id]||null; }
+function misionActiva(id){ const e=estadoMision(id); return !!e && e.estado==='activa'; }
+function misionHecha(id){  const e=estadoMision(id); return !!e && e.estado==='hecha';  }
+function misionesPor(est){
+  const M=gameData.misiones||{};
+  return Object.keys(M).filter(id=>MISIONES[id] && M[id].estado===est);
+}
+function misionesActivas(){ return misionesPor('activa'); }
+function misionesHechas(){  return misionesPor('hecha');  }
+
+function activarMision(id, callada){
+  const m=MISIONES[id];
+  if(!m || estadoMision(id)) return false;
+  if(!gameData.misiones) gameData.misiones={};
+  gameData.misiones[id]={estado:'activa', pasos:{}, desde:gameData.dia||0};
+  actualizarHud();
+  if(!callada) avisar('📋 Nueva misión: '+m.nombre);
+  saveGame();
+  return true;
+}
+// Marca un paso. Cuando no queda ninguno suelto, la mision se da por hecha.
+function cumplirPaso(idM, idP){
+  const m=MISIONES[idM], e=estadoMision(idM);
+  if(!m || !e || e.estado!=='activa') return false;
+  if(!m.pasos.some(p=>p.id===idP) || e.pasos[idP]) return false;
+  e.pasos[idP]=true;
+  const hechos=m.pasos.filter(p=>e.pasos[p.id]).length;
+  if(hechos>=m.pasos.length){ completarMision(idM); return true; }
+  avisar('📋 '+m.nombre+' · '+hechos+'/'+m.pasos.length);
+  actualizarHud(); saveGame();
+  return true;
+}
+function completarMision(id){
+  const m=MISIONES[id], e=estadoMision(id);
+  if(!m || !e || e.estado==='hecha') return;
+  e.estado='hecha'; e.dia=gameData.dia||0;
+  m.pasos.forEach(p=>e.pasos[p.id]=true);
+  let extra='';
+  if(m.premio && m.premio.dinero){ ingresar(m.premio.dinero); extra=' · +'+fmtEuros(m.premio.dinero); }
+  actualizarHud();
+  avisar('✅ Misión cumplida: '+m.nombre+extra);
+  saveGame();
+}
+// Las misiones marcadas como 'inicial' arrancan solas al empezar, y tambien
+// al cargar una partida vieja que todavia no las tuviera.
+function arrancarMisiones(){
+  for(const id in MISIONES) if(MISIONES[id].inicial) activarMision(id, true);
+}
+
+// --- panel de misiones (boton de la derecha o tecla M) ---
+function openMisiones(){
+  const f=fecha(), activas=misionesActivas(), hechas=misionesHechas();
+  const tarjeta=(id,hecha)=>{
+    const m=MISIONES[id], e=estadoMision(id);
+    const pasos=m.pasos.map(p=>
+      `<div class="paso${e.pasos[p.id]?' ok':''}">${e.pasos[p.id]?'☑':'☐'} ${esc(p.t)}</div>`).join('');
+    const n=m.pasos.filter(p=>e.pasos[p.id]).length;
+    return `<div class="mision${hecha?' hecha':''}">
+      <div class="cab"><span class="ic">${m.ic||'📋'}</span><b>${esc(m.nombre)}</b>
+        <span class="prog">${hecha?'cumplida':n+'/'+m.pasos.length}</span></div>
+      <div class="txt">${esc(m.desc)}</div>${pasos}
+      ${(!hecha&&m.pista)?`<div class="pista">💡 ${esc(m.pista)}</div>`:''}</div>`;
+  };
+  let cuerpo='';
+  if(!activas.length && !hechas.length){
+    cuerpo='<div class="invempty">Todavía no tienes ninguna misión.<br>Habla con la gente del campus: alguien acabará pidiéndote algo.</div>';
+  }else{
+    if(activas.length) cuerpo+='<div class="sec">EN CURSO</div>'+activas.map(id=>tarjeta(id,false)).join('');
+    if(hechas.length)  cuerpo+='<div class="sec">CUMPLIDAS</div>' +hechas .map(id=>tarjeta(id,true )).join('');
+  }
+  showOverlay(`<button class="close">✕</button><h3>📋 Misiones</h3>
+    <div class="estado">
+      <span>${estacion(f).ic} ${esc(fechaLarga(f))}</span>
+      <span>${esc(estacion(f).n)} · día ${f.total+1} en Passau</span>
+      <span>💶 ${fmtEuros(dinero())}</span>
+    </div>${cuerpo}
+    <div class="hintline">Tecla M · duerme en tu cama para pasar de día</div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+}
+
+//------------------------------------------------------------------
+//  DORMIR — el unico reloj del juego
+//  Se acciona la cama de tu cuarto (la sala lleva 'dormitorio:true'):
+//  la pantalla se apaga, cambia la fecha, entran los 10 € de la noche
+//  y vuelve a encenderse.
+//------------------------------------------------------------------
+const noche=document.getElementById('noche'), nocheTxt=document.getElementById('nocheTxt');
+let durmiendo=false;
+
+function preguntarDormir(){
+  const pend=misionesActivas().length;
+  const lineas=[
+    "Tu cama, con el edredón a medio estirar.",
+    "Hoy es "+fechaLarga()+".",
+    pend ? "Tienes "+pend+(pend===1?" misión pendiente":" misiones pendientes")+", pero la cama no se va a ir a ninguna parte."
+         : "No te queda nada pendiente. Buena noche para dormir de un tirón.",
+  ];
+  openDialog("Tu cama", lineas, {q:"¿Te vas a dormir?", opts:[
+    {t:"Ir a dormir", r:["Te tapas hasta las orejas y en dos minutos estás dormido."], alCerrar:dormir},
+    {t:"Todavía no",  r:["Todavía no. Queda día por delante."]},
+  ]});
+}
+
+function dormir(){
+  if(durmiendo) return;
+  const estAyer=fecha().est;         // para saber si la noche cambia de estacion
+  durmiendo=true;
+  state='transition';
+  punteroArriba(null);              // suelta el mando: dormido no se anda
+  nocheTxt.innerHTML='';
+  noche.classList.add('on');
+  // a oscuras: pasa el dia, entra el dinero y se ensena la fecha nueva
+  setTimeout(()=>{
+    gameData.dia=(gameData.dia||0)+1;
+    gameData.dinero=dinero()+DINERO_NOCHE;
+    const f=fecha();
+    nocheTxt.innerHTML=estacion(f).ic+' '+esc(fechaLarga(f))
+      +'<span class="peq">'+esc(estacion(f).n)+' · día '+(f.total+1)+' en Passau</span>'
+      +'<span class="peq">💶 +'+fmtEuros(DINERO_NOCHE)+'</span>';
+    noche.classList.add('txt');
+    actualizarHud(true);              // aqui entra tambien la paleta nueva
+    if(f.est!==estAyer) nocheTxt.innerHTML+=
+      '<span class="peq">'+estacion(f).ic+' Empieza el '+esc(estacion(f).n.toLowerCase())+'</span>';
+    cumplirPaso('primera_noche','dormir');
+  }, 850);
+  setTimeout(()=>{ noche.classList.remove('txt'); }, 2500);
+  setTimeout(()=>{
+    noche.classList.remove('on');
+    durmiendo=false;
+    if(!guion) state='play';        // si arranco un guion, manda el guion
+    saveGame();
+    const f=fecha();
+    avisar('☀️ '+fechaCorta(f)+' · +'+fmtEuros(DINERO_NOCHE));
+    if(f.est!==estAyer) avisar(estacion(f).ic+' Empieza el '+estacion(f).n.toLowerCase()+' en Passau');
+  }, 3050);
+}
+
+//==================================================================
 //  VALIDADOR DE MAPAS
 //  Se ejecuta al cargar la pagina. Comprueba la geometria de cada
 //  sala y el cableado de cada puerta, para que un fallo de diseno
@@ -4305,6 +5037,90 @@ function validateMaps(){
     });
   }
 
+  // ---------------- ECONOMIA, MISIONES Y CAMA ----------------
+  // Un precio escrito en euros en vez de en centimos no rompe el mapa, pero
+  // si la partida: una cerveza de 1,20 € pasaria a costar 120 €.
+  const revisaOpts=(donde,ch)=>{
+    if(!ch) return;
+    if(!ch.opts||!ch.opts.length){ E(donde+': tiene opciones (choice) pero ninguna opcion'); return; }
+    ch.opts.forEach(o=>{
+      if(!o.t) E(donde+': una opcion sin texto');
+      if(o.precio!=null){
+        if(!Number.isInteger(o.precio)||o.precio<=0)
+          E(donde+' · "'+o.t+'": el precio va en centimos enteros mayores que cero, no '+o.precio);
+        else if(o.precio>20000)
+          Wn(donde+' · "'+o.t+'": '+(o.precio/100)+' € — ¿esta escrito en euros en vez de centimos?');
+      }
+      ['fn','alCerrar'].forEach(k=>{
+        if(o[k]!=null && typeof o[k]!=='function') E(donde+' · "'+o.t+'": '+k+' tiene que ser una funcion');
+      });
+      if(!o.r && !o.fn && !o.alCerrar) Wn(donde+' · "'+o.t+'": ni responde nada ni hace nada');
+    });
+  };
+  for(const key in INTERIORS){
+    const I=INTERIORS[key];
+    (I.npcs||[]).forEach(n=>revisaOpts(key+' · '+n.name, n.choice));
+    (I.info||[]).forEach(n=>revisaOpts(key+' · '+n.name, n.choice));
+    if(I.dormitorio && !(I.grid||[]).some(r=>r.indexOf("'")>=0))
+      E(key+": marcada como dormitorio pero no tiene ninguna cama (') que accionar");
+  }
+  OUT_NPCS.forEach(n=>revisaOpts('exterior · '+n.name, n.choice));
+  if(!Object.keys(INTERIORS).some(k=>INTERIORS[k].dormitorio))
+    Wn("ninguna sala esta marcada como dormitorio: no se podria dormir ni pasar de dia");
+
+  for(const id in MISIONES){
+    const m=MISIONES[id];
+    if(!m.nombre) E('mision '+id+': sin nombre');
+    if(!m.pasos||!m.pasos.length) E('mision '+id+': sin pasos, no habria forma de cumplirla');
+    else{
+      const vistos=new Set();
+      m.pasos.forEach(pa=>{
+        if(!pa.id)             E('mision '+id+': hay un paso sin id');
+        else if(vistos.has(pa.id)) E('mision '+id+': el paso "'+pa.id+'" esta repetido');
+        if(!pa.t)              Wn('mision '+id+': el paso "'+pa.id+'" no tiene texto');
+        vistos.add(pa.id);
+      });
+    }
+    if(m.premio && m.premio.dinero!=null &&
+       (!Number.isInteger(m.premio.dinero)||m.premio.dinero<0))
+      E('mision '+id+': el premio en dinero va en centimos enteros');
+  }
+
+  // ---------------- OBJETOS ----------------
+  // Un objeto al que no se llega andando no se puede recoger jamas: o esta en
+  // una casilla que no se pisa y sin ninguna libre al lado, o la gente de la
+  // sala tapa el unico paso. Se comprueba andando de verdad desde donde
+  // aparece el jugador, con los NPCs de obstaculo como en tryMove.
+  for(const id in ITEMS){
+    const sp=ITEMS[id].spawn, fuera=(sp.scene==='outdoor');
+    const I=fuera?null:INTERIORS[sp.scene];
+    if(!fuera && !I){ E("objeto '"+id+"': sale en la sala '"+sp.scene+"', que no existe"); continue; }
+    const g=fuera?OUTDOOR:I.grid, alto=g.length, ancho=g[0].length;
+    if(sp.x<0||sp.y<0||sp.x>=ancho||sp.y>=alto){
+      E("objeto '"+id+"': ("+sp.x+","+sp.y+') cae fuera de '+sp.scene); continue; }
+    const SOL=fuera?SOLID_OUT:(I.isPatio?SOLID_PATIO:SOLID_IN);
+    const gente=new Set((fuera?OUT_NPCS:(I.npcs||[])).map(n=>n.x+','+n.y));
+    const pisa=(x,y)=>x>=0&&y>=0&&x<ancho&&y<alto&&!SOL.has(g[y][x]);
+    const anda=(x,y)=>pisa(x,y)&&!gente.has(x+','+y);
+    // se aparece en la casilla de entrada aunque haya alguien plantado en ella
+    const ini=[];
+    if(fuera) ini.push([39,31]);                  // la Innwiese, donde arranca la partida
+    else{
+      ini.push(frenteASalida(sp.scene).at);
+      for(const k in INTERIORS) (INTERIORS[k].doors||[]).forEach(d=>{
+        if(d.to===sp.scene && d.at) ini.push(d.at); });
+    }
+    const visto=new Set(), pila=[];
+    ini.forEach(([x,y])=>{ if(pisa(x,y)&&!visto.has(x+','+y)){ visto.add(x+','+y); pila.push([x,y]); } });
+    while(pila.length){ const [x,y]=pila.pop();
+      [[0,-1],[0,1],[-1,0],[1,0]].forEach(([ox,oy])=>{ const nx=x+ox, ny=y+oy;
+        if(anda(nx,ny)&&!visto.has(nx+','+ny)){ visto.add(nx+','+ny); pila.push([nx,ny]); } }); }
+    // vale ponerse encima o en cualquiera de los cuatro lados
+    if(![[0,0],[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>visto.has((sp.x+ox)+','+(sp.y+oy))))
+      E("objeto '"+id+"' en "+sp.scene+' ('+sp.x+','+sp.y+'): no se puede llegar a recogerlo — '+
+        'no hay ninguna casilla libre a su lado a la que se llegue andando');
+  }
+
   // ---------------- INFORME ----------------
   const salas=Object.keys(INTERIORS).length;
   if(errs.length){
@@ -4342,8 +5158,6 @@ function mostrarBannerErrores(errs){
   if(document.body) pinta(); else document.addEventListener('DOMContentLoaded',pinta);
 }
 
-try{ validateMaps(); }catch(e){ console.error('VALIDADOR: fallo interno',e); }
-
 let scene='outdoor';        // 'outdoor' | interior key
 let map=OUTDOOR, mapW=OUTDOOR[0].length, mapH=OUTDOOR.length;
 let npcs=OUT_NPCS;
@@ -4367,40 +5181,243 @@ function isSolid(x,y){
 }
 
 //==================================================================
-//  MENÚ
+//  MENÚ DE INICIO
+//  Tres pantallas dentro del mismo overlay: portada, creacion de
+//  personaje y controles. Se maneja con raton, con el dedo y con el
+//  teclado (flechas + Enter), como cualquier menu de consola.
 //==================================================================
 let selChar=null, selCareer=null;
+const menuEl=document.getElementById('menu');
 const charRow=document.getElementById('charRow'), careerRow=document.getElementById('careerRow');
 const startBtn=document.getElementById('startBtn');
+
+function mostrarPant(id){
+  document.querySelectorAll('#menu .pant').forEach(p=>{
+    p.classList.toggle('on', p.id===id);
+    if(p.id===id) p.scrollTop=0;
+  });
+  focoInicial();
+}
+
+//------------------------------------------------------------------
+//  FOCO DEL TECLADO
+//  Se mueve por geometria: se busca el elemento navegable mas cercano
+//  hacia donde se ha pulsado. Asi el mismo codigo sirve para una lista
+//  de botones y para una rejilla de personajes, sin indices a mano.
+//------------------------------------------------------------------
+function navegables(){
+  const p=document.querySelector('#menu .pant.on');
+  return p ? [...p.querySelectorAll('[data-nav]')].filter(e=>!e.disabled && e.offsetParent!==null) : [];
+}
+function ponerFoco(el){
+  document.querySelectorAll('#menu .foco').forEach(e=>e.classList.remove('foco'));
+  if(!el) return;
+  el.classList.add('foco');
+  if(el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+}
+function focoInicial(){
+  const els=navegables();
+  ponerFoco(els.find(e=>e.classList.contains('sel')) || els[0]);
+}
+function moverFoco(dx,dy){
+  const els=navegables(); if(!els.length) return;
+  const act=els.find(e=>e.classList.contains('foco'));
+  if(!act){ ponerFoco(els[0]); return; }
+  const a=act.getBoundingClientRect(), ax=a.left+a.width/2, ay=a.top+a.height/2;
+  let mejor=null, dMejor=Infinity;
+  els.forEach(e=>{
+    if(e===act) return;
+    const b=e.getBoundingClientRect(), vx=b.left+b.width/2-ax, vy=b.top+b.height/2-ay;
+    // solo cuenta lo que quede claramente hacia el lado que se ha pulsado
+    if(dx && (Math.sign(vx)!==dx || Math.abs(vx)<Math.abs(vy)*0.7)) return;
+    if(dy && (Math.sign(vy)!==dy || Math.abs(vy)<Math.abs(vx)*0.7)) return;
+    const d=Math.hypot(vx,vy) + (dx?Math.abs(vy):Math.abs(vx))*2;   // penaliza salirse de la fila
+    if(d<dMejor){ dMejor=d; mejor=e; }
+  });
+  if(mejor) ponerFoco(mejor);
+}
+function teclaMenu(e){
+  switch(e.key){
+    case 'ArrowUp':    moverFoco(0,-1); return;
+    case 'ArrowDown':  moverFoco(0, 1); return;
+    case 'ArrowLeft':  moverFoco(-1,0); return;
+    case 'ArrowRight': moverFoco( 1,0); return;
+    case 'Enter': case ' ': case 'z': case 'Z': {
+      const act=document.querySelector('#menu .foco');
+      if(act) act.click();
+      return; }
+    case 'Escape': {
+      const p=document.querySelector('#menu .pant.on');
+      if(p && p.id!=='pPortada') mostrarPant('pPortada');
+      return; }
+  }
+}
+// el raton y el foco no pueden decir cosas distintas: al pasar por encima,
+// el foco se va detras del puntero
+menuEl.addEventListener('mouseover', e=>{
+  const t=e.target.closest && e.target.closest('[data-nav]');
+  if(t && !t.disabled) ponerFoco(t);
+});
+
+//------------------------------------------------------------------
+//  RETRATOS: los sprites del menu caminan en el sitio
+//  El lienzo mide 16x18 casillas de sprite (16 del muneco y 2 de
+//  margen para la sombra y el pelo alto), a escala entera.
+//------------------------------------------------------------------
+const retratos=[];      // {cx, esc, ch}
+let pasoMenu=1;
+function nuevoRetrato(esc, ch){
+  const c=document.createElement('canvas');
+  c.width=16*esc; c.height=18*esc;
+  c.style.width=c.width+'px'; c.style.height=c.height+'px';
+  const r={cv:c, cx:c.getContext('2d'), esc, ch};
+  r.cx.imageSmoothingEnabled=false;
+  retratos.push(r); pintarRetrato(r);
+  return r;
+}
+function pintarRetrato(r){
+  const cx=r.cx; cx.clearRect(0,0,r.cv.width,r.cv.height);
+  if(!r.ch){    // ficha vacia: una interrogacion, hasta que se elija
+    cx.fillStyle='rgba(255,255,255,.5)';
+    cx.font='bold '+Math.round(r.cv.height*0.55)+'px "Courier New",monospace';
+    cx.textAlign='center'; cx.textBaseline='middle';
+    cx.fillText('?', r.cv.width/2, r.cv.height/2);
+    return;
+  }
+  cx.save(); cx.scale(r.esc,r.esc);
+  drawPerson(cx,0,1,r.ch.skin,r.ch.hair,r.ch.shirt,'down',pasoMenu,r.ch.pelo);
+  cx.restore();
+}
+function animarRetratos(){
+  pasoMenu = pasoMenu===1 ? 2 : 1;    // alternar las dos piernas: anda sin moverse
+  retratos.forEach(pintarRetrato);
+}
+
+//------------------------------------------------------------------
+//  FONDO DE LA PORTADA
+//  Detras del menu se ve el campus de verdad, paseandose despacio.
+//  Se dibuja una sola vez: como drawOutTile y drawBuilding pintan
+//  sobre el lienzo del juego, se le agranda un momento al tamano del
+//  mapa entero, se copia lo pintado y se le devuelve su tamano. Todo
+//  seguido, sin soltar el hilo, asi que no se llega a ver.
+//------------------------------------------------------------------
+let campusCv=null, campusEst=-1, campusFallo=false;
+function pintarCampus(){
+  if(campusFallo) return null;
+  const est=PALETAS.indexOf(PAL);
+  if(campusCv && campusEst===est) return campusCv;   // ya pintado en esta estacion
+  const W=mapW*TILE, H=mapH*TILE;
+  const vw=VW, vh=VH, cx0=cam.x, cy0=cam.y;
+  try{
+    setViewSize(W,H); cam.x=0; cam.y=0;
+    ctx.fillStyle='#5fa84f'; ctx.fillRect(0,0,W,H);
+    for(let y=0;y<mapH;y++) for(let x=0;x<mapW;x++) drawOutTile(map[y][x], x*TILE, y*TILE, x, y);
+    // edificios y gente por orden de profundidad, igual que en el juego
+    const ents=BLD_GEO.map(b=>({y:b.y1, dib:()=>drawBuilding(b)}));
+    OUT_NPCS.forEach(n=>ents.push({y:n.y, dib:()=>{ const a=aspectoNPC(n.name);
+      drawPerson(ctx,n.x*TILE,n.y*TILE,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
+    ents.sort((a,b)=>a.y-b.y).forEach(e=>e.dib());
+    const off=document.createElement('canvas'); off.width=W; off.height=H;
+    off.getContext('2d').drawImage(cv,0,0);
+    campusCv=off; campusEst=est;
+  }catch(e){
+    console.warn('PORTADA: no se ha podido dibujar el campus de fondo', e);
+    campusFallo=true;   // se queda el color liso del CSS y a seguir
+  }finally{
+    setViewSize(vw,vh); cam.x=cx0; cam.y=cy0;
+  }
+  return campusCv;
+}
+const fondoCv=document.getElementById('fondoMenu');
+const fondoCx=fondoCv.getContext('2d');
+fondoCx.imageSmoothingEnabled=false;
+function pintarFondoMenu(){
+  const src=pintarCampus(); if(!src) return;
+  // nunca menos de 3 px de pantalla por pixel de juego, y lo bastante
+  // ampliado como para que el mapa cubra la pantalla entera
+  const zoom=Math.max(2, fondoCv.clientWidth/src.width, fondoCv.clientHeight/src.height);
+  const w=Math.max(16,Math.round(fondoCv.clientWidth/zoom));
+  const h=Math.max(16,Math.round(fondoCv.clientHeight/zoom));
+  if(fondoCv.width!==w||fondoCv.height!==h){
+    fondoCv.width=w; fondoCv.height=h; fondoCx.imageSmoothingEnabled=false;
+  }
+  // vaiven de lado a lado (un minuto de ida) con un balanceo vertical mas lento
+  const u=(1-Math.cos(animTick/1150))/2, v=(1-Math.cos(animTick/1900))/2;
+  const mx=Math.max(0,src.width-w);
+  // el paseo se queda en el campus: ni el Danubio de arriba ni el Inn de abajo,
+  // que son filas de agua y sola no dicen nada
+  const y0=Math.min(6*TILE, Math.max(0,src.height-h));
+  const y1=Math.max(y0, Math.min(src.height-h, src.height-4*TILE-h));
+  fondoCx.drawImage(src, Math.round(u*mx), Math.round(y0+v*(y1-y0)), w, h, 0,0, w,h);
+}
+// se llama desde el bucle mientras el menu esta a la vista
+function animarMenu(){
+  if(state!=='menu' || menuEl.style.display==='none') return;
+  pintarFondoMenu();
+  if(animTick%14===0) animarRetratos();
+}
+
+//------------------------------------------------------------------
+//  ELEGIR PERSONAJE Y CARRERA
+//------------------------------------------------------------------
+const retFicha=nuevoRetrato(4,null);
+(function montarFicha(){
+  const hueco=document.getElementById('retrato');
+  hueco.parentNode.replaceChild(retFicha.cv, hueco);
+})();
+const fNm=document.getElementById('fNm'), fCar=document.getElementById('fCar'), fBio=document.getElementById('fBio');
+
 CHARS.forEach(ch=>{
-  const d=document.createElement('div'); d.className='pick';
-  const cc=document.createElement('canvas'); cc.width=32;cc.height=32;
-  const cx=cc.getContext('2d'); cx.imageSmoothingEnabled=false;
-  cx.fillStyle='#bfe3bf';cx.fillRect(0,0,32,32);
-  cx.save();cx.scale(2,2);drawPerson(cx,0,1,ch.skin,ch.hair,ch.shirt,'down',0);cx.restore();
-  d.appendChild(cc);
-  const nm=document.createElement('div');nm.className='nm';nm.textContent=ch.nm;d.appendChild(nm);
-  d.onclick=()=>{document.querySelectorAll('#charRow .pick').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');selChar=ch;checkStart();};
-  charRow.appendChild(d);
+  const b=document.createElement('button');
+  b.type='button'; b.className='pick'; b.setAttribute('data-nav','');
+  b.appendChild(nuevoRetrato(3,ch).cv);
+  const nm=document.createElement('span'); nm.className='nm'; nm.textContent=ch.nm;
+  b.appendChild(nm);
+  b.onclick=()=>{
+    charRow.querySelectorAll('.pick').forEach(e=>e.classList.remove('sel'));
+    b.classList.add('sel'); selChar=ch; refrescarFicha();
+  };
+  charRow.appendChild(b);
 });
 CAREERS.forEach(ca=>{
-  const d=document.createElement('div'); d.className='career';
-  d.innerHTML=`<span class="ic">${ca.ic}</span>${ca.id}<span class="full">${ca.full}</span>`;
-  d.onclick=()=>{document.querySelectorAll('.career').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');selCareer=ca;checkStart();};
-  careerRow.appendChild(d);
+  const b=document.createElement('button');
+  b.type='button'; b.className='pick'; b.setAttribute('data-nav','');
+  b.innerHTML=`<span class="ic">${ca.ic}</span><span class="nm">${ca.id}</span><span class="full">${ca.full}</span>`;
+  b.onclick=()=>{
+    careerRow.querySelectorAll('.pick').forEach(e=>e.classList.remove('sel'));
+    b.classList.add('sel'); selCareer=ca; refrescarFicha();
+  };
+  careerRow.appendChild(b);
 });
-function checkStart(){ startBtn.disabled=!(selChar&&selCareer); }
+
+function refrescarFicha(){
+  fNm.textContent  = selChar ? selChar.nm.toUpperCase() : '¿QUIÉN ERES?';
+  fBio.textContent = selChar ? selChar.bio
+                   : 'Elige a quién quieres ser este semestre y qué vas a estudiar.';
+  fCar.textContent = selCareer ? selCareer.full+' · '+selCareer.id : 'Sin carrera todavía';
+  retFicha.ch=selChar; pintarRetrato(retFicha);
+  startBtn.disabled=!(selChar&&selCareer);
+}
+refrescarFicha();
+
 startBtn.onclick=()=>{
+  if(startBtn.disabled) return;
   newGame();                          // partida desde cero (borra guardado previo)
   player.char=selChar; player.career=selCareer.id;
-  document.getElementById('menu').style.display='none';
+  menuEl.style.display='none';
   document.getElementById('hud').style.display='flex';
   enterPlayUI();
   invBtn.style.display='flex';        // mostrar botón de inventario
   state='play';
+  arrancarMisiones();                 // las misiones de salida
+  actualizarHud();                    // fecha, dinero y contador de misiones
   saveGame();                         // guardado inicial
   showToast(`¡${selChar.nm} (${selCareer.id}) llega a la Innwiese!`);
 };
+document.getElementById('nuevaBtn').onclick      =()=>mostrarPant('pCrear');
+document.getElementById('volverBtn').onclick     =()=>mostrarPant('pPortada');
+document.getElementById('ayudaBtn').onclick      =()=>mostrarPant('pAyuda');
+document.getElementById('cerrarAyudaBtn').onclick=()=>mostrarPant('pPortada');
 
 //==================================================================
 //  ENTRADA
@@ -4409,6 +5426,9 @@ const keys={};
 window.addEventListener('keydown',e=>{
   if(escribiendo(e)) return;   // espacio, flechas y demas son del texto que se escribe
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  // el menu de inicio tiene su propio manejo: flechas para moverse por las
+  // opciones y Enter para aceptar; el juego no ve nada de esto
+  if(state==='menu'){ teclaMenu(e); return; }
   // overlay abierto: Esc cierra; no procesar movimiento/interacción
   if(state==='overlay'){
     if(e.key==='Escape') closeOverlay();
@@ -4416,6 +5436,7 @@ window.addEventListener('keydown',e=>{
   }
   keys[e.key.toLowerCase()]=true;
   if((e.key==='i'||e.key==='I')&&state==='play'&&!e.repeat){ openInventory(); return; }
+  if((e.key==='m'||e.key==='M')&&state==='play'&&!e.repeat){ openMisiones(); return; }
   if(e.key===' '||e.key==='Enter'||e.key==='z'||e.key==='Z'){
     if(state==='dialog') advanceDialog();
     else if(state==='play'&&!e.repeat) interact();
@@ -4443,16 +5464,33 @@ let curDir=null, lastAPress=0;
 
 // Tacto del joystick. Todo en fracciones del radio del aro (~66 px en un
 // movil normal), asi que se puede ajustar aqui sin tocar nada mas.
-const JOY_DEAD =0.30;   // hasta aqui el dedo no mueve nada       (~20 px)
-const JOY_TOPE =0.78;   // aqui el empuje ya es el maximo         (~52 px)
-const JOY_LENTO=0.45;   // por debajo de este empuje se anda despacio
+const JOY_DEAD =0.36;   // hasta aqui el dedo no mueve nada       (~24 px)
+const JOY_TOPE =0.90;   // aqui el empuje ya es el maximo         (~60 px)
+const JOY_LENTO=0.50;   // por debajo de este empuje se anda despacio
 const JOY_BIAS =1.55;   // histeresis: la direccion actual aguanta ~12 grados
+
+// A que velocidad anda el personaje, EN CASILLAS POR SEGUNDO, que es como se
+// nota al jugar. Si va rapido o lento en el movil, el numero a tocar es este,
+// tal cual: no hay que convertir nada.
+const CASILLAS_CORTO =2.5;   // joystick a medias, para colocarse con tiento
+const CASILLAS_NORMAL=6.5;   // joystick a fondo
+const CASILLAS_LIBRE =7.5;   // teclado y escenas automaticas (escaleras)
+
+// ...y lo que de verdad usa el motor: pixeles por fotograma. Una casilla son
+// 16 px y el juego va a 60 fotogramas por segundo.
+const PASO_CORTO = CASILLAS_CORTO *TILE/60;
+const PASO_NORMAL= CASILLAS_NORMAL*TILE/60;
+const PASO_LIBRE = CASILLAS_LIBRE *TILE/60;
 const TAP_TOL=14;       // px que se pueden mover sin dejar de ser "un toque"
 const TAP_MS=500;       // y tiempo maximo del toque
 
 // Con el joystick a medio empujar se anda despacio, como quien va con tiento;
-// a fondo —y siempre con el teclado— se anda al paso normal. Lo lee updateMove().
+// a fondo se anda al paso normal. Con el teclado no hay medias tintas.
 let andarDespacio=false;
+function velocidadPaso(){
+  if(joy.id===null) return PASO_LIBRE;
+  return andarDespacio ? PASO_CORTO : PASO_NORMAL;
+}
 
 function setDir(d){
   if(d===curDir) return;
@@ -4687,15 +5725,30 @@ function tryMove(){
   if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
   if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
   if(isSolid(nx,ny)){player.frame=0;return;}
-  player.tx=nx;player.ty=ny;player.moving=true;
+  // la velocidad se fija al arrancar la casilla: asi no cambia a media zancada
+  player.tx=nx;player.ty=ny;player.moving=true;player.paso=velocidadPaso();
 }
+// El lienzo es de pixel entero, asi que no se puede avanzar "medio pixel": se
+// guarda el sobrante de un fotograma para el siguiente y se mueve por enteros.
+let pasoResto=0;
 function updateMove(){
   if(!player.moving)return;
-  const tgx=player.tx*TILE,tgy=player.ty*TILE,sp=andarDespacio?1:2;
-  if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
-  if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
-  if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
-  if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  const tgx=player.tx*TILE,tgy=player.ty*TILE;
+  pasoResto += player.paso || PASO_LIBRE;
+  let sp = Math.floor(pasoResto);
+  pasoResto -= sp;
+  if(sp>0){
+    // Al llegar a la casilla casi siempre sobran pixeles. Si se tiran, cada
+    // casilla acaba costando un numero entero de fotogramas y la velocidad se
+    // redondea sola a 60/n casillas por segundo: pedir 6,5 daria 6. Se guardan
+    // para la casilla siguiente y la velocidad sale la que se pidio.
+    const falta = Math.abs(player.px-tgx) + Math.abs(player.py-tgy);
+    if(sp>falta){ pasoResto += sp-falta; sp=falta; }
+    if(player.px<tgx)player.px=Math.min(player.px+sp,tgx);
+    if(player.px>tgx)player.px=Math.max(player.px-sp,tgx);
+    if(player.py<tgy)player.py=Math.min(player.py+sp,tgy);
+    if(player.py>tgy)player.py=Math.max(player.py-sp,tgy);
+  }
   player.frame=(Math.floor((player.px+player.py)/4)%2)+1;
   if(player.px===tgx&&player.py===tgy){
     player.x=player.tx;player.y=player.ty;player.moving=false;player.frame=0;
@@ -4784,7 +5837,7 @@ function avanzarGuion(){
   if(!guion.pasos.length){ const f=guion.fin; guion=null; if(f) f(); return; }
   const [nx,ny]=guion.pasos.shift();
   player.dir = nx>player.x?'right' : nx<player.x?'left' : ny>player.y?'down' : 'up';
-  player.tx=nx; player.ty=ny; player.moving=true;
+  player.tx=nx; player.ty=ny; player.moving=true; player.paso=PASO_LIBRE;
 }
 // como se conecta cada linea de campo con sus vecinas, para pintarla fina
 let lineasCon=new Map();
@@ -4984,23 +6037,44 @@ function facing(){const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[player.
 function opposite(d){return{up:'down',down:'up',left:'right',right:'left'}[d];}
 function interact(){
   const f=facing();
-  // ¿objeto recolectable enfrente o bajo el jugador?
-  const objId=worldItemAt(f.x,f.y) || worldItemAt(player.x,player.y);
-  if(objId){ promptPickup(objId); return; }
+  // objeto recolectable justo enfrente
+  const delante=worldItemAt(f.x,f.y);
+  if(delante){ promptPickup(delante); return; }
   const npc=npcs.find(n=>n.x===f.x&&n.y===f.y);
   if(npc){ npc.dir=opposite(player.dir); startNPC(npc); return; }
+  // objeto bajo los pies: solo si no hay nadie delante con quien hablar,
+  // que si no, de pie sobre un objeto no se puede entregar nada a nadie
+  const debajo=worldItemAt(player.x,player.y);
+  if(debajo){ promptPickup(debajo); return; }
   // puerta enfrente: el boton de accion abre la misma puerta que el movimiento
   if(activarPuerta(f.x,f.y)) return;
   if(scene!=='outdoor'){
     const I=INTERIORS[scene];
-    // tablón de información
-    if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines); return; } }
+    // tu cama: es donde se duerme y pasa el dia
+    if(I.dormitorio && tileAt(f.x,f.y)==="'"){ preguntarDormir(); return; }
+    // tablón de información (puede llevar opciones: expendedoras, tramites...)
+    if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines, inf.choice||null); return; } }
   }
 }
 function startNPC(npc){
   let lines=[...npc.lines];
   if(npc.careerLine){ const cl=npc.careerLine[player.career]||npc.careerLine.default; if(cl)lines.push(cl); }
-  openDialog(npc.name, lines, npc.choice||null);
+  // lo que ya le entregaste, lo comenta al volver a hablar con el
+  (gameData.entregados||[]).forEach(id=>{
+    const e=ITEMS[id]&&ITEMS[id].entrega;
+    if(e&&e.npc===npc.name&&e.despues) lines=lines.concat(e.despues);
+  });
+  let choice=npc.choice||null;
+  // si llevas encima algo suyo, se lo puedes dar aqui mismo
+  const suyo=gameData.inventory.find(id=>esSuDueno(id,npc));
+  if(suyo){
+    const it=ITEMS[suyo], antes=(choice&&choice.opts)||[];
+    const dar={t:"Entregarle "+(it.art||'el')+' '+it.name.toLowerCase(),
+               r:it.entrega.gracias.slice(), fn:()=>soltarEntrega(suyo)};
+    const salida=antes.length?[]:[{t:"Nada, gracias",r:["Cuando quieras. Aquí me tienes."]}];
+    choice={q:(choice&&choice.q)||"¿Querías algo?", opts:[dar].concat(antes,salida)};
+  }
+  openDialog(npc.name, lines, choice);
 }
 
 //==================================================================
@@ -5011,7 +6085,12 @@ const dlgBox=document.getElementById('dialog'),dlgName=document.getElementById('
       dlgChoices=document.getElementById('dlgChoices');
 let dlg={lines:[],idx:0,choice:null}, typer=null,typing=false,fullLine='';
 function openDialog(name,lines,choice){
-  state='dialog'; dlg={lines:lines.slice(),idx:0,choice:choice};
+  state='dialog';
+  lines=lines.slice();
+  // La pregunta va como ultima linea. Si no se dice, las opciones aparecen
+  // colgando de una frase que no preguntaba nada y no se entiende que se elige.
+  if(choice && choice.q) lines.push(choice.q);
+  dlg={lines:lines,idx:0,choice:choice,alCerrar:null};
   dlgName.textContent=name; dlgBox.style.display='block';
   dlgChoices.style.display='none';dlgChoices.innerHTML='';
   typeLine(lines[0]);
@@ -5029,16 +6108,41 @@ function advanceDialog(){
   if(dlg.choice){ showChoices(dlg.choice); dlg.choice=null; return; }
   closeDialog();
 }
+// Una opcion puede llevar ademas:
+//   fn       — lo que hace elegirla al momento (entregar un objeto, p.ej.)
+//   precio   — en centimos: se cobra al elegirla, y si no llega el dinero se
+//              responde con 'sin' (o con un aviso generico) sin cobrar nada
+//   alCerrar — lo que pasa con el cuadro ya cerrado (dormir, que necesita la
+//              pantalla despejada)
 function showChoices(choice){
   dlgArrow.style.display='none';
   dlgChoices.style.display='flex';dlgChoices.innerHTML='';
   choice.opts.forEach(o=>{
-    const b=document.createElement('button');b.className='choice';b.textContent='▸ '+o.t;
-    b.onclick=()=>{dlgChoices.style.display='none';dlg.lines=o.r.slice();dlg.idx=0;typeLine(o.r[0]);};
+    const b=document.createElement('button');b.className='choice';
+    b.textContent='▸ '+o.t+(o.precio?'   ('+fmtEuros(o.precio)+')':'');
+    if(o.precio && !puedePagar(o.precio)) b.classList.add('nopuedo');
+    b.onclick=()=>{
+      dlgChoices.style.display='none';
+      // si no llega el dinero no se cobra nada y se responde con otra cosa
+      if(o.precio && !comprar(o.precio, o.t)){
+        const faltan=o.sin||['(No te llega. Te faltan '+fmtEuros(o.precio-dinero())+'.)'];
+        dlg.lines=faltan.slice();dlg.idx=0;typeLine(faltan[0]);return;
+      }
+      if(o.fn) o.fn();
+      dlg.alCerrar=o.alCerrar||null;
+      const lineas=o.r||['...'];
+      dlg.lines=lineas.slice();dlg.idx=0;typeLine(lineas[0]);
+    };
     dlgChoices.appendChild(b);
   });
 }
-function closeDialog(){dlgBox.style.display='none';state='play';}
+function closeDialog(){
+  dlgBox.style.display='none';state='play';
+  // lo que haya que hacer con el cuadro ya cerrado (dormir) va despues de
+  // devolver el control: asi la escena no arranca con el dialogo delante
+  const fin=dlg.alCerrar; dlg.alCerrar=null;
+  if(fin) fin();
+}
 
 //==================================================================
 //  TOAST / UBICACIÓN
@@ -5076,7 +6180,7 @@ function updateCamera(){
   if(mapH*TILE<VH) cam.y=(mapH*TILE-VH)/2;
 }
 function render(){
-  ctx.fillStyle = scene==='outdoor'?'#5fa84f':'#8a7a9a';
+  ctx.fillStyle = scene==='outdoor'?PAL.bosque:'#8a7a9a';
   ctx.fillRect(0,0,VW,VH);
   const startX=Math.floor(cam.x/TILE),startY=Math.floor(cam.y/TILE);
   const offX=((cam.x%TILE)+TILE)%TILE, offY=((cam.y%TILE)+TILE)%TILE;
@@ -5115,9 +6219,10 @@ function render(){
       ents.push({y:b.y1, draw:()=>drawBuilding(b)});
     });
   }
-  npcs.forEach(n=>ents.push({y:n.y,draw:()=>drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,'#f1c8a0','#3a2a1a',n.color,n.dir,0)}));
+  npcs.forEach(n=>ents.push({y:n.y,draw:()=>{ const a=aspectoNPC(n.name);
+    drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
   worldItemsInScene().forEach(o=>ents.push({y:o.y-0.1,draw:()=>drawWorldItemAt(ctx,o.x,o.y,o.id)}));
-  ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame)});
+  ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame,player.char.pelo)});
   ents.sort((a,b)=>a.y-b.y).forEach(e=>e.draw());
   // indicador '!' frente a NPC o puerta interactuable
   if(state==='play'){
@@ -5133,6 +6238,7 @@ function render(){
       if(I.doors&&I.doors.some(d=>d.x===f.x&&d.y===f.y))inter=true;
       if(I.salidas&&I.salidas.some(d=>d.x===f.x&&d.y===f.y))inter=true;
       if(I.info&&I.info.some(s=>s.x===f.x&&s.y===f.y))inter=true;
+      if(I.dormitorio&&t==="'")inter=true;
     }
     if(inter){
       const ex=f.x*TILE-cam.x, ey=f.y*TILE-cam.y;
@@ -5155,39 +6261,87 @@ let gameData = {
   emails: [],           // {to, subject, body, date}
   documents: [],        // {title, body, date}
   notebook: [],         // páginas del cuaderno: [{text, date}]
+  entregados: [],       // ids de objetos ya entregados a su dueño
   savedAt: null,
   char: null, career: null,
   pos: null,            // {scene, x, y}
+  // --- tiempo, dinero y misiones (ver la seccion de mas arriba) ---
+  dia: 0,                     // noches dormidas desde que empezo la partida
+  dinero: DINERO_INICIAL,     // en centimos
+  misiones: {},               // id -> {estado, pasos, desde}
 };
 
 // --- Definición de objetos recolectables ---
 // spawn: {scene, x, y} donde aparece en el mundo
 // guess: texto de "¿qué es esto?"  | icon: dibujo | type: 'laptop'|'notebook'|'doc'|'ring'
+// entrega: de quien es el objeto -> {npc, scene, gracias, despues}. Si no lo
+//   lleva, no es de nadie: quien lo reciba te lo devolvera.
+// rechazo: lo que dice quien no es su dueno  | pistas: respuesta a medida de
+//   ciertos personajes, que ademas te dicen donde llevarlo.
+// art: articulo del nombre para las frases ("el" si no se dice).
 const ITEMS = {
   laptop: {
     name:"Portátil", type:'laptop', icon:'laptop',
-    spawn:{scene:'niko_biblio', x:6, y:3},  // sobre una mesa de la biblioteca del NK
+    spawn:{scene:'niko_biblio', x:16, y:5},  // sobre una mesa del estudio silencioso del NK
     guess:"Parece un ordenador portátil. Alguien lo dejó abierto sobre la mesa.",
     desc:"Un portátil funcional. Puedes escribir emails y documentos con él.",
+    rechazo:["¿Un portátil? No es mío, quédatelo.",
+             "Y si aparece el dueño, ya te buscará. Aquí siempre acaban encontrándose."],
+    pistas:{
+      "Doctorando Ali":["No, el mío lo tengo aquí. Ese lleva días en esa mesa.",
+                        "Quédatelo tú, que le darás mejor uso que el polvo."],
+    },
   },
   ring: {
     name:"Anillo", type:'ring', icon:'ring',
     spawn:{scene:'outdoor', x:40, y:31},    // en la Innwiese
     guess:"Un anillo pequeño y brillante. ¿Se le habrá caído a alguien en el prado?",
     desc:"Un anillo elegante. Quizá alguien lo esté buscando.",
+    entrega:{npc:"Herr Wenzl", scene:'ekz1',
+      gracias:["¿Un anillo? Vaya. Esto no es un paraguas de los míos.",
+               "Lo apunto en el libro y lo guardo bajo llave, no en la caja de los perdidos.",
+               "Gracias. Ya verá como esta vez sí viene alguien a buscarlo."],
+      despues:["El anillo sigue bajo llave, esperando. Con este tengo fe."]},
+    rechazo:["No es mío. Yo lo llevaría a objetos perdidos, que para eso están."],
+    pistas:{
+      "Joyera Frau Adler":["Bonito, pero no es de mi vitrina: este ya ha vivido.",
+                           "Llévelo al mostrador de atención, ahí en el pasillo.",
+                           "Allí guardan lo que aparece. Y a veces alguien vuelve a por ello."],
+      "Estudiante Max":["¡No es mío! Yo al prado bajo sin nada que perder.",
+                        "Prueba en objetos perdidos, en el centro comercial."],
+      "Sara":["No, qué va. Pero no lo dejes tirado.",
+              "En el centro comercial, en atención al cliente, recogen lo que aparece."],
+    },
   },
   cert_fr: {
     name:"Certificado de francés", type:'doc', icon:'cert',
-    spawn:{scene:'niko_bano_m', x:2, y:2},  // baño femenino del NK
+    spawn:{scene:'niko_secretaria', x:6, y:6},  // en el suelo de la oficina de notas del NK
     guess:"Un certificado oficial. Parece un diploma de idioma.",
     desc:"Certificado de idioma francés (DELF B2) a nombre de Lisa Müller. Alguien lo perdió.",
     readable:["📜 CERTIFICAT — DELF B2","Langue française","Titulaire: Lisa Müller","Mention: Bien · Passau"],
+    entrega:{npc:"Herr Kim", scene:'niko_secretaria',
+      gracias:["A ver… DELF B2, Lisa Müller. ¡Pero si lleva dos semanas buscándolo!",
+               "Se le caería al salir. Aquí todo el mundo sale con las manos llenas de papeles.",
+               "Lo sello, lo archivo y la aviso hoy mismo. Gracias, de verdad."],
+      despues:["Lo de Lisa Müller ya está archivado. Vino a por él y casi me abraza."]},
+    rechazo:["No es mío. Eso hay que devolverlo en alguna oficina, digo yo."],
+    pistas:{
+      "Administrativo Kurt":["¿Un DELF? Es de esta casa, pero no es cosa mía.",
+                             "Dáselo a Herr Kim, en la mesa de al lado. Él lleva los idiomas."],
+      "Profesora Irene":["¡Un DELF B2! Qué pena perder eso.",
+                         "Llévalo a la oficina de notas del centro de idiomas, aquí mismo en el claustro."],
+    },
   },
   notebook: {
     name:"Cuaderno de notas", type:'notebook', icon:'notebook',
-    spawn:{scene:'niko_cafeteria', x:11, y:3}, // cafetería del NK
+    spawn:{scene:'zb2', x:2, y:9},  // sobre una mesa de la sala de estudio de la biblioteca central
     guess:"Un cuaderno de anotaciones. Tiene hojas en blanco para escribir.",
     desc:"Un cuaderno personal. Puedes abrirlo y escribir notas que se guardan.",
+    rechazo:["¿Un cuaderno con las hojas en blanco? Quédatelo y llénalo tú."],
+    pistas:{
+      "Estudiante Mira":["No es mío, el mío está a reventar.",
+                         "Ese lleva ahí desde ayer. Llévatelo antes de que lo tire alguien."],
+    },
   },
 };
 
@@ -5221,6 +6375,11 @@ function deleteSave(){
   sessionSave=null;
   if(storageOK){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
 }
+
+
+// El validador se lanza aqui, y no pegado a su funcion, porque comprueba
+// tambien que se pueda llegar a cada objeto y ITEMS se declara justo arriba.
+try{ validateMaps(); }catch(e){ console.error('VALIDADOR: fallo interno',e); }
 
 
 //==================================================================
@@ -5272,6 +6431,23 @@ uiStyle.textContent=`
   #overlay .listitem{background:#fff;border:2px solid var(--dlg-frame);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;}
   #overlay .listitem .meta{font-size:11px;color:#8a90a8;margin-bottom:3px;}
   #overlay .hintline{font-size:11px;color:#8a90a8;margin-top:10px;text-align:center;}
+  /* --- panel de misiones --- */
+  #overlay .estado{display:flex;flex-direction:column;gap:2px;font-size:12px;color:#6a7088;
+    border:2px dashed var(--dlg-frame);border-radius:8px;padding:7px 10px;margin-bottom:12px;}
+  #overlay .sec{font-size:11px;font-weight:bold;letter-spacing:2px;color:#8a90a8;
+    margin:12px 0 6px;border-bottom:2px solid rgba(90,107,138,.28);padding-bottom:3px;}
+  #overlay .mision{background:#fff;border:3px solid var(--dlg-frame);border-radius:10px;
+    padding:9px 11px;margin-bottom:8px;box-shadow:0 3px 0 rgba(90,107,138,.4);}
+  #overlay .mision.hecha{background:#eef3ea;border-color:#7aa86a;box-shadow:0 3px 0 rgba(90,138,90,.35);opacity:.85;}
+  #overlay .mision .cab{display:flex;align-items:center;gap:7px;font-size:14px;color:#3a4a7a;}
+  #overlay .mision .cab .ic{font-size:17px;}
+  #overlay .mision .prog{margin-left:auto;font-size:11px;font-weight:bold;color:#fff;
+    background:#e0a93a;border-radius:9px;padding:2px 8px;white-space:nowrap;}
+  #overlay .mision.hecha .prog{background:#7aa86a;}
+  #overlay .mision .txt{font-size:12.5px;line-height:1.45;margin:5px 0 7px;}
+  #overlay .mision .paso{font-size:12px;color:#6a7088;line-height:1.6;}
+  #overlay .mision .paso.ok{color:#4a7a3a;text-decoration:line-through;}
+  #overlay .mision .pista{font-size:11px;color:#8a90a8;margin-top:6px;font-style:italic;}
   #invBtn{position:absolute;top:10px;right:12px;z-index:40;cursor:pointer;width:44px;height:44px;
     background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:10px;box-shadow:0 3px 0 var(--dlg-shadow);
     display:none;align-items:center;justify-content:center;font-size:22px;padding:0;}
@@ -5287,9 +6463,26 @@ invBtn.onclick=()=>{ if(state==='play') openInventory(); };
 
 // --- helpers de overlay ---
 let overlayStack=[];
+// El toque que abre un panel (boton A, boton de la mochila, mitad derecha de la
+// pantalla) suelta al levantar el dedo un 'click' de cortesia que ya cae dentro
+// del panel recien puesto: cerraba el panel —o pulsaba un boton— sin que nadie
+// lo hubiera tocado, y asi en el movil no habia manera de recoger nada. Se
+// descarta ese click huerfano, y solo ese: el que viene de un dedo apoyado
+// fuera del panel y antes de que el panel existiera.
+let overlayAbierto=0, ultimoDown={t:-1e9, dentro:false};
+document.addEventListener('pointerdown',e=>{
+  ultimoDown={t:Date.now(), dentro:overlay.contains(e.target)};
+},true);
+overlay.addEventListener('click',e=>{
+  if(ultimoDown.dentro) return;                       // el dedo se apoyo en el panel: va en serio
+  if(ultimoDown.t>overlayAbierto) return;             // se apoyo con el panel ya abierto
+  if(Date.now()-ultimoDown.t>600) return;             // teclado o click sintetico, no un toque
+  e.stopPropagation(); e.preventDefault();
+},true);
 function showOverlay(html, cls){
   overlay.style.display='block';
   overlay.innerHTML='<div class="scrim"></div><div class="panel2 '+(cls||'')+'">'+html+'</div>';
+  overlayAbierto=Date.now();
   const scrim=overlay.querySelector('.scrim');
   scrim.onclick=()=>closeOverlay();
   prevState = (state==='play')?'play':prevState;
@@ -5369,7 +6562,8 @@ function openItem(id){
       <button class="ui" data-a="give">🤝 Entregar</button>
       <button class="ui danger" data-a="drop">🗑️ Dejar aquí</button>
       <button class="ui" data-a="back">← Volver</button>
-    </div>`);
+    </div>
+    <div class="hintline">Para entregarlo, ponte antes al lado de esa persona</div>`);
   overlay.querySelector('.close').onclick=closeOverlay;
   overlay.querySelectorAll('button[data-a]').forEach(b=>{
     b.onclick=()=>{
@@ -5390,13 +6584,77 @@ function showRead(it){
   overlay.querySelector('.close').onclick=closeOverlay;
   overlay.querySelector('button[data-a]').onclick=()=>openInventory();
 }
+
+//------------------------------------------------------------------
+//  ENTREGAR UN OBJETO A ALGUIEN
+//  La entrega es en mano: hay que tener a la persona delante (o al lado)
+//  y abrir la mochila. Cada objeto sabe de quien es; quien no lo sea te lo
+//  devuelve, y algunos ademas te dicen donde llevarlo. Tambien se puede
+//  entregar desde la conversacion: al hablar con el dueno sale la opcion.
+//------------------------------------------------------------------
+// Personas a las que se les puede dar algo desde donde estas, empezando por
+// aquella a la que estas mirando.
+function personasAlLado(){
+  const f=facing(), out=[];
+  const meter=n=>{ if(n && out.indexOf(n)<0) out.push(n); };
+  meter(npcs.find(n=>n.x===f.x&&n.y===f.y));
+  [[0,-1],[0,1],[-1,0],[1,0]].forEach(([ox,oy])=>
+    meter(npcs.find(n=>n.x===player.x+ox&&n.y===player.y+oy)));
+  return out;
+}
+function esSuDueno(id,npc){
+  const e=ITEMS[id]&&ITEMS[id].entrega;
+  return !!(e && e.npc===npc.name && (!e.scene || e.scene===scene));
+}
+// La persona se gira hacia ti antes de contestarte.
+function mirarAlJugador(npc){
+  const dx=player.x-npc.x, dy=player.y-npc.y;
+  if(!dx&&!dy) return;
+  if(Math.abs(dx)>=Math.abs(dy)) npc.dir = dx>0?'right':'left';
+  else                           npc.dir = dy>0?'down':'up';
+}
+// El objeto sale de la mochila para siempre: ya tiene dueno.
+function soltarEntrega(id){
+  gameData.inventory   = gameData.inventory.filter(x=>x!==id);
+  gameData.droppedItems= gameData.droppedItems.filter(d=>d.id!==id);
+  gameData.worldItems[id]='entregado';
+  if(!gameData.entregados) gameData.entregados=[];
+  if(gameData.entregados.indexOf(id)<0) gameData.entregados.push(id);
+  saveGame();
+}
 function giveItem(id){
+  const gente=personasAlLado();
+  if(!gente.length){
+    showOverlay(`<button class="close">✕</button><h3>Entregar ${esc(ITEMS[id].name)}</h3>
+      <p style="font-size:14px;line-height:1.5">No tienes a nadie al lado.<br>
+      Ponte junto a la persona —mejor mirándola de frente— y vuelve a abrir la mochila.</p>
+      <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`);
+    overlay.querySelector('.close').onclick=closeOverlay;
+    overlay.querySelector('button[data-a]').onclick=()=>openInventory();
+    return;
+  }
+  if(gente.length===1) return entregarA(id,gente[0]);
+  const quienes=gente.map((n,i)=>`<button class="ui" data-p="${i}">${esc(n.name)}</button>`).join('');
   showOverlay(`<button class="close">✕</button><h3>Entregar ${esc(ITEMS[id].name)}</h3>
-    <p style="font-size:14px">No hay nadie cerca a quien entregárselo ahora mismo. Acércate a la persona indicada y vuelve a intentarlo.</p>
-    <div class="btnrow"><button class="ui" data-a="back">← Volver</button></div>`);
+    <p style="font-size:14px">¿A quién se lo das?</p>
+    <div class="btnrow">${quienes}<button class="ui" data-a="back">← Volver</button></div>`);
   overlay.querySelector('.close').onclick=closeOverlay;
   overlay.querySelector('button[data-a]').onclick=()=>openInventory();
-  // (La entrega a NPCs concretos se puede ampliar luego; por ahora informa.)
+  overlay.querySelectorAll('button[data-p]').forEach(b=>
+    b.onclick=()=>entregarA(id,gente[+b.dataset.p]));
+}
+// Le pones el objeto en la mano y contesta: si es suyo se lo queda.
+function entregarA(id,npc){
+  const it=ITEMS[id];
+  mirarAlJugador(npc);
+  closeOverlay();
+  if(esSuDueno(id,npc)){
+    soltarEntrega(id);
+    openDialog(npc.name, it.entrega.gracias.slice());
+    return;
+  }
+  const dice=(it.pistas&&it.pistas[npc.name]) || it.rechazo || ["Esto no es mío. Gracias de todas formas."];
+  openDialog(npc.name, dice.slice());
 }
 function dropItem(id){
   // quitar del inventario y dejar tirado en la posición actual
@@ -5574,7 +6832,7 @@ function promptPickup(id){
 function worldItemAt(x,y){
   for(const id in ITEMS){
     const st=gameData.worldItems[id];
-    if(st==='taken'||st==='dropped') continue;
+    if(st) continue;                    // cogido, tirado o entregado: no esta en su sitio
     const sp=ITEMS[id].spawn;
     if(sp.scene===scene && sp.x===x && sp.y===y) return id;
   }
@@ -5586,7 +6844,7 @@ function worldItemsInScene(){
   const out=[];
   for(const id in ITEMS){
     const st=gameData.worldItems[id];
-    if(st==='taken'||st==='dropped') continue;
+    if(st) continue;                    // cogido, tirado o entregado: no esta en su sitio
     const sp=ITEMS[id].spawn;
     if(sp.scene===scene) out.push({id,x:sp.x,y:sp.y});
   }
@@ -5627,6 +6885,8 @@ function applyLoadedGame(){
     loadScene('outdoor',[39,31],'up');
   }
   state='play';
+  arrancarMisiones();     // por si la partida es anterior a las misiones
+  actualizarHud();
   showToast('Partida cargada');
 }
 function continueGame(){
@@ -5635,30 +6895,93 @@ function continueGame(){
   try{
     const data=JSON.parse(raw);
     // fusionar con estructura por defecto (por si faltan campos)
-    gameData = Object.assign({inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[]}, data);
+    // fusionar con la estructura por defecto: una partida guardada antes de
+    // que existieran el calendario o el dinero entra con los valores de salida
+    gameData = Object.assign({inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],
+                              notebook:[],entregados:[],
+                              dia:0,dinero:DINERO_INICIAL,misiones:{}}, data);
   }catch(e){ return; }
   applyLoadedGame();
 }
 function newGame(){
   deleteSave();
   gameData = {inventory:[],worldItems:{},droppedItems:[],emails:[],documents:[],notebook:[],
-              savedAt:null,char:null,career:null,pos:null};
+              entregados:[],savedAt:null,char:null,career:null,pos:null,
+              dia:0,dinero:DINERO_INICIAL,misiones:{}};
 }
 
-// Insertar botón "Continuar" en el menú si hay guardado
-(function setupMenu(){
-  const menu=document.getElementById('menu');
-  const cont=document.createElement('button');
-  cont.id='continueBtn'; cont.textContent='▶ CONTINUAR PARTIDA';
-  cont.style.cssText='margin-bottom:10px;display:none;';
-  // insertar antes del startBtn
-  startBtn.parentNode.insertBefore(cont, startBtn);
-  if(hasSave()){
-    cont.style.display='';
-    // no autohabilitar start; continuar es independiente de elegir personaje
-  }
-  cont.onclick=()=>continueGame();
-})();
+// --- TARJETA DE LA PARTIDA GUARDADA -------------------------------
+// En la portada, en vez de un boton pelado, se enseña la ficha de la
+// partida: quien eres, que estudias, donde te quedaste y cuando. Se
+// vuelve a montar cada vez que se entra al menu, por si el guardado
+// ha cambiado.
+function haceCuanto(ms){
+  if(!ms) return 'sin fecha';
+  const s=Math.max(0,Math.floor((Date.now()-ms)/1000));
+  if(s<90)  return 'hace un momento';
+  const m=Math.floor(s/60);  if(m<60) return 'hace '+m+' min';
+  const h=Math.floor(m/60);  if(h<24) return 'hace '+h+(h===1?' hora':' horas');
+  const d=Math.floor(h/24);  if(d<30) return 'hace '+d+(d===1?' día':' días');
+  return new Date(ms).toLocaleDateString('es-ES');
+}
+function nombreDelSitio(pos){
+  if(!pos) return 'Campus';
+  if(pos.scene==='outdoor') return 'Por el campus';
+  return (INTERIORS[pos.scene] && INTERIORS[pos.scene].name) || 'Campus';
+}
+function pintarSlot(){
+  const zona=document.getElementById('slotZona');
+  zona.innerHTML='';
+  let d=null;
+  const raw=loadSaveRaw();
+  if(raw){ try{ d=JSON.parse(raw); }catch(e){ d=null; } }
+  document.getElementById('nuevaBtn').classList.toggle('sec', !!d);
+  if(!d) return;                       // sin partida: solo se ofrece empezar
+
+  const ch=CHARS.find(c=>c.id===d.char) || CHARS[0];
+  const ca=CAREERS.find(c=>c.id===d.career);
+  const objetos=(d.inventory||[]).length;
+  const f=fecha(d.dia||0);
+  // el campus del fondo, en la estacion de la partida: si la dejaste en
+  // invierno, al volver te la encuentras nevada
+  PAL = PALETAS[f.est] || PAL;
+
+  const tit=document.createElement('div');
+  tit.className='slotTit'; tit.textContent='TU PARTIDA';
+  zona.appendChild(tit);
+
+  const b=document.createElement('button');
+  b.type='button'; b.className='slot'; b.id='continueBtn'; b.setAttribute('data-nav','');
+  b.appendChild(nuevoRetrato(3,ch).cv);
+  const txt=document.createElement('div'); txt.className='slotTxt';
+  const l1=document.createElement('div'); l1.className='slotNm';
+  l1.textContent=ch.nm.toUpperCase()+(ca?' · '+ca.full:'');
+  const l2=document.createElement('div'); l2.className='slotSub';
+  l2.textContent=nombreDelSitio(d.pos);
+  const l3=document.createElement('div'); l3.className='slotSub';
+  l3.textContent=estacion(f).ic+' '+fechaCorta(f)+' · día '+(f.total+1);
+  const l4=document.createElement('div'); l4.className='slotSub peq';
+  l4.textContent=fmtEuros(d.dinero==null?DINERO_INICIAL:d.dinero)
+    +' · '+(objetos===1?'1 objeto':objetos+' objetos')+' · '+haceCuanto(d.savedAt);
+  txt.appendChild(l1); txt.appendChild(l2); txt.appendChild(l3); txt.appendChild(l4);
+  b.appendChild(txt);
+  const go=document.createElement('div'); go.className='slotGo'; go.textContent='▶';
+  b.appendChild(go);
+  b.onclick=()=>continueGame();
+  zona.appendChild(b);
+
+  // borrar pide confirmacion en el propio boton: nada de dialogos del sistema
+  const del=document.createElement('button');
+  del.type='button'; del.className='borrar'; del.textContent='borrar esta partida';
+  let armado=false;
+  del.onclick=()=>{
+    if(!armado){ armado=true; del.textContent='¿seguro? toca otra vez para borrarla'; return; }
+    deleteSave(); pintarSlot(); focoInicial();
+  };
+  zona.appendChild(del);
+}
+pintarSlot();
+focoInicial();
 
 
 //==================================================================
@@ -5672,6 +6995,7 @@ function loop(){
   try{
     animTick++;
     syncUIState();
+    if(state==='menu') animarMenu();   // portada: campus de fondo y sprites andando
     if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
     else if(guion){ avanzarGuion(); updateMove(); }   // escaleras: el jugador anda solo
     updateCamera(); render();
