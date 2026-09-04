@@ -4047,10 +4047,18 @@ function drawInTile(t,sx,sy,patio,girada,conex){
         for(let i=0;i<4;i++){ R('#ded8ea',i*4,0,3,TILE); R('#8b81a6',i*4+3,0,1,TILE); }
         if(!(conex&1)){ R('#7a7090',0,0,TILE,2); R('#605780',0,0,TILE,1); }
         if(!(conex&2)){ R('#7a7090',0,TILE-2,TILE,2); R('#605780',0,TILE-1,TILE,1); }
+        if(conex&16){   // remate del fondo: por ese lado no se entra
+          if(!(conex&4)){ R('#7a7090',0,0,2,TILE); R('#605780',0,0,1,TILE); }
+          if(!(conex&8)){ R('#7a7090',TILE-2,0,2,TILE); R('#605780',TILE-1,0,1,TILE); }
+        }
       } else {
         for(let i=0;i<4;i++){ R('#ded8ea',0,i*4,TILE,3); R('#8b81a6',0,i*4+3,TILE,1); }
         if(!(conex&4)){ R('#7a7090',0,0,2,TILE); R('#605780',0,0,1,TILE); }
         if(!(conex&8)){ R('#7a7090',TILE-2,0,2,TILE); R('#605780',TILE-1,0,1,TILE); }
+        if(conex&16){
+          if(!(conex&1)){ R('#7a7090',0,0,TILE,2); R('#605780',0,0,TILE,1); }
+          if(!(conex&2)){ R('#7a7090',0,TILE-2,TILE,2); R('#605780',0,TILE-1,TILE,1); }
+        }
       }
       return; }
     case 'X': F('#d8c4a0'); R('#7a5230',3,2,10,12); R('#5a3a1a',4,3,8,11); R('#e8d860',6,6,4,2); return; // salida a hub
@@ -4728,7 +4736,20 @@ function marcarLineas(g){
       m.set(x+','+y,(ig(x,y-1)?1:0)|(ig(x,y+1)?2:0)|(ig(x-1,y)?4:0)|(ig(x+1,y)?8:0));
     }else if(c==='S'||c==='V'||c==='U'){
       const pe=(a,b)=>'SVU'.includes((g[b]||'')[a]||'\u0000');
-      m.set(x+','+y,(pe(x,y-1)?1:0)|(pe(x,y+1)?2:0)|(pe(x-1,y)?4:0)|(pe(x+1,y)?8:0));
+      let bits=(pe(x,y-1)?1:0)|(pe(x,y+1)?2:0)|(pe(x-1,y)?4:0)|(pe(x+1,y)?8:0);
+      // Bit 16 = esta casilla esta en el extremo CERRADO del tramo, el
+      // contrario a aquel por el que se entra. Ahi la escalera se remata.
+      const tr=tramo(g,x,y,'SVU');
+      let vx=-1, vy=-1;
+      for(let b=tr.y0;b<=tr.y1;b++)for(let a=tr.x0;a<=tr.x1;a++){
+        const q=(g[b]||'')[a]; if(q==='V'||q==='U'){ vx=a; vy=b; }
+      }
+      if(vx>=0){
+        const ancho=(tr.x1-tr.x0)>(tr.y1-tr.y0);
+        if(ancho ? (vx<=(tr.x0+tr.x1)/2 ? x===tr.x1 : x===tr.x0)
+                 : (vy<=(tr.y0+tr.y1)/2 ? y===tr.y1 : y===tr.y0)) bits|=16;
+      }
+      m.set(x+','+y,bits);
     }
   }
   return m;
