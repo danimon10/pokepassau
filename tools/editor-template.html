@@ -1,0 +1,261 @@
+<!doctype html><meta charset="utf-8">
+<title>Uni·Quest — Editor del mapa exterior</title>
+<style>
+  :root{ --bg:#1b1f28; --pan:#252b36; --bor:#39414f; --tx:#e6e9ef; --ac:#5ab0d6; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);font:13px/1.45 system-ui,sans-serif;display:flex;height:100vh;overflow:hidden}
+  #lado{width:250px;flex:0 0 250px;background:var(--pan);border-right:1px solid var(--bor);overflow-y:auto;padding:12px}
+  #zona{flex:1;overflow:auto;position:relative;background:#12151c}
+  h2{font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:#8f9bb0;margin:16px 0 7px}
+  h2:first-child{margin-top:0}
+  .pal{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+  .pal button{display:flex;align-items:center;gap:6px;padding:5px 6px;border:1px solid var(--bor);
+    background:#2e3543;color:var(--tx);border-radius:5px;cursor:pointer;font-size:11px;text-align:left}
+  .pal button.on{border-color:var(--ac);background:#33465a;box-shadow:0 0 0 1px var(--ac)}
+  .sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.45);flex:0 0 13px}
+  .fila{display:flex;gap:6px;align-items:center;margin:6px 0}
+  button.acc{width:100%;padding:7px;margin:4px 0;border:1px solid var(--bor);background:#2e3543;
+    color:var(--tx);border-radius:5px;cursor:pointer}
+  button.acc:hover{background:#39414f}
+  button.acc.pri{background:var(--ac);color:#10222c;border-color:var(--ac);font-weight:700}
+  select,input[type=range]{width:100%}
+  #lista{max-height:190px;overflow-y:auto;border:1px solid var(--bor);border-radius:5px}
+  #lista div{padding:4px 7px;cursor:pointer;font-size:11px;border-bottom:1px solid #2f3643}
+  #lista div.on{background:#33465a}
+  #cv{display:block;image-rendering:pixelated;cursor:crosshair}
+  #bg{position:absolute;left:0;top:0;pointer-events:none;transform-origin:0 0}
+  #envol{position:relative;width:max-content}
+  #est{position:fixed;right:10px;bottom:10px;background:#000a;padding:5px 9px;border-radius:5px;font-size:11px}
+  .ayuda{font-size:11px;color:#95a1b5;margin:5px 0 0}
+  #salida{width:100%;height:110px;background:#12151c;color:#9fb4c8;border:1px solid var(--bor);
+    border-radius:5px;font:10px/1.35 ui-monospace,monospace;padding:6px;display:none}
+</style>
+<div id="lado">
+  <h2>Calcar tu boceto</h2>
+  <input type="file" id="img" accept="image/*" style="width:100%;font-size:11px">
+  <div class="fila"><span style="font-size:11px">Opacidad</span><input type="range" id="op" min="0" max="100" value="45"></div>
+  <p class="ayuda">Carga tu dibujo y píntalo por encima. El boceto se estira a las 130×96 casillas.</p>
+
+  <h2>Pincel</h2>
+  <div class="pal" id="pal"></div>
+  <div class="fila">
+    <label style="font-size:11px">Modo</label>
+    <select id="modo"><option value="libre">Pincel libre</option><option value="rect">Rectángulo</option></select>
+  </div>
+  <div class="fila"><span style="font-size:11px">Grosor</span><input type="range" id="gr" min="1" max="6" value="1"></div>
+
+  <h2>Edificios</h2>
+  <div id="lista"></div>
+  <p class="ayuda">Elige uno y arrastra sobre la rejilla para redibujar su rectángulo.
+     Con <b>Mayús</b> + clic pones su puerta (tiene que tocar el edificio por fuera).</p>
+  <button class="acc" id="nuevoDecor">+ Edificio decorativo</button>
+  <button class="acc" id="borrarDecor">− Borrar el decorativo elegido</button>
+
+  <h2>Salida</h2>
+  <button class="acc pri" id="exportar">Descargar mapa.json</button>
+  <button class="acc" id="deshacer">Deshacer (Ctrl+Z)</button>
+  <textarea id="salida" readonly></textarea>
+  <p class="ayuda">Luego, en el repo:<br><code>node tools/editor.js --import mapa.json</code></p>
+</div>
+
+<div id="zona"><div id="envol"><img id="bg"><canvas id="cv"></canvas></div></div>
+<div id="est">—</div>
+
+<script>
+const D = DATA_PLACEHOLDER;
+const W=130, H=96;               // se recalcula abajo con el mapa real
+const CS=11;                     // pixeles por casilla en el editor
+
+// ---- estado ----
+let g = D.OUTDOOR.map(r=>[...r]);
+const An = g[0].length, Al = g.length;
+let BLD = D.BLD_GEO.map(b=>({...b}));
+let DEC = (D.DECOR_GEO||[]).map(b=>({...b}));
+let pincel='.', modo='libre', grosor=1, sel=null, pila=[];
+
+// ---- paleta: caracter, nombre, color de muestra ----
+const TILES=[
+  ['.','césped','#7ec063'], [',','pradera','#93cf74'], ['R','calle','#8b8f98'],
+  ['|','línea','#b9ad63'],  ['P','sendero','#e0d3ae'], ['W','agua','#4f9bd0'],
+  ['o','orilla','#e8dcc0'], ['t','árbol','#3f7d3a'],   ['T','bosque','#2f5f2c'],
+  ['f','flores','#e06a8a'], ['L','farola','#c8c070'],  ['b','banco','#9b6b4a'],
+  ['r','vías','#9a9078'],   ['I','placa','#a6d488'],
+];
+const COLOR=Object.fromEntries(TILES.map(t=>[t[0],t[2]]));
+COLOR['B']='#c9ccd2'; COLOR['N']='#c9ccd2'; COLOR['D']='#f0d98a';
+
+const cv=document.getElementById('cv'), cx=cv.getContext('2d');
+cv.width=An*CS; cv.height=Al*CS;
+const bg=document.getElementById('bg');
+bg.style.width=(An*CS)+'px'; bg.style.height=(Al*CS)+'px';
+bg.style.opacity=0.45;
+
+// ---- paleta en el panel ----
+const pal=document.getElementById('pal');
+TILES.forEach(([ch,nm,col])=>{
+  const b=document.createElement('button');
+  b.innerHTML='<span class="sw" style="background:'+col+'"></span>'+nm;
+  b.onclick=()=>{ pincel=ch; [...pal.children].forEach(c=>c.classList.remove('on')); b.classList.add('on'); };
+  if(ch==='.') b.classList.add('on');
+  pal.appendChild(b);
+});
+document.getElementById('modo').onchange=e=>modo=e.target.value;
+document.getElementById('gr').oninput=e=>grosor=+e.target.value;
+document.getElementById('op').oninput=e=>bg.style.opacity=e.target.value/100;
+document.getElementById('img').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  bg.src=URL.createObjectURL(f);
+};
+
+// ---- lista de edificios ----
+const lista=document.getElementById('lista');
+function pintarLista(){
+  lista.innerHTML='';
+  BLD.forEach((b,i)=>addFila(b, b.key+'  ·  '+b.label, {t:'b',i}));
+  DEC.forEach((b,i)=>addFila(b, '(decorativo '+(i+1)+')', {t:'d',i}));
+}
+function addFila(b,txt,ref){
+  const d=document.createElement('div'); d.textContent=txt;
+  if(sel&&sel.t===ref.t&&sel.i===ref.i) d.classList.add('on');
+  d.onclick=()=>{ sel=ref; pintarLista(); dibujar(); };
+  lista.appendChild(d);
+}
+const selObj=()=> sel ? (sel.t==='b'?BLD[sel.i]:DEC[sel.i]) : null;
+
+// ---- dibujar ----
+function dibujar(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  for(let y=0;y<Al;y++)for(let x=0;x<An;x++){
+    cx.fillStyle=COLOR[g[y][x]]||'#7ec063';
+    cx.fillRect(x*CS,y*CS,CS,CS);
+  }
+  // rejilla cada 5 y cada 10
+  cx.lineWidth=1;
+  for(let x=0;x<=An;x++){ if(x%5)continue;
+    cx.strokeStyle=x%10?'rgba(0,0,0,.13)':'rgba(0,0,0,.30)';
+    cx.beginPath(); cx.moveTo(x*CS+.5,0); cx.lineTo(x*CS+.5,Al*CS); cx.stroke(); }
+  for(let y=0;y<=Al;y++){ if(y%5)continue;
+    cx.strokeStyle=y%10?'rgba(0,0,0,.13)':'rgba(0,0,0,.30)';
+    cx.beginPath(); cx.moveTo(0,y*CS+.5); cx.lineTo(An*CS,y*CS+.5); cx.stroke(); }
+  // edificios
+  const caja=(b,txt,act)=>{
+    const x=b.x0*CS, y=b.y0*CS, w=(b.x1-b.x0+1)*CS, h=(b.y1-b.y0+1)*CS;
+    cx.fillStyle=act?'rgba(90,176,214,.35)':'rgba(255,255,255,.16)';
+    cx.fillRect(x,y,w,h);
+    cx.strokeStyle=act?'#5ab0d6':'#2a2f3a'; cx.lineWidth=act?3:2; cx.strokeRect(x+1,y+1,w-2,h-2);
+    cx.fillStyle='#151a22'; cx.font='bold 11px system-ui'; cx.textAlign='center';
+    cx.fillText(txt, x+w/2, y+h/2+4);
+    if(b.door){ const [dx,dy]=b.door;
+      cx.fillStyle='#e0a93a'; cx.fillRect(dx*CS+2,dy*CS+2,CS-4,CS-4);
+      cx.strokeStyle='#7a5a10'; cx.lineWidth=1; cx.strokeRect(dx*CS+2.5,dy*CS+2.5,CS-5,CS-5); }
+    (b.extra||[]).forEach(d=>{ cx.fillStyle='#e8c46a'; cx.fillRect(d[0]*CS+3,d[1]*CS+3,CS-6,CS-6); });
+  };
+  BLD.forEach((b,i)=>caja(b,b.label,sel&&sel.t==='b'&&sel.i===i));
+  DEC.forEach((b,i)=>caja(b,'',sel&&sel.t==='d'&&sel.i===i));
+}
+
+// ---- interaccion ----
+const cel=e=>{ const r=cv.getBoundingClientRect();
+  return [Math.floor((e.clientX-r.left)/CS), Math.floor((e.clientY-r.top)/CS)]; };
+let pulsando=false, ini=null, arrastrandoEdif=false;
+
+function guarda(){ pila.push({g:g.map(r=>r.join('')), B:JSON.stringify(BLD), D:JSON.stringify(DEC)});
+  if(pila.length>60) pila.shift(); }
+
+function pinta(x,y){
+  const r=Math.floor((grosor-1)/2);
+  for(let j=y-r;j<=y+r+((grosor-1)%2);j++)for(let i=x-r;i<=x+r+((grosor-1)%2);i++)
+    if(i>=0&&i<An&&j>=0&&j<Al) g[j][i]=pincel;
+}
+
+cv.addEventListener('mousedown',e=>{
+  const [x,y]=cel(e); if(x<0||y<0||x>=An||y>=Al)return;
+  guarda();
+  const o=selObj();
+  if(e.shiftKey && o){                              // colocar puerta
+    if(o.door){ o.door=[x,y]; g[y][x]='D'; }
+    dibujar(); return;
+  }
+  if(o && x>=o.x0-1 && x<=o.x1+1 && y>=o.y0-1 && y<=o.y1+1 && !e.altKey){
+    arrastrandoEdif=true; ini=[x,y]; return;        // redibujar el rectangulo
+  }
+  pulsando=true; ini=[x,y];
+  if(modo==='libre') pinta(x,y);
+  dibujar();
+});
+cv.addEventListener('mousemove',e=>{
+  const [x,y]=cel(e);
+  document.getElementById('est').textContent = (x>=0&&y>=0&&x<An&&y<Al)
+    ? `x:${x}  y:${y}   ·   '${g[y][x]}'` : '—';
+  if(arrastrandoEdif){
+    const o=selObj(); if(!o)return;
+    o.x0=Math.min(ini[0],x); o.x1=Math.max(ini[0],x);
+    o.y0=Math.min(ini[1],y); o.y1=Math.max(ini[1],y);
+    dibujar(); return;
+  }
+  if(!pulsando)return;
+  if(modo==='libre'){ pinta(x,y); dibujar(); }
+  else { dibujar(); cx.strokeStyle='#fff'; cx.lineWidth=2;
+    cx.strokeRect(Math.min(ini[0],x)*CS, Math.min(ini[1],y)*CS,
+                 (Math.abs(x-ini[0])+1)*CS, (Math.abs(y-ini[1])+1)*CS); }
+});
+window.addEventListener('mouseup',e=>{
+  if(arrastrandoEdif){
+    const o=selObj();
+    if(o){ for(let y=o.y0;y<=o.y1;y++)for(let x=o.x0;x<=o.x1;x++) g[y][x]= o.decor?'N':'B'; }
+    arrastrandoEdif=false; dibujar(); return;
+  }
+  if(pulsando && modo==='rect'){
+    const [x,y]=cel(e);
+    for(let j=Math.min(ini[1],y);j<=Math.max(ini[1],y);j++)
+      for(let i=Math.min(ini[0],x);i<=Math.max(ini[0],x);i++)
+        if(i>=0&&i<An&&j>=0&&j<Al) g[j][i]=pincel;
+    dibujar();
+  }
+  pulsando=false;
+});
+document.getElementById('deshacer').onclick=deshacer;
+window.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();deshacer();} });
+function deshacer(){ const p=pila.pop(); if(!p)return;
+  g=p.g.map(r=>[...r]); BLD=JSON.parse(p.B); DEC=JSON.parse(p.D); pintarLista(); dibujar(); }
+
+document.getElementById('nuevoDecor').onclick=()=>{
+  guarda(); DEC.push({x0:60,y0:40,x1:66,y1:44,style:'modern',roof:'#a8663f',decor:true});
+  sel={t:'d',i:DEC.length-1}; pintarLista(); dibujar();
+};
+document.getElementById('borrarDecor').onclick=()=>{
+  if(!sel||sel.t!=='d')return; guarda();
+  const o=DEC[sel.i];
+  for(let y=o.y0;y<=o.y1;y++)for(let x=o.x0;x<=o.x1;x++) g[y][x]='.';
+  DEC.splice(sel.i,1); sel=null; pintarLista(); dibujar();
+};
+
+// ---- exportar ----
+document.getElementById('exportar').onclick=()=>{
+  const datos={ outdoor:g.map(r=>r.join('')), bld:BLD, decor:DEC };
+  const pegas=revisar(datos);
+  document.getElementById('salida').style.display='block';
+  document.getElementById('salida').value = pegas.length
+    ? '⚠ Revisa esto antes de importar:\n· '+pegas.join('\n· ')
+    : '✅ Todo cuadra. Descargado mapa.json — ahora:\n   node tools/editor.js --import mapa.json';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(datos,null,1)],{type:'application/json'}));
+  a.download='mapa.json'; a.click();
+};
+function revisar(d){
+  const p=[], SOL='TtWoBNLr';
+  d.bld.forEach(b=>{
+    [b.door].concat(b.extra||[]).forEach(q=>{
+      const dentro=q[0]>=b.x0&&q[0]<=b.x1&&q[1]>=b.y0&&q[1]<=b.y1;
+      const pega=[[0,-1],[0,1],[-1,0],[1,0]].some(([ox,oy])=>{const x=q[0]+ox,y=q[1]+oy;
+        return x>=b.x0&&x<=b.x1&&y>=b.y0&&y<=b.y1;});
+      if(dentro) p.push(b.key+': la puerta ('+q+') está dentro del edificio');
+      else if(!pega) p.push(b.key+': la puerta ('+q+') no toca el edificio');
+      if(d.outdoor[q[1]][q[0]]!=='D') p.push(b.key+": la puerta ("+q+") no está sobre 'D'");
+    });
+  });
+  return p;
+}
+
+pintarLista(); dibujar();
+</script>

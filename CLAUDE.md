@@ -58,8 +58,22 @@ dibuja la rejilla con coordenadas encima:
 node tools/sala.js <clave> [x0,y0,x1,y1,"etiqueta"]
 ```
 
+**Para rehacer el reparto del campus, el editor visual.** Colocar edificios y
+calles a ojo desde un boceto no sale bien; para eso está:
+
+```sh
+node tools/editor.js                  # escribe tools/.editor.html
+node tools/editor.js --import x.json  # mete lo dibujado en index.html
+```
+
+Se abre en el navegador, carga el mapa que hay ahora, deja poner un boceto de
+fondo para calcarlo y pinta casillas y edificios con el ratón. Al importar
+comprueba lo mismo que el validador **y además** que desde donde aparece el
+jugador se llega andando a todas las puertas; si algo falla no toca
+`index.html`. También recoloca solo las `salidas` de los interiores.
+
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
-publicable como Artifact. Los tres archivos de salida están en `.gitignore`.
+publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
 ## Mapa de `index.html`
 
@@ -113,3 +127,15 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 - **Las misiones se avanzan con `cumplirPaso(mision, paso)`**, desde donde se
   cumplan. La misión se cierra sola cuando no le queda ningún paso suelto: no
   hay que marcarla como hecha a mano.
+- **Mover el mapa exterior toca más sitios de los que parece.** Además de
+  `OUTDOOR`, `BUILDINGS` y `BLD_GEO` hay coordenadas absolutas del campus en:
+  `OUT_NPCS`, el `player` inicial, el `spawn` de los objetos con
+  `scene:'outdoor'`, la casilla de arranque que usa el validador para
+  comprobar que se llega a los objetos, y las `salidas:[{at:[x,y]}]` de los
+  interiores con dos entradas (`niko_patio`, `ekz1`, `ekz2`), que guardan la
+  baldosa exterior donde aparece el jugador al salir. Si se olvidan, el
+  jugador acaba dentro de un edificio o en el agua.
+- **`DECOR_GEO` son edificios que se dibujan pero no se entran**: sin puerta,
+  sin cartel y sin interior, y el validador no los mira porque no están en
+  `BUILDINGS`. Sirven para llenar la ciudad de fondo; se vacía el array y
+  desaparecen.
