@@ -500,44 +500,102 @@ window.addEventListener('keydown',e=>{
 //  MAPA EXTERIOR (generado desde el plano dibujado)
 //==================================================================
 const OUTDOOR=[
-"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
-"TT........................................................TT",
-"TT........................BBBBBBBB...................D....TT",
-"TT............t...........BBBBBBBB................BBBBBBB.TT",
-"TT......t.................BBBBBBBB................BBBBBBB.TT",
-"TTBBBBBBBB................BBBBBBBB................BBBBBBB.TT",
-"TTBBBBBBBBt..................DRRRRRRRRRRRRRRRRRRRRBBBBBBBDTT",
-"TTBBBBBBBB..........t...............RR............BBBBBBB.TT",
-"TTBBBBBBBB......t.......t...........RR............BBBBBBB.TT",
-"TTBBBBBBBB........................f.RR...............D....TT",
-"TTRR|RD|RR|RR|RR|RR|RRR.............RR.......D.......P....TT",
-"TTRRRRRRRRRRRRRRRRRRRRRRRR..........RR..NNNNNNNNNNNN.P....TT",
-"TT....................RRRRRRRR......RR..NNNNNNNNNNNN.P....TT",
-"TT........................RRRRRRRR..RR..NNNNNNNNNNNN.P....TT",
-"TT....f...................f...RRRRRRRR..NNNNNNNNNNNN.P....TT",
-"TT........BBBBBB..................RRRR..NNNNNNNNNNNN.P....TT",
-"TT........BBBBBB..BBBBBB................NNNNNNNNNNNN.P....TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
-"TT.BBBBB..BBBBBB..BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
-"TT.BBBBB....D.....BBBBBB....BBBBBB......NNNNNNNNNNNN.P....TT",
-"TT.BBBBB....P.......D.......BBBBBB...........D...P...P....TT",
-"TT...DPPPPPPPPPPPPPPPPPPPPPPPPDPPPPPPPPPPPPPPPPPPPPPPP....TT",
-"TT......P.......................P...........f...PBBBBB....TT",
-"TT......P.BBBBB...BBBBBB.BBBBBB.P,,L,,,,,,,,,L,,PBBBBB....TT",
-"TT......P.BBBBB...BBBBBB.BBBBBB.P,,,,,fI,b,,,,,,PBBBBB....TT",
-"TT......P.BBBBBD..BBBBBB.BBBBBB.P,,,b,,,,,,f,,,,PPPDPPPPPPTT",
-"TT......P...........D....BBBBBBDP,t,,t,,t,,t,,t,..........TT",
-"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
-"oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWPRRRWWWWWWWWWWW",
+"oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooPRRRooooooooooo",
+"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPRRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.................................................PRRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.................................................PRRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.................................................PRRR...........",
+"...............................................................RRR.................................................PRRR...........",
+"........t.......t.............t.............DPPPPPPPPPPPPPPPPPPRRR.................................................PRRR...........",
+"........................................BBBBBBBBBP............PRRRPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP.................PRRR...........",
+"........................................BBBBBBBBBP............PRRRRRRRRRRRRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"........................................BBBBBBBBBP............PRRRRRRRRRRRRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrBBBBBBBBBP............PRRRRRRRRRRRRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrBBBBBBBBBP..t.........PRRRRRRRRRRRRRRRRRRRRRRRRRRRP.....tP......t.......t..PRRR...........",
+"........................................BBBBBBBBBP........t...PPPPPPPPPPPPRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"....................................t...BBBBBBBBBP.......................PRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"............................................PPPPPP.......................PRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"............................................P............................PRRRRRRRRRRRRRRRRP......P.................PRRR...........",
+"....................f.................f.....P............................PRRRRRRRRRRRRRRRRP......D.................PRRR...........",
+"..t.........................................P............................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"............................................P............................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"............................................P............................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP....................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP....................PRRRRRRRRRRRRRRRRP..DBBBBBBBBBBBBBBBBBB...PRRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP....................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP....................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBBDPPPRRR...........",
+"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPRRRP....................PRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"...t..................t........t............t...PRRRPPPPPPPPPPPPPPPPPPPPPPRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+".............t..................................PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"................................................PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBBt..PRRR...........",
+"...............................................tPRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP...BBBBBBBBBBBBBBBBBB...PRRR...........",
+"..................................t.............PPPPPPPPPPPPPPPPRRR.......PPPPPPPPPPPPPPPPP.........D..............PRRR...........",
+"..............................................................tPRRR.ttttttPtttttttttttttt.PPPPPPPPPPP..............PRRR...........",
+".....................................................t.........PRRR.t...b.P.b...b...b...tWP.........P..............PRRR...........",
+"...............................................................PRRR.t.....P...........t.tWP.........P..............PRRR...........",
+"...............................................................PRRR.tb.t..P.......f.....tWP.f.......P.f.....f......PRRR...........",
+"..............f....................................t...........PRRR.t.....P..f........t.tWP.........P..............PRRR...........",
+"...............................................................PRRR.t.WWW.P.............t.P.f.......P.f............PRRR...........",
+"..t.........................t.................................fPRRR.tbWWW.P.......PPPPPPPPP.........P..............PRRR...........",
+"...............................................................PRRR.t.WWW.P.....PPP...t.t.P.f.......P.f............PRRR...........",
+"........................................t...........BBBBBBBBBB.PRRR.t.....P...PPP...f...tWP.........P..............PRRR...........",
+"....................................................BBBBBBBBBB.PRRR.tbPPPPPPPPP.......t.tWP.f.......P.f............PRRR...........",
+"....................................................BBBBBBBBBB.PRRR.t.P.b...b...b...b...tWP.........P...t.......t..PRRR...........",
+"....................................................BBBBBBBBBBDPRRR.ttPttttttttttttttttttWP.........P..............PRRR...........",
+".....................t..............................BBBBBBBBBB.PRRR...P...................P.........P..............PRRR...........",
+"................................................f...BBBBBBBBBB.PRRR...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPRRR..t........",
+"...............................................................PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...........",
+"...............................................................PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...........",
+".................................t.............................PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...........",
+"...............t...........................................t...PPPPPPPDPPPPPDPPPPPPPPPPPPRRR........................RRR...........",
+"..................................................................P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"..t...................................................t......t....P.BBBBBBBBBBBBBBBBBB..PRRR........f...............RRR...........",
+".........................t................t......t................P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"..........................................................t.......P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"........f.......................................................t.P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+".....................f.................................t.....t....P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"..................................................................P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP....t.......P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP............P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRP............P.BBBBBBBBBBBBBBBBBB..PRRR........................RRR...........",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRPPPPPPPPPPPPPPPPPPPPPPPDPPPPPPPPPPPPRRR........................RRR...........",
+"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...........",
+"..............PBBBBBBBB.....BBBBBBBB...BBBBBBBBB.PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...........",
+"..BBBBBBBBBBB.PBBBBBBBB.....BBBBBBBB...BBBBBBBBB.PRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...........",
+"t.BBBBBBBBBBB.PBBBBBBBB.....BBBBBBBB...BBBBBBBBB.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPRRR...........",
+"..BBBBBBBBBBB.PBBBBBBBB.....BBBBBBBB...BBBBBBBBB...............P,,,,,,,,,,,,P,,,,,,,,P.............................PRRR...........",
+"t.BBBBBBBBBBBDPBBBBBBBB..f..BBBBBBBB.f.BBBBBBBBB..t..BBBBBBBBB.P,t,,,,,,,,,,P,,,,,,,,PBBBBBBBBB....................PRRR...........",
+"..BBBBBBBBBBB.PBBBBBBBB.....BBBBBBBB...BBBBBBBBB.....BBBBBBBBB.P,,,,,,,,,,,,P,,,,,,t,PBBBBBBBBB....................PRRRRRRRRRRRRRR",
+"..BBBBBBBBBBB.P...D............D...........D.........BBBBBBBBB.P,,,f,,,,,,,,P,,f,,,,,PBBBBBBBBB.t.......t.......t..PRRRRRRRRRRRRRR",
+"t.BBBBBBBBBBB.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPDBBBBBBBBBDP,,,,,,,,,,,,P,,,,,,,,DBBBBBBBBBPP..................PRRRRRRRRRRRRRR",
+"..BBBBBBBBBBB...P....D.......P....D.PPPPPPPPPPPPP....BBBBBBBBB.P,,,,,,,,,,,,P,,,,,,b,PBBBBBBBBB.P..................PPPPPPPPPPPPPPP",
+"t.BBBBBBBBBBB.t.PBBBBBBBBB...P.BBBBBBBBPbPPPPPPPP.f..BBBBBBBBB.P,,,,,,,,,,,,P,,,,,,,,PBBBBBBBBB.P.....f.........f.................",
+"..BBBBBBBBBBB...PBBBBBBBBB...P.BBBBBBBBPPPPPPPPPP....BBBBBBBBB.P,,,,f,,,,,,,P,,,,,,,,P..........P.................................",
+"..BBBBBBBBBBB.t.PBBBBBBBBBPPPP.BBBBBBBBPbPPbPPtPPPPP...........P,,,,,,,,,,,,P,,,,,,,,P..........P.................................",
+"t................BBBBBBBBB...P.BBBBBBBBPPPPPPPP....PP..........P,,,,,,,,,,,,P,,,,,,,,P.....f....P.................................",
+"..............t..BBBBBBBBB...P.BBBBBBBB.............PPPPPPP....P,,,,,,,,,,,,P,,,,,,,,P.........tP.t..t..t..t..t..t..t..t...t......",
+"..t..t..t..t..........t.....tP.........t...t..t..t......t.P...tP,t,,t,b,,t,,P,,t,b,t,P..b....b..P......b.......b.........b....f...",
+"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+"oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 ];//  INTERIORES (mapas pequeños)
 //  Leyenda interior: # pared  . suelo  c mostrador  s estantería
 //  t mesa  e silla  X salida(vuelve fuera)  p suelo-patio  g cesped
@@ -1944,8 +2002,8 @@ const INTERIORS = {
       "############E##################",
     ],
     salidas:[
-      {x:12,y:24, at:[45,26]},           // 1 · entrada sur, la de siempre
-      {x:11,y:0,  at:[45,16]},           // 2 · salida norte, por detras del NK
+      {x:12,y:24, at:[76,67]},           // 1 · entrada sur, la de siempre
+      {x:11,y:0,  at:[76,56]},           // 2 · salida norte, por detras del NK
     ],
     doors:[
       {x:30,y:22, to:'gmoa'},                                  // 3
@@ -2853,8 +2911,8 @@ const INTERIORS = {
       "################E################",
     ],
     salidas:[
-      {x:16,y:30, at:[53,15]},          // 1 · puerta sur, la de siempre
-      {x:32,y:10, at:[57,12]},          // 2 · puerta este, nueva
+      {x:16,y:30, at:[100,38]},         // 1 · puerta sur, la de siempre
+      {x:32,y:10, at:[112,32]},         // 2 · puerta este, nueva
     ],
     doors:[
       {x:6,y:10, to:'ekz2'},            // 5 · escalera al primer piso
@@ -2989,7 +3047,7 @@ const INTERIORS = {
       "#################################",
     ],
     salidas:[
-      {x:6,y:0, at:[53,8]},             // 1 · puerta norte, nueva
+      {x:6,y:0, at:[93,30]},            // 1 · puerta norte, nueva
     ],
     doors:[
       {x:19,y:15, to:'ekz1'},           // 2 · escalera de bajada
@@ -3538,18 +3596,18 @@ const INTERIORS = {
 //==================================================================
 const DOOR_AT = {}; // "x,y" -> building key
 const BUILDINGS = {
-  HBf:    {name:"Hauptbahnhof", door:[29,12], interior:'hbf'},
-  Einkauf:{name:"Einkaufszentrum", door:[53,15], extra:[[57,12],[53,8,'ekz2']], interior:'ekz1'},
-  SP:     {name:"Sportzentrum", door:[5,27], interior:'sportzentrum'},
-  VG:     {name:"Verwaltungsgebäude", door:[12,25], interior:'verwaltung'},
-  I:      {name:"Informatik", door:[15,31], interior:'informatik'},
-  AM:     {name:"Audimax", door:[20,26], interior:'audimax'},
-  M:      {name:"Mensa", door:[20,32], interior:'mensa'},
-  ZB:     {name:"Zentralbibliothek", door:[30,27], interior:'zb'},
-  WW:     {name:"Wirtschaftswissenschaften", door:[31,32], interior:'ww'},
-  NK:     {name:"Nikolakloster", door:[45,26], extra:[[45,16]], interior:'niko_patio'},
-  IA:     {name:"Innstegaula", door:[51,31], interior:'innstegaula'},
-  WH:     {name:"Studentenwohnheim", door:[6,16], interior:'wohnheim'},
+  HBf:      {name:"Hauptbahnhof", door:[44,15], interior:'hbf'},
+  Einkauf:  {name:"Einkaufszentrum", door:[100,38], extra:[[112,32],[93,30,"ekz2"]], interior:'ekz1'},
+  WH:       {name:"Studentenwohnheim", door:[62,50], interior:'wohnheim'},
+  NK:       {name:"Nikolakloster", door:[76,67], extra:[[76,56]], interior:'niko_patio'},
+  VG:       {name:"Verwaltungsgebäude", door:[18,75], interior:'verwaltung'},
+  AM:       {name:"Audimax", door:[31,75], interior:'audimax'},
+  ZB:       {name:"Zentralbibliothek", door:[43,75], interior:'zb'},
+  SP:       {name:"Sportzentrum", door:[13,73], interior:'sportzentrum'},
+  I:        {name:"Informatik", door:[21,77], interior:'informatik'},
+  M:        {name:"Mensa", door:[34,77], interior:'mensa'},
+  WW:       {name:"Wirtschaftswissenschaften", door:[62,76], interior:'ww'},
+  IA:       {name:"Innstegaula", door:[85,76], interior:'innstegaula'},
 };
 for(const k in BUILDINGS){ const b=BUILDINGS[k];
   DOOR_AT[b.door[0]+','+b.door[1]]=k;
@@ -3563,46 +3621,52 @@ for(const k in BUILDINGS){ const b=BUILDINGS[k];
 //  roof = color de tejado | label = siglas en el cartel
 //==================================================================
 const BLD_GEO=[
-  {key:'HBf',  x0:26,y0:8, x1:33,y1:11, door:[29,12], style:'station',  roof:'#a23b3b', label:'HBF'},
-  {key:'Einkauf',x0:50,y0:9,x1:56,y1:14, door:[53,15], extra:[[57,12],[53,8,'ekz2']], style:'mall',    roof:'#3b7aaa', label:'EKZ'},
-  {key:'SP',   x0:3, y0:23,x1:7, y1:26, door:[5,27],  style:'modern',   roof:'#3b86a2', label:'SP'},
-  {key:'VG',   x0:10,y0:21,x1:15,y1:24, door:[12,25], style:'modern',   roof:'#5a7088', label:'VG'},
-  {key:'I',    x0:10,y0:29,x1:14,y1:31, door:[15,31], style:'modern',   roof:'#4a8a6a', label:'I'},
-  {key:'AM',   x0:18,y0:22,x1:23,y1:25, door:[20,26], style:'modern',   roof:'#8a6ab0', label:'AM'},
-  {key:'M',    x0:18,y0:29,x1:23,y1:31, door:[20,32], style:'modern',   roof:'#c87a3a', label:'M'},
-  {key:'ZB',   x0:28,y0:23,x1:33,y1:26, door:[30,27], style:'modern',   roof:'#5a8ac8', label:'ZB'},
-  {key:'WW',   x0:25,y0:29,x1:30,y1:32, door:[31,32], style:'modern',   roof:'#b0a03a', label:'WW'},
-  {key:'NK',   x0:40,y0:17,x1:51,y1:25, door:[45,26], extra:[[45,16]], style:'historic', roof:'#9b6b4a', label:'NK'},
-  {key:'IA',   x0:49,y0:28,x1:53,y1:30, door:[51,31], style:'modern',   roof:'#3b9aa2', label:'IA'},
-  {key:'WH',   x0:2, y0:11,x1:9, y1:15, door:[6,16],  style:'modern',   roof:'#c85a8a', label:'WH'},
+  {key:'HBf',      x0:40,y0:16, x1:48,y1:22, door:[44,15], style:'station', roof:'#a23b3b', label:'HBF'},
+  {key:'Einkauf',  x0:94,y0:26, x1:111,y1:37, door:[100,38], extra:[[112,32],[93,30,"ekz2"]], style:'mall', roof:'#3b7aaa', label:'STAGA'},
+  {key:'WH',       x0:52,y0:47, x1:61,y1:52, door:[62,50], style:'modern', roof:'#c85a8a', label:'WH'},
+  {key:'NK',       x0:68,y0:57, x1:85,y1:66, door:[76,67], extra:[[76,56]], style:'historic', roof:'#9b6b4a', label:'NK'},
+  {key:'VG',       x0:15,y0:69, x1:22,y1:74, door:[18,75], style:'modern', roof:'#5a7088', label:'VW'},
+  {key:'AM',       x0:28,y0:69, x1:35,y1:74, door:[31,75], style:'modern', roof:'#8a6ab0', label:'AM'},
+  {key:'ZB',       x0:39,y0:69, x1:47,y1:74, door:[43,75], style:'modern', roof:'#5a8ac8', label:'ZB'},
+  {key:'SP',       x0:2,y0:70, x1:12,y1:80, door:[13,73], style:'modern', roof:'#3b86a2', label:'SPZ'},
+  {key:'I',        x0:17,y0:78, x1:25,y1:82, door:[21,77], style:'modern', roof:'#4a8a6a', label:'INF'},
+  {key:'M',        x0:31,y0:78, x1:38,y1:82, door:[34,77], style:'modern', roof:'#c87a3a', label:'M'},
+  {key:'WW',       x0:53,y0:73, x1:61,y1:79, door:[62,76], style:'modern', roof:'#b0a03a', label:'WW'},
+  {key:'IA',       x0:86,y0:73, x1:94,y1:78, door:[85,76], style:'modern', roof:'#3b9aa2', label:'IA'},
 ];
 // corrección de un color tipografiado
 BLD_GEO[1].roof='#3b7aaa';
 const BLD_BY_KEY={}; BLD_GEO.forEach(b=>BLD_BY_KEY[b.key]=b);
 
+// Edificios de relleno: se dibujan, no se entran y no tienen interior.
+// Para dejar el campus sin ellos, basta con vaciar este array.
+const DECOR_GEO=[
+
+];
+
 //==================================================================
 //  NPCs del exterior
 //==================================================================
 const OUT_NPCS=[
-  {x:40,y:30,name:"Estudiante Max",color:"#d6a05a",dir:'down',
+  {x:72,y:80,name:"Estudiante Max",color:"#d6a05a",dir:'down',
    lines:["¡Eh! ¿Disfrutando la Innwiese? Hace un sol perfecto.","Cuando hay buen tiempo, media uni baja a este prado junto al Inn."],
    careerLine:{Kuwi:"¿KuWi? Entonces ya sabes que la mejor clase es la del césped al sol.",
                BWL:"¿BWL? Hasta los de empresariales bajan a relajarse aquí.",
                default:"Túmbate un rato, las diapositivas pueden esperar."}},
-  {x:44,y:31,name:"Sara",color:"#5ad68f",dir:'left',
+  {x:78,y:82,name:"Sara",color:"#5ad68f",dir:'left',
    lines:["Tres ríos, un castillo y un campus junto al agua. No está mal, ¿eh?","Yo me escapo a este prado en cuanto sale el sol."],
    choice:{q:"¿Qué te trae por aquí?",opts:[
      {t:"Estudiar, supongo",r:["Jaja, eso decimos todos en octubre."]},
      {t:"El ambiente del río",r:["¡Esa es la actitud! El Inn nunca falla."]}]}},
-  {x:25,y:27,name:"Tutora Wiebke",color:"#5ab0d6",dir:'down',
+  {x:45,y:76,name:"Tutora Wiebke",color:"#5ab0d6",dir:'down',
    lines:["¿Buscas tu aula? Los seminarios cambian de sala cada semana, es tradición.","Revisa Stud.IP… y luego revísalo otra vez."],
    careerLine:{Inf:"¿Informática? El laboratorio está en el sótano. Lleva sudadera, hace frío.",
                Mathe:"¿Mates? Tercer piso, sin ascensor. Ánimo.",
                MuK:"¿MuK? El estudio de medios está pasando el Audimax.",
                default:"Seguro que tu horario tiene un hueco perfecto para un café."}},
-  {x:14,y:27,name:"Conserje Otto",color:"#8a6a3a",dir:'right',
+  {x:25,y:76,name:"Conserje Otto",color:"#8a6a3a",dir:'right',
    lines:["Estas flores no se riegan solas, ¿sabes?","El campus junto al Inn es el orgullo de Passau. Trátalo bien."]},
-  {x:35,y:18,name:"Ciclista Pia",color:"#d65a8a",dir:'down',
+  {x:40,y:31,name:"Ciclista Pia",color:"#d65a8a",dir:'down',
    lines:["¡Cuidado, que voy! La carretera la comparten coches y bicis.","Voy tarde a clase en el WiWi. ¡Hasta luego!"]},
 ];
 
@@ -3850,7 +3914,18 @@ function drawBuilding(b){
     ctx.fillStyle='rgba(190,225,245,.6)'; ctx.fillRect(x+3, wallY, w-6, 4);
   }
 
-  drawDoorAndSign(b,x,y,w,h,wallY,wallH);
+  if(b.buses){   // ZOB: los autobuses asoman por debajo del techo
+    const cols=['#c0392b','#2e86c1','#e0a93a'];
+    for(let i=0;i<3;i++){
+      const bx=x+10+i*Math.round((w-30)/3), by=y+h-7;
+      ctx.fillStyle='rgba(0,0,0,.18)'; ctx.fillRect(bx+1,by+11,18,2);
+      ctx.fillStyle=cols[i];      ctx.fillRect(bx,by,18,11);
+      ctx.fillStyle='#cfe6f5';    ctx.fillRect(bx+2,by+2,14,4);
+      ctx.fillStyle=shade(cols[i],-0.2); ctx.fillRect(bx,by+7,18,1);
+      ctx.fillStyle='#2a2230';    ctx.fillRect(bx+3,by+10,3,2); ctx.fillRect(bx+12,by+10,3,2);
+    }
+  }
+  if(!b.decor) drawDoorAndSign(b,x,y,w,h,wallY,wallH);
 }
 
 function drawHistoric(b,x,y,w,h,roofH,wallY,wallH){
@@ -4099,6 +4174,13 @@ function drawOutTile(t,sx,sy,tx,ty){
         ctx.fillStyle=cols[(tx+ty+2)%cols.length];
         ctx.fillRect(sx+11,sy+4,2,2);ctx.fillRect(sx+3,sy+10,2,2);
       }
+      break;}
+    case 'r': { // via del tren: balasto, traviesas y carriles (llega al HBf)
+      ctx.fillStyle=P.hierba; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#9a9078'; ctx.fillRect(sx,sy+2,TILE,12);              // balasto
+      ctx.fillStyle='#6b5136';                                             // traviesas
+      for(let i=0;i<TILE;i+=5) ctx.fillRect(sx+i,sy+3,3,10);
+      ctx.fillStyle='#c9ccd4'; ctx.fillRect(sx,sy+5,TILE,2); ctx.fillRect(sx,sy+10,TILE,2);
       break;}
     case 'L': { // farola
       ctx.fillStyle=P.pasto; ctx.fillRect(sx,sy,TILE,TILE);
@@ -4624,7 +4706,7 @@ function drawInTile(t,sx,sy,patio,girada,conex){
 //==================================================================
 //  ESTADO
 //==================================================================
-const SOLID_OUT=new Set(['T','t','W','o','B','N','L']);
+const SOLID_OUT=new Set(['T','t','W','o','B','N','L','r']);
 // interiores con paredes: muebles y elementos sólidos
 const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
   // las puertas tambien son solidas: no se pisan, se empujan desde delante
@@ -4979,7 +5061,7 @@ function dormir(){
 //  salte aqui (consola + banner rojo) y no como una sala a la que
 //  luego no se puede entrar. Se puede relanzar con validateMaps().
 //==================================================================
-const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b']);
+const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b','r']);
 const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
                            'K','B','W','L','p','I','1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
                            'H','R','N','O','Q','T','i','v','z','_',':','<','>','^','~','$','|',
@@ -5190,7 +5272,7 @@ function validateMaps(){
     const anda=(x,y)=>pisa(x,y)&&!gente.has(x+','+y);
     // se aparece en la casilla de entrada aunque haya alguien plantado en ella
     const ini=[];
-    if(fuera) ini.push([39,31]);                  // la Innwiese, donde arranca la partida
+    if(fuera) ini.push([74,80]);                  // la Innwiese, donde arranca la partida
     else{
       ini.push(frenteASalida(sp.scene).at);
       for(const k in INTERIORS) (INTERIORS[k].doors||[]).forEach(d=>{
@@ -5250,7 +5332,7 @@ let npcs=OUT_NPCS;
 let patioMode=false;
 let state='menu';           // menu | play | dialog | transition
 
-let player={ x:39,y:31, px:39*TILE,py:31*TILE, dir:'up', moving:false, frame:0,
+let player={ x:74,y:80, px:74*TILE,py:80*TILE, dir:'up', moving:false, frame:0,
              char:CHARS[0], career:null, tx:39, ty:31 };
 let returnPos=null;         // posición de regreso al salir de interior
 let cam={x:0,y:0};
@@ -5399,7 +5481,7 @@ function pintarCampus(){
     ctx.fillStyle='#5fa84f'; ctx.fillRect(0,0,W,H);
     for(let y=0;y<mapH;y++) for(let x=0;x<mapW;x++) drawOutTile(map[y][x], x*TILE, y*TILE, x, y);
     // edificios y gente por orden de profundidad, igual que en el juego
-    const ents=BLD_GEO.map(b=>({y:b.y1, dib:()=>drawBuilding(b)}));
+    const ents=BLD_GEO.concat(DECOR_GEO).map(b=>({y:b.y1, dib:()=>drawBuilding(b)}));
     OUT_NPCS.forEach(n=>ents.push({y:n.y, dib:()=>{ const a=aspectoNPC(n.name);
       drawPerson(ctx,n.x*TILE,n.y*TILE,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
     ents.sort((a,b)=>a.y-b.y).forEach(e=>e.dib());
@@ -6342,7 +6424,7 @@ function render(){
   // entidades ordenadas por Y (edificios, NPCs y jugador comparten orden de profundidad)
   const ents=[];
   if(scene==='outdoor'){
-    BLD_GEO.forEach(b=>{
+    BLD_GEO.concat(DECOR_GEO).forEach(b=>{
       // visible solo si está cerca de cámara (optimización ligera)
       const bx=b.x0*TILE-cam.x, bw=(b.x1-b.x0+1)*TILE;
       const by=b.y0*TILE-cam.y, bh=(b.y1-b.y0+1)*TILE;
@@ -6425,7 +6507,7 @@ const ITEMS = {
   },
   ring: {
     name:"Anillo", type:'ring', icon:'ring',
-    spawn:{scene:'outdoor', x:40, y:31},    // en la Innwiese
+    spawn:{scene:'outdoor', x:70, y:81},    // en la Innwiese
     guess:"Un anillo pequeño y brillante. ¿Se le habrá caído a alguien en el prado?",
     desc:"Un anillo elegante. Quizá alguien lo esté buscando.",
     entrega:{npc:"Herr Wenzl", scene:'ekz1',
