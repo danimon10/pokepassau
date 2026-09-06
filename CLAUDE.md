@@ -97,12 +97,17 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 - **A las personas se les habla desde cerca, no pegado.** `RADIO_NPC` (en
   `INTERACCIÓN`) son los pasos —**andando**, no en línea recta— a los que se
   puede hablar con alguien: `npcCerca()` va abriendo anillos por casillas
-  libres, así que ni las paredes ni los mostradores dejan conversar al otro
-  lado. Si dentro del radio hay **más de una persona el radio se apaga** y
-  hay que ponerse delante de quien sea, que elegir por el jugador sería
-  adivinar. El aviso `!` salta sobre la persona a la que llega el radio, y
-  desaparecer es justo la señal de que hay dos y toca acercarse. Puertas y
-  objetos siguen pidiendo estar justo enfrente.
+  libres, así que una pared no deja conversar al otro lado. **Un mostrador
+  sí:** al topar con un mueble de `ASOMABLES` (barras, escritorios, mesas y
+  asientos) se mira quién hay justo detrás en línea recta, que es como se
+  habla con quien atiende un bar, una tienda o un despacho. Las estanterías,
+  las máquinas y los armarios no son de asomarse, y en el claustro
+  (`patioMode`) las letras significan otra cosa: allí solo el banco. Si
+  dentro del radio hay **más de una persona el radio se apaga** y hay que
+  ponerse delante de quien sea, que elegir por el jugador sería adivinar. El
+  aviso `!` salta sobre la persona a la que llega el radio, y desaparecer es
+  justo la señal de que hay dos y toca acercarse. Puertas y objetos siguen
+  pidiendo estar justo enfrente.
 - **El lienzo es de píxel entero.** `player.px/py` no puede quedar en medio
   píxel o el pixel art se emborrona. Para velocidades fraccionarias se
   acumula el sobrante entre fotogramas y se avanza por enteros.
