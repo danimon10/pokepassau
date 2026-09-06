@@ -377,6 +377,7 @@
         <p>Toca la <b>mitad derecha</b> (o el botón A) para interactuar. Arrastra el botón A si te estorba.</p>
         <h3>LO QUE HAY QUE SABER</h3>
         <p>Las puertas no se pisan: te pones delante y empujas hacia ellas.</p>
+        <p>A la gente no hace falta pegarse: basta con estar cerca, y se le habla por encima de un mostrador. Si hay dos personas juntas, ponte delante de la que quieras.</p>
         <p>La partida se guarda sola. Vuelve cuando quieras y sigue donde lo dejaste.</p>
       </div>
       <div class="acciones"><button class="mbtn sec" id="cerrarAyudaBtn" data-nav>ATRÁS</button></div>
@@ -6200,16 +6201,75 @@ function exitInterior(){
 
 //==================================================================
 //  INTERACCIÓN
+//  Las puertas y los objetos hay que tenerlos justo delante, pero a las
+//  personas se les habla desde un poco mas lejos: RADIO_NPC dice desde
+//  cuantos pasos. Son pasos ANDANDO, no distancia en linea recta, asi que
+//  una pared no deja hablar al otro lado. Un mostrador si: quien atiende un
+//  bar, una tienda o un despacho esta justo detras de uno, y dar la vuelta
+//  para hablarle no tendria ningun sentido. Y si dentro del radio hay mas de
+//  una persona no se elige por ti: manda el trato de siempre —ponerte
+//  delante de quien quieras y mirarle—, que es el unico que no deja dudas.
 //==================================================================
+const RADIO_NPC = 2;   // a cuantos pasos se le puede hablar a alguien
+// Muebles a los que uno se asoma para hablar con quien esta al otro lado:
+// mostradores y barras, escritorios, mesas y asientos. Fuera quedan las
+// estanterias, las maquinas y los armarios, que tapan de verdad.
+const ASOMABLES = new Set([
+  'c','D','$','/','&',',','O',   // barra, escritorio, mesa de direccion, plancha, vitrinas, encimera
+  't','m','o','e','u','T','p']); // mesas, sillas, taburetes, sillon y planta
+// En el claustro las letras significan otra cosa (arboles, muros); alli lo
+// unico que no estorba para hablar es el banco.
+function asomable(x,y){
+  if(scene==='outdoor') return false;   // fuera solo hay arboles, agua y edificios
+  const t=tileAt(x,y);
+  return patioMode ? t==='n' : ASOMABLES.has(t);
+}
 function facing(){const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[player.dir];return{x:player.x+d[0],y:player.y+d[1]};}
-function opposite(d){return{up:'down',down:'up',left:'right',right:'left'}[d];}
+// Con quien se puede hablar sin estar pegado a el. Se va abriendo en anillos
+// por casillas libres (una persona tambien corta el paso: no se habla con
+// quien esta detras de otro), y al topar con un mueble de los de asomarse se
+// mira quien hay justo al otro lado, en linea recta: eso es apoyarse en el
+// mostrador. Solo vale si sale UNA persona; con dos cerca habria que adivinar
+// a cual, y eso se deja al metodo de siempre.
+function npcCerca(){
+  const vistos=new Set([player.x+','+player.y]), hallados=[];
+  const apuntar=n=>{ if(n && hallados.indexOf(n)<0) hallados.push(n); };
+  let borde=[[player.x,player.y]];
+  for(let paso=0; paso<RADIO_NPC && borde.length; paso++){
+    const sig=[];
+    borde.forEach(c=>[[0,-1],[0,1],[-1,0],[1,0]].forEach(o=>{
+      const x=c[0]+o[0], y=c[1]+o[1], k=x+','+y;
+      if(vistos.has(k)) return;
+      vistos.add(k);
+      const n=npcs.find(p=>p.x===x&&p.y===y);
+      if(n){ apuntar(n); return; }
+      if(isSolid(x,y)){
+        // el mueble cuenta como un paso mas: quien esta detras queda a dos
+        if(paso+2<=RADIO_NPC && asomable(x,y))
+          apuntar(npcs.find(p=>p.x===x+o[0]&&p.y===y+o[1]));
+        return;
+      }
+      sig.push([x,y]);
+    }));
+    borde=sig;
+  }
+  return hallados.length===1 ? hallados[0] : null;
+}
+// Hablando de lejos los dos se giran: tu hacia la persona (mirarAlNPC) y ella
+// hacia ti (mirarAlJugador, dentro de startNPC). Si no, hablarian de espaldas.
+function mirarAlNPC(npc){
+  const dx=npc.x-player.x, dy=npc.y-player.y;
+  if(!dx&&!dy) return;
+  if(Math.abs(dx)>=Math.abs(dy)) player.dir = dx>0?'right':'left';
+  else                           player.dir = dy>0?'down':'up';
+}
 function interact(){
   const f=facing();
   // objeto recolectable justo enfrente
   const delante=worldItemAt(f.x,f.y);
   if(delante){ promptPickup(delante); return; }
   const npc=npcs.find(n=>n.x===f.x&&n.y===f.y);
-  if(npc){ npc.dir=opposite(player.dir); startNPC(npc); return; }
+  if(npc){ startNPC(npc); return; }
   // objeto bajo los pies: solo si no hay nadie delante con quien hablar,
   // que si no, de pie sobre un objeto no se puede entregar nada a nadie
   const debajo=worldItemAt(player.x,player.y);
@@ -6223,8 +6283,12 @@ function interact(){
     // tablón de información (puede llevar opciones: expendedoras, tramites...)
     if(I.info){ const inf=I.info.find(s=>s.x===f.x&&s.y===f.y); if(inf){ openDialog(inf.name||"Información", inf.lines, inf.choice||null); return; } }
   }
+  // nada justo delante: se le habla a quien ande cerca, si no hay duda de quien es
+  const cerca=npcCerca();
+  if(cerca){ mirarAlNPC(cerca); startNPC(cerca); return; }
 }
 function startNPC(npc){
+  mirarAlJugador(npc);        // te contesta de cara, le hables de cerca o de lejos
   let lines=[...npc.lines];
   if(npc.careerLine){ const cl=npc.careerLine[player.career]||npc.careerLine.default; if(cl)lines.push(cl); }
   // lo que ya le entregaste, lo comenta al volver a hablar con el
@@ -6453,10 +6517,17 @@ function render(){
       if(I.info&&I.info.some(s=>s.x===f.x&&s.y===f.y))inter=true;
       if(I.dormitorio&&t==="'")inter=true;
     }
-    if(inter){
-      const ex=f.x*TILE-cam.x, ey=f.y*TILE-cam.y;
+    const aviso=(ex,ey)=>{
       ctx.fillStyle='#fff';ctx.fillRect(ex+5,ey-7,6,7);
       ctx.fillStyle='#e0a93a';ctx.fillRect(ex+7,ey-6,2,3);ctx.fillRect(ex+7,ey-2,2,1);
+    };
+    if(inter) aviso(f.x*TILE-cam.x, f.y*TILE-cam.y);
+    else{
+      // sin nada delante, el aviso salta sobre la persona a la que alcanza el
+      // radio; asi se ve a quien le vas a hablar y, cuando hay dos juntas y
+      // el radio se apaga, se ve tambien que hay que ponerse delante
+      const n=npcCerca();
+      if(n) aviso(n.x*TILE-cam.x, n.y*TILE-cam.y);
     }
   }
 }
