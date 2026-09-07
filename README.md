@@ -136,6 +136,14 @@ En el móvil la pantalla entera es el mando y se reparte en dos mitades:
   `index.html`: `JOY_*` para el mando (zona muerta, recorrido, histéresis) y
   `CASILLAS_*` para la velocidad al andar, escrita directamente en casillas
   por segundo.
+También hay un **vector de entrada**: colarse por una rendija del bosque o
+acertarle a una puerta en un muro largo obliga a colocarse en la casilla
+exacta, que con el dedo cuesta. Si chocas contra el muro que hay justo al lado
+de la abertura y sigues empujando hacia ella, el personaje se desliza una
+casilla y cruza. Solo con lo que encierra —muros, edificios, la vía del tren y
+las arboledas—: contra un mueble, una farola, el agua o un árbol suelto no
+hace nada, y si hay abertura a ambos lados tampoco, para que elijas tú.
+
 - **Mitad derecha — acción.** Un toque equivale a pulsar A (hablar, abrir
   puertas, recoger objetos). Si en vez de tocar arrastras, también sale el
   joystick, para poder jugar con la mano derecha.
