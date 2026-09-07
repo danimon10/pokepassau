@@ -135,6 +135,16 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   interiores con dos entradas (`niko_patio`, `ekz1`, `ekz2`), que guardan la
   baldosa exterior donde aparece el jugador al salir. Si se olvidan, el
   jugador acaba dentro de un edificio o en el agua.
+- **Cada entrada se dibuja en su lado** (`ladoPuerta` + `drawDoorAndSign`):
+  al sur la hoja entera sobre la fachada, al este y al oeste una hoja
+  estrecha en ese costado, y al norte solo una marca discreta en el borde
+  del tejado, porque la puerta queda detrás del edificio. El cartel con las
+  siglas va siempre al frente, aunque se entre por detrás.
+- **Un edificio con más de una entrada necesita una salida por entrada
+  dentro de su sala.** Se dibuja una casilla `X`/`E`/`U` en el muro que
+  toque y se apunta en `salidas:[{x,y,at:[X,Y]}]`, donde `at` es la baldosa
+  exterior. Si una salida no está en `salidas`, se sale por la principal.
+  Solo puede quedar **una** salida suelta (sin entrada en `salidas`).
 - **`DECOR_GEO` son edificios que se dibujan pero no se entran**: sin puerta,
   sin cartel y sin interior, y el validador no los mira porque no están en
   `BUILDINGS`. Sirven para llenar la ciudad de fondo; se vacía el array y

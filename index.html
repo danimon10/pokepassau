@@ -696,7 +696,7 @@ const INTERIORS = {
       "#...................#",
       "#...................#",
       "#...................#",
-      "#...................E",
+      "E...................E",
       "#...................#",
       "#...................#",
       "#........#######4####",
@@ -704,6 +704,11 @@ const INTERIORS = {
       "#.M..VSSS############",
       "#....SSSS############",
       "#####################",
+    ],
+    // dos entradas: la de siempre en la pared este y otra enfrente, al oeste
+    salidas:[
+      {x:20,y:7, at:[26,80]},           // 1 · este, la de siempre
+      {x:0, y:7, at:[16,80]},           // 2 · oeste, nueva
     ],
     doors:[
       {x:4, y:3,  to:'informatik_aula1'},
@@ -1341,8 +1346,13 @@ const INTERIORS = {
       "#.mmm.mmm.mmm.mm.#",
       "#.eee.eee.eee.ee.#",
       "#................#",
-      "#................#",
+      "#................E",
       "########X#########",
+    ],
+    // la salida de siempre da al sur; la nueva abre el muro este
+    salidas:[
+      {x:8, y:16, at:[85,76]},          // 1 · la de siempre
+      {x:17,y:15, at:[95,76]},          // 2 · este, nueva
     ],
     info:[
       {x:8,y:1,name:"Pantalla",lines:["📽️ AULA MAGNA — Innstegaula","Proyección: 'Introducción al semestre'.","Aforo: 400. Silencio durante la clase, por favor."]},
@@ -1364,12 +1374,17 @@ const INTERIORS = {
       "#.................#",
       "#.......I.........#",
       "#.................#",
-      "#.................J",
+      "E.................J",
       "#.................#",
       "#.................#",
       "#.................#",
       "########E##########",
       "###################",
+    ],
+    // la salida de siempre da al sur; la nueva abre el muro oeste
+    salidas:[
+      {x:8,y:9, at:[62,76]},            // 1 · la de siempre
+      {x:0,y:5, at:[52,76]},            // 2 · oeste, nueva
     ],
     doors:[
       {x:4,y:0,to:'ww_salon1'},
@@ -4084,6 +4099,16 @@ function drawDoorAndSign(b,x,y,w,h,wallY,wallH){
   ctx.textBaseline='top'; ctx.textAlign='center';
   ctx.fillText(b.label, sgX+sgW/2, sgY+1);
   ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+
+  // entradas por detras: no se ve la hoja, pero se deja una marca discreta en
+  // el borde del tejado para que se intuya que por ahi tambien se entra
+  todas.forEach(d=>{
+    if(ladoPuerta(b,d)!=='norte') return;
+    const c=Math.min(Math.max(d[0], b.x0), b.x1), dxn=(c*TILE-cam.x)+3;
+    ctx.fillStyle='rgba(0,0,0,.32)'; ctx.fillRect(dxn,   y+1, 10, 4);
+    ctx.fillStyle='#6a4626';         ctx.fillRect(dxn+1, y+2,  8, 3);
+    ctx.fillStyle='#caa45a';         ctx.fillRect(dxn+3, y+3,  4, 1);
+  });
 
   // entradas laterales: hoja estrecha en el costado que les toca
   todas.forEach(d=>{
