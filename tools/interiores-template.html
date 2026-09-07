@@ -1,0 +1,531 @@
+<title>Salas del Campus de Passau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --fondo:#e9edf1; --panel:#ffffff; --hueco:#dde4ea; --borde:#c6d0da;
+  --texto:#18222e; --tenue:#5a6a7c; --acento:#2f7fa6; --acento-sd:#dbecf4;
+  --puerta:#c3872a; --puerta-sd:#f6e7c8; --peligro:#b4442f; --bien:#2f7d52;
+  --rail:300px;
+  --f-tit:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-txt:"IBM Plex Sans",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --fondo:#111820; --panel:#1c242e; --hueco:#161d25; --borde:#2f3b47;
+    --texto:#e4ebf2; --tenue:#8a99aa; --acento:#5ab0d6; --acento-sd:#1e3441;
+    --puerta:#e0a93a; --puerta-sd:#3a2f16; --peligro:#e0705a; --bien:#5cba85;
+  }
+}
+:root[data-theme="dark"]{
+  --fondo:#111820; --panel:#1c242e; --hueco:#161d25; --borde:#2f3b47;
+  --texto:#e4ebf2; --tenue:#8a99aa; --acento:#5ab0d6; --acento-sd:#1e3441;
+  --puerta:#e0a93a; --puerta-sd:#3a2f16; --peligro:#e0705a; --bien:#5cba85;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--texto);font-family:var(--f-txt);
+  font-size:13px;line-height:1.45;display:flex;height:100vh;overflow:hidden}
+h1{font-family:var(--f-tit);font-size:19px;font-weight:700;margin:0}
+h1 small{display:block;font-family:var(--f-num);font-size:10px;font-weight:400;
+  color:var(--tenue);letter-spacing:.06em;margin-top:2px}
+.eyebrow{font-family:var(--f-tit);font-size:12px;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--tenue);margin:0 0 7px}
+#rail{width:var(--rail);flex:0 0 var(--rail);background:var(--panel);
+  border-right:1px solid var(--borde);overflow-y:auto;padding:16px 14px 22px;
+  display:flex;flex-direction:column;gap:17px}
+.grupo{display:flex;flex-direction:column;gap:8px}
+select,input,textarea{width:100%;font:inherit;font-size:12px;padding:5px 6px;
+  background:var(--hueco);color:var(--texto);border:1px solid var(--borde);border-radius:6px}
+textarea{resize:vertical;min-height:52px}
+.linea{display:flex;align-items:center;gap:9px}
+.linea label{font-size:11.5px;color:var(--tenue);flex:0 0 58px}
+
+/* --- brujula de entradas --- */
+#brujula{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+  background:var(--hueco);border:1px solid var(--borde);border-radius:8px;padding:8px}
+.pto{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:5px;font-family:var(--f-tit);font-weight:700;font-size:12px;
+  color:var(--tenue);background:transparent;letter-spacing:.05em}
+.pto.on{background:var(--puerta);color:#241a05}
+.pto .xy{font-family:var(--f-num);font-size:8.5px;font-weight:400;letter-spacing:0}
+.pto.centro{font-size:10px;font-weight:600;color:var(--tenue);background:transparent}
+#sinEntrada{font-size:11.5px;color:var(--tenue);margin:0}
+
+/* --- paleta --- */
+#buscar{margin-bottom:2px}
+#paleta{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:4px;
+  max-height:230px;overflow-y:auto;border:1px solid var(--borde);border-radius:6px;padding:5px}
+.bald{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;
+  border:1px solid transparent;background:transparent;border-radius:5px;cursor:pointer;
+  font:inherit;font-size:9px;color:var(--tenue);line-height:1.15;text-align:center}
+.bald:hover{border-color:var(--acento);color:var(--texto)}
+.bald[aria-pressed="true"]{background:var(--acento-sd);border-color:var(--acento);color:var(--texto)}
+.bald canvas,.bald .ph{width:32px;height:32px;image-rendering:pixelated;border-radius:3px;
+  border:1px solid rgba(0,0,0,.25)}
+.bald .ph{display:flex;align-items:center;justify-content:center;background:var(--puerta-sd);
+  color:var(--puerta);font-family:var(--f-tit);font-weight:700;font-size:15px}
+.bald b{font-family:var(--f-num);font-size:9px;font-weight:500;color:var(--texto)}
+
+.btn{width:100%;padding:8px;border:1px solid var(--borde);background:var(--hueco);
+  color:var(--texto);border-radius:6px;cursor:pointer;font:inherit;font-size:12.5px}
+.btn:hover{border-color:var(--acento)}
+.btn.principal{background:var(--acento);border-color:var(--acento);color:#fff;
+  font-weight:600;font-size:13.5px;padding:11px}
+.btn.principal:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+.pista{font-size:11.5px;color:var(--tenue);margin:0}
+.pista kbd{font-family:var(--f-num);font-size:10.5px;background:var(--hueco);
+  border:1px solid var(--borde);border-radius:3px;padding:0 4px}
+#encargos{display:flex;flex-direction:column;gap:5px}
+.encargo{border:1px solid var(--puerta);background:var(--puerta-sd);border-radius:6px;padding:6px 7px}
+.encargo .cab{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.encargo .cab b{font-family:var(--f-tit);font-size:12px;letter-spacing:.04em}
+.encargo .cab span{font-family:var(--f-num);font-size:10px;color:var(--tenue);margin-left:auto}
+.encargo textarea{min-height:40px;font-size:11.5px}
+.quitar{border:0;background:transparent;color:var(--tenue);cursor:pointer;font-size:15px;padding:0 3px}
+.quitar:hover{color:var(--peligro)}
+#aviso{font-size:11.5px;border-radius:6px;padding:8px 9px;display:none;
+  border:1px solid var(--borde);background:var(--hueco);max-height:150px;overflow-y:auto}
+#aviso ul{margin:5px 0 0;padding-left:16px}
+#aviso.ok{border-color:var(--bien);color:var(--bien)}
+#aviso.mal{border-color:var(--peligro);color:var(--peligro)}
+#escena{flex:1;overflow:auto;background:var(--hueco);position:relative;padding:24px}
+#cv{display:block;image-rendering:pixelated;cursor:crosshair;
+  border:1px solid var(--borde);border-radius:2px}
+#coord{position:fixed;right:16px;bottom:14px;font-family:var(--f-num);font-size:11.5px;
+  background:var(--panel);border:1px solid var(--borde);border-radius:6px;
+  padding:5px 10px;color:var(--tenue);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="rail">
+  <div class="grupo"><h1>Salas del Campus<small id="cuenta"></small></h1></div>
+
+  <div class="grupo">
+    <p class="eyebrow">Sala</p>
+    <select id="sala"></select>
+    <p class="pista" id="deDonde"></p>
+  </div>
+
+  <div class="grupo">
+    <p class="eyebrow">Se entra desde el campus por…</p>
+    <div id="brujula"></div>
+    <p id="sinEntrada"></p>
+    <p class="pista">Es el lado del edificio por el que se empuja desde fuera.
+      Pon la salida de la sala en ese muro y entrar y salir cuadrará.</p>
+  </div>
+
+  <div class="grupo">
+    <p class="eyebrow">Baldosas</p>
+    <input type="search" id="buscar" placeholder="Buscar: mesa, pared, salida…">
+    <div id="paleta"></div>
+    <div class="linea"><label for="pincelInfo">Elegida</label>
+      <span id="pincelInfo" style="font-size:11.5px"></span></div>
+  </div>
+
+  <div class="grupo">
+    <p class="eyebrow">Baldosas nuevas y cambios</p>
+    <button class="btn" id="masBaldosa">Pedir una baldosa nueva</button>
+    <button class="btn" id="notaBaldosa">Cambiar la baldosa elegida</button>
+    <div id="encargos"></div>
+  </div>
+
+  <div class="grupo">
+    <p class="eyebrow">Tamaño de la sala</p>
+    <div class="linea"><label for="anc">Ancho</label><input type="number" id="anc" min="3" max="60"></div>
+    <div class="linea"><label for="alt">Alto</label><input type="number" id="alt" min="3" max="60"></div>
+  </div>
+
+  <div class="grupo">
+    <p class="eyebrow">Guardar</p>
+    <button class="btn principal" id="guardar">Guardar las salas</button>
+    <button class="btn" id="deshacer">Deshacer · <kbd>Ctrl</kbd>+<kbd>Z</kbd></button>
+    <div id="aviso" role="status"></div>
+    <p class="pista" id="estado">Comprobando si se puede guardar…</p>
+  </div>
+</div>
+
+<div id="escena"><canvas id="cv"></canvas></div>
+<div id="coord">—</div>
+
+<script>
+const D = __DATOS__;
+const TILE = 16;                 // el juego dibuja a 16 px
+const Z = 2;                     // aumento en pantalla
+
+/* ---- el dibujo de verdad, sacado del juego ---- */
+let ctx;                         // drawInTile pinta sobre este contexto
+eval(D.shadeSrc);
+eval(D.drawInTileSrc);
+
+const salas = JSON.parse(JSON.stringify(D.salas));
+const claves = Object.keys(salas);
+let clave = claves[0];
+let pincel = '.', pila = [], nuevas = [], notas = [];
+
+const cv=document.getElementById('cv'), vctx=cv.getContext('2d');
+vctx.imageSmoothingEnabled=false;
+const off=document.createElement('canvas'); const octx=off.getContext('2d');
+document.getElementById('cuenta').textContent = claves.length + ' SALAS';
+
+/* ---- piezas giradas y uniones, con la misma regla que el juego ---- */
+function analiza(g){
+  const RAYA='wyjdf', APILABLE="()/&%@,[{]}F'";
+  const en=(x,y)=>(g[y]||'')[x];
+  const tramo=(x,y,letras,salta)=>{
+    const es=(a,b)=>letras.includes(en(a,b)||' ');
+    const vis=new Set([x+','+y]), cola=[[x,y]];
+    let x0=x,x1=x,y0=y,y1=y;
+    const pasos = salta ? [[0,-1],[0,1],[-1,0],[1,0],[0,-2],[0,2],[-2,0],[2,0]]
+                        : [[0,-1],[0,1],[-1,0],[1,0]];
+    while(cola.length){ const [a,b]=cola.pop();
+      x0=Math.min(x0,a);x1=Math.max(x1,a);y0=Math.min(y0,b);y1=Math.max(y1,b);
+      for(const [dx,dy] of pasos){ const k=(a+dx)+','+(b+dy);
+        if(!vis.has(k)&&es(a+dx,b+dy)){ vis.add(k); cola.push([a+dx,b+dy]); } } }
+    return {x0,x1,y0,y1};
+  };
+  const girada=new Set(), conex={};
+  for(let y=0;y<g.length;y++) for(let x=0;x<g[0].length;x++){
+    const c=en(x,y);
+    if(c==='S'||c==='V'||c==='U'){ const t=tramo(x,y,'SVU');
+      if((t.x1-t.x0)>(t.y1-t.y0)) girada.add(x+','+y); }
+    else if(c==='c'){ const t=tramo(x,y,'c',true);
+      if((t.y1-t.y0)>(t.x1-t.x0)) girada.add(x+','+y); }
+  }
+  const raya=(x,y)=>RAYA.includes(en(x,y)||' ');
+  for(let y=0;y<g.length;y++) for(let x=0;x<g[0].length;x++){
+    const c=en(x,y);
+    const mask=f=>(f(x,y-1)?1:0)|(f(x,y+1)?2:0)|(f(x-1,y)?4:0)|(f(x+1,y)?8:0);
+    if(raya(x,y)) conex[x+','+y]=mask(raya);
+    else if(APILABLE.includes(c)) conex[x+','+y]=mask((a,b)=>en(a,b)===c);
+    else if('SVU'.includes(c)){
+      let bits=mask((a,b)=>'SVU'.includes(en(a,b)||' '));
+      const t=tramo(x,y,'SVU'); let vx=-1, vy=-1;
+      for(let b=t.y0;b<=t.y1;b++) for(let a=t.x0;a<=t.x1;a++){
+        const q=en(a,b); if(q==='V'||q==='U'){ vx=a; vy=b; } }
+      if(vx>=0){
+        const ancho=(t.x1-t.x0)>(t.y1-t.y0);
+        if(ancho ? (vx<=(t.x0+t.x1)/2 ? x===t.x1 : x===t.x0)
+                 : (vy<=(t.y0+t.y1)/2 ? y===t.y1 : y===t.y0)) bits|=16;
+      }
+      conex[x+','+y]=bits;
+    }
+  }
+  return {girada, conex};
+}
+
+/* ---- lista de salas, agrupada por edificio ---- */
+const selSala=document.getElementById('sala');
+(function(){
+  const porEdif={};
+  claves.forEach(k=>{ (porEdif[salas[k].edificio]=porEdif[salas[k].edificio]||[]).push(k); });
+  Object.keys(porEdif).sort().forEach(ed=>{
+    const og=document.createElement('optgroup'); og.label=ed;
+    porEdif[ed].forEach(k=>{ const o=document.createElement('option');
+      o.value=k; o.textContent=salas[k].name; og.appendChild(o); });
+    selSala.appendChild(og);
+  });
+})();
+selSala.onchange = () => { clave = selSala.value; alSala(); };
+
+/* ---- brujula de entradas ---- */
+function pintarBrujula(){
+  const S=salas[clave], br=document.getElementById('brujula');
+  const porLado={}; (S.entradas||[]).forEach(e=>{ porLado[e.lado]=e; });
+  const celda=(txt, lado)=>{
+    const d=document.createElement('div'); d.className='pto'+(porLado[lado]?' on':'');
+    if(!lado){ d.className='pto centro'; d.textContent=txt; return d; }
+    d.textContent=txt;
+    if(porLado[lado]){ const x=document.createElement('span'); x.className='xy';
+      x.textContent='('+porLado[lado].at+')'; d.appendChild(x); }
+    return d;
+  };
+  br.innerHTML='';
+  [['',null],['N','norte'],['',null],
+   ['O','oeste'],[S.entradas.length?'entrada':'—',null],['E','este'],
+   ['',null],['S','sur'],['',null]].forEach(([t,l])=>br.appendChild(celda(t,l)));
+  const sin=document.getElementById('sinEntrada');
+  if(S.entradas.length){
+    sin.textContent = S.entradas.map(e=>e.cual+' del '+e.edificio+', por el '+e.lado).join(' · ');
+  }else{
+    sin.textContent = S.desde.length
+      ? 'No se entra desde el campus: se llega desde ' + S.desde.join(', ') + '.'
+      : 'No se entra desde el campus.';
+  }
+  document.getElementById('deDonde').textContent =
+    'Edificio: ' + S.edificio + (S.isPatio ? '  ·  usa el juego de baldosas del patio' : '');
+}
+
+/* ---- paleta ---- */
+function miniatura(ch, isPatio){
+  const c=document.createElement('canvas'); c.width=TILE; c.height=TILE;
+  const g=c.getContext('2d'); const prev=ctx; ctx=g;
+  try{ drawInTile(ch,0,0,isPatio,false,0); }catch(e){ g.fillStyle='#c66'; g.fillRect(0,0,TILE,TILE); }
+  ctx=prev; return c;
+}
+const paletaEl=document.getElementById('paleta');
+function pintarPaleta(){
+  const S=salas[clave];
+  const leg=(S.isPatio?D.legPatio:D.legNormal);
+  const q=(document.getElementById('buscar').value||'').toLowerCase().trim();
+  paletaEl.innerHTML='';
+  leg.concat(nuevas.map(n=>({ch:n.ch, txt:n.nombre, nueva:true}))).forEach(l=>{
+    if(q && !((l.txt||'').toLowerCase().includes(q) || l.ch===q)) return;
+    const b=document.createElement('button');
+    b.type='button'; b.className='bald'; b.setAttribute('aria-pressed', pincel===l.ch);
+    b.title=(l.txt||'sin descripcion')+"  ['"+l.ch+"']";
+    if(l.nueva){ const ph=document.createElement('div'); ph.className='ph'; ph.textContent='+'; b.appendChild(ph); }
+    else b.appendChild(miniatura(l.ch, S.isPatio));
+    const n=document.createElement('b'); n.textContent=l.ch; b.appendChild(n);
+    const t=document.createElement('span'); t.textContent=(l.txt||'').slice(0,22); b.appendChild(t);
+    b.onclick=()=>{ pincel=l.ch; pintarPaleta(); pincelInfo(); };
+    paletaEl.appendChild(b);
+  });
+}
+function pincelInfo(){
+  const S=salas[clave], leg=(S.isPatio?D.legPatio:D.legNormal);
+  const l=leg.find(x=>x.ch===pincel) || nuevas.find(x=>x.ch===pincel);
+  document.getElementById('pincelInfo').textContent =
+    "'"+pincel+"'  " + (l ? (l.txt||l.nombre||'') : '(sin describir)');
+}
+document.getElementById('buscar').oninput = pintarPaleta;
+
+/* ---- dibujar la sala ---- */
+function dibujar(){
+  const S=salas[clave], g=S.grid, an=g[0].length, al=g.length;
+  off.width=an*TILE; off.height=al*TILE;
+  const {girada,conex}=analiza(g);
+  const prev=ctx; ctx=octx;
+  for(let y=0;y<al;y++) for(let x=0;x<an;x++){
+    const k=x+','+y;
+    try{ drawInTile(g[y][x], x*TILE, y*TILE, S.isPatio, girada.has(k), conex[k]||0); }
+    catch(e){ octx.fillStyle='#b4442f'; octx.fillRect(x*TILE,y*TILE,TILE,TILE); }
+  }
+  ctx=prev;
+  cv.width=an*TILE*Z; cv.height=al*TILE*Z;
+  vctx.imageSmoothingEnabled=false;
+  vctx.drawImage(off,0,0,cv.width,cv.height);
+  // rejilla cada 5
+  vctx.lineWidth=1;
+  for(let x=0;x<=an;x++){ if(x%5)continue;
+    vctx.strokeStyle=x%10?'rgba(0,0,0,.20)':'rgba(0,0,0,.42)';
+    vctx.beginPath(); vctx.moveTo(x*TILE*Z+.5,0); vctx.lineTo(x*TILE*Z+.5,cv.height); vctx.stroke(); }
+  for(let y=0;y<=al;y++){ if(y%5)continue;
+    vctx.strokeStyle=y%10?'rgba(0,0,0,.20)':'rgba(0,0,0,.42)';
+    vctx.beginPath(); vctx.moveTo(0,y*TILE*Z+.5); vctx.lineTo(cv.width,y*TILE*Z+.5); vctx.stroke(); }
+  // lo que esta cableado por coordenadas: no conviene enterrarlo
+  const marca=(x,y,col,txt)=>{
+    vctx.strokeStyle=col; vctx.lineWidth=2;
+    vctx.strokeRect(x*TILE*Z+1, y*TILE*Z+1, TILE*Z-2, TILE*Z-2);
+    vctx.fillStyle=col; vctx.font='bold 9px "IBM Plex Mono",monospace';
+    vctx.fillText(txt, x*TILE*Z+2, y*TILE*Z+10);
+  };
+  S.doors.forEach(q=>marca(q.x,q.y,'#5ab0d6','↦'));
+  (S.salidas||[]).forEach(q=>marca(q.x,q.y,'#e0a93a','⇤'));
+  S.npcs.forEach(q=>marca(q.x,q.y,'#d65a8a','☻'));
+  S.info.forEach(q=>marca(q.x,q.y,'#5cba85','i'));
+}
+
+/* ---- pintar con el raton ---- */
+const casilla=e=>{ const r=cv.getBoundingClientRect();
+  return [Math.floor((e.clientX-r.left)/(TILE*Z)), Math.floor((e.clientY-r.top)/(TILE*Z))]; };
+let pulsando=false;
+function guarda(){ pila.push({clave, grid:salas[clave].grid.slice()});
+  if(pila.length>80) pila.shift(); }
+function pinta(x,y){
+  const g=salas[clave].grid;
+  if(y<0||y>=g.length||x<0||x>=g[0].length) return;
+  g[y]=g[y].slice(0,x)+pincel+g[y].slice(x+1);
+}
+cv.addEventListener('mousedown',e=>{ guarda(); pulsando=true;
+  const [x,y]=casilla(e); pinta(x,y); dibujar(); });
+cv.addEventListener('mousemove',e=>{
+  const [x,y]=casilla(e), g=salas[clave].grid;
+  document.getElementById('coord').textContent =
+    (y>=0&&y<g.length&&x>=0&&x<g[0].length) ? 'x '+x+'   y '+y+"   ·   '"+g[y][x]+"'" : '—';
+  if(pulsando){ pinta(x,y); dibujar(); } });
+window.addEventListener('mouseup',()=>pulsando=false);
+function deshacer(){ const p=pila.pop(); if(!p)return;
+  clave=p.clave; selSala.value=clave; salas[clave].grid=p.grid; alSala(); }
+document.getElementById('deshacer').onclick=deshacer;
+window.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); deshacer(); } });
+
+/* ---- tamaño ---- */
+function redimensionar(){
+  const S=salas[clave];
+  const an=Math.max(3,Math.min(60,+document.getElementById('anc').value||S.grid[0].length));
+  const al=Math.max(3,Math.min(60,+document.getElementById('alt').value||S.grid.length));
+  guarda();
+  const relleno=S.isPatio?'p':'.';
+  const g=[];
+  for(let y=0;y<al;y++){
+    const vieja=S.grid[y]||'';
+    let f=''; for(let x=0;x<an;x++) f += (vieja[x]!==undefined ? vieja[x] : relleno);
+    g.push(f);
+  }
+  S.grid=g; dibujar(); revisarYa();
+}
+document.getElementById('anc').onchange=redimensionar;
+document.getElementById('alt').onchange=redimensionar;
+
+/* ---- baldosas nuevas y cambios ---- */
+const encargosEl=document.getElementById('encargos');
+function pintarEncargos(){
+  encargosEl.innerHTML='';
+  nuevas.forEach((n,i)=>{
+    const d=document.createElement('div'); d.className='encargo';
+    const cab=document.createElement('div'); cab.className='cab';
+    const b=document.createElement('b'); b.textContent=n.nombre;
+    const sp=document.createElement('span'); sp.textContent="provisional '"+n.ch+"'";
+    const q=document.createElement('button'); q.className='quitar'; q.textContent='×';
+    q.title='Quitar el encargo';
+    q.onclick=()=>{ nuevas.splice(i,1); pintarEncargos(); pintarPaleta(); };
+    cab.append(b,sp,q); d.appendChild(cab);
+    const ta=document.createElement('textarea');
+    ta.placeholder='¿Cómo quieres que se vea? Ej.: una alfombra roja gastada, con flecos.';
+    ta.value=n.desc||'';
+    ta.oninput=()=>n.desc=ta.value;
+    d.appendChild(ta); encargosEl.appendChild(d);
+  });
+  notas.forEach((x,i)=>{
+    const d=document.createElement('div'); d.className='encargo';
+    const cab=document.createElement('div'); cab.className='cab';
+    const b=document.createElement('b'); b.textContent='Cambiar '+x.nombre;
+    const sp=document.createElement('span'); sp.textContent="'"+x.ch+"'";
+    const q=document.createElement('button'); q.className='quitar'; q.textContent='×';
+    q.onclick=()=>{ notas.splice(i,1); pintarEncargos(); };
+    cab.append(b,sp,q); d.appendChild(cab);
+    const ta=document.createElement('textarea');
+    ta.placeholder='¿Qué le cambiarías? Ej.: que el suelo sea azul en vez de gris.';
+    ta.value=x.nota||''; ta.oninput=()=>x.nota=ta.value;
+    d.appendChild(ta); encargosEl.appendChild(d);
+  });
+}
+document.getElementById('masBaldosa').onclick=()=>{
+  const ch=D.libres[nuevas.length];
+  if(!ch){ muestra('mal','No quedan caracteres libres para más baldosas nuevas.'); return; }
+  nuevas.push({ch, nombre:'Nueva '+(nuevas.length+1), desc:''});
+  pintarEncargos(); pintarPaleta();
+};
+document.getElementById('notaBaldosa').onclick=()=>{
+  const S=salas[clave], leg=(S.isPatio?D.legPatio:D.legNormal);
+  const l=leg.find(x=>x.ch===pincel);
+  if(!l){ muestra('mal','Elige antes una baldosa de las que ya existen.'); return; }
+  if(notas.some(n=>n.ch===pincel)){ muestra('mal','Ya hay un cambio pedido para esa baldosa.'); return; }
+  notas.push({ch:pincel, nombre:l.txt||pincel, nota:''});
+  pintarEncargos();
+};
+
+/* ---- revisar ---- */
+function revisar(){
+  const p=[];
+  claves.forEach(k=>{
+    const S=salas[k], g=S.grid, an=g[0].length;
+    g.forEach((r,y)=>{ if(r.length!==an) p.push(S.name+': la fila '+y+' no mide igual que las demás'); });
+    const fuera=(x,y)=> x<0||y<0||x>=an||y>=g.length;
+    S.doors.forEach(q=>{ if(fuera(q.x,q.y)) p.push(S.name+': una puerta interior se queda fuera de la rejilla'); });
+    (S.salidas||[]).forEach(q=>{ if(fuera(q.x,q.y)) p.push(S.name+': una salida se queda fuera de la rejilla'); });
+    S.npcs.forEach(q=>{ if(fuera(q.x,q.y)) p.push(S.name+': el NPC '+(q.name||'')+' se queda fuera'); });
+    // toda sala necesita por donde volver
+    const tieneSalida = g.some(r=>/[XEU]/.test(r)) || (S.doors||[]).length;
+    if(!tieneSalida) p.push(S.name+': se ha quedado sin ninguna salida');
+  });
+  nuevas.forEach(n=>{ if(!(n.desc||'').trim()) p.push(n.nombre+': falta decir cómo quieres que se vea'); });
+  notas.forEach(n=>{ if(!(n.nota||'').trim()) p.push('Cambiar '+n.nombre+': falta decir qué le cambiarías'); });
+  return p;
+}
+// esto no rompe nada, pero se ve mal: al agrandar una sala el hueco nuevo sale
+// como suelo suelto pegado al borde, sin muro que lo cierre
+function avisos(){
+  const a=[], S=salas[clave], g=S.grid;
+  const PISABLE = S.isPatio ? 'pbgs[' : '.argknq_-';
+  const an=g[0].length, al=g.length;
+  let sueltas=0;
+  for(let x=0;x<an;x++){ if(PISABLE.includes(g[0][x])) sueltas++;
+                         if(PISABLE.includes(g[al-1][x])) sueltas++; }
+  for(let y=0;y<al;y++){ if(PISABLE.includes(g[y][0])) sueltas++;
+                         if(PISABLE.includes(g[y][an-1])) sueltas++; }
+  if(sueltas) a.push('Hay '+sueltas+' casilla(s) de suelo pegadas al borde de la rejilla, '
+                    +'sin muro que las cierre. Píntales pared alrededor.');
+  return a;
+}
+function revisarYa(){
+  const p=revisar();
+  if(p.length){ muestra('mal','Hay '+p.length+' cosa(s) que mirar:', p); return; }
+  const a=avisos();
+  if(a.length) muestra('','Aviso:', a); else esconde();
+}
+
+/* ---- guardar ---- */
+const avisoEl=document.getElementById('aviso'), estadoEl=document.getElementById('estado');
+const botonEl=document.getElementById('guardar');
+let almacen=null;
+function muestra(cl,tit,lista){
+  avisoEl.className=cl; avisoEl.style.display='block'; avisoEl.innerHTML='';
+  const d=document.createElement('div'); d.textContent=tit; avisoEl.appendChild(d);
+  if(lista&&lista.length){ const ul=document.createElement('ul');
+    lista.slice(0,12).forEach(t=>{ const li=document.createElement('li');
+      li.textContent=t; ul.appendChild(li); }); avisoEl.appendChild(ul); }
+}
+const esconde=()=>{ avisoEl.style.display='none'; };
+const cuerpo=()=>({
+  salas: claves.filter(k=>salas[k].grid.join('\n')!==D.salas[k].grid.join('\n'))
+               .map(k=>({clave:k, nombre:salas[k].name, grid:salas[k].grid})),
+  baldosasNuevas: nuevas, notas, cuando:new Date().toISOString()
+});
+botonEl.onclick=async()=>{
+  const p=revisar();
+  if(p.length){ muestra('mal','No lo guardo todavía — hay '+p.length+' cosa(s) que arreglar:',p); return; }
+  const c=cuerpo();
+  if(!c.salas.length && !nuevas.length && !notas.length){
+    muestra('mal','No has cambiado nada todavía.'); return; }
+  if(!almacen){
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(c,null,1)],{type:'application/json'}));
+    a.download='salas.json'; a.click();
+    muestra('ok','Descargado salas.json — impórtalo con: node tools/interiores.js --import salas.json');
+    return; }
+  const av=avisos();
+  botonEl.disabled=true; botonEl.textContent='Guardando…';
+  try{
+    await almacen.doc('planos/salas').set(c);
+    muestra('ok','Guardado: '+c.salas.length+' sala(s) cambiada(s)'
+      + (nuevas.length?', '+nuevas.length+' baldosa(s) nueva(s)':'')
+      + (notas.length?', '+notas.length+' cambio(s) pedido(s)':'')
+      + '. Dile a Claude que ya está.'
+      + (av.length?'  ⚠ '+av[0]:''));
+  }catch(err){ muestra('mal','No se ha podido guardar: '+(err&&err.message?err.message:err)); }
+  botonEl.disabled=false; botonEl.textContent='Guardar las salas';
+};
+
+/* ---- cambiar de sala ---- */
+function alSala(){
+  const S=salas[clave];
+  document.getElementById('anc').value=S.grid[0].length;
+  document.getElementById('alt').value=S.grid.length;
+  const leg=(S.isPatio?D.legPatio:D.legNormal);
+  if(!leg.some(l=>l.ch===pincel) && !nuevas.some(n=>n.ch===pincel)) pincel=leg[0].ch;
+  pintarBrujula(); pintarPaleta(); pincelInfo(); dibujar(); revisarYa();
+}
+selSala.value=clave; alSala(); pintarEncargos();
+
+(async()=>{
+  try{ almacen = window.claude && claude.use ? await claude.use('db') : null; }
+  catch(_){ almacen=null; }
+  if(!almacen){ estadoEl.textContent='Sin guardado en la nube: el botón descargará un salas.json.'; return; }
+  estadoEl.textContent='Listo para guardar.';
+  try{
+    const s=await almacen.doc('planos/salas').get();
+    if(s.exists){
+      const d=s.data();
+      (d.salas||[]).forEach(sa=>{ if(salas[sa.clave]) salas[sa.clave].grid=sa.grid; });
+      nuevas=d.baldosasNuevas||[]; notas=d.notas||[];
+      alSala(); pintarEncargos();
+      estadoEl.textContent='Recuperado lo que tenías guardado.';
+    }
+  }catch(_){ }
+})();
+</script>

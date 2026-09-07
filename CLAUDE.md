@@ -72,6 +72,22 @@ comprueba lo mismo que el validador **y además** que desde donde aparece el
 jugador se llega andando a todas las puertas; si algo falla no toca
 `index.html`. También recoloca solo las `salidas` de los interiores.
 
+**Para rediseñar interiores, el editor de salas.** Igual que el del mapa, pero
+para las 84 rejillas de `INTERIORS`:
+
+```sh
+node tools/interiores.js                  # escribe tools/.interiores.html
+node tools/interiores.js --import x.json  # mete las rejillas en index.html
+```
+
+Dibuja cada sala con el `drawInTile` de verdad, así que se ve lo que se verá
+jugando, y para cada sala dice **por qué lado del edificio se entra desde el
+campus** (norte, sur, este u oeste), que es el dato para colocar la salida en
+el muro que toca. Deja pedir **baldosas nuevas por descripción**: se guardan
+como encargo con un carácter provisional y el dibujo se hace después a mano.
+Al importar solo toca el `grid` de cada sala, y rechaza el cambio si una
+puerta, una salida o un NPC se quedaría fuera de la rejilla nueva.
+
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
