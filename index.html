@@ -4721,6 +4721,15 @@ const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u',
 const SOLID_PATIO=new Set(['#','o','F','G','X',
   'm','M','O','a','n','k','Q','E','4','5']);  // 's', '[' y ']' (escalera) y 'b'/'g' se pisan
 
+// Lo que encierra un espacio, frente a lo que solo lo amuebla. La diferencia
+// no la usa la colision —para chocar todo sirve igual— sino el vector de
+// entrada: contra un muro o una arboleda te acerca a la abertura, contra una
+// mesa o una farola no, que eso se rodea y ya.
+const ESTRUCTURA_OUT  =new Set(['T','B','N','r']);    // linde, edificios y via del tren
+const ARBOL_OUT       =new Set(['T','t']);            // arboles, sueltos o en masa
+const ESTRUCTURA_IN   =new Set(['#','=']);            // paredes
+const ESTRUCTURA_PATIO=new Set(['#','m','M']);        // claustro y muros de contencion
+
 //==================================================================
 //  TIEMPO, DINERO Y MISIONES
 //  Tres contadores que se guardan con la partida:
@@ -5882,8 +5891,89 @@ function syncUIState(){
 //==================================================================
 //  MOVIMIENTO
 //==================================================================
+//------------------------------------------------------------------
+//  VECTOR DE ENTRADA
+//  Una rendija en la arboleda o una puerta en un muro largo obligan a
+//  colocarse en la casilla exacta, que con el dedo es un fastidio. Si
+//  chocas contra el muro que hay JUSTO AL LADO de la abertura y sigues
+//  empujando en esa direccion, el personaje se desliza y cruza.
+//  · No se mueve solo: hace falta empujar hacia donde se quiere pasar.
+//  · Solo con lo que encierra —muros y arboleda—, nunca con un mueble.
+//  · Si hay abertura a los dos lados no hace nada: que elija el jugador.
+//------------------------------------------------------------------
+const VECTOR_ALCANCE=1;   // casillas que se miran a cada lado
+let vector=null;          // paso que queda por dar despues de deslizarse
+
+function esEstructura(x,y){
+  const t=tileAt(x,y);
+  if(scene==='outdoor') return ESTRUCTURA_OUT.has(t) || arboleda(x,y);
+  if(patioMode) return ESTRUCTURA_PATIO.has(t);
+  return ESTRUCTURA_IN.has(t);
+}
+// Un arbol suelto en mitad del cesped se rodea y ya; una arboleda es un
+// linde, y tiene rendijas por las que colarse. La diferencia no esta en la
+// letra —el mapa usa la misma— sino en si tiene otro arbol al lado.
+function arboleda(x,y){
+  if(!ARBOL_OUT.has(tileAt(x,y))) return false;
+  return [[0,-1],[0,1],[-1,0],[1,0]].some(([dx,dy])=>ARBOL_OUT.has(tileAt(x+dx,y+dy)));
+}
+// Igual que activarPuerta, pero mirando sin tocar: dice si desde (px,py) se
+// podria cruzar hacia (nx,ny). Fuera importa donde estas —la puerta de un
+// edificio se abre desde su baldosa—; dentro basta con lo que hay enfrente.
+function esPuerta(px,py,nx,ny){
+  if(scene==='outdoor'){
+    const key=DOOR_AT[px+','+py]; if(!key) return false;
+    const g=BLD_BY_KEY[key];
+    return !!(g && nx>=g.x0 && nx<=g.x1 && ny>=g.y0 && ny<=g.y1);
+  }
+  const I=INTERIORS[scene], t=tileAt(nx,ny);
+  if((I.salidas||[]).some(d=>d.x===nx&&d.y===ny)) return true;
+  if((I.doors  ||[]).some(d=>d.x===nx&&d.y===ny)) return true;
+  return t==='U'||t==='X'||t==='E';
+}
+// ¿Se puede pasar de (px,py) a la casilla de al lado en direccion (dx,dy)?
+function hayPaso(px,py,dx,dy){
+  const nx=px+dx, ny=py+dy;
+  if(npcs.some(n=>n.x===nx&&n.y===ny)) return false;
+  return !isSolid(nx,ny) || esPuerta(px,py,nx,ny);
+}
+function libre(x,y){ return !isSolid(x,y) && !npcs.some(n=>n.x===x&&n.y===y); }
+
+// Se ha chocado empujando hacia (dx,dy): buscar la abertura a los lados.
+function deslizarHaciaAbertura(dx,dy){
+  if(!esEstructura(player.x+dx,player.y+dy)) return false;
+  const lados = dx ? [[0,-1],[0,1]] : [[-1,0],[1,0]];
+  const salidas=[];
+  for(const [lx,ly] of lados){
+    for(let d=1; d<=VECTOR_ALCANCE; d++){
+      const sx=player.x+lx*d, sy=player.y+ly*d;
+      if(!libre(sx,sy)) break;                       // el camino de al lado esta cortado
+      if(hayPaso(sx,sy,dx,dy)){ salidas.push([lx*d,ly*d]); break; }
+    }
+  }
+  if(salidas.length!==1) return false;               // ninguna, o una a cada lado
+  const [ox,oy]=salidas[0];
+  player.dir = oy<0?'up':oy>0?'down':ox<0?'left':'right';
+  player.tx=player.x+ox; player.ty=player.y+oy;
+  player.moving=true; player.paso=velocidadPaso();
+  vector={dx,dy};                                    // y al llegar, cruzar
+  return true;
+}
+// Segundo tiempo del vector: ya colocado enfrente, se cruza aunque se haya
+// soltado el dedo. Por eso es un vector y no una simple ayuda de puntería.
+function cruzarConVector(){
+  const {dx,dy}=vector; vector=null;
+  player.dir = dy<0?'up':dy>0?'down':dx<0?'left':'right';
+  const nx=player.x+dx, ny=player.y+dy;
+  if(npcs.some(n=>n.x===nx&&n.y===ny)){ player.frame=0; return; }
+  if(activarPuerta(nx,ny)){ player.frame=0; return; }
+  if(isSolid(nx,ny)){ player.frame=0; return; }
+  player.tx=nx;player.ty=ny;player.moving=true;player.paso=velocidadPaso();
+}
+
 function tryMove(){
   if(player.moving) return;
+  if(vector){ cruzarConVector(); return; }
   let dx=0,dy=0;
   if(keys['arrowup']||keys['w']){dy=-1;player.dir='up';}
   else if(keys['arrowdown']||keys['s']){dy=1;player.dir='down';}
@@ -5893,7 +5983,10 @@ function tryMove(){
   const nx=player.x+dx, ny=player.y+dy;
   if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
   if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
-  if(isSolid(nx,ny)){player.frame=0;return;}
+  if(isSolid(nx,ny)){
+    if(!deslizarHaciaAbertura(dx,dy)) player.frame=0;
+    return;
+  }
   // la velocidad se fija al arrancar la casilla: asi no cambia a media zancada
   player.tx=nx;player.ty=ny;player.moving=true;player.paso=velocidadPaso();
 }
@@ -6002,6 +6095,7 @@ function activarPuerta(nx,ny){
 let guion=null;                      // movimiento automatico en curso
 function guionar(pasos,fin){ state='transition'; guion={pasos:pasos.slice(), fin:fin}; }
 function avanzarGuion(){
+  vector=null;                       // en una escena automatica manda el guion
   if(!guion || player.moving) return;
   if(!guion.pasos.length){ const f=guion.fin; guion=null; if(f) f(); return; }
   const [nx,ny]=guion.pasos.shift();

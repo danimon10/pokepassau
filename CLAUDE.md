@@ -108,6 +108,15 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   aviso `!` salta sobre la persona a la que llega el radio, y desaparecer es
   justo la señal de que hay dos y toca acercarse. Puertas y objetos siguen
   pidiendo estar justo enfrente.
+- **El vector de entrada** afina esa puntería: si chocas contra el muro (o la
+  arboleda) que hay justo al lado de una abertura y sigues empujando hacia
+  ella, el personaje se desliza una casilla y cruza. Distingue lo que
+  **encierra** de lo que solo **amuebla** con los conjuntos `ESTRUCTURA_*`,
+  aparte de los `SOLID_*` de siempre: contra una mesa, una farola o el agua no
+  hace nada. Con los árboles no basta la letra, porque el mapa usa la misma
+  para el linde y para el que está suelto en el césped: `arboleda()` lo decide
+  mirando si tiene otro árbol al lado. Si hay abertura a los dos lados
+  tampoco pasa nada, que elija el jugador.
 - **El lienzo es de píxel entero.** `player.px/py` no puede quedar en medio
   píxel o el pixel art se emborrona. Para velocidades fraccionarias se
   acumula el sobrante entre fotogramas y se avanza por enteros.
