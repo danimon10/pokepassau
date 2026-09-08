@@ -80,8 +80,58 @@ if(process.argv[2]==='--import'){
     s=s.slice(0,a)+nuevo+s.slice(b);
     n++;
   });
+  // --- mover NPCs, carteles, puertas y salidas que hayan cambiado de sitio ---
+  // Se toca solo el 'x:' e 'y:' de cada elemento, buscandolo por su campo
+  // estable (el nombre, el destino o la baldosa exterior). Los dialogos y todo
+  // lo demas se quedan intactos.
+  let movidos=0; const noHallados=[];
+  function mueve(claveSala, marca, nx, ny, que){
+    const ini=s.indexOf("  "+claveSala+": {");
+    const fin=s.indexOf("\n  },", ini);
+    const tro=s.slice(ini,fin);
+    const j=tro.indexOf(marca);
+    if(j<0){ noHallados.push(claveSala+' · '+que); return; }
+    // hacia atras hasta la llave que abre ese elemento
+    const abre=tro.lastIndexOf('{', j);
+    const cab=tro.slice(abre, j);
+    const m=cab.match(/^\{\s*x:\s*(\d+)\s*,\s*y:\s*(\d+)/);
+    if(!m){ noHallados.push(claveSala+' · '+que); return; }
+    if(+m[1]===nx && +m[2]===ny) return;
+    const nuevoCab='{x:'+nx+',y:'+ny+cab.slice(m[0].length);
+    s=s.slice(0,ini+abre)+nuevoCab+s.slice(ini+abre+cab.length);
+    movidos++;
+  }
+  (d.salas||[]).forEach(sa=>{
+    (sa.npcs||[]).forEach(q=>{ if(q.nuevo||q.quitar) return;
+      mueve(sa.clave,'name:'+JSON.stringify(q.name), q.x, q.y, 'NPC '+q.name); });
+    (sa.info||[]).forEach(q=>{ if(q.nuevo||q.quitar) return;
+      mueve(sa.clave,'name:'+JSON.stringify(q.name), q.x, q.y, 'cartel '+q.name); });
+    (sa.doors||[]).forEach(q=>
+      mueve(sa.clave,"to:'"+q.to+"'", q.x, q.y, 'puerta a '+q.to));
+    (sa.salidas||[]).forEach(q=>
+      mueve(sa.clave,'at:['+q.at+']', q.x, q.y, 'salida a ('+q.at+')'));
+  });
+
   fs.writeFileSync(IDX,s);
-  console.log('✅ Importadas '+n+' sala(s).');
+  console.log('✅ Importadas '+n+' sala(s)'+(movidos?', '+movidos+' elemento(s) recolocado(s)':'')+'.');
+  if(noHallados.length){
+    console.log('\n⚠ No he sabido localizar en el archivo:');
+    noHallados.forEach(t=>console.log('  · '+t));
+  }
+
+  // --- NPCs y carteles nuevos o por quitar: eso lo hago a mano ---
+  const porHacer=[];
+  (d.salas||[]).forEach(sa=>{
+    (sa.npcs||[]).concat(sa.info||[]).forEach(q=>{
+      const tipo=(sa.npcs||[]).includes(q)?'NPC':'objeto';
+      if(q.nuevo)  porHacer.push('AÑADIR  '+tipo+" '"+q.name+"' en "+sa.clave+' ('+q.x+','+q.y+'): '+(q.desc||'(sin describir)'));
+      if(q.quitar) porHacer.push('QUITAR  '+tipo+" '"+q.name+"' de "+sa.clave);
+    });
+  });
+  if(porHacer.length){
+    console.log('\n👥 Gente y objetos pendientes (llevan dialogo, se escriben a mano):');
+    porHacer.forEach(t=>console.log('  · '+t));
+  }
 
   const nuevas=d.baldosasNuevas||[], notas=d.notas||[];
   if(nuevas.length){
@@ -160,10 +210,11 @@ const salas={};
 for(const k in INTERIORS){
   const I=INTERIORS[k];
   salas[k]={ name:I.name||k, grid:I.grid, giros:I.giros||{}, isPatio:!!I.isPatio,
-             doors:(I.doors||[]).map(q=>({x:q.x,y:q.y,to:q.to})),
-             salidas:I.salidas||null,
-             npcs:(I.npcs||[]).map(q=>({x:q.x,y:q.y,name:q.name})),
-             info:(I.info||[]).map(q=>({x:q.x,y:q.y,name:q.name})),
+             doors:(I.doors||[]).map((q,i)=>({id:'d'+i, x:q.x, y:q.y, to:q.to,
+                     destino:(INTERIORS[q.to]||{}).name||q.to})),
+             salidas:(I.salidas||[]).map((q,i)=>({id:'s'+i, x:q.x, y:q.y, at:q.at})),
+             npcs:(I.npcs||[]).map((q,i)=>({id:'n'+i, x:q.x, y:q.y, name:q.name})),
+             info:(I.info||[]).map((q,i)=>({id:'i'+i, x:q.x, y:q.y, name:q.name})),
              entradas:entradas[k]||[], desde:desde[k]||[], edificio:grupo[k]||'(suelto)' };
 }
 const carga={salas, legPatio, legNormal, drawInTileSrc, shadeSrc, libres};

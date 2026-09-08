@@ -84,6 +84,22 @@ textarea{resize:vertical;min-height:52px}
 .pista{font-size:11.5px;color:var(--tenue);margin:0}
 .pista kbd{font-family:var(--f-num);font-size:10.5px;background:var(--hueco);
   border:1px solid var(--borde);border-radius:3px;padding:0 4px}
+#elementos{display:flex;flex-direction:column;gap:3px;max-height:200px;overflow-y:auto}
+.elem{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:7px;
+  padding:5px 7px;border:1px solid var(--borde);background:var(--hueco);border-radius:6px;
+  cursor:pointer;font:inherit;font-size:11.5px;color:var(--texto);text-align:left;width:100%}
+.elem:hover{border-color:var(--acento)}
+.elem[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--acento)}
+.elem.fuera{opacity:.5;text-decoration:line-through}
+.pin{width:12px;height:12px;border-radius:3px;flex:0 0 12px}
+.elem .det{display:flex;flex-direction:column;gap:1px;min-width:0}
+.elem .det b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.elem .det span{font-family:var(--f-num);font-size:10px;color:var(--tenue)}
+.elem .mal{color:var(--peligro);font-size:10px}
+#leyenda{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:10.5px;color:var(--tenue)}
+#leyenda div{display:flex;align-items:center;gap:5px}
+#colocaEl{display:none;background:var(--acento-sd);border:1px solid var(--acento);
+  border-radius:6px;padding:7px 9px;font-size:11.5px}
 #encargos{display:flex;flex-direction:column;gap:5px}
 .encargo{border:1px solid var(--puerta);background:var(--puerta-sd);border-radius:6px;padding:6px 7px}
 .encargo .cab{display:flex;align-items:center;gap:6px;margin-bottom:4px}
@@ -137,6 +153,19 @@ textarea{resize:vertical;min-height:52px}
   </div>
 
   <div class="grupo">
+    <p class="eyebrow">Gente y objetos</p>
+    <div id="leyenda"></div>
+    <div id="elementos"></div>
+    <div id="colocaEl">Haz clic en la sala para moverlo. <kbd>Esc</kbd> cancela.</div>
+    <button class="btn" id="masNpc">Añadir una persona</button>
+    <button class="btn" id="masInfo">Añadir un objeto con el que hablar</button>
+    <p class="pista">Los marcos no salen en el juego: te señalan lo que está
+      atado a esas coordenadas. <b>Muévelos</b> si cambias la sala de sitio, o
+      se quedarán dentro de una pared. Las personas y los objetos nuevos llevan
+      diálogo, así que los escribo yo a partir de tu descripción.</p>
+  </div>
+
+  <div class="grupo">
     <p class="eyebrow">Baldosas nuevas y cambios</p>
     <button class="btn" id="masBaldosa">Pedir una baldosa nueva</button>
     <button class="btn" id="notaBaldosa">Cambiar la baldosa elegida</button>
@@ -175,6 +204,14 @@ const salas = JSON.parse(JSON.stringify(D.salas));
 const claves = Object.keys(salas);
 let clave = claves[0];
 let pincel = '.', giro = 0, pila = [], nuevas = [], notas = [];
+let elemSel = null, colocandoEl = false;
+// los cuatro tipos de cosa atada a una casilla, con el color de su marco
+const TIPOS = {
+  doors:   {col:'#5ab0d6', ic:'↦', nom:'puerta interior'},
+  salidas: {col:'#e0a93a', ic:'⇤', nom:'salida al campus'},
+  npcs:    {col:'#d65a8a', ic:'☻', nom:'persona'},
+  info:    {col:'#5cba85', ic:'i', nom:'objeto'},
+};
 
 const cv=document.getElementById('cv'), vctx=cv.getContext('2d');
 vctx.imageSmoothingEnabled=false;
@@ -322,6 +359,82 @@ function pincelInfo(){
 }
 document.getElementById('buscar').oninput = pintarPaleta;
 
+/* ---- leyenda de los marcos y lista de elementos ---- */
+(function(){
+  const L=document.getElementById('leyenda');
+  Object.values(TIPOS).forEach(t=>{
+    const d=document.createElement('div');
+    const p=document.createElement('span'); p.className='pin'; p.style.background=t.col;
+    const s2=document.createElement('span'); s2.textContent=t.ic+'  '+t.nom;
+    d.append(p,s2); L.appendChild(d);
+  });
+})();
+const elemsEl=document.getElementById('elementos');
+function pisableEn(x,y){
+  const S=salas[clave], g=S.grid;
+  if(y<0||y>=g.length||x<0||x>=g[0].length) return false;
+  const SOL = S.isPatio ? '#oFGXmMOankQE45' : "#=scteDKBWLpIAYGPZhxqn_<^~$|o()/&%@,[{]}F`;HRNOQTivzMSXEU'";
+  return !SOL.includes(g[y][x]);
+}
+function pintarElementos(){
+  const S=salas[clave];
+  elemsEl.innerHTML='';
+  document.getElementById('colocaEl').style.display = colocandoEl ? 'block' : 'none';
+  ['doors','salidas','npcs','info'].forEach(tipo=>{
+    (S[tipo]||[]).forEach(q=>{
+      const t=TIPOS[tipo];
+      const b=document.createElement('button'); b.type='button'; b.className='elem';
+      if(q.quitar) b.classList.add('fuera');
+      b.setAttribute('aria-pressed', !!(elemSel && elemSel.tipo===tipo && elemSel.id===q.id));
+      const pin=document.createElement('span'); pin.className='pin'; pin.style.background=t.col;
+      const det=document.createElement('span'); det.className='det';
+      const nb=document.createElement('b');
+      nb.textContent = q.name || (tipo==='doors' ? ('a '+(q.destino||q.to))
+                                : tipo==='salidas' ? ('al campus ('+q.at+')') : t.nom);
+      const xy=document.createElement('span');
+      xy.textContent='('+q.x+', '+q.y+')' + (q.nuevo?'  · nueva':'');
+      det.append(nb,xy);
+      // avisos: una persona no puede estar dentro de un mueble
+      const g=S.grid;
+      if(q.y>=g.length||q.x>=g[0].length){
+        const m=document.createElement('span'); m.className='mal';
+        m.textContent='se ha quedado fuera de la sala'; det.appendChild(m);
+      }else if(tipo==='npcs' && !pisableEn(q.x,q.y)){
+        const m=document.createElement('span'); m.className='mal';
+        m.textContent='está encima de algo que no se pisa'; det.appendChild(m);
+      }
+      b.append(pin,det);
+      b.onclick=()=>{ elemSel={tipo,id:q.id}; colocandoEl=true; pintarElementos(); dibujar(); };
+      if(tipo==='npcs'||tipo==='info'){
+        const x=document.createElement('span'); x.className='quitar';
+        x.textContent='×'; x.title=q.nuevo?'Quitar':'Marcar para quitarlo';
+        x.onclick=ev=>{ ev.stopPropagation(); guarda();
+          if(q.nuevo) S[tipo]=S[tipo].filter(o=>o!==q); else q.quitar=!q.quitar;
+          elemSel=null; colocandoEl=false; pintarElementos(); dibujar(); };
+        b.appendChild(x);
+      } else b.appendChild(document.createElement('span'));
+      elemsEl.appendChild(b);
+    });
+  });
+}
+function nuevoElem(tipo, nom){
+  const S=salas[clave]; guarda();
+  let n=1; while((S[tipo]||[]).some(q=>q.id==='nn'+n)) n++;
+  const q={id:'nn'+n, x:1, y:1, name:nom+' '+n, nuevo:true, desc:''};
+  (S[tipo]=S[tipo]||[]).push(q);
+  elemSel={tipo,id:q.id}; colocandoEl=true;
+  pintarElementos(); pintarEncargos(); dibujar();
+}
+document.getElementById('masNpc').onclick  = ()=>nuevoElem('npcs','Persona');
+document.getElementById('masInfo').onclick = ()=>nuevoElem('info','Objeto');
+function colocaElem(x,y){
+  const S=salas[clave], g=S.grid;
+  if(y<0||y>=g.length||x<0||x>=g[0].length) return;
+  const q=(S[elemSel.tipo]||[]).find(o=>o.id===elemSel.id); if(!q) return;
+  guarda(); q.x=x; q.y=y; colocandoEl=false;
+  pintarElementos(); dibujar();
+}
+
 /* ---- dibujar la sala ---- */
 function dibujar(){
   const S=salas[clave], g=S.grid, an=g[0].length, al=g.length;
@@ -347,24 +460,32 @@ function dibujar(){
     vctx.strokeStyle=y%10?'rgba(0,0,0,.20)':'rgba(0,0,0,.42)';
     vctx.beginPath(); vctx.moveTo(0,y*TILE*Z+.5); vctx.lineTo(cv.width,y*TILE*Z+.5); vctx.stroke(); }
   // lo que esta cableado por coordenadas: no conviene enterrarlo
-  const marca=(x,y,col,txt)=>{
-    vctx.strokeStyle=col; vctx.lineWidth=2;
-    vctx.strokeRect(x*TILE*Z+1, y*TILE*Z+1, TILE*Z-2, TILE*Z-2);
-    vctx.fillStyle=col; vctx.font='bold 9px "IBM Plex Mono",monospace';
-    vctx.fillText(txt, x*TILE*Z+2, y*TILE*Z+10);
+  const marca=(q,tipo)=>{
+    if(q.y>=al||q.x>=an) return;
+    const t=TIPOS[tipo], sel=elemSel&&elemSel.tipo===tipo&&elemSel.id===q.id;
+    const x=q.x*TILE*Z, y=q.y*TILE*Z;
+    vctx.strokeStyle=q.quitar?'#b4442f':t.col; vctx.lineWidth=sel?3:2;
+    vctx.strokeRect(x+1.5, y+1.5, TILE*Z-3, TILE*Z-3);
+    if(sel){ vctx.strokeStyle='#fff'; vctx.lineWidth=1;
+      vctx.strokeRect(x+4.5, y+4.5, TILE*Z-9, TILE*Z-9); }
+    vctx.fillStyle=q.quitar?'#b4442f':t.col;
+    vctx.font='bold 10px "IBM Plex Mono",monospace';
+    vctx.fillText(q.quitar?'×':t.ic, x+3, y+12);
   };
-  S.doors.forEach(q=>marca(q.x,q.y,'#5ab0d6','↦'));
-  (S.salidas||[]).forEach(q=>marca(q.x,q.y,'#e0a93a','⇤'));
-  S.npcs.forEach(q=>marca(q.x,q.y,'#d65a8a','☻'));
-  S.info.forEach(q=>marca(q.x,q.y,'#5cba85','i'));
+  ['doors','salidas','npcs','info'].forEach(tipo=>(S[tipo]||[]).forEach(q=>marca(q,tipo)));
 }
 
 /* ---- pintar con el raton ---- */
 const casilla=e=>{ const r=cv.getBoundingClientRect();
   return [Math.floor((e.clientX-r.left)/(TILE*Z)), Math.floor((e.clientY-r.top)/(TILE*Z))]; };
 let pulsando=false;
-function guarda(){ pila.push({clave, grid:salas[clave].grid.slice(),
-  giros:Object.assign({},salas[clave].giros)});
+// las letras que el juego entiende como puerta a otra sala
+const PUERTAS_SALA="1234567890!?*ACJYGV";
+const clon=o=>JSON.parse(JSON.stringify(o));
+function guarda(){ const S=salas[clave];
+  pila.push({clave, grid:S.grid.slice(), giros:Object.assign({},S.giros),
+             doors:clon(S.doors), salidas:clon(S.salidas||[]),
+             npcs:clon(S.npcs), info:clon(S.info)});
   if(pila.length>80) pila.shift(); }
 function pinta(x,y){
   const S=salas[clave], g=S.grid;
@@ -384,8 +505,10 @@ function girarCasilla(x,y){
 }
 cv.addEventListener('mousedown',e=>{
   if(e.button!==0) return;            // el derecho gira, no pinta
+  const [x,y]=casilla(e);
+  if(colocandoEl && elemSel){ colocaElem(x,y); return; }
   guarda(); pulsando=true;
-  const [x,y]=casilla(e); pinta(x,y); dibujar(); });
+  pinta(x,y); dibujar(); });
 cv.addEventListener('mousemove',e=>{
   const [x,y]=casilla(e), g=salas[clave].grid;
   document.getElementById('coord').textContent =
@@ -396,10 +519,14 @@ cv.addEventListener('contextmenu',e=>{ e.preventDefault();
   const [x,y]=casilla(e); girarCasilla(x,y); });
 function deshacer(){ const p=pila.pop(); if(!p)return;
   clave=p.clave; selSala.value=clave;
-  salas[clave].grid=p.grid; salas[clave].giros=p.giros; alSala(); }
+  const S=salas[clave];
+  S.grid=p.grid; S.giros=p.giros; S.doors=p.doors; S.salidas=p.salidas;
+  S.npcs=p.npcs; S.info=p.info;
+  elemSel=null; colocandoEl=false; alSala(); }
 document.getElementById('deshacer').onclick=deshacer;
 window.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); deshacer(); }
+  else if(e.key==='Escape' && colocandoEl){ colocandoEl=false; pintarElementos(); dibujar(); }
   else if((e.key==='r'||e.key==='R') && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){
     giro=(giro+1)%4; pintarGiros(); pintarPaleta(); } });
 
@@ -419,7 +546,7 @@ function redimensionar(){
   S.grid=g;
   Object.keys(S.giros).forEach(k=>{ const [x,y]=k.split(',').map(Number);
     if(x>=an||y>=al) delete S.giros[k]; });
-  dibujar(); revisarYa();
+  dibujar(); pintarElementos(); revisarYa();
 }
 document.getElementById('anc').onchange=redimensionar;
 document.getElementById('alt').onchange=redimensionar;
@@ -442,6 +569,27 @@ function pintarEncargos(){
     ta.value=n.desc||'';
     ta.oninput=()=>n.desc=ta.value;
     d.appendChild(ta); encargosEl.appendChild(d);
+  });
+  claves.forEach(k=>{
+    const S=salas[k];
+    ['npcs','info'].forEach(tipo=>(S[tipo]||[]).forEach(q=>{
+      if(!q.nuevo) return;
+      const d=document.createElement('div'); d.className='encargo';
+      const cab=document.createElement('div'); cab.className='cab';
+      const b=document.createElement('b'); b.textContent=TIPOS[tipo].nom+': '+q.name;
+      const sp=document.createElement('span'); sp.textContent=S.name+' ('+q.x+','+q.y+')';
+      cab.append(b,sp); d.appendChild(cab);
+      const nm=document.createElement('input'); nm.value=q.name;
+      nm.placeholder='¿Cómo se llama?';
+      nm.oninput=()=>{ q.name=nm.value; pintarElementos(); };
+      d.appendChild(nm);
+      const ta=document.createElement('textarea');
+      ta.placeholder = tipo==='npcs'
+        ? '¿Quién es y qué dice? Ej.: el bedel, gruñón, se queja de que nadie apaga las luces.'
+        : '¿Qué es y qué pasa al usarlo? Ej.: una máquina de café; se puede comprar uno por 1,20 €.';
+      ta.value=q.desc||''; ta.oninput=()=>q.desc=ta.value;
+      d.appendChild(ta); encargosEl.appendChild(d);
+    }));
   });
   notas.forEach((x,i)=>{
     const d=document.createElement('div'); d.className='encargo';
@@ -486,6 +634,31 @@ function revisar(){
     const tieneSalida = g.some(r=>/[XEU]/.test(r)) || (S.doors||[]).length;
     if(!tieneSalida) p.push(S.name+': se ha quedado sin ninguna salida');
   });
+  claves.forEach(k=>{
+    const S=salas[k], g=S.grid, an=g[0].length;
+    ['doors','salidas','npcs','info'].forEach(tipo=>(S[tipo]||[]).forEach(q=>{
+      if(q.quitar) return;
+      if(q.x<0||q.y<0||q.x>=an||q.y>=g.length)
+        p.push(S.name+': '+TIPOS[tipo].nom+' '+(q.name||'')+' se ha quedado fuera de la sala');
+      if(q.nuevo && !(q.desc||'').trim())
+        p.push(S.name+' · '+q.name+': falta decir qué es y qué dice');
+      // una salida tiene que caer sobre una salida dibujada, y una puerta
+      // sobre una puerta: es lo que el validador del juego exige
+      const ch=(g[q.y]||'')[q.x];
+      if(ch!==undefined){
+        if(tipo==='salidas' && !'XEU'.includes(ch))
+          p.push(S.name+': la salida al campus está en ('+q.x+','+q.y+"), donde hay '"+ch+"' y no una salida dibujada");
+        if(tipo==='doors' && !PUERTAS_SALA.includes(ch))
+          p.push(S.name+': la puerta a '+(q.destino||q.to)+' está en ('+q.x+','+q.y+"), donde hay '"+ch+"' y no una puerta");
+      }
+    }));
+    // y al reves: una puerta dibujada que no lleve a ningun sitio
+    const cableadas=new Set((S.doors||[]).map(q=>q.x+','+q.y));
+    g.forEach((r,y)=>[...r].forEach((c,x)=>{
+      if(PUERTAS_SALA.includes(c) && !cableadas.has(x+','+y))
+        p.push(S.name+': la puerta de ('+x+','+y+') no lleva a ninguna parte');
+    }));
+  });
   nuevas.forEach(n=>{ if(!(n.desc||'').trim()) p.push(n.nombre+': falta decir cómo quieres que se vea'); });
   notas.forEach(n=>{ if(!(n.nota||'').trim()) p.push('Cambiar '+n.nombre+': falta decir qué le cambiarías'); });
   return p;
@@ -503,6 +676,8 @@ function avisos(){
                          if(PISABLE.includes(g[y][an-1])) sueltas++; }
   if(sueltas) a.push('Hay '+sueltas+' casilla(s) de suelo pegadas al borde de la rejilla, '
                     +'sin muro que las cierre. Píntales pared alrededor.');
+  (S.npcs||[]).forEach(q=>{ if(!q.quitar && !pisableEn(q.x,q.y))
+    a.push(q.name+' está encima de algo que no se pisa; muévelo a suelo libre.'); });
   return a;
 }
 function revisarYa(){
@@ -525,9 +700,15 @@ function muestra(cl,tit,lista){
 }
 const esconde=()=>{ avisoEl.style.display='none'; };
 const cuerpo=()=>({
-  salas: claves.filter(k=>salas[k].grid.join('\n')!==D.salas[k].grid.join('\n')
-                      || JSON.stringify(salas[k].giros)!==JSON.stringify(D.salas[k].giros))
-               .map(k=>({clave:k, nombre:salas[k].name, grid:salas[k].grid, giros:salas[k].giros})),
+  salas: claves.filter(k=>{
+           const A=salas[k], B=D.salas[k];
+           return A.grid.join('\n')!==B.grid.join('\n')
+             || JSON.stringify(A.giros)!==JSON.stringify(B.giros)
+             || ['doors','salidas','npcs','info'].some(t=>
+                  JSON.stringify(A[t]||[])!==JSON.stringify(B[t]||[]));
+         }).map(k=>({clave:k, nombre:salas[k].name, grid:salas[k].grid, giros:salas[k].giros,
+                     doors:salas[k].doors, salidas:salas[k].salidas,
+                     npcs:salas[k].npcs, info:salas[k].info})),
   baldosasNuevas: nuevas, notas, cuando:new Date().toISOString()
 });
 botonEl.onclick=async()=>{
@@ -562,7 +743,8 @@ function alSala(){
   document.getElementById('alt').value=S.grid.length;
   const leg=(S.isPatio?D.legPatio:D.legNormal);
   if(!leg.some(l=>l.ch===pincel) && !nuevas.some(n=>n.ch===pincel)) pincel=leg[0].ch;
-  pintarBrujula(); pintarPaleta(); pincelInfo(); dibujar(); revisarYa();
+  elemSel=null; colocandoEl=false;
+  pintarBrujula(); pintarPaleta(); pincelInfo(); pintarElementos(); dibujar(); revisarYa();
 }
 pintarGiros(); selSala.value=clave; alSala(); pintarEncargos();
 
@@ -575,8 +757,9 @@ pintarGiros(); selSala.value=clave; alSala(); pintarEncargos();
     const s=await almacen.doc('planos/salas').get();
     if(s.exists){
       const d=s.data();
-      (d.salas||[]).forEach(sa=>{ if(!salas[sa.clave]) return;
-        salas[sa.clave].grid=sa.grid; salas[sa.clave].giros=sa.giros||{}; });
+      (d.salas||[]).forEach(sa=>{ const S=salas[sa.clave]; if(!S) return;
+        S.grid=sa.grid; S.giros=sa.giros||{};
+        ['doors','salidas','npcs','info'].forEach(t=>{ if(sa[t]) S[t]=sa[t]; }); });
       nuevas=d.baldosasNuevas||[]; notas=d.notas||[];
       alSala(); pintarEncargos();
       estadoEl.textContent='Recuperado lo que tenías guardado.';

@@ -83,10 +83,14 @@ node tools/interiores.js --import x.json  # mete las rejillas en index.html
 Dibuja cada sala con el `drawInTile` de verdad, así que se ve lo que se verá
 jugando, y para cada sala dice **por qué lado del edificio se entra desde el
 campus** (norte, sur, este u oeste), que es el dato para colocar la salida en
-el muro que toca. Las baldosas se pueden **girar** en cuartos de vuelta. Deja pedir **baldosas nuevas por descripción**: se guardan
-como encargo con un carácter provisional y el dibujo se hace después a mano.
-Al importar solo toca el `grid` de cada sala, y rechaza el cambio si una
-puerta, una salida o un NPC se quedaría fuera de la rejilla nueva.
+el muro que toca. Las baldosas se pueden **girar** en cuartos de vuelta, y se
+pueden **mover** las puertas, las salidas, los NPCs y los objetos de la sala,
+que si no se quedan en sus coordenadas viejas al rediseñarla. Deja pedir **baldosas nuevas por descripción**: se guardan
+como encargo con un carácter provisional y el dibujo se hace después a mano;
+la gente y los objetos nuevos van igual, porque llevan diálogo.
+Al importar toca el `grid`, los `giros` y las coordenadas de lo que se haya
+movido, y rechaza el cambio si una puerta, una salida o un NPC se quedaría
+fuera de la rejilla nueva.
 
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
