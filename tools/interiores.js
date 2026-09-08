@@ -50,6 +50,12 @@ if(process.argv[2]==='--import'){
     (I.doors||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la puerta ('+q.x+','+q.y+') se queda fuera de la rejilla nueva'); });
     (I.salidas||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la salida ('+q.x+','+q.y+') se queda fuera'); });
     (I.npcs||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': el NPC '+(q.name||'')+' ('+q.x+','+q.y+') se queda fuera'); });
+    for(const k in (sa.giros||{})){
+      const [gx,gy]=k.split(',').map(Number);
+      if(fuera(gx,gy)) errs.push(sa.clave+': el giro ('+k+') cae fuera de la rejilla nueva');
+      const q=sa.giros[k];
+      if(!Number.isInteger(q)||q<1||q>3) errs.push(sa.clave+': el giro ('+k+') vale '+q+', y tiene que ser 1, 2 o 3');
+    }
   });
   if(errs.length){ console.error('❌ No importo nada:\n· '+errs.join('\n· ')); process.exit(1); }
 
@@ -58,8 +64,19 @@ if(process.argv[2]==='--import'){
     // se sustituye solo el array 'grid' de esa sala, sin tocar el resto
     const ini=s.indexOf("  "+sa.clave+": {");
     if(ini<0){ errs.push('no localizo el bloque de '+sa.clave); return; }
-    const a=s.indexOf('grid:[', ini), b=s.indexOf('],', a);
-    const nuevo='grid:[\n'+sa.grid.map(r=>'      "'+r+'"').join(',\n')+'\n    ';
+    let a=s.indexOf('grid:[', ini), b=s.indexOf('],', a)+2;
+    // si ya habia un bloque de giros pegado al grid, se sustituye con el
+    const resto=s.slice(b);
+    // ojo: entre el grid y los giros va la linea de comentario, hay que saltarla
+    const mg=resto.match(/^(\s*(?:\/\/[^\n]*\n\s*)?giros:\{[^}]*\},?)/);
+    if(mg) b+=mg[1].length;
+    const giros=sa.giros||{};
+    const claves=Object.keys(giros).filter(k=>giros[k]);
+    const txtGiros = claves.length
+      ? '\n    // cuartos de vuelta a mano: solo cambian el dibujo, no lo que se pisa\n'
+        +'    giros:{'+claves.map(k=>"'"+k+"':"+giros[k]).join(', ')+'},'
+      : '';
+    const nuevo='grid:[\n'+sa.grid.map(r=>'      "'+r+'"').join(',\n')+'\n    ],'+txtGiros;
     s=s.slice(0,a)+nuevo+s.slice(b);
     n++;
   });
@@ -142,7 +159,7 @@ const libres='áéíóúñçüöäßªºµ¶§¢£¥·¤¦¨©«¬®¯°±²³´
 const salas={};
 for(const k in INTERIORS){
   const I=INTERIORS[k];
-  salas[k]={ name:I.name||k, grid:I.grid, isPatio:!!I.isPatio,
+  salas[k]={ name:I.name||k, grid:I.grid, giros:I.giros||{}, isPatio:!!I.isPatio,
              doors:(I.doors||[]).map(q=>({x:q.x,y:q.y,to:q.to})),
              salidas:I.salidas||null,
              npcs:(I.npcs||[]).map(q=>({x:q.x,y:q.y,name:q.name})),

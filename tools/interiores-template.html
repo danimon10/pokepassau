@@ -55,6 +55,12 @@ textarea{resize:vertical;min-height:52px}
 
 /* --- paleta --- */
 #buscar{margin-bottom:2px}
+#giros{display:flex;gap:4px;flex:1}
+#giros button{flex:1;padding:4px 0;border:1px solid var(--borde);background:var(--hueco);
+  color:var(--texto);border-radius:5px;cursor:pointer;font:inherit;font-size:11px}
+#giros button:hover{border-color:var(--acento)}
+#giros button[aria-pressed="true"]{background:var(--acento-sd);border-color:var(--acento);
+  box-shadow:inset 0 0 0 1px var(--acento)}
 #paleta{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:4px;
   max-height:230px;overflow-y:auto;border:1px solid var(--borde);border-radius:6px;padding:5px}
 .bald{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;
@@ -123,6 +129,11 @@ textarea{resize:vertical;min-height:52px}
     <div id="paleta"></div>
     <div class="linea"><label for="pincelInfo">Elegida</label>
       <span id="pincelInfo" style="font-size:11.5px"></span></div>
+    <div class="linea"><label>Girada</label><div id="giros"></div></div>
+    <p class="pista">El giro va con el pincel: lo que pintes sale así.
+      Con <kbd>R</kbd> pasas al siguiente cuarto de vuelta, y con
+      <b>botón derecho</b> giras la baldosa que ya haya puesta.
+      Girar solo cambia el dibujo: lo que se pisa y lo que no, no cambia.</p>
   </div>
 
   <div class="grupo">
@@ -163,7 +174,7 @@ eval(D.drawInTileSrc);
 const salas = JSON.parse(JSON.stringify(D.salas));
 const claves = Object.keys(salas);
 let clave = claves[0];
-let pincel = '.', pila = [], nuevas = [], notas = [];
+let pincel = '.', giro = 0, pila = [], nuevas = [], notas = [];
 
 const cv=document.getElementById('cv'), vctx=cv.getContext('2d');
 vctx.imageSmoothingEnabled=false;
@@ -262,8 +273,27 @@ function pintarBrujula(){
 function miniatura(ch, isPatio){
   const c=document.createElement('canvas'); c.width=TILE; c.height=TILE;
   const g=c.getContext('2d'); const prev=ctx; ctx=g;
-  try{ drawInTile(ch,0,0,isPatio,false,0); }catch(e){ g.fillStyle='#c66'; g.fillRect(0,0,TILE,TILE); }
+  try{ pintaBaldosa(g,ch,0,0,isPatio,false,0,giro); }
+  catch(e){ g.fillStyle='#c66'; g.fillRect(0,0,TILE,TILE); }
   ctx=prev; return c;
+}
+// misma matriz de enteros que usa el juego: con ctx.rotate() el pixel art se
+// emborrona por medio pixel
+function pintaBaldosa(g2,ch,px,py,isPatio,girada,conex,q){
+  if(!q){ drawInTile(ch,px,py,isPatio,girada,conex); return; }
+  const M=[null,[0,1,-1,0,px+TILE,py],[-1,0,0,-1,px+TILE,py+TILE],[0,-1,1,0,px,py+TILE]][q];
+  g2.save(); g2.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
+  drawInTile(ch,0,0,isPatio,girada,conex); g2.restore();
+}
+const girosEl=document.getElementById('giros');
+function pintarGiros(){
+  girosEl.innerHTML='';
+  ['0°','90°','180°','270°'].forEach((t,q)=>{
+    const b=document.createElement('button'); b.type='button'; b.textContent=t;
+    b.setAttribute('aria-pressed', giro===q);
+    b.onclick=()=>{ giro=q; pintarGiros(); pintarPaleta(); };
+    girosEl.appendChild(b);
+  });
 }
 const paletaEl=document.getElementById('paleta');
 function pintarPaleta(){
@@ -300,7 +330,8 @@ function dibujar(){
   const prev=ctx; ctx=octx;
   for(let y=0;y<al;y++) for(let x=0;x<an;x++){
     const k=x+','+y;
-    try{ drawInTile(g[y][x], x*TILE, y*TILE, S.isPatio, girada.has(k), conex[k]||0); }
+    try{ pintaBaldosa(octx, g[y][x], x*TILE, y*TILE, S.isPatio,
+                      girada.has(k), conex[k]||0, S.giros[k]||0); }
     catch(e){ octx.fillStyle='#b4442f'; octx.fillRect(x*TILE,y*TILE,TILE,TILE); }
   }
   ctx=prev;
@@ -332,14 +363,28 @@ function dibujar(){
 const casilla=e=>{ const r=cv.getBoundingClientRect();
   return [Math.floor((e.clientX-r.left)/(TILE*Z)), Math.floor((e.clientY-r.top)/(TILE*Z))]; };
 let pulsando=false;
-function guarda(){ pila.push({clave, grid:salas[clave].grid.slice()});
+function guarda(){ pila.push({clave, grid:salas[clave].grid.slice(),
+  giros:Object.assign({},salas[clave].giros)});
   if(pila.length>80) pila.shift(); }
 function pinta(x,y){
-  const g=salas[clave].grid;
+  const S=salas[clave], g=S.grid;
   if(y<0||y>=g.length||x<0||x>=g[0].length) return;
   g[y]=g[y].slice(0,x)+pincel+g[y].slice(x+1);
+  const k=x+','+y;
+  if(giro) S.giros[k]=giro; else delete S.giros[k];
 }
-cv.addEventListener('mousedown',e=>{ guarda(); pulsando=true;
+// girar lo que ya esta puesto, sin cambiar la baldosa
+function girarCasilla(x,y){
+  const S=salas[clave], g=S.grid;
+  if(y<0||y>=g.length||x<0||x>=g[0].length) return;
+  guarda();
+  const k=x+','+y, q=((S.giros[k]||0)+1)%4;
+  if(q) S.giros[k]=q; else delete S.giros[k];
+  dibujar();
+}
+cv.addEventListener('mousedown',e=>{
+  if(e.button!==0) return;            // el derecho gira, no pinta
+  guarda(); pulsando=true;
   const [x,y]=casilla(e); pinta(x,y); dibujar(); });
 cv.addEventListener('mousemove',e=>{
   const [x,y]=casilla(e), g=salas[clave].grid;
@@ -347,11 +392,16 @@ cv.addEventListener('mousemove',e=>{
     (y>=0&&y<g.length&&x>=0&&x<g[0].length) ? 'x '+x+'   y '+y+"   ·   '"+g[y][x]+"'" : '—';
   if(pulsando){ pinta(x,y); dibujar(); } });
 window.addEventListener('mouseup',()=>pulsando=false);
+cv.addEventListener('contextmenu',e=>{ e.preventDefault();
+  const [x,y]=casilla(e); girarCasilla(x,y); });
 function deshacer(){ const p=pila.pop(); if(!p)return;
-  clave=p.clave; selSala.value=clave; salas[clave].grid=p.grid; alSala(); }
+  clave=p.clave; selSala.value=clave;
+  salas[clave].grid=p.grid; salas[clave].giros=p.giros; alSala(); }
 document.getElementById('deshacer').onclick=deshacer;
 window.addEventListener('keydown',e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); deshacer(); } });
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){ e.preventDefault(); deshacer(); }
+  else if((e.key==='r'||e.key==='R') && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){
+    giro=(giro+1)%4; pintarGiros(); pintarPaleta(); } });
 
 /* ---- tamaño ---- */
 function redimensionar(){
@@ -366,7 +416,10 @@ function redimensionar(){
     let f=''; for(let x=0;x<an;x++) f += (vieja[x]!==undefined ? vieja[x] : relleno);
     g.push(f);
   }
-  S.grid=g; dibujar(); revisarYa();
+  S.grid=g;
+  Object.keys(S.giros).forEach(k=>{ const [x,y]=k.split(',').map(Number);
+    if(x>=an||y>=al) delete S.giros[k]; });
+  dibujar(); revisarYa();
 }
 document.getElementById('anc').onchange=redimensionar;
 document.getElementById('alt').onchange=redimensionar;
@@ -472,8 +525,9 @@ function muestra(cl,tit,lista){
 }
 const esconde=()=>{ avisoEl.style.display='none'; };
 const cuerpo=()=>({
-  salas: claves.filter(k=>salas[k].grid.join('\n')!==D.salas[k].grid.join('\n'))
-               .map(k=>({clave:k, nombre:salas[k].name, grid:salas[k].grid})),
+  salas: claves.filter(k=>salas[k].grid.join('\n')!==D.salas[k].grid.join('\n')
+                      || JSON.stringify(salas[k].giros)!==JSON.stringify(D.salas[k].giros))
+               .map(k=>({clave:k, nombre:salas[k].name, grid:salas[k].grid, giros:salas[k].giros})),
   baldosasNuevas: nuevas, notas, cuando:new Date().toISOString()
 });
 botonEl.onclick=async()=>{
@@ -510,7 +564,7 @@ function alSala(){
   if(!leg.some(l=>l.ch===pincel) && !nuevas.some(n=>n.ch===pincel)) pincel=leg[0].ch;
   pintarBrujula(); pintarPaleta(); pincelInfo(); dibujar(); revisarYa();
 }
-selSala.value=clave; alSala(); pintarEncargos();
+pintarGiros(); selSala.value=clave; alSala(); pintarEncargos();
 
 (async()=>{
   try{ almacen = window.claude && claude.use ? await claude.use('db') : null; }
@@ -521,7 +575,8 @@ selSala.value=clave; alSala(); pintarEncargos();
     const s=await almacen.doc('planos/salas').get();
     if(s.exists){
       const d=s.data();
-      (d.salas||[]).forEach(sa=>{ if(salas[sa.clave]) salas[sa.clave].grid=sa.grid; });
+      (d.salas||[]).forEach(sa=>{ if(!salas[sa.clave]) return;
+        salas[sa.clave].grid=sa.grid; salas[sa.clave].giros=sa.giros||{}; });
       nuevas=d.baldosasNuevas||[]; notas=d.notas||[];
       alSala(); pintarEncargos();
       estadoEl.textContent='Recuperado lo que tenías guardado.';

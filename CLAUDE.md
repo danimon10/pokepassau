@@ -83,7 +83,7 @@ node tools/interiores.js --import x.json  # mete las rejillas en index.html
 Dibuja cada sala con el `drawInTile` de verdad, así que se ve lo que se verá
 jugando, y para cada sala dice **por qué lado del edificio se entra desde el
 campus** (norte, sur, este u oeste), que es el dato para colocar la salida en
-el muro que toca. Deja pedir **baldosas nuevas por descripción**: se guardan
+el muro que toca. Las baldosas se pueden **girar** en cuartos de vuelta. Deja pedir **baldosas nuevas por descripción**: se guardan
 como encargo con un carácter provisional y el dibujo se hace después a mano.
 Al importar solo toca el `grid` de cada sala, y rechaza el cambio si una
 puerta, una salida o un NPC se quedaría fuera de la rejilla nueva.
@@ -184,6 +184,13 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   toque y se apunta en `salidas:[{x,y,at:[X,Y]}]`, donde `at` es la baldosa
   exterior. Si una salida no está en `salidas`, se sale por la principal.
   Solo puede quedar **una** salida suelta (sin entrada en `salidas`).
+- **Las baldosas de interior se pueden girar a mano** con `giros:{'x,y':1|2|3}`
+  en la sala (cuartos de vuelta a la derecha). Es **solo el dibujo**: la letra
+  de la rejilla no cambia, así que lo que se pisa y lo que no, tampoco. Es
+  aparte del giro automático de la escalera y el mostrador (`marcarGiradas`),
+  que sale de la forma del tramo. El giro se pinta con una **matriz de
+  enteros**, no con `ctx.rotate()`: el coseno de 90° no sale exacto en coma
+  flotante y el pixel art se emborrona.
 - **`DECOR_GEO` son edificios que se dibujan pero no se entran**: sin puerta,
   sin cartel y sin interior, y el validador no los mira porque no están en
   `BUILDINGS`. Sirven para llenar la ciudad de fondo; se vacía el array y

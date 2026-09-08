@@ -5218,6 +5218,18 @@ function validateMaps(){
       else if(SOLID_OUT.has(ct))E(key+': la salida ('+sa.x+','+sa.y+") deja al jugador sobre '"+ct+"', que no se puede pisar");
     });
 
+    // los giros a mano tienen que caer dentro de la rejilla
+    for(const k in (I.giros||{})){
+      const p=k.split(',').map(Number);
+      if(p.length!==2||!Number.isInteger(p[0])||!Number.isInteger(p[1]))
+        E(key+": el giro '"+k+"' no es una casilla valida");
+      else if(at(p[0],p[1])===undefined)
+        E(key+': el giro ('+k+') cae fuera de la sala');
+      const q=I.giros[k];
+      if(!Number.isInteger(q)||q<1||q>3)
+        E(key+': el giro ('+k+') vale '+q+'; tiene que ser 1, 2 o 3 cuartos de vuelta');
+    }
+
     // toda puerta dibujada tiene que estar cableada, y toda puerta cableada dibujada
     const cableadas=new Set((I.doors||[]).map(d=>d.x+','+d.y));
     g.forEach((r,y)=>[...r].forEach((c,x)=>{
@@ -6182,6 +6194,17 @@ function marcarLineas(g){
 //   escalera (S/V/U): girada = el tramo es mas ancho que alto (se sube de lado)
 //   mostrador  ('c'): girado = la barra es mas alta que ancha (va en vertical)
 let giradas=new Set();
+// Giros a mano, en cuartos de vuelta (1 = 90 grados a la derecha). La escalera
+// y el mostrador siguen girandose solos por su forma (marcarGiradas); esto es
+// aparte: le da la vuelta al dibujo de CUALQUIER baldosa, sin tocar lo que la
+// baldosa es. La letra no cambia, asi que lo que se pisa y lo que no, tampoco.
+let giros=new Map();
+function marcarGiros(I){
+  const m=new Map();
+  const g=I&&I.giros; if(!g) return m;
+  for(const k in g){ const q=((+g[k])%4+4)%4; if(q) m.set(k,q); }
+  return m;
+}
 function marcarGiradas(g){
   const s=new Set();
   if(!Array.isArray(g)||!g.length) return s;
@@ -6262,7 +6285,7 @@ function loadScene(key,at,dir){
   // cargar una posicion del mapa exterior.
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false; giradas=new Set(); lineasCon=new Map();
+    npcs=OUT_NPCS; patioMode=false; giradas=new Set(); lineasCon=new Map(); giros=new Map();
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
@@ -6273,7 +6296,7 @@ function loadScene(key,at,dir){
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
   npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
-  giradas=marcarGiradas(map); lineasCon=marcarLineas(map);
+  giradas=marcarGiradas(map); lineasCon=marcarLineas(map); giros=marcarGiros(I);
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -6585,6 +6608,16 @@ function drawTren(T){
   ctx.textBaseline='alphabetic'; ctx.textAlign='left';
 }
 
+// Pinta una baldosa dada la vuelta. Se usa una matriz de enteros en vez de
+// ctx.rotate(): el coseno de 90 grados no sale exacto en coma flotante y el
+// pixel art se emborrona por medio pixel.
+function dibujarGirada(t,sx,sy,q,girada,conex){
+  const M=[null,[0,1,-1,0,sx+TILE,sy],[-1,0,0,-1,sx+TILE,sy+TILE],[0,-1,1,0,sx,sy+TILE]][q];
+  ctx.save(); ctx.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
+  drawInTile(t,0,0,patioMode,girada,conex);
+  ctx.restore();
+}
+
 function render(){
   ctx.fillStyle = scene==='outdoor'?PAL.bosque:'#8a7a9a';
   ctx.fillRect(0,0,VW,VH);
@@ -6596,7 +6629,9 @@ function render(){
     const t=tileAt(mx,my);
     const sx=tx*TILE-offX, sy=ty*TILE-offY;
     if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
-    else { const k=mx+','+my; drawInTile(t,sx,sy,patioMode, giradas.has(k), lineasCon.get(k)||0); }
+    else { const k=mx+','+my; const q=giros.get(k)||0;
+      if(q) dibujarGirada(t,sx,sy,q,giradas.has(k),lineasCon.get(k)||0);
+      else  drawInTile(t,sx,sy,patioMode, giradas.has(k), lineasCon.get(k)||0); }
   }
   // rotulos de las tiendas: sin ellos no hay forma de saber en que tienda estas
   if(scene!=='outdoor'){
