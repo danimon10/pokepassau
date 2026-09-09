@@ -185,7 +185,8 @@ const shadeSrc=(s.match(/function shade\([\s\S]*?\n\}/)||[''])[0];
 function leyenda(txt){
   const out=[]; const re=/case '((?:\\.|[^'])*)':(.*)/g; let m, pend=[];
   while((m=re.exec(txt))){
-    const ch=m[1].replace(/\\(.)/g,'$1');
+    const ch=m[1].replace(/\\u([0-9a-fA-F]{4})/g,(_,h)=>String.fromCharCode(parseInt(h,16)))
+                 .replace(/\\(.)/g,'$1');
     const com=(m[2].match(/\/\/\s*(.+?)\s*$/)||[])[1];
     pend.push(ch);
     if(com){ pend.forEach(c=>out.push({ch:c, txt:com})); pend=[]; }
@@ -217,7 +218,36 @@ for(const k in INTERIORS){
              info:(I.info||[]).map((q,i)=>({id:'i'+i, x:q.x, y:q.y, name:q.name})),
              entradas:entradas[k]||[], desde:desde[k]||[], edificio:grupo[k]||'(suelto)' };
 }
-const carga={salas, legPatio, legNormal, drawInTileSrc, shadeSrc, libres};
+// --- en que cajon va cada baldosa, para no tener 71 sueltas en la paleta ---
+const CAJONES=[
+  ['Paredes',      '#=¦+'],
+  ['Suelos',       '.rakbl-_:'],
+  ['Mobiliario',   'msDcuteKBWLIPZx^$|H R N O Q T i v z M'.replace(/ /g,'')],
+  ['Tiendas',      'o()/&%@,[{]}F`;'],
+  ['Vegetacion',   'pg~h'],
+  ['Exteriores',   'nqwdyjf<>'],
+  ['Puertas y escaleras', "1234567890!?*ACJYGVSUXE"],
+];
+const CAJONES_PATIO=[
+  ['Paredes',      '#mM'],
+  ['Suelos',       'p.bgs['],
+  ['Mobiliario',   'Fnk'],
+  ['Vegetacion',   'oOa'],
+  ['Puertas y escaleras', 'GXEQ45'],
+];
+function reparte(leg, cajones){
+  const puesto=new Set(), out=[];
+  cajones.forEach(([nom,chars])=>{
+    const items=leg.filter(l=>chars.includes(l.ch) && !puesto.has(l.ch));
+    items.forEach(l=>puesto.add(l.ch));
+    if(items.length) out.push({nom, items});
+  });
+  const sobra=leg.filter(l=>!puesto.has(l.ch));
+  if(sobra.length) out.push({nom:'Otras', items:sobra});
+  return out;
+}
+const carga={salas, legPatio, legNormal, drawInTileSrc, shadeSrc, libres,
+             cajones:reparte(legNormal,CAJONES), cajonesPatio:reparte(legPatio,CAJONES_PATIO)};
 
 const tpl=fs.readFileSync(path.join(__dirname,'interiores-template.html'),'utf8');
 const cuerpo=tpl.replace('__DATOS__', ()=>JSON.stringify(carga));

@@ -61,8 +61,18 @@ textarea{resize:vertical;min-height:52px}
 #giros button:hover{border-color:var(--acento)}
 #giros button[aria-pressed="true"]{background:var(--acento-sd);border-color:var(--acento);
   box-shadow:inset 0 0 0 1px var(--acento)}
-#paleta{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:4px;
-  max-height:230px;overflow-y:auto;border:1px solid var(--borde);border-radius:6px;padding:5px}
+#paleta{display:flex;flex-direction:column;gap:1px;
+  max-height:300px;overflow-y:auto;border:1px solid var(--borde);border-radius:6px;padding:5px}
+.cajon{display:flex;align-items:center;gap:6px;width:100%;padding:5px 6px;border:0;
+  background:transparent;color:var(--texto);border-radius:5px;cursor:pointer;
+  font-family:var(--f-tit);font-weight:600;font-size:12.5px;letter-spacing:.06em;
+  text-transform:uppercase;text-align:left}
+.cajon:hover{background:var(--hueco)}
+.cajon .fl{color:var(--tenue);font-size:10px}
+.cajon em{margin-left:auto;font-style:normal;font-family:var(--f-num);font-size:10px;
+  color:var(--tenue);font-weight:400}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:4px;
+  padding:0 2px 7px}
 .bald{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;
   border:1px solid transparent;background:transparent;border-radius:5px;cursor:pointer;
   font:inherit;font-size:9px;color:var(--tenue);line-height:1.15;text-align:center}
@@ -159,6 +169,9 @@ textarea{resize:vertical;min-height:52px}
     <div id="colocaEl">Haz clic en la sala para moverlo. <kbd>Esc</kbd> cancela.</div>
     <button class="btn" id="masNpc">Añadir una persona</button>
     <button class="btn" id="masInfo">Añadir un objeto con el que hablar</button>
+    <p class="pista"><b>Las escaleras no guardan a dónde llegan:</b> al subir
+      apareces en la escalera de la otra sala, así que basta con que cada
+      planta tenga la suya. Muévelas libremente.</p>
     <p class="pista">Los marcos no salen en el juego: te señalan lo que está
       atado a esas coordenadas. <b>Muévelos</b> si cambias la sala de sitio, o
       se quedarán dentro de una pared. Las personas y los objetos nuevos llevan
@@ -220,10 +233,10 @@ document.getElementById('cuenta').textContent = claves.length + ' SALAS';
 
 /* ---- piezas giradas y uniones, con la misma regla que el juego ---- */
 function analiza(g){
-  const RAYA='wyjdf', APILABLE="()/&%@,[{]}F'";
+  const RAYA='wyjdf', APILABLE="()/&%@,[{]}F'", MURO='#=¦';
   const en=(x,y)=>(g[y]||'')[x];
   const tramo=(x,y,letras,salta)=>{
-    const es=(a,b)=>letras.includes(en(a,b)||' ');
+    const es=(a,b)=>letras.includes(en(a,b)||'\u0000');
     const vis=new Set([x+','+y]), cola=[[x,y]];
     let x0=x,x1=x,y0=y,y1=y;
     const pasos = salta ? [[0,-1],[0,1],[-1,0],[1,0],[0,-2],[0,2],[-2,0],[2,0]]
@@ -242,14 +255,17 @@ function analiza(g){
     else if(c==='c'){ const t=tramo(x,y,'c',true);
       if((t.y1-t.y0)>(t.x1-t.x0)) girada.add(x+','+y); }
   }
-  const raya=(x,y)=>RAYA.includes(en(x,y)||' ');
+  const raya=(x,y)=>RAYA.includes(en(x,y)||'\u0000');
+  const muro=(x,y)=>MURO.includes(en(x,y)||'\u0000');
   for(let y=0;y<g.length;y++) for(let x=0;x<g[0].length;x++){
     const c=en(x,y);
     const mask=f=>(f(x,y-1)?1:0)|(f(x,y+1)?2:0)|(f(x-1,y)?4:0)|(f(x+1,y)?8:0);
-    if(raya(x,y)) conex[x+','+y]=mask(raya);
+    // el muro se remata solo por donde queda a la vista, igual que en el juego
+    if(MURO.includes(c)) conex[x+','+y]=mask(muro);
+    else if(raya(x,y)) conex[x+','+y]=mask(raya);
     else if(APILABLE.includes(c)) conex[x+','+y]=mask((a,b)=>en(a,b)===c);
     else if('SVU'.includes(c)){
-      let bits=mask((a,b)=>'SVU'.includes(en(a,b)||' '));
+      let bits=mask((a,b)=>'SVU'.includes(en(a,b)||'\u0000'));
       const t=tramo(x,y,'SVU'); let vx=-1, vy=-1;
       for(let b=t.y0;b<=t.y1;b++) for(let a=t.x0;a<=t.x1;a++){
         const q=en(a,b); if(q==='V'||q==='U'){ vx=a; vy=b; } }
@@ -333,22 +349,44 @@ function pintarGiros(){
   });
 }
 const paletaEl=document.getElementById('paleta');
+const abierto={};                       // que cajones ha desplegado el usuario
+function baldosaBoton(l, isPatio){
+  const b=document.createElement('button');
+  b.type='button'; b.className='bald'; b.setAttribute('aria-pressed', pincel===l.ch);
+  b.title=(l.txt||'sin descripcion')+"  ['"+l.ch+"']";
+  if(l.nueva){ const ph=document.createElement('div'); ph.className='ph'; ph.textContent='+'; b.appendChild(ph); }
+  else b.appendChild(miniatura(l.ch, isPatio));
+  const n=document.createElement('b'); n.textContent=l.ch; b.appendChild(n);
+  const t=document.createElement('span'); t.textContent=(l.txt||'').slice(0,22); b.appendChild(t);
+  b.onclick=()=>{ pincel=l.ch; pintarPaleta(); pincelInfo(); };
+  return b;
+}
 function pintarPaleta(){
   const S=salas[clave];
-  const leg=(S.isPatio?D.legPatio:D.legNormal);
+  const cajones=(S.isPatio?D.cajonesPatio:D.cajones).slice();
+  if(nuevas.length) cajones.push({nom:'Encargadas',
+    items:nuevas.map(n=>({ch:n.ch, txt:n.nombre, nueva:true}))});
   const q=(document.getElementById('buscar').value||'').toLowerCase().trim();
   paletaEl.innerHTML='';
-  leg.concat(nuevas.map(n=>({ch:n.ch, txt:n.nombre, nueva:true}))).forEach(l=>{
-    if(q && !((l.txt||'').toLowerCase().includes(q) || l.ch===q)) return;
-    const b=document.createElement('button');
-    b.type='button'; b.className='bald'; b.setAttribute('aria-pressed', pincel===l.ch);
-    b.title=(l.txt||'sin descripcion')+"  ['"+l.ch+"']";
-    if(l.nueva){ const ph=document.createElement('div'); ph.className='ph'; ph.textContent='+'; b.appendChild(ph); }
-    else b.appendChild(miniatura(l.ch, S.isPatio));
-    const n=document.createElement('b'); n.textContent=l.ch; b.appendChild(n);
-    const t=document.createElement('span'); t.textContent=(l.txt||'').slice(0,22); b.appendChild(t);
-    b.onclick=()=>{ pincel=l.ch; pintarPaleta(); pincelInfo(); };
-    paletaEl.appendChild(b);
+  cajones.forEach(cj=>{
+    const items=cj.items.filter(l=>!q || (l.txt||'').toLowerCase().includes(q) || l.ch===q);
+    if(!items.length) return;
+    // buscando se abren todos; si no, el que tenga el pincel y los que abras tu
+    const abre = q ? true
+               : (abierto[cj.nom]!==undefined ? abierto[cj.nom]
+                                              : items.some(l=>l.ch===pincel));
+    const cab=document.createElement('button');
+    cab.type='button'; cab.className='cajon'; cab.setAttribute('aria-expanded', abre);
+    const fl=document.createElement('span'); fl.className='fl'; fl.textContent=abre?'▾':'▸';
+    const nm=document.createElement('span'); nm.textContent=cj.nom;
+    const ct=document.createElement('em'); ct.textContent=items.length;
+    cab.append(fl,nm,ct);
+    cab.onclick=()=>{ abierto[cj.nom]=!abre; pintarPaleta(); };
+    paletaEl.appendChild(cab);
+    if(!abre) return;
+    const rej=document.createElement('div'); rej.className='rejilla';
+    items.forEach(l=>rej.appendChild(baldosaBoton(l, S.isPatio)));
+    paletaEl.appendChild(rej);
   });
 }
 function pincelInfo(){
@@ -370,10 +408,23 @@ document.getElementById('buscar').oninput = pintarPaleta;
   });
 })();
 const elemsEl=document.getElementById('elementos');
+// La escalera de la sala de destino, con la misma regla que usa el juego
+// (escaleraDe): primero la 'V' cableada de vuelta a esta sala, y si no, la
+// primera 'V' o 'U' que aparezca. No hay coordenada que guardar: se encuentran.
+function escaleraDe(claveDest, claveOrigen){
+  const S=salas[claveDest]; if(!S) return null;
+  const g=S.grid;
+  const d=(S.doors||[]).find(q=>q.to===claveOrigen && (g[q.y]||'')[q.x]==='V');
+  if(d) return [d.x,d.y];
+  for(let y=0;y<g.length;y++) for(let x=0;x<g[0].length;x++)
+    if(g[y][x]==='V'||g[y][x]==='U') return [x,y];
+  return null;
+}
+const esEscalera=(S,q)=>'SVU'.includes((S.grid[q.y]||'')[q.x]||'');
 function pisableEn(x,y){
   const S=salas[clave], g=S.grid;
   if(y<0||y>=g.length||x<0||x>=g[0].length) return false;
-  const SOL = S.isPatio ? '#oFGXmMOankQE45' : "#=scteDKBWLpIAYGPZhxqn_<^~$|o()/&%@,[{]}F`;HRNOQTivzMSXEU'";
+  const SOL = S.isPatio ? '#oFGXmMOankQE45' : "#=¦scteDKBWLpIAYGPZhxqn_<^~$|o()/&%@,[{]}F`;HRNOQTivzMSXEU'";
   return !SOL.includes(g[y][x]);
 }
 function pintarElementos(){
@@ -394,6 +445,17 @@ function pintarElementos(){
       const xy=document.createElement('span');
       xy.textContent='('+q.x+', '+q.y+')' + (q.nuevo?'  · nueva':'');
       det.append(nb,xy);
+      // una escalera no guarda a donde llega: aterriza en la escalera de la
+      // otra sala, asi que lo util es enseñar donde esta y avisar si falta
+      if(tipo==='doors' && esEscalera(S,q)){
+        const otra=escaleraDe(q.to, clave);
+        const e=document.createElement('span');
+        if(otra){ e.className='det'; e.style.color='var(--tenue)';
+          e.textContent='escalera · sales por ('+otra[0]+', '+otra[1]+') allí'; }
+        else { e.className='mal';
+          e.textContent='escalera · ¡'+(q.destino||q.to)+' no tiene escalera! caerías en (1,1)'; }
+        det.appendChild(e);
+      }
       // avisos: una persona no puede estar dentro de un mueble
       const g=S.grid;
       if(q.y>=g.length||q.x>=g[0].length){
@@ -642,6 +704,10 @@ function revisar(){
         p.push(S.name+': '+TIPOS[tipo].nom+' '+(q.name||'')+' se ha quedado fuera de la sala');
       if(q.nuevo && !(q.desc||'').trim())
         p.push(S.name+' · '+q.name+': falta decir qué es y qué dice');
+      // una escalera tiene que encontrar la de enfrente, o se cae en (1,1)
+      if(tipo==='doors' && 'SVU'.includes((g[q.y]||'')[q.x]||'') && !escaleraDe(q.to,k))
+        p.push(S.name+': la escalera lleva a '+(q.destino||q.to)
+               +', que se ha quedado sin ninguna escalera por la que salir');
       // una salida tiene que caer sobre una salida dibujada, y una puerta
       // sobre una puerta: es lo que el validador del juego exige
       const ch=(g[q.y]||'')[q.x];

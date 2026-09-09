@@ -4321,8 +4321,28 @@ function drawInTile(t,sx,sy,patio,girada,conex){
   }
   // ----- INTERIORES CON PAREDES -----
   switch(t){
-    case '#': F('#8a7a9a'); R('#6a5a7a',0,TILE-3,TILE,3); R('#9a8aaa',0,0,TILE,2); return; // pared
-    case '=': F('#9a8aaa'); R('#7a6a8a',0,0,TILE,2); R('#b0a0c0',0,TILE-2,TILE,2); return; // pared clara (bar)
+    case '#':                                            // pared
+    case '=':                                            // pared clara (bar)
+    case '¦': {                                       // pared de vidrio
+      // conex: 1 muro arriba, 2 abajo, 4 a la izquierda, 8 a la derecha
+      const arr=conex&1, aba=conex&2, izq=conex&4, der=conex&8;
+      if(t==='¦'){                                   // pared de vidrio
+        F('#a9c6d6'); R('#c9e2ee',2,2,TILE-4,TILE-4);
+        R('#eaf7ff',3,3,3,TILE-9);                         // el reflejo
+        if(!izq) R('#5d7c8f',0,0,2,TILE);                  // montantes
+        if(!der) R('#5d7c8f',TILE-2,0,2,TILE);
+        if(!arr) R('#8fb6c8',0,0,TILE,2);
+        if(!aba) R('#546f80',0,TILE-3,TILE,3);
+        return;
+      }
+      const claro=(t==='=');
+      F(claro?'#9a8aaa':'#8a7a9a');
+      if(!arr) R(claro?'#7a6a8a':'#9a8aaa',0,0,TILE,2);
+      if(!aba) R(claro?'#b0a0c0':'#6a5a7a',0,TILE-3,TILE,3);
+      if(!izq) R(claro?'#8a7a9a':'#7a6a8a',0,0,1,TILE);
+      if(!der) R(claro?'#8a7a9a':'#7a6a8a',TILE-1,0,1,TILE);
+      return; } // pared
+ // pared clara (bar)
     // --- suelos por tipo de sala ---
     case '.': F('#d8c4a0'); R('#cdb892',0,7,TILE,1);R('#cdb892',7,0,1,TILE); return; // suelo pasillo
     case '+': F('#d8c4a0'); R('#b89a6a',3,0,10,TILE); R('#cdb892',0,7,TILE,1); return; // umbral/puerta de sala
@@ -4745,7 +4765,7 @@ function drawInTile(t,sx,sy,patio,girada,conex){
 //==================================================================
 const SOLID_OUT=new Set(['T','t','W','o','B','N','L','r']);
 // interiores con paredes: muebles y elementos sólidos
-const SOLID_IN=new Set(['#','=','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
+const SOLID_IN=new Set(['#','=','¦','s','c','t','e','D','K','B','W','L','p','I','u','m','P','Z',
   // las puertas tambien son solidas: no se pisan, se empujan desde delante
   '1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','X','E',
   'S','V','U','M','h','x',     // escalera, maquina, arbolado y aparatos
@@ -5108,7 +5128,7 @@ function dormir(){
 //  luego no se puede entrar. Se puede relanzar con validateMaps().
 //==================================================================
 const TILES_OUT  =new Set(['.',',','I','W','o','R','|','P','B','N','H','D','T','t','f','L','b','r']);
-const TILES_IN   =new Set(['#','=','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
+const TILES_IN   =new Set(['#','=','¦','.','+','r','a','k','b','l','g','m','s','D','c','u','t','e',
                            'K','B','W','L','p','I','1','2','3','4','5','6','7','8','9','0','!','?','*','A','C','J','Y','G','P','Z','X','E','S','V','U','M','w','d','n','q','y','j','f','h','x',
                            'H','R','N','O','Q','T','i','v','z','_',':','<','>','^','~','$','|',
                            '-','o','(',')','/','&','%','@',',','[','{',']','}','F',
@@ -6152,6 +6172,9 @@ function avanzarGuion(){
 }
 // como se conecta cada linea de campo con sus vecinas, para pintarla fina
 let lineasCon=new Map();
+// Las tres clases de muro. Se unen entre ellas: un tabique de vidrio pegado a
+// uno de obra hace esquina con el sin costura.
+const MURO="#=¦";
 function marcarLineas(g){
   const m=new Map();
   if(!Array.isArray(g)||!g.length) return m;
@@ -6163,7 +6186,12 @@ function marcarLineas(g){
   const es=(x,y)=>RAYA.includes((g[y]||'')[x]||'\u0000');
   for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){
     const c=(g[y]||'')[x];
-    if(es(x,y)){
+    if(MURO.includes(c)){
+      // el muro solo se remata por donde queda a la vista: asi un tramo
+      // largo sale liso y las esquinas se cierran solas
+      const mu=(a,b)=>MURO.includes((g[b]||'')[a]||'\u0000');
+      m.set(x+','+y,(mu(x,y-1)?1:0)|(mu(x,y+1)?2:0)|(mu(x-1,y)?4:0)|(mu(x+1,y)?8:0));
+    }else if(es(x,y)){
       m.set(x+','+y,(es(x,y-1)?1:0)|(es(x,y+1)?2:0)|(es(x-1,y)?4:0)|(es(x+1,y)?8:0));
     }else if(APILABLE.includes(c)){
       const ig=(a,b)=>((g[b]||'')[a]===c);

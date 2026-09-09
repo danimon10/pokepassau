@@ -195,6 +195,16 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   que sale de la forma del tramo. El giro se pinta con una **matriz de
   enteros**, no con `ctx.rotate()`: el coseno de 90° no sale exacto en coma
   flotante y el pixel art se emborrona.
+- **Los muros se rematan solos** (`MURO` + `marcarLineas`): `#`, `=` y `¦`
+  miran a sus vecinos y solo dibujan la cornisa arriba y la sombra abajo por
+  donde quedan a la vista, así que un tramo largo sale liso y las esquinas
+  —externas e internas— se cierran sin baldosas de esquina. Un muro de vidrio
+  pegado a uno de obra hace esquina con él.
+- **Las escaleras no guardan a dónde llegan.** `escaleraDe(destino, origen)`
+  busca en la sala de destino la `V` cableada de vuelta y, si no la hay, la
+  primera `V` o `U`. Así que basta con que cada planta tenga su escalera: se
+  encuentran solas y se pueden mover libremente. Si el destino se queda sin
+  ninguna, el jugador aparece en `(1,1)`.
 - **`DECOR_GEO` son edificios que se dibujan pero no se entran**: sin puerta,
   sin cartel y sin interior, y el validador no los mira porque no están en
   `BUILDINGS`. Sirven para llenar la ciudad de fondo; se vacía el array y
