@@ -81,35 +81,49 @@ if(process.argv[2]==='--import'){
     n++;
   });
   // --- mover NPCs, carteles, puertas y salidas que hayan cambiado de sitio ---
-  // Se toca solo el 'x:' e 'y:' de cada elemento, buscandolo por su campo
-  // estable (el nombre, el destino o la baldosa exterior). Los dialogos y todo
-  // lo demas se quedan intactos.
+  // Cada elemento se localiza por su POSICION en el array (el id que lleva el
+  // editor es 'n0', 'i1'...: el indice), no por su nombre, porque hay salas
+  // con dos carteles que se llaman igual. Se toca solo el 'x:' y el 'y:'; los
+  // dialogos y todo lo demas se quedan intactos.
   let movidos=0; const noHallados=[];
-  function mueve(claveSala, marca, nx, ny, que){
-    const ini=s.indexOf("  "+claveSala+": {");
+  // offset del '{' que abre el elemento k-esimo de sala.campo, o -1
+  function hueco(claveSala, campo, k){
+    const ini=s.indexOf("  "+claveSala+": {"); if(ini<0) return -1;
     const fin=s.indexOf("\n  },", ini);
-    const tro=s.slice(ini,fin);
-    const j=tro.indexOf(marca);
-    if(j<0){ noHallados.push(claveSala+' · '+que); return; }
-    // hacia atras hasta la llave que abre ese elemento
-    const abre=tro.lastIndexOf('{', j);
-    const cab=tro.slice(abre, j);
-    const m=cab.match(/^\{\s*x:\s*(\d+)\s*,\s*y:\s*(\d+)/);
+    let i=s.indexOf(campo+':[', ini); if(i<0 || i>fin) return -1;
+    i+=campo.length+2;
+    let prof=0, cita=null, n=0;
+    for(; i<fin; i++){
+      const c=s[i];
+      if(cita){ if(c==='\\'){ i++; continue; } if(c===cita) cita=null; continue; }
+      if(c==='"'||c==="'"){ cita=c; continue; }
+      if(c==='{'){ if(prof===0){ if(n===k) return i; n++; } prof++; continue; }
+      if(c==='}'){ prof--; continue; }
+      if(c===']' && prof===0) return -1;   // se acabo el array
+    }
+    return -1;
+  }
+  function mueve(claveSala, campo, k, nx, ny, que){
+    const abre=hueco(claveSala, campo, k);
+    if(abre<0){ noHallados.push(claveSala+' · '+que); return; }
+    const m=s.slice(abre, abre+64).match(/^\{\s*x:\s*(\d+)\s*,\s*y:\s*(\d+)/);
     if(!m){ noHallados.push(claveSala+' · '+que); return; }
     if(+m[1]===nx && +m[2]===ny) return;
-    const nuevoCab='{x:'+nx+',y:'+ny+cab.slice(m[0].length);
-    s=s.slice(0,ini+abre)+nuevoCab+s.slice(ini+abre+cab.length);
+    s=s.slice(0,abre)+'{x:'+nx+',y:'+ny+s.slice(abre+m[0].length);
     movidos++;
   }
+  // el id que trae el editor ('n0', 'i1'...) es el indice que ese elemento
+  // ocupa en el array de index.html; los que ha creado el usuario van con 'nn'
+  const indice=q=>{ const m=/^[nids](\d+)$/.exec(q.id||''); return m?+m[1]:-1; };
   (d.salas||[]).forEach(sa=>{
     (sa.npcs||[]).forEach(q=>{ if(q.nuevo||q.quitar) return;
-      mueve(sa.clave,'name:'+JSON.stringify(q.name), q.x, q.y, 'NPC '+q.name); });
+      mueve(sa.clave,'npcs',indice(q), q.x, q.y, 'NPC '+q.name); });
     (sa.info||[]).forEach(q=>{ if(q.nuevo||q.quitar) return;
-      mueve(sa.clave,'name:'+JSON.stringify(q.name), q.x, q.y, 'cartel '+q.name); });
+      mueve(sa.clave,'info',indice(q), q.x, q.y, 'cartel '+q.name); });
     (sa.doors||[]).forEach(q=>
-      mueve(sa.clave,"to:'"+q.to+"'", q.x, q.y, 'puerta a '+q.to));
+      mueve(sa.clave,'doors',indice(q), q.x, q.y, 'puerta a '+q.to));
     (sa.salidas||[]).forEach(q=>
-      mueve(sa.clave,'at:['+q.at+']', q.x, q.y, 'salida a ('+q.at+')'));
+      mueve(sa.clave,'salidas',indice(q), q.x, q.y, 'salida a ('+q.at+')'));
   });
 
   fs.writeFileSync(IDX,s);
