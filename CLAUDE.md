@@ -72,6 +72,26 @@ comprueba lo mismo que el validador **y además** que desde donde aparece el
 jugador se llega andando a todas las puertas; si algo falla no toca
 `index.html`. También recoloca solo las `salidas` de los interiores.
 
+**Para rediseñar interiores, el editor de salas.** Igual que el del mapa, pero
+para las 84 rejillas de `INTERIORS`:
+
+```sh
+node tools/interiores.js                  # escribe tools/.interiores.html
+node tools/interiores.js --import x.json  # mete las rejillas en index.html
+```
+
+Dibuja cada sala con el `drawInTile` de verdad, así que se ve lo que se verá
+jugando, y para cada sala dice **por qué lado del edificio se entra desde el
+campus** (norte, sur, este u oeste), que es el dato para colocar la salida en
+el muro que toca. Las baldosas se pueden **girar** en cuartos de vuelta, y se
+pueden **mover** las puertas, las salidas, los NPCs y los objetos de la sala,
+que si no se quedan en sus coordenadas viejas al rediseñarla. Deja pedir **baldosas nuevas por descripción**: se guardan
+como encargo con un carácter provisional y el dibujo se hace después a mano;
+la gente y los objetos nuevos van igual, porque llevan diálogo.
+Al importar toca el `grid`, los `giros` y las coordenadas de lo que se haya
+movido, y rechaza el cambio si una puerta, una salida o un NPC se quedaría
+fuera de la rejilla nueva.
+
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
@@ -168,6 +188,28 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   toque y se apunta en `salidas:[{x,y,at:[X,Y]}]`, donde `at` es la baldosa
   exterior. Si una salida no está en `salidas`, se sale por la principal.
   Solo puede quedar **una** salida suelta (sin entrada en `salidas`).
+- **Las baldosas de interior se pueden girar a mano** con `giros:{'x,y':1|2|3}`
+  en la sala (cuartos de vuelta a la derecha). Es **solo el dibujo**: la letra
+  de la rejilla no cambia, así que lo que se pisa y lo que no, tampoco. Es
+  aparte del giro automático de la escalera y el mostrador (`marcarGiradas`),
+  que sale de la forma del tramo. El giro se pinta con una **matriz de
+  enteros**, no con `ctx.rotate()`: el coseno de 90° no sale exacto en coma
+  flotante y el pixel art se emborrona.
+- **Los muros se rematan solos** (`MURO` + `marcarLineas`): `#`, `=` y `¦`
+  miran a sus vecinos y solo dibujan la cornisa arriba y la sombra abajo por
+  donde quedan a la vista, así que un tramo largo sale liso y las esquinas
+  —externas e internas— se cierran sin baldosas de esquina. Un muro de vidrio
+  pegado a uno de obra hace esquina con él.
+- **El peldaño cableado de una escalera es donde está su puerta.** Un tramo
+  de `S`/`V`/`U` solo funciona si la casilla de la puerta es exactamente `V`:
+  `activarPuerta` busca dentro del tramo un `doors` que caiga sobre una `V`.
+  Al repintar una escalera se pierde muy fácil, así que el editor la recoloca
+  sola bajo la puerta y deja el resto del tramo en `S`.
+- **Las escaleras no guardan a dónde llegan.** `escaleraDe(destino, origen)`
+  busca en la sala de destino la `V` cableada de vuelta y, si no la hay, la
+  primera `V` o `U`. Así que basta con que cada planta tenga su escalera: se
+  encuentran solas y se pueden mover libremente. Si el destino se queda sin
+  ninguna, el jugador aparece en `(1,1)`.
 - **`DECOR_GEO` son edificios que se dibujan pero no se entran**: sin puerta,
   sin cartel y sin interior, y el validador no los mira porque no están en
   `BUILDINGS`. Sirven para llenar la ciudad de fondo; se vacía el array y
