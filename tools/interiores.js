@@ -50,6 +50,11 @@ if(process.argv[2]==='--import'){
     (I.doors||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la puerta ('+q.x+','+q.y+') se queda fuera de la rejilla nueva'); });
     (I.salidas||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la salida ('+q.x+','+q.y+') se queda fuera'); });
     (I.npcs||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': el NPC '+(q.name||'')+' ('+q.x+','+q.y+') se queda fuera'); });
+    if(sa.tinte) for(const k in sa.tinte){
+      if(k!=='pared' && k!=='suelo') errs.push(sa.clave+": el tinte '"+k+"' no existe");
+      else if(!/^#[0-9a-f]{6}$/.test(sa.tinte[k]||''))
+        errs.push(sa.clave+': el tinte de '+k+" vale '"+sa.tinte[k]+"' y tiene que ser #rrggbb");
+    }
     for(const k in (sa.giros||{})){
       const [gx,gy]=k.split(',').map(Number);
       if(fuera(gx,gy)) errs.push(sa.clave+': el giro ('+k+') cae fuera de la rejilla nueva');
@@ -70,13 +75,21 @@ if(process.argv[2]==='--import'){
     // ojo: entre el grid y los giros va la linea de comentario, hay que saltarla
     const mg=resto.match(/^(\s*(?:\/\/[^\n]*\n\s*)?giros:\{[^}]*\},?)/);
     if(mg) b+=mg[1].length;
+    // y lo mismo con el tinte, que va justo detras
+    const mt=s.slice(b).match(/^(\s*(?:\/\/[^\n]*\n\s*)?tinte:\{[^}]*\},?)/);
+    if(mt) b+=mt[1].length;
     const giros=sa.giros||{};
     const claves=Object.keys(giros).filter(k=>giros[k]);
     const txtGiros = claves.length
       ? '\n    // cuartos de vuelta a mano: solo cambian el dibujo, no lo que se pisa\n'
         +'    giros:{'+claves.map(k=>"'"+k+"':"+giros[k]).join(', ')+'},'
       : '';
-    const nuevo='grid:[\n'+sa.grid.map(r=>'      "'+r+'"').join(',\n')+'\n    ],'+txtGiros;
+    const t=sa.tinte;
+    const txtTinte = (t && t.pared && t.suelo)
+      ? '\n    // color propio de esta sala: la obra y el solado, con sus sombras\n'
+        +"    tinte:{pared:'"+t.pared+"', suelo:'"+t.suelo+"'},"
+      : '';
+    const nuevo='grid:[\n'+sa.grid.map(r=>'      "'+r+'"').join(',\n')+'\n    ],'+txtGiros+txtTinte;
     s=s.slice(0,a)+nuevo+s.slice(b);
     n++;
   });
@@ -193,6 +206,8 @@ for(const k in BUILDINGS){
 
 // --- el dibujo de verdad: drawInTile + su ayudante shade ---
 const drawInTileSrc=bloque(s,'function drawInTile','//  ESTADO','}');
+// el tinte de sala: la tabla de colores repintables y sus dos ayudas
+const tinteSrc=bloque(s,'const TINTABLES={','function drawInTile','}');
 const shadeSrc=(s.match(/function shade\([\s\S]*?\n\}/)||[''])[0];
 
 // --- leyenda sacada de los propios 'case' del dibujo ---
@@ -230,6 +245,7 @@ for(const k in INTERIORS){
              salidas:(I.salidas||[]).map((q,i)=>({id:'s'+i, x:q.x, y:q.y, at:q.at})),
              npcs:(I.npcs||[]).map((q,i)=>({id:'n'+i, x:q.x, y:q.y, name:q.name})),
              info:(I.info||[]).map((q,i)=>({id:'i'+i, x:q.x, y:q.y, name:q.name})),
+             tinte:I.tinte||null,
              entradas:entradas[k]||[], desde:desde[k]||[], edificio:grupo[k]||'(suelto)' };
 }
 // --- en que cajon va cada baldosa, para no tener 71 sueltas en la paleta ---
@@ -260,7 +276,7 @@ function reparte(leg, cajones){
   if(sobra.length) out.push({nom:'Otras', items:sobra});
   return out;
 }
-const carga={salas, legPatio, legNormal, drawInTileSrc, shadeSrc, libres,
+const carga={salas, legPatio, legNormal, drawInTileSrc, shadeSrc, tinteSrc, libres,
              cajones:reparte(legNormal,CAJONES), cajonesPatio:reparte(legPatio,CAJONES_PATIO)};
 
 const tpl=fs.readFileSync(path.join(__dirname,'interiores-template.html'),'utf8');

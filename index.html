@@ -4238,11 +4238,55 @@ function drawOutTile(t,sx,sy,tx,ty){
   }
 }
 //==================================================================
-//  TILES interior
+//  TINTE DE SALA (color de paredes y suelo)
+//  Una sala puede repintarse con tinte:{pared:'#rrggbb', suelo:'#rrggbb'}.
+//  No hacen falta baldosas nuevas: de cada color de obra y de solado se
+//  sabe de que base sale y cuanto se le sube o se le baja, asi que
+//  cambiando la base salen solas la cornisa, la sombra y las juntas.
+//  Lo que no lleva tinte (madera, vidrio, plantas) se queda como esta.
 //==================================================================
+const TINTABLES={
+  // suelo — el solado corriente y los fondos que salen de el
+  '#d8c4a0':['suelo',[  0,  0,  0]],   // solado normal
+  '#cdb892':['suelo',[-11,-12,-14]],   // su junta
+  '#e0d2b0':['suelo',[  8, 14, 16]],   // solado claro (parque, y fondo de las mesas)
+  '#d4c49e':['suelo',[ -4,  0, -2]],   // su junta
+  '#b89a6a':['suelo',[-32,-42,-54]],   // el umbral de las puertas de sala
+  // pared — la obra y la escalera, que es parte de la obra
+  '#8a7a9a':['pared',[  0,  0,  0]],   // paramento
+  '#9a8aaa':['pared',[ 16, 16, 16]],   // cornisa (y paramento de la pared clara)
+  '#6a5a7a':['pared',[-32,-32,-32]],   // sombra de abajo
+  '#7a6a8a':['pared',[-16,-16,-16]],   // costados
+  '#b0a0c0':['pared',[ 38, 38, 38]],   // sombra de la pared clara
+  '#a89ec0':['pared',[ 30, 36, 38]],   // zanca de la escalera
+  '#ded8ea':['pared',[ 84, 94, 80]],   // peldano
+  '#8b81a6':['pared',[  1,  7, 12]],   // junta del peldano
+  '#7a7090':['pared',[-16,-10,-10]],   // borde del tramo
+  '#605780':['pared',[-42,-35,-26]],   // su sombra
+};
+// el color con desplazamiento 0 es la base de su familia: de ahi salen los
+// demas, y es lo que el editor de interiores ensena como "de siempre"
+const BASE_TINTE={};
+for(const c in TINTABLES) if(!TINTABLES[c][1].some(v=>v)) BASE_TINTE[TINTABLES[c][0]]=c;
+
+let tinte=null;                          // el de la sala en la que estamos
+// El desplazamiento va canal a canal, no uno solo para los tres: asi cada
+// color sale exactamente el de siempre cuando la sala no lleva tinte, y al
+// cambiar la base se conserva la diferencia de tono entre unos y otros.
+function desp(hex,d){
+  const v=parseInt(hex.slice(1),16), c=(x,n)=>Math.max(0,Math.min(255,x+n));
+  return '#'+((1<<24)|(c(v>>16&255,d[0])<<16)|(c(v>>8&255,d[1])<<8)|c(v&255,d[2]))
+             .toString(16).slice(1);
+}
+function tenir(c){                       // color de la paleta -> color de la sala
+  if(!tinte||typeof c!=='string') return c;
+  const m=TINTABLES[c];
+  return (m && tinte[m[0]]) ? desp(tinte[m[0]], m[1]) : c;
+}
+
 function drawInTile(t,sx,sy,patio,girada,conex){
-  const F=(c)=>{ctx.fillStyle=c;ctx.fillRect(sx,sy,TILE,TILE);};
-  const R=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(sx+x,sy+y,w,h);};
+  const F=(c)=>{ctx.fillStyle=tenir(c);ctx.fillRect(sx,sy,TILE,TILE);};
+  const R=(c,x,y,w,h)=>{ctx.fillStyle=tenir(c);ctx.fillRect(sx+x,sy+y,w,h);};
   if(patio){
     switch(t){
       case '#': F('#c9b89a'); R('#a89571',0,0,TILE,1);R('#a89571',0,8,TILE,1);
@@ -5252,6 +5296,14 @@ function validateMaps(){
       const q=I.giros[k];
       if(!Number.isInteger(q)||q<1||q>3)
         E(key+': el giro ('+k+') vale '+q+'; tiene que ser 1, 2 o 3 cuartos de vuelta');
+    }
+
+    // el tinte de la sala: solo 'pared' y 'suelo', y en #rrggbb
+    for(const k in (I.tinte||{})){
+      if(k!=='pared' && k!=='suelo')
+        E(key+": el tinte '"+k+"' no existe; solo hay 'pared' y 'suelo'");
+      else if(!/^#[0-9a-f]{6}$/.test(I.tinte[k]||''))
+        E(key+': el tinte de '+k+" vale '"+I.tinte[k]+"' y tiene que ser #rrggbb en minusculas");
     }
 
     // toda puerta dibujada tiene que estar cableada, y toda puerta cableada dibujada
@@ -6318,6 +6370,7 @@ function loadScene(key,at,dir){
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
     npcs=OUT_NPCS; patioMode=false; giradas=new Set(); lineasCon=new Map(); giros=new Map();
+    tinte=null;                  // el campus no se repinta: tiene sus estaciones
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
@@ -6329,6 +6382,7 @@ function loadScene(key,at,dir){
   map=I.grid; mapW=map[0].length; mapH=map.length;
   npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
   giradas=marcarGiradas(map); lineasCon=marcarLineas(map); giros=marcarGiros(I);
+  tinte=I.tinte||null;                   // color propio de pared y suelo, si lo tiene
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
   showToast(I.name);
@@ -6651,7 +6705,7 @@ function dibujarGirada(t,sx,sy,q,girada,conex){
 }
 
 function render(){
-  ctx.fillStyle = scene==='outdoor'?PAL.bosque:'#8a7a9a';
+  ctx.fillStyle = scene==='outdoor'?PAL.bosque:tenir('#8a7a9a');
   ctx.fillRect(0,0,VW,VH);
   const startX=Math.floor(cam.x/TILE),startY=Math.floor(cam.y/TILE);
   const offX=((cam.x%TILE)+TILE)%TILE, offY=((cam.y%TILE)+TILE)%TILE;

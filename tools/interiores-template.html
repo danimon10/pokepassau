@@ -84,6 +84,16 @@ textarea{resize:vertical;min-height:52px}
   color:var(--puerta);font-family:var(--f-tit);font-weight:700;font-size:15px}
 .bald b{font-family:var(--f-num);font-size:9px;font-weight:500;color:var(--texto)}
 
+#tintes{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin:6px 0}
+.tinte{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;
+  border:1px solid transparent;background:transparent;cursor:pointer;font:inherit;
+  font-size:11px;color:var(--tenue);text-align:left}
+.tinte:hover{border-color:var(--acento);color:var(--texto)}
+.tinte[aria-pressed="true"]{background:var(--acento-sd);border-color:var(--acento);color:var(--texto)}
+.tinte i{flex:none;width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.3)}
+input[type=color]{width:56px;height:26px;padding:1px;border:1px solid var(--borde);
+  background:var(--hueco);border-radius:5px;cursor:pointer}
+
 .btn{width:100%;padding:8px;border:1px solid var(--borde);background:var(--hueco);
   color:var(--texto);border-radius:6px;cursor:pointer;font:inherit;font-size:12.5px}
 .btn:hover{border-color:var(--acento)}
@@ -163,6 +173,22 @@ textarea{resize:vertical;min-height:52px}
   </div>
 
   <div class="grupo">
+    <p class="eyebrow">Color de la sala</p>
+    <div class="linea"><label for="colPared">Paredes</label>
+      <input type="color" id="colPared"></div>
+    <div class="linea"><label for="colSuelo">Suelo</label>
+      <input type="color" id="colSuelo"></div>
+    <div id="tintes"></div>
+    <button class="btn" id="tinteQuita">Dejar los colores de siempre</button>
+    <p class="pista">Repinta la obra y el solado de <b>esta sala</b>. La cornisa,
+      la sombra y las juntas salen solas del color que elijas, así que no hacen
+      falta baldosas nuevas. <b>La escalera va con la pared</b>, porque es obra.
+      La madera, el vidrio, los azulejos y las plantas no se tocan: una mesa
+      sigue siendo de madera aunque la pared sea verde, y los suelos con
+      carácter propio (recepción, aula, oficina, baños) tampoco cambian.</p>
+  </div>
+
+  <div class="grupo">
     <p class="eyebrow">Gente y objetos</p>
     <div id="leyenda"></div>
     <div id="elementos"></div>
@@ -211,6 +237,10 @@ const Z = 2;                     // aumento en pantalla
 /* ---- el dibujo de verdad, sacado del juego ---- */
 let ctx;                         // drawInTile pinta sobre este contexto
 eval(D.shadeSrc);
+// el 'let tinte' de dentro del eval no sale de ahi, asi que se le abre una
+// puerta para poder cambiarlo desde el editor
+eval(D.tinteSrc + '\n;window.ponTinte=function(t){ tinte=t; };'
+                 + '\n;window.BASE_TINTE=BASE_TINTE;');
 eval(D.drawInTileSrc);
 
 const salas = JSON.parse(JSON.stringify(D.salas));
@@ -333,6 +363,7 @@ function miniatura(ch, isPatio){
 // misma matriz de enteros que usa el juego: con ctx.rotate() el pixel art se
 // emborrona por medio pixel
 function pintaBaldosa(g2,ch,px,py,isPatio,girada,conex,q){
+  ponTinte(salas[clave].tinte||null);   // la sala se ve con su color, tambien en la paleta
   if(!q){ drawInTile(ch,px,py,isPatio,girada,conex); return; }
   const M=[null,[0,1,-1,0,px+TILE,py],[-1,0,0,-1,px+TILE,py+TILE],[0,-1,1,0,px,py+TILE]][q];
   g2.save(); g2.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
@@ -579,6 +610,7 @@ const PUERTAS_SALA="1234567890!?*ACJYGV";
 const clon=o=>JSON.parse(JSON.stringify(o));
 function guarda(){ const S=salas[clave];
   pila.push({clave, grid:S.grid.slice(), giros:Object.assign({},S.giros),
+             tinte:S.tinte?Object.assign({},S.tinte):null,
              doors:clon(S.doors), salidas:clon(S.salidas||[]),
              npcs:clon(S.npcs), info:clon(S.info)});
   if(pila.length>80) pila.shift(); }
@@ -617,7 +649,7 @@ cv.addEventListener('contextmenu',e=>{ e.preventDefault();
 function deshacer(){ const p=pila.pop(); if(!p)return;
   clave=p.clave; selSala.value=clave;
   const S=salas[clave];
-  S.grid=p.grid; S.giros=p.giros; S.doors=p.doors; S.salidas=p.salidas;
+  S.grid=p.grid; S.giros=p.giros; S.tinte=p.tinte; S.doors=p.doors; S.salidas=p.salidas;
   S.npcs=p.npcs; S.info=p.info;
   elemSel=null; colocandoEl=false; alSala(); }
 document.getElementById('deshacer').onclick=deshacer;
@@ -818,9 +850,11 @@ const cuerpo=()=>({
            const A=salas[k], B=D.salas[k];
            return A.grid.join('\n')!==B.grid.join('\n')
              || JSON.stringify(A.giros)!==JSON.stringify(B.giros)
+             || JSON.stringify(A.tinte||null)!==JSON.stringify(B.tinte||null)
              || ['doors','salidas','npcs','info'].some(t=>
                   JSON.stringify(A[t]||[])!==JSON.stringify(B[t]||[]));
          }).map(k=>({clave:k, nombre:salas[k].name, grid:salas[k].grid, giros:salas[k].giros,
+                     tinte:salas[k].tinte||null,
                      doors:salas[k].doors, salidas:salas[k].salidas,
                      npcs:salas[k].npcs, info:salas[k].info})),
   baldosasNuevas: nuevas, notas, cuando:new Date().toISOString()
@@ -851,6 +885,54 @@ botonEl.onclick=async()=>{
 };
 
 /* ---- cambiar de sala ---- */
+/* ---- color de la sala ---- */
+// combinaciones ya hechas, para no pelearse con el selector de color
+const TINTES=[
+  ['De siempre',  null],
+  ['Ladrillo',    {pared:'#a8735e', suelo:'#d8c4a0'}],
+  ['Verde clinica',{pared:'#7a9a86', suelo:'#cfd6c4'}],
+  ['Azul frio',   {pared:'#6f86a6', suelo:'#c6cdd6'}],
+  ['Madera vieja',{pared:'#8a6f4e', suelo:'#c8ab7e'}],
+  ['Hormigon',    {pared:'#8e8e92', suelo:'#c2c2c0'}],
+  ['Rosa palo',   {pared:'#b58aa0', suelo:'#e0cfd2'}],
+];
+const colParedEl=document.getElementById('colPared');
+const colSueloEl=document.getElementById('colSuelo');
+const tintesEl=document.getElementById('tintes');
+function ponColor(t){                 // t = {pared,suelo} o null
+  const S=salas[clave];
+  guarda(); S.tinte = t ? {pared:t.pared, suelo:t.suelo} : null;
+  pintarTinte(); pintarPaleta(); dibujar();
+}
+function pintarTinte(){
+  const t=salas[clave].tinte||BASE_TINTE;
+  colParedEl.value=t.pared; colSueloEl.value=t.suelo;
+  tintesEl.innerHTML='';
+  TINTES.forEach(([nom,t2])=>{
+    const b=document.createElement('button'); b.type='button'; b.className='tinte';
+    const puesto=salas[clave].tinte;
+    const igual = t2 ? (puesto && puesto.pared===t2.pared && puesto.suelo===t2.suelo) : !puesto;
+    b.setAttribute('aria-pressed', !!igual);
+    const m=document.createElement('i');
+    m.style.background='linear-gradient(135deg,'+((t2||BASE_TINTE).pared)+' 50%,'
+                       +((t2||BASE_TINTE).suelo)+' 50%)';
+    b.appendChild(m);
+    const n=document.createElement('span'); n.textContent=nom; b.appendChild(n);
+    b.onclick=()=>ponColor(t2);
+    tintesEl.appendChild(b);
+  });
+}
+// el selector de color dispara un 'input' por cada tiron: no conviene apilar
+// un paso de deshacer por cada uno, asi que solo se guarda al soltarlo
+const aMano=()=>{ const S=salas[clave];
+  S.tinte={pared:colParedEl.value, suelo:colSueloEl.value};
+  pintarTinte(); pintarPaleta(); dibujar(); };
+[colParedEl,colSueloEl].forEach(el=>{
+  el.addEventListener('input', aMano);
+  el.addEventListener('change', ()=>{ guarda(); aMano(); });
+});
+document.getElementById('tinteQuita').onclick=()=>ponColor(null);
+
 function alSala(){
   const S=salas[clave];
   arreglaEscaleras(S);
@@ -859,7 +941,8 @@ function alSala(){
   const leg=(S.isPatio?D.legPatio:D.legNormal);
   if(!leg.some(l=>l.ch===pincel) && !nuevas.some(n=>n.ch===pincel)) pincel=leg[0].ch;
   elemSel=null; colocandoEl=false;
-  pintarBrujula(); pintarPaleta(); pincelInfo(); pintarElementos(); dibujar(); revisarYa();
+  pintarBrujula(); pintarTinte(); pintarPaleta(); pincelInfo();
+  pintarElementos(); dibujar(); revisarYa();
 }
 pintarGiros(); selSala.value=clave; alSala(); pintarEncargos();
 
@@ -873,7 +956,7 @@ pintarGiros(); selSala.value=clave; alSala(); pintarEncargos();
     if(s.exists){
       const d=s.data();
       (d.salas||[]).forEach(sa=>{ const S=salas[sa.clave]; if(!S) return;
-        S.grid=sa.grid; S.giros=sa.giros||{};
+        S.grid=sa.grid; S.giros=sa.giros||{}; S.tinte=sa.tinte||null;
         ['doors','salidas','npcs','info'].forEach(t=>{ if(sa[t]) S[t]=sa[t]; }); });
       nuevas=d.baldosasNuevas||[]; notas=d.notas||[];
       alSala(); pintarEncargos();
