@@ -421,6 +421,38 @@ function escaleraDe(claveDest, claveOrigen){
   return null;
 }
 const esEscalera=(S,q)=>'SVU'.includes((S.grid[q.y]||'')[q.x]||'');
+
+// El tramo de escalera al que pertenece una casilla.
+function tramoEscalera(g,x,y){
+  const en=(a,b)=>(g[b]||'')[a];
+  if(!'SVU'.includes(en(x,y)||'')) return null;
+  const vis=new Set([x+','+y]), cola=[[x,y]], celdas=[[x,y]];
+  while(cola.length){ const [a,b]=cola.pop();
+    [[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy])=>{
+      const nx=a+dx, ny=b+dy, k=nx+','+ny;
+      if(!vis.has(k) && 'SVU'.includes(en(nx,ny)||'')){
+        vis.add(k); cola.push([nx,ny]); celdas.push([nx,ny]); } }); }
+  return celdas;
+}
+// El juego busca el peldaño cableado ('V') DENTRO del tramo, y por definicion
+// es donde esta la puerta. Si al repintar la escalera la 'V' se ha perdido, se
+// vuelve a poner sola bajo la puerta en vez de dar un error que no dice nada.
+function arreglaEscaleras(S){
+  let tocado=0;
+  (S.doors||[]).forEach(q=>{
+    const celdas=tramoEscalera(S.grid,q.x,q.y); if(!celdas) return;
+    if((S.grid[q.y]||'')[q.x]!=='V'){
+      S.grid[q.y]=S.grid[q.y].slice(0,q.x)+'V'+S.grid[q.y].slice(q.x+1); tocado++;
+    }
+    // en un tramo solo puede haber un peldaño especial: los demas vuelven a 'S'
+    celdas.forEach(([x,y])=>{
+      if(x===q.x && y===q.y) return;
+      const c=S.grid[y][x];
+      if(c==='V'||c==='U'){ S.grid[y]=S.grid[y].slice(0,x)+'S'+S.grid[y].slice(x+1); tocado++; }
+    });
+  });
+  return tocado;
+}
 function pisableEn(x,y){
   const S=salas[clave], g=S.grid;
   if(y<0||y>=g.length||x<0||x>=g[0].length) return false;
@@ -494,6 +526,7 @@ function colocaElem(x,y){
   if(y<0||y>=g.length||x<0||x>=g[0].length) return;
   const q=(S[elemSel.tipo]||[]).find(o=>o.id===elemSel.id); if(!q) return;
   guarda(); q.x=x; q.y=y; colocandoEl=false;
+  arreglaEscaleras(S);
   pintarElementos(); dibujar();
 }
 
@@ -576,7 +609,9 @@ cv.addEventListener('mousemove',e=>{
   document.getElementById('coord').textContent =
     (y>=0&&y<g.length&&x>=0&&x<g[0].length) ? 'x '+x+'   y '+y+"   ·   '"+g[y][x]+"'" : '—';
   if(pulsando){ pinta(x,y); dibujar(); } });
-window.addEventListener('mouseup',()=>pulsando=false);
+window.addEventListener('mouseup',()=>{
+  if(pulsando){ arreglaEscaleras(salas[clave]); pintarElementos(); dibujar(); }
+  pulsando=false; });
 cv.addEventListener('contextmenu',e=>{ e.preventDefault();
   const [x,y]=casilla(e); girarCasilla(x,y); });
 function deshacer(){ const p=pila.pop(); if(!p)return;
@@ -608,6 +643,7 @@ function redimensionar(){
   S.grid=g;
   Object.keys(S.giros).forEach(k=>{ const [x,y]=k.split(',').map(Number);
     if(x>=an||y>=al) delete S.giros[k]; });
+  arreglaEscaleras(S);
   dibujar(); pintarElementos(); revisarYa();
 }
 document.getElementById('anc').onchange=redimensionar;
@@ -715,7 +751,9 @@ function revisar(){
         if(tipo==='salidas' && !'XEU'.includes(ch))
           p.push(S.name+': la salida al campus está en ('+q.x+','+q.y+"), donde hay '"+ch+"' y no una salida dibujada");
         if(tipo==='doors' && !PUERTAS_SALA.includes(ch))
-          p.push(S.name+': la puerta a '+(q.destino||q.to)+' está en ('+q.x+','+q.y+"), donde hay '"+ch+"' y no una puerta");
+          p.push(S.name+': la puerta a '+(q.destino||q.to)+' está en ('+q.x+','+q.y+'), '
+                 +'sobre una casilla que no es una puerta. Muévela a la puerta, '
+                 +'o pinta una puerta debajo.');
       }
     }));
     // y al reves: una puerta dibujada que no lleve a ningun sitio
@@ -744,6 +782,16 @@ function avisos(){
                     +'sin muro que las cierre. Píntales pared alrededor.');
   (S.npcs||[]).forEach(q=>{ if(!q.quitar && !pisableEn(q.x,q.y))
     a.push(q.name+' está encima de algo que no se pisa; muévelo a suelo libre.'); });
+  // una escalera sin peldaño cableado ('V') ni de vuelta ('U') no hace nada
+  const vistos=new Set(); let muertas=0;
+  for(let y=0;y<g.length;y++) for(let x=0;x<g[0].length;x++){
+    if(!'SVU'.includes(g[y][x]) || vistos.has(x+','+y)) continue;
+    const celdas=tramoEscalera(g,x,y)||[];
+    celdas.forEach(([a2,b2])=>vistos.add(a2+','+b2));
+    if(!celdas.some(([a2,b2])=>'VU'.includes(g[b2][a2]))) muertas++;
+  }
+  if(muertas) a.push(muertas+' escalera(s) sin salida: no llevan a ninguna parte. '
+                    +'Ponles la puerta encima, o usa la baldosa de vuelta.');
   return a;
 }
 function revisarYa(){
@@ -805,6 +853,7 @@ botonEl.onclick=async()=>{
 /* ---- cambiar de sala ---- */
 function alSala(){
   const S=salas[clave];
+  arreglaEscaleras(S);
   document.getElementById('anc').value=S.grid[0].length;
   document.getElementById('alt').value=S.grid.length;
   const leg=(S.isPatio?D.legPatio:D.legNormal);

@@ -200,6 +200,11 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   donde quedan a la vista, así que un tramo largo sale liso y las esquinas
   —externas e internas— se cierran sin baldosas de esquina. Un muro de vidrio
   pegado a uno de obra hace esquina con él.
+- **El peldaño cableado de una escalera es donde está su puerta.** Un tramo
+  de `S`/`V`/`U` solo funciona si la casilla de la puerta es exactamente `V`:
+  `activarPuerta` busca dentro del tramo un `doors` que caiga sobre una `V`.
+  Al repintar una escalera se pierde muy fácil, así que el editor la recoloca
+  sola bajo la puerta y deja el resto del tramo en `S`.
 - **Las escaleras no guardan a dónde llegan.** `escaleraDe(destino, origen)`
   busca en la sala de destino la `V` cableada de vuelta y, si no la hay, la
   primera `V` o `U`. Así que basta con que cada planta tenga su escalera: se
