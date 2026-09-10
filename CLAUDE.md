@@ -85,12 +85,15 @@ jugando, y para cada sala dice **por qué lado del edificio se entra desde el
 campus** (norte, sur, este u oeste), que es el dato para colocar la salida en
 el muro que toca. Las baldosas se pueden **girar** en cuartos de vuelta, y se
 pueden **mover** las puertas, las salidas, los NPCs y los objetos de la sala,
-que si no se quedan en sus coordenadas viejas al rediseñarla. Deja pedir **baldosas nuevas por descripción**: se guardan
+que si no se quedan en sus coordenadas viejas al rediseñarla. También deja
+**repintar la pared y el suelo** de cada sala, con siete combinaciones ya
+hechas o con el selector de color. Deja pedir **baldosas nuevas por
+descripción**: se guardan
 como encargo con un carácter provisional y el dibujo se hace después a mano;
 la gente y los objetos nuevos van igual, porque llevan diálogo.
-Al importar toca el `grid`, los `giros` y las coordenadas de lo que se haya
-movido, y rechaza el cambio si una puerta, una salida o un NPC se quedaría
-fuera de la rejilla nueva.
+Al importar toca el `grid`, los `giros`, el `tinte` y las coordenadas de lo
+que se haya movido, y rechaza el cambio si una puerta, una salida o un NPC se
+quedaría fuera de la rejilla nueva.
 
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
@@ -188,6 +191,14 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   toque y se apunta en `salidas:[{x,y,at:[X,Y]}]`, donde `at` es la baldosa
   exterior. Si una salida no está en `salidas`, se sale por la principal.
   Solo puede quedar **una** salida suelta (sin entrada en `salidas`).
+- **El color de una sala se cambia con `tinte:{pared,suelo}`**, no con
+  baldosas nuevas. `TINTABLES` apunta, de cada color de obra y de solado, de
+  que base sale y cuanto se le sube o se le baja **canal a canal**, asi que
+  con la base de siempre salen los colores exactos de siempre y ninguna sala
+  sin tinte cambia. La escalera va con la pared, porque es obra; la madera, el
+  vidrio, las plantas y los suelos con caracter propio (recepcion, aula,
+  oficina, banos) no se tocan. Si anades un color de pared o de suelo a
+  `drawInTile`, apuntalo en `TINTABLES` o esa sala se quedara a medio pintar.
 - **Las baldosas de interior se pueden girar a mano** con `giros:{'x,y':1|2|3}`
   en la sala (cuartos de vuelta a la derecha). Es **solo el dibujo**: la letra
   de la rejilla no cambia, así que lo que se pisa y lo que no, tampoco. Es
