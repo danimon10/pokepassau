@@ -2057,7 +2057,7 @@ const INTERIORS = {
     doors:[
       {x:30,y:22, to:'gmoa'},                                  // 3
       {x:0, y:7,  to:'nk3', at:[25,1],  dir:'left'},           // 4
-      {x:0, y:21, to:'nk2', at:[13,13], dir:'left'},           // 5
+      {x:0, y:21, to:'nk2', at:[13,4],  dir:'left'},           // 5
     ],
     info:[
       {x:30,y:3,name:"Portón del convento",lines:[
@@ -2103,48 +2103,33 @@ const INTERIORS = {
     name:"Nikolakloster — Planta intermedia",
     grid:[
       "###############",
-      "#.............#",
-      "#...........I.#",
-      "#.............#",
-      "2.............#",
+      "#......I......#",
       "#.............#",
       "#.............#",
-      "#.............#",
-      "#..p..........#",
-      "#.............#",
+      "7.............1",
       "#.............#",
       "#.............#",
-      "#.............#",
-      "#.............1",
-      "#.............#",
-      "#.............#",
-      "#.............#",
-      "#.............#",
-      "#########.....#",
-      "#########.....#",
-      "#########.....#",
-      "#########SVSS.#",
-      "#########SSSS.#",
-      "#########SSSS.#",
-      "#########SSSS.#",
-      "#########.....#",
-      "#########.....#",
-      "#########.....#",
-      "###############",
+      "#.........SVSS#",
+      "#.........SSSS#",
+      "#.........SSSS#",
+      "#.........SSSS#",
+      "###############"
     ],
+    // cuartos de vuelta a mano: solo cambian el dibujo, no lo que se pisa
+    giros:{'0,4':3, '14,4':1},
     doors:[
       {x:0, y:4,  to:'nk2_parking'},                                   // 2
-      {x:14,y:13, to:'niko_patio', at:[1,21], dir:'right'},            // 1
-      {x:10,y:21, to:'nk3'},                                           // escalera
+      {x:14,y:4, to:'niko_patio', at:[1,21], dir:'right'},            // 1
+      {x:11,y:7, to:'nk3'},                                           // escalera
     ],
     info:[
-      {x:12,y:2,name:"Tablón olvidado",lines:[
+      {x:7,y:1,name:"Tablón olvidado",lines:[
         "Un tablón de corcho con cuatro chinchetas y ningún papel.",
         "En una esquina queda media hoja: «…urso de verano 20…».",
         "Nadie ha vuelto a colgar nada aquí en mucho tiempo."]},
     ],
     npcs:[
-      {x:6,y:10,name:"Estudiante Fabi",color:"#8a94a2",dir:'right',
+      {x:2,y:6,name:"Estudiante Fabi",color:"#8a94a2",dir:'right',
        lines:["¿Tú también has acabado aquí sin querer?",
               "Es el piso más aburrido de la universidad. Y mira que hay competencia.",
               "Abajo está el parking y arriba las aulas. Aquí, nada. Literalmente nada."]},
@@ -2155,21 +2140,25 @@ const INTERIORS = {
     name:"Nikolakloster — Estacionamiento",
     grid:[
       "#####################",
+      "#___:<:<:<:_:<:_____#",
+      "#___:>:>:>:_:>:_____#",
+      "#_________________::#",
+      "#_________________><#",
+      "#::_______________::#",
+      "#<>____#____#_____><#",
+      "#::_______________::#",
       "#___________________#",
-      "#_<_:_<_:_<_:_<_:_<_#",
-      "#_>_:_>_:_>_:_>_:_>_#",
+      "#::____#____#_______#",
       "#___________________#",
-      "#___________________#",
-      "#_<_:_<_:_<_:_<_:_<_#",
-      "#_>_:_>_:_>_:_>_:_>_#",
-      "#___________________#",
-      "#___________________#",
-      "#_<_:_<_:_<_:_<_:_<_#",
-      "#_>_:_>_:_>_:_>_:_>_#",
-      "#I__________________#",
-      "#___________________#",
-      "##########X##########",
+      "#______________#__###",
+      "#I______:>:>:__#____#",
+      "#_______:<:<:__#____X",
+      "###____##############"
     ],
+    // cuartos de vuelta a mano: solo cambian el dibujo, no lo que se pisa
+    giros:{'18,3':1, '19,3':1, '18,4':1, '19,4':1, '1,5':1, '2,5':1, '18,5':1, '19,5':1, '1,6':3, '2,6':3, '7,6':1, '12,6':1, '18,6':1, '19,6':1, '1,7':1, '2,7':1, '18,7':1, '19,7':1, '1,9':1, '2,9':1, '7,9':1, '12,9':1, '9,12':2, '11,12':2, '9,13':2, '11,13':2, '20,13':1},
+    // color propio de esta sala: la obra y el solado, con sus sombras
+    tinte:{pared:'#8e8e92', suelo:'#c2c2c0'},
     info:[
       {x:1,y:12,name:"Cartel de plazas",lines:[
         "🅿 PLAZAS RESERVADAS AL PERSONAL",
@@ -2192,66 +2181,73 @@ const INTERIORS = {
     // despachos al este. Dos escaleras: una sube a NK4 y otra baja a NK2.
     name:"Nikolakloster — Cafetería y biblioteca",
     grid:[
-      "###########################",
-      "#a^^^^aa#I................4",
-      "#aaaaapa#.................#",
-      "#aaaaaaa#.................#",
-      "#ataataa#.................#",
-      "#aeaaeaa#...#####...#######",
-      "#aaaaaaaa...#aaa......SSSS#",
-      "#ataataaa.t.#ata......VSSS#",
-      "#aeaaeaaa.e.#aea......SSSS#",
-      "#aaaaaaa#...#aaa....#######",
-      "#aacaaat#.t.####....#######",
-      "#aaaaaae#.e.####....#######",
-      "#aacaaaa#...####.p..#######",
-      "#aacaaaa#.t.####....2######",
-      "######a##.e.####....#######",
-      "#.....a.....####....#######",
-      "#.........t.####....#######",
-      "#.........e.####....3######",
-      "#...........####....#######",
-      "#....###########....#######",
-      "#....###########....#######",
-      "#....###########....#######",
-      "#..p.###########....#.....#",
-      "#....###########....#.....#",
-      "#....###########.p........#",
-      "#....7##########..........#",
-      "#....###########....#.....#",
-      "#....###########....#.....#",
-      "#....###########....#SVSS##",
-      "#...................#SSSS##",
-      "#...................#SSSS##",
-      "#...................#SSSS##",
-      "#####8###9####0###A########",
+      "############aaa#############____",
+      "#a^^^^^^a¦Iaaaa¦aaaaaaaaaaa#____",
+      "#aaaaaaaa¦aaaaaaaaaaaaaaaaa7____",
+      "#aeeaaaee¦aaaaaaaaaaaaaaaaa#____",
+      "#attapatt¦aaaaa#¦¦¦¦aaa#####____",
+      "#aeeaaaeeaaaaaa¦paa#aaa#########",
+      "#attaaaaaaaaeea¦aaa#aaaaa#aSSSS#",
+      "#aaaaaaee¦aatta¦ttaaaaaaaaaVSSS#",
+      "#aaaapatt¦aaeea#eeaaaaaaa#aSSSS#",
+      "#aDaaaaee¦aaaaa¦aaaaaaaaa#######",
+      "#aBaaaaee¦aatta¦aaaaaaaaaaa#####",
+      "#a@aaaatt¦aaeea¦ttaaaaaaaaa#####",
+      "#a,aaaaee¦aaaaa#eeaaaaaaaaa#####",
+      "#aDaNaaaa¦aatta#aaaIIaaaaaa#####",
+      "#####aa¦¦#aaeea#######aaaaa#####",
+      "MMaaaaaaaaaaaaa#######Iaaaa7####",
+      "aaaaaaaaaaaatta#######Iaaaa#####",
+      "MMaaaaaaaaaaeea#######aaaaa#####",
+      "##aaaaaaaaaaaaa#######aaaaa#####",
+      "#aaaa####¦¦¦¦¦¦#######aaaaa#####",
+      "#aaaa#aa¦#############aaaaa#####",
+      "#Haaaaaa¦#############aaaaa#####",
+      "#HaaaaHH¦#############Iaaaa#####",
+      "#Haaa#aa¦#############Iaaaa7####",
+      "#aaaaaaa¦#############aaaaa#####",
+      "#aaaaaHH¦#############aaaaa#####",
+      "#Haaa#aa¦#############aaaaa#####",
+      "#Haaaaaa¦#############Iaaaa#####",
+      "#HaaaaHH¦#############Iaaaa#####",
+      "#aaaa#aa############Iaaaaa######",
+      "#aaaaaaaa###########aaaaaa#aaaa#",
+      "#aaaaaaaa7##########aaaaaaaaaaa#",
+      "#aaaaaaaa###########Iaaaaaaaaaa#",
+      "####aa###############aaa###SSVS#",
+      "####aaaaaaaaaaaaaaaaaaaaaa#SSSS#",
+      "####aaaaaaaaaaaaaaaaaaaaaa#SSSS#",
+      "####aaaaaaaaaaaaaaaaaaaaaa#SSSS#",
+      "#####1#####1####7#A#############"
     ],
+    // cuartos de vuelta a mano: solo cambian el dibujo, no lo que se pisa
+    giros:{'0,16':3, '0,17':2, '1,16':1, '1,17':2, '1,19':1, '1,20':1, '1,21':3, '1,22':3, '1,23':3, '1,24':1, '1,25':1, '1,26':3, '1,27':3, '1,28':3, '1,29':1, '1,30':1, '1,31':1, '1,32':1, '1,8':1, '10,10':1, '10,11':1, '10,12':1, '10,13':1, '10,14':1, '10,15':1, '10,16':1, '10,17':1, '10,18':1, '10,19':1, '10,2':1, '10,3':1, '10,4':1, '10,5':1, '10,6':1, '10,7':1, '10,8':1, '10,9':1, '11,1':1, '11,18':1, '11,19':1, '11,2':1, '11,3':1, '11,4':1, '11,5':1, '11,6':1, '12,0':1, '12,1':1, '12,12':1, '12,15':1, '12,18':1, '12,19':1, '12,2':1, '12,3':1, '12,4':1, '12,5':1, '12,9':1, '13,0':1, '13,1':1, '13,12':1, '13,15':1, '13,18':1, '13,19':1, '13,2':1, '13,3':1, '13,4':1, '13,5':1, '13,9':1, '14,0':1, '14,1':1, '14,18':1, '14,19':1, '14,2':1, '14,3':1, '14,4':1, '15,2':1, '15,3':1, '16,1':1, '16,2':1, '16,3':1, '17,1':1, '17,2':1, '17,3':1, '18,1':1, '18,2':1, '18,3':1, '19,1':1, '19,13':2, '19,2':1, '19,3':1, '2,10':1, '2,11':1, '2,12':1, '2,13':1, '2,15':1, '2,16':1, '2,17':1, '2,18':1, '2,19':1, '2,20':1, '2,21':1, '2,22':1, '2,23':1, '2,24':1, '2,25':1, '2,26':1, '2,27':1, '2,28':1, '2,29':1, '2,30':1, '2,31':1, '2,32':1, '2,8':1, '2,9':1, '20,1':1, '20,13':2, '20,2':1, '20,29':3, '20,3':1, '20,32':3, '20,4':1, '20,5':1, '21,1':1, '21,2':1, '21,3':1, '21,4':1, '21,5':1, '21,6':1, '22,1':1, '22,15':3, '22,16':3, '22,2':1, '22,22':3, '22,23':3, '22,27':3, '22,28':3, '22,3':1, '22,4':1, '22,5':1, '23,1':1, '23,2':1, '23,3':1, '24,1':1, '24,2':1, '24,3':1, '25,1':1, '25,2':1, '25,3':1, '26,1':1, '26,2':1, '26,3':1, '27,2':1, '3,15':1, '3,16':1, '3,17':1, '3,18':1, '3,19':1, '3,20':1, '3,21':1, '3,22':1, '3,23':1, '3,24':1, '3,25':1, '3,26':1, '3,27':1, '3,28':1, '3,29':1, '3,30':1, '3,31':1, '3,32':1, '4,13':2, '4,15':1, '4,16':1, '4,17':1, '4,18':1, '4,19':1, '4,20':1, '4,21':1, '4,22':1, '4,23':1, '4,24':1, '4,25':1, '4,26':1, '4,27':1, '4,28':1, '4,29':1, '4,30':1, '4,31':1, '5,10':1, '5,11':1, '5,14':1, '5,15':1, '5,16':1, '5,17':1, '5,18':1, '5,20':1, '5,21':1, '5,22':1, '5,23':1, '5,24':1, '5,25':1, '5,27':1, '5,28':1, '5,30':1, '6,11':1, '6,15':1, '6,16':1, '6,17':1, '6,18':1, '6,20':1, '6,21':1, '6,23':1, '6,24':1, '6,26':1, '6,27':1, '6,29':1, '6,30':1, '7,14':1, '7,15':1, '7,16':1, '7,17':1, '7,18':1, '7,20':1, '7,21':1, '7,23':1, '7,24':1, '7,26':1, '7,27':1, '7,29':1, '7,30':1, '8,1':1, '8,13':1, '8,14':1, '8,15':1, '8,16':1, '8,17':1, '8,18':1, '8,20':1, '8,21':1, '8,22':1, '8,23':1, '8,24':1, '8,25':1, '8,26':1, '8,27':1, '8,28':1, '8,30':1, '8,6':1, '9,1':1, '9,10':1, '9,11':1, '9,12':1, '9,13':1, '9,15':1, '9,16':1, '9,17':1, '9,18':1, '9,19':1, '9,2':1, '9,3':1, '9,31':1, '9,4':1, '9,5':1, '9,6':1, '9,7':1, '9,8':1, '9,9':1},
     doors:[
-      {x:26,y:1,  to:'niko_patio', at:[1,7], dir:'right'},   // 4 · al claustro
-      {x:20,y:13, to:'nk3_master'},                          // 2
-      {x:20,y:17, to:'nk3_filosofia'},                       // 3
-      {x:5, y:25, to:'niko_biblio'},                         // 7
-      {x:5, y:32, to:'nk3_aula1'},                           // 8
-      {x:9, y:32, to:'nk3_aula2'},                           // 9
-      {x:14,y:32, to:'niko_bano_h'},                         // 10
-      {x:18,y:32, to:'niko_bano_m'},                         // 11
-      {x:22,y:7,  to:'nk4'},                                 // escalera arriba
-      {x:22,y:28, to:'nk2'},                                 // escalera abajo
+      {x:27,y:2,  to:'niko_patio', at:[1,7], dir:'right'},   // 4 · al claustro
+      {x:27,y:15, to:'nk3_master'},                          // 2
+      {x:27,y:23, to:'nk3_filosofia'},                       // 3
+      {x:9,y:31, to:'niko_biblio'},                         // 7
+      {x:5,y:37, to:'nk3_aula1'},                           // 8
+      {x:11,y:37, to:'nk3_aula2'},                           // 9
+      {x:16,y:37, to:'niko_bano_h'},                         // 10
+      {x:18,y:37, to:'niko_bano_m'},                         // 11
+      {x:27,y:7,  to:'nk4'},                                 // escalera arriba
+      {x:29,y:33, to:'nk2'},                                 // escalera abajo
     ],
     info:[
-      {x:9,y:1,name:"Tablero de la universidad",lines:[
+      {x:10,y:1,name:"Tablero de la universidad",lines:[
         "📋 UNIVERSITÄT PASSAU — INFORMACIÓN",
         "Fundada en 1978 · unos 11.000 estudiantes · cuatro facultades.",
         "Este edificio, el Nikolakloster, es un convento del siglo XV.",
         "Charla de intercambios el jueves a las 18:00, aquí mismo.",
         "Alguien ha añadido a boli: «hay tarta»."]},
-      {x:3,y:1,name:"Escenario",lines:[
+      {x:6,y:1,name:"Escenario",lines:[
         "🎭 Un escenario bajo, de tablas, con dos focos colgados.",
         "Los jueves hay conciertos pequeños; los martes, teatro universitario.",
         "Hoy hay una guitarra apoyada y nadie al lado."]},
     ],
     npcs:[
-      {x:3,y:11,name:"Barista Nora",color:"#c87a3a",dir:'down',
+      {x:1,y:9,name:"Barista Nora",color:"#c87a3a",dir:'down',
        lines:["¡Bienvenido! ¿Un café antes de clase?",
               "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
               "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
@@ -2261,19 +2257,19 @@ const INTERIORS = {
           sin:["Hoy no te llega, cielo. Y fiado no hago, que empecé así y acabé regalando el horno."]},
          {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla. Ya caerás."]}]},
        careerLine:{default:"A ti te veo cara de segundo café. Y no son ni las once."}},
-      {x:11,y:8,name:"Estudiante Bastian",color:"#5a8ad6",dir:'left',
+      {x:10,y:7,name:"Estudiante Bastian",color:"#5a8ad6",dir:'left',
        lines:["Entre clase y clase siempre acabo aquí.",
               "Esta cafetería es más barata que bajar a la ciudad, y encima hay conciertos."]},
-      {x:15,y:8,name:"Estudiante Selma",color:"#d65a8a",dir:'up',
+      {x:17,y:10,name:"Estudiante Selma",color:"#d65a8a",dir:'up',
        lines:["Este rincón es el mejor sitio del edificio para estudiar sin encerrarse.",
               "Se oye el murmullo de la cafetería, pero de lejos. Justo lo necesario."]},
-      {x:17,y:20,name:"Conserje Uwe",color:"#5a8ad6",dir:'left',
+      {x:22,y:19,name:"Conserje Uwe",color:"#5a8ad6",dir:'left',
        lines:["Abajo del todo tienes los aseos y dos aulas.",
               "La biblioteca es la puerta grande de la izquierda: sólo se entra por ahí.",
               "Y esa escalera del fondo sube a las aulas y a los despachos de idiomas."],
        careerLine:{Kuwi:"¿KuWi? Entonces media carrera te la vas a pasar en esta planta.",
                    default:"Si buscas un aula concreta, mira el número: los pares están arriba."}},
-      {x:10,y:29,name:"Estudiante Jost",color:"#d6a05a",dir:'up',
+      {x:2,y:28,name:"Estudiante Jost",color:"#d6a05a",dir:'up',
        lines:["Examen en veinte minutos y aquí sigo, repasando de pie.",
               "Los baños del fondo son de los pocos que siempre funcionan."]},
     ]
@@ -4321,6 +4317,19 @@ function tenir(c){                       // color de la paleta -> color de la sa
   return (m && tinte[m[0]]) ? desp(tinte[m[0]], m[1]) : c;
 }
 
+//==================================================================
+//  DONDE CAE LA BALDOSA QUE SE ESTA PINTANDO
+//  drawInTile solo recibe pixeles de pantalla, y hay un dibujo que
+//  necesita saber en que casilla del mapa esta y como esta girada: el
+//  coche, que ocupa dos baldosas y tiene que salir del mismo color en
+//  las dos. Se apunta aqui antes de cada llamada.
+//==================================================================
+let celdaX=0, celdaY=0, celdaQ=0;
+function enCelda(x,y,q){ celdaX=x; celdaY=y; celdaQ=q||0; }
+
+//==================================================================
+//  TILES interior
+//==================================================================
 function drawInTile(t,sx,sy,patio,girada,conex){
   const F=(c)=>{ctx.fillStyle=tenir(c);ctx.fillRect(sx,sy,TILE,TILE);};
   const R=(c,x,y,w,h)=>{ctx.fillStyle=tenir(c);ctx.fillRect(sx+x,sy+y,w,h);};
@@ -4549,8 +4558,11 @@ function drawInTile(t,sx,sy,patio,girada,conex){
       // en pantalla: asi las dos mitades son del mismo color, el coche no
       // cambia al mover la camara y el indice no se sale de la paleta.
       const paleta=['#c0392b','#2d6cb5','#3f8f5a','#c8a13a','#7a4a9a','#3b4453'];
-      const cax=Math.round((sx+cam.x)/TILE);
-      const cay=Math.round((sy+cam.y)/TILE)-(morro?0:1);
+      // Donde cae la delantera depende del giro: sin girar el morro mira al
+      // norte, y cada cuarto de vuelta lo lleva al este, al sur y al oeste.
+      const haciaMorro=[[0,-1],[1,0],[0,1],[-1,0]][celdaQ];
+      const cax=celdaX+(morro?0:haciaMorro[0]);
+      const cay=celdaY+(morro?0:haciaMorro[1]);
       const car=paleta[(((cax*7+cay*13)%paleta.length)+paleta.length)%paleta.length];
       const off=morro?0:TILE;
       const P=(c,x,y,w,h)=>{ const a=Math.max(y-off,0), b=Math.min(y+h-off,TILE);
@@ -5342,6 +5354,22 @@ function validateMaps(){
       else if(!/^#[0-9a-f]{6}$/.test(I.tinte[k]||''))
         E(key+': el tinte de '+k+" vale '"+I.tinte[k]+"' y tiene que ser #rrggbb en minusculas");
     }
+
+    // Un coche son DOS baldosas: '<' el morro y '>' la trasera, pegadas y con
+    // el mismo giro. Media baldosa suelta sale como medio coche cortado, y es
+    // facil dejarla al repintar un garaje.
+    const giroDe=(x,y)=>((I.giros||{})[x+','+y])||0;
+    const HACIA=[[0,-1],[1,0],[0,1],[-1,0]];      // adonde mira el morro segun el giro
+    g.forEach((r,y)=>[...r].forEach((c,x)=>{
+      if(c!=='<' && c!=='>') return;
+      const q=giroDe(x,y), d=HACIA[q];
+      // desde el morro la trasera queda detras; desde la trasera, el morro delante
+      const sx=x+(c==='<'?-d[0]:d[0]), sy=y+(c==='<'?-d[1]:d[1]);
+      const otra=(c==='<')?'>':'<';
+      if(at(sx,sy)!==otra || giroDe(sx,sy)!==q)
+        E(key+": el coche de ('"+c+"' en "+x+','+y+') esta a medias: le falta su '
+          +(c==='<'?'trasera':'morro')+" ('"+otra+"' en "+sx+','+sy+', con el mismo giro)');
+    }));
 
     // toda puerta dibujada tiene que estar cableada, y toda puerta cableada dibujada
     const cableadas=new Set((I.doors||[]).map(d=>d.x+','+d.y));
@@ -6753,6 +6781,7 @@ function render(){
     const sx=tx*TILE-offX, sy=ty*TILE-offY;
     if(scene==='outdoor') drawOutTile(t,sx,sy,mx,my);
     else { const k=mx+','+my; const q=giros.get(k)||0;
+      enCelda(mx,my,q);
       if(q) dibujarGirada(t,sx,sy,q,giradas.has(k),lineasCon.get(k)||0);
       else  drawInTile(t,sx,sy,patioMode, giradas.has(k), lineasCon.get(k)||0); }
   }
