@@ -98,6 +98,12 @@ quedaría fuera de la rejilla nueva.
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
+**El juego publicado no se actualiza solo.** El usuario juega en el Artifact
+«Uni·Quest Passau», que es una copia congelada de `index.html`; mergear en
+`main` no la toca. Cada vez que se merge algo que se note jugando, hay que
+regenerarlo y republicarlo en **ese mismo** Artifact, o él seguirá viendo el
+juego viejo y creerá que los cambios no llegaron.
+
 ## Mapa de `index.html`
 
 Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
