@@ -191,6 +191,14 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   toque y se apunta en `salidas:[{x,y,at:[X,Y]}]`, donde `at` es la baldosa
   exterior. Si una salida no está en `salidas`, se sale por la principal.
   Solo puede quedar **una** salida suelta (sin entrada en `salidas`).
+- **La cara de cada NPC sale de su nombre** (`aspectoNPC`): piel, color y
+  corte de pelo salen de un revoltijo del nombre, y el genero del
+  tratamiento, del oficio o de las listas `N_ELLA`/`N_EL`. Asi no hay que
+  escribir 157 aspectos a mano. Cuando un personaje concreto tiene que ser
+  de una manera, se le pone `aspecto:{pelo,corte,piel}` y eso manda sobre el
+  nombre; los colores de pelo tienen nombre en `PELO` (rubio, cobrizo,
+  rojizo...). Un nombre nuevo que no diga el genero se echa a suertes, asi
+  que si importa, va a su lista.
 - **El color de una sala se cambia con `tinte:{pared,suelo}`**, no con
   baldosas nuevas. `TINTABLES` apunta, de cada color de obra y de solado, de
   que base sale y cuanto se le sube o se le baja **canal a canal**, asi que
