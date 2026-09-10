@@ -45,11 +45,17 @@ if(process.argv[2]==='--import'){
     if(!I){ errs.push("la sala '"+sa.clave+"' no existe"); return; }
     const an=sa.grid[0].length;
     sa.grid.forEach((r,y)=>{ if(r.length!==an) errs.push(sa.clave+': la fila '+y+' mide '+r.length+' y no '+an); });
-    // lo que estaba cableado por coordenadas tiene que seguir dentro
+    // Lo cableado por coordenadas tiene que caer dentro de la rejilla nueva.
+    // Se miran las coordenadas QUE VAN A QUEDAR: si el editor lo ha movido,
+    // las suyas; y si no lo trae, las que ya tenia el archivo. Mirar siempre
+    // las viejas rechazaba una sala encogida cuyas puertas ya se habian
+    // apartado a tiempo.
     const fuera=(x,y)=> x<0||y<0||x>=an||y>=sa.grid.length;
-    (I.doors||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la puerta ('+q.x+','+q.y+') se queda fuera de la rejilla nueva'); });
-    (I.salidas||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la salida ('+q.x+','+q.y+') se queda fuera'); });
-    (I.npcs||[]).forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': el NPC '+(q.name||'')+' ('+q.x+','+q.y+') se queda fuera'); });
+    const quedan=t=> (sa[t]||I[t]||[]).filter(q=>!q.quitar);
+    quedan('doors').forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la puerta ('+q.x+','+q.y+') se queda fuera de la rejilla nueva'); });
+    quedan('salidas').forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': la salida ('+q.x+','+q.y+') se queda fuera'); });
+    quedan('npcs').forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': el NPC '+(q.name||'')+' ('+q.x+','+q.y+') se queda fuera'); });
+    quedan('info').forEach(q=>{ if(fuera(q.x,q.y)) errs.push(sa.clave+': el objeto '+(q.name||'')+' ('+q.x+','+q.y+') se queda fuera'); });
     if(sa.tinte) for(const k in sa.tinte){
       if(k!=='pared' && k!=='suelo') errs.push(sa.clave+": el tinte '"+k+"' no existe");
       else if(!/^#[0-9a-f]{6}$/.test(sa.tinte[k]||''))

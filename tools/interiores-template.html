@@ -237,11 +237,14 @@ const Z = 2;                     // aumento en pantalla
 /* ---- el dibujo de verdad, sacado del juego ---- */
 let ctx;                         // drawInTile pinta sobre este contexto
 eval(D.shadeSrc);
-// el 'let tinte' de dentro del eval no sale de ahi, asi que se le abre una
-// puerta para poder cambiarlo desde el editor
-eval(D.tinteSrc + '\n;window.ponTinte=function(t){ tinte=t; };'
-                 + '\n;window.BASE_TINTE=BASE_TINTE;');
-eval(D.drawInTileSrc);
+// El tinte, la celda y drawInTile van en el MISMO eval a proposito: cada eval
+// se guarda sus 'let' para el, asi que evaluandolos por separado drawInTile no
+// veria ni 'tinte' ni 'celdaQ'. Las funciones si salen, y por ahi se les abre
+// una puerta para poder cambiarlos desde el editor.
+eval(D.tinteSrc + '\n' + D.drawInTileSrc
+                 + '\n;window.ponTinte=function(t){ tinte=t; };'
+                 + '\n;window.BASE_TINTE=BASE_TINTE;'
+                 + '\n;window.enCelda=enCelda;');
 
 const salas = JSON.parse(JSON.stringify(D.salas));
 const claves = Object.keys(salas);
@@ -364,6 +367,7 @@ function miniatura(ch, isPatio){
 // emborrona por medio pixel
 function pintaBaldosa(g2,ch,px,py,isPatio,girada,conex,q){
   ponTinte(salas[clave].tinte||null);   // la sala se ve con su color, tambien en la paleta
+  enCelda(px/TILE, py/TILE, q||0);      // el coche necesita saber en que casilla cae
   if(!q){ drawInTile(ch,px,py,isPatio,girada,conex); return; }
   const M=[null,[0,1,-1,0,px+TILE,py],[-1,0,0,-1,px+TILE,py+TILE],[0,-1,1,0,px,py+TILE]][q];
   g2.save(); g2.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
