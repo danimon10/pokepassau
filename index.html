@@ -2266,7 +2266,7 @@ const INTERIORS = {
       {x:10,y:7,name:"Estudiante Bastian",color:"#5a8ad6",dir:'left',
        lines:["Entre clase y clase siempre acabo aquí.",
               "Esta cafetería es más barata que bajar a la ciudad, y encima hay conciertos."]},
-      {x:17,y:10,name:"Estudiante Selma",color:"#d65a8a",dir:'up',
+      {x:17,y:10,name:"Estudiante Svenja",color:"#d65a8a",dir:'up',
        lines:["Este rincón es el mejor sitio del edificio para estudiar sin encerrarse.",
               "Se oye el murmullo de la cafetería, pero de lejos. Justo lo necesario."]},
       {x:22,y:19,name:"Conserje Uwe",color:"#5a8ad6",dir:'left',
@@ -2719,8 +2719,11 @@ const INTERIORS = {
       {x:1,y:7,name:"Pizarra",lines:["📝 Latín I","« Rosa, rosae, rosae, rosam, rosa, rosa. »","Debajo: «¿por qué?». Sin respuesta."]},
     ],
     npcs:[
-      {x:13,y:1,name:"Estudiante Clemens",color:"#8a6a4a",dir:'down',
-       lines:["Latín obligatorio para Filosofía. Obligatorio.","Al final le coges cariño. Al final del todo."]},
+      {x:13,y:1,name:"Estudiante J.María",color:"#7ac8d6",dir:'down',
+       aspecto:{pelo:'rubio', corte:'largo'},
+       lines:["Yo guardo un secreto: me sé una historia que no va a tener final.",
+              "Pero esa historia no se le puede contar a nadie. A nadie."],
+       careerLine:{default:"No me lo preguntes otra vez, que ya he dicho demasiado."}},
     ]
   },
   nk4_direccion: {
@@ -3894,17 +3897,28 @@ const ES_EL  =/\b(Herr|Cocinero|Bibliotecario|Profesor|Prof\.|Becario|Dependient
 // y a los otros 82 les queda el nombre de pila (o el apellido, si va solo)
 const N_ELLA=new Set(('Amelie Anouk Aylin Bea Freya Frida Greta Hanna Hedda Ida Janne Jonna Kata '+
   'Klara Lea Lena Malin Mara Marlene Marta Merle Mira Nele Nina Noor Ola Pia Rana Rieke Rita '+
-  'Ronja Sara Selma Silke Vera Vroni Ying Yuki').split(' '));
+  'Maria Ronja Sara Silke Svenja Vera Vroni Ying Yuki').split(' '));
 const N_EL=new Set(('Bastian Bene Bruno Clemens Fabi Ferdi Fischer Henrik Ilias Jonas Jost Kasper '+
   'Konrad Lang Lasse Lukas Malte Max Mirek Nils Oskar Otto Paolo Paul Pauli Rasmus Ravi Tim Timo '+
   'Tobias Tom Uwe Valentin Weber Wen Yannik').split(' '));
 
+// Los colores de pelo, con nombre, para el que haga falta escribir a mano.
+const PELO={negro:'#2a2a2a', moreno:'#3a2a1a', castano:'#4a2c18', castanoClaro:'#5a3a1a',
+            avellana:'#7a4a22', cobrizo:'#a8712e', rubioOscuro:'#c98f3a', rubio:'#d8b45a',
+            canoso:'#8a8a92', rojizo:'#6a3a4a'};
+
 const CON_EDAD=/\b(Prof|Rektor|Jubilado|Dr|Herr|Frau|Sor|Signora|Conserje|Hausmeister|Bedelin|Archivero|Ujier|Bibliotecari[ao])\b/;
 function revuelto(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return Math.abs(h); }
 const _aspectos=new Map();
-function aspectoNPC(nombre){
-  nombre=nombre||'';
-  let a=_aspectos.get(nombre);
+// Se le pasa el NPC entero (o solo su nombre). Un personaje concreto puede
+// llevarle la contraria a su nombre con aspecto:{pelo,corte,piel}: el reparto
+// automatico esta para no escribir 157 aspectos a mano, no para impedir que
+// alguien sea como tiene que ser.
+function aspectoNPC(quien){
+  const nombre = (typeof quien==='string' ? quien : (quien && quien.name)) || '';
+  const suyo   = (quien && typeof quien==='object') ? quien.aspecto : null;
+  const clave  = suyo ? nombre+'|'+JSON.stringify(suyo) : nombre;
+  let a=_aspectos.get(clave);
   if(a) return a;
   const h=revuelto(nombre);
   const ella = ES_ELLA.test(nombre) ? true
@@ -3920,7 +3934,12 @@ function aspectoNPC(nombre){
   if(!CON_EDAD.test(nombre)) pelos=pelos.filter(c=>c!=='#8a8a92');
   const cortes = ella ? CORTES_ELLA : CORTES_EL;
   a={ skin:PIELES[iPiel], hair:pelos[(h>>3)%pelos.length], pelo:cortes[(h>>5)%cortes.length] };
-  _aspectos.set(nombre,a);
+  if(suyo){                       // lo escrito a mano manda sobre el nombre
+    if(suyo.piel)  a.skin=suyo.piel;
+    if(suyo.pelo)  a.hair=PELO[suyo.pelo]||suyo.pelo;
+    if(suyo.corte) a.pelo=suyo.corte;
+  }
+  _aspectos.set(clave,a);
   return a;
 }
 
@@ -5729,7 +5748,7 @@ function pintarCampus(){
     for(let y=0;y<mapH;y++) for(let x=0;x<mapW;x++) drawOutTile(map[y][x], x*TILE, y*TILE, x, y);
     // edificios y gente por orden de profundidad, igual que en el juego
     const ents=BLD_GEO.concat(DECOR_GEO).map(b=>({y:b.y1, dib:()=>drawBuilding(b)}));
-    OUT_NPCS.forEach(n=>ents.push({y:n.y, dib:()=>{ const a=aspectoNPC(n.name);
+    OUT_NPCS.forEach(n=>ents.push({y:n.y, dib:()=>{ const a=aspectoNPC(n);
       drawPerson(ctx,n.x*TILE,n.y*TILE,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
     ents.sort((a,b)=>a.y-b.y).forEach(e=>e.dib());
     const off=document.createElement('canvas'); off.width=W; off.height=H;
@@ -6861,7 +6880,7 @@ function render(){
       ents.push({y:b.y1, draw:()=>drawBuilding(b)});
     });
   }
-  npcs.forEach(n=>ents.push({y:n.y,draw:()=>{ const a=aspectoNPC(n.name);
+  npcs.forEach(n=>ents.push({y:n.y,draw:()=>{ const a=aspectoNPC(n);
     drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
   worldItemsInScene().forEach(o=>ents.push({y:o.y-0.1,draw:()=>drawWorldItemAt(ctx,o.x,o.y,o.id)}));
   ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame,player.char.pelo)});
