@@ -488,6 +488,56 @@ function arreglaEscaleras(S){
   });
   return tocado;
 }
+// La otra mitad del cableado: la planta a la que BAJA una escalera necesita
+// una 'U' por la que volver. Si al repintar se ha perdido, el juego dejaria al
+// jugador en (1,1), asi que se repone sola en el peldaño por el que se sale a
+// la sala, igual que la 'V' se repone bajo su puerta.
+function ponVuelta(S){
+  const g=S.grid;
+  if(g.some(r=>/[VU]/.test(r))) return 0;        // ya tiene por donde salir
+  let ini=null;
+  for(let y=0;y<g.length && !ini;y++){
+    const x=[...g[y]].findIndex(c=>'SVU'.includes(c));
+    if(x>=0) ini=[x,y];
+  }
+  if(!ini) return 0;                             // no hay escalera que arreglar
+  const celdas=tramoEscalera(g,ini[0],ini[1]);
+  const xs=celdas.map(c=>c[0]), ys=celdas.map(c=>c[1]);
+  const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+  const ancho=(x1-x0)>(y1-y0);
+  const suelo=(x,y)=>{ const c=(g[y]||'')[x];
+    return c!==undefined && !'SVU'.includes(c) && pisableCon(S,x,y); };
+  // el juego sale del peldaño hacia el lado contrario al resto del tramo:
+  // vale el que tenga suelo libre justo detras
+  const dir=([x,y])=> ancho ? (x<=(x0+x1)/2 ? [1,0] : [-1,0])
+                            : (y<=(y0+y1)/2 ? [0,1] : [0,-1]);
+  const bueno = celdas.find(c=>{ const d=dir(c); return suelo(c[0]-d[0], c[1]-d[1]); })
+             || celdas[0];
+  const [ux,uy]=bueno;
+  S.grid[uy]=S.grid[uy].slice(0,ux)+'U'+S.grid[uy].slice(ux+1);
+  return 1;
+}
+// como pisableEn, pero de la sala que se le pase y no de la que se esta viendo
+function pisableCon(S,x,y){
+  const g=S.grid;
+  if(y<0||y>=g.length||x<0||x>=g[0].length) return false;
+  const SOL = S.isPatio ? '#oFGXmMOankQE45' : "#=¦scteDKBWLpIAYGPZhxqn_<^~$|o()/&%@,[{]}F`;HRNOQTivzMSXEU'";
+  return !SOL.includes(g[y][x]);
+}
+// Toda escalera cableada tiene que tener su vuelta al otro lado.
+function arreglaVueltas(){
+  let n=0;
+  claves.forEach(k=>{
+    const S=salas[k];
+    (S.doors||[]).forEach(q=>{
+      if(!'SVU'.includes((S.grid[q.y]||'')[q.x]||'')) return;   // no es una escalera
+      const T=salas[q.to];
+      if(T) n+=ponVuelta(T);
+    });
+  });
+  return n;
+}
+
 function pisableEn(x,y){
   const S=salas[clave], g=S.grid;
   if(y<0||y>=g.length||x<0||x>=g[0].length) return false;
@@ -561,7 +611,7 @@ function colocaElem(x,y){
   if(y<0||y>=g.length||x<0||x>=g[0].length) return;
   const q=(S[elemSel.tipo]||[]).find(o=>o.id===elemSel.id); if(!q) return;
   guarda(); q.x=x; q.y=y; colocandoEl=false;
-  arreglaEscaleras(S);
+  arreglaEscaleras(S); arreglaVueltas();
   pintarElementos(); dibujar();
 }
 
@@ -646,7 +696,7 @@ cv.addEventListener('mousemove',e=>{
     (y>=0&&y<g.length&&x>=0&&x<g[0].length) ? 'x '+x+'   y '+y+"   ·   '"+g[y][x]+"'" : '—';
   if(pulsando){ pinta(x,y); dibujar(); } });
 window.addEventListener('mouseup',()=>{
-  if(pulsando){ arreglaEscaleras(salas[clave]); pintarElementos(); dibujar(); }
+  if(pulsando){ arreglaEscaleras(salas[clave]); arreglaVueltas(); pintarElementos(); dibujar(); }
   pulsando=false; });
 cv.addEventListener('contextmenu',e=>{ e.preventDefault();
   const [x,y]=casilla(e); girarCasilla(x,y); });
@@ -679,7 +729,7 @@ function redimensionar(){
   S.grid=g;
   Object.keys(S.giros).forEach(k=>{ const [x,y]=k.split(',').map(Number);
     if(x>=an||y>=al) delete S.giros[k]; });
-  arreglaEscaleras(S);
+  arreglaEscaleras(S); arreglaVueltas();
   dibujar(); pintarElementos(); revisarYa();
 }
 document.getElementById('anc').onchange=redimensionar;
@@ -863,12 +913,16 @@ const cuerpo=()=>({
                      npcs:salas[k].npcs, info:salas[k].info})),
   baldosasNuevas: nuevas, notas, cuando:new Date().toISOString()
 });
+// GUARDAR NO SE BLOQUEA NUNCA. Lo que esté a medias se avisa, pero se guarda
+// igual: una tarde de trabajo vale mucho más que una rejilla coherente, y de
+// que no entre nada roto en el juego ya se encarga el --import, que se niega a
+// escribir index.html si algo no cuadra.
 botonEl.onclick=async()=>{
   const p=revisar();
-  if(p.length){ muestra('mal','No lo guardo todavía — hay '+p.length+' cosa(s) que arreglar:',p); return; }
   const c=cuerpo();
   if(!c.salas.length && !nuevas.length && !notas.length){
     muestra('mal','No has cambiado nada todavía.'); return; }
+  // (si hay algo a medias se dice DESPUES de guardar, no en vez de guardar)
   if(!almacen){
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([JSON.stringify(c,null,1)],{type:'application/json'}));
@@ -879,11 +933,13 @@ botonEl.onclick=async()=>{
   botonEl.disabled=true; botonEl.textContent='Guardando…';
   try{
     await almacen.doc('planos/salas').set(c);
-    muestra('ok','Guardado: '+c.salas.length+' sala(s) cambiada(s)'
+    const hecho='Guardado: '+c.salas.length+' sala(s) cambiada(s)'
       + (nuevas.length?', '+nuevas.length+' baldosa(s) nueva(s)':'')
       + (notas.length?', '+notas.length+' cambio(s) pedido(s)':'')
-      + '. Dile a Claude que ya está.'
-      + (av.length?'  ⚠ '+av[0]:''));
+      + '. Dile a Claude que ya está.';
+    if(p.length) muestra('ok', hecho+' Queda '+p.length+' cosa(s) a medias, '
+                              +'dichas aquí abajo — no corre prisa:', p);
+    else         muestra('ok', hecho + (av.length?'  ⚠ '+av[0]:''));
   }catch(err){ muestra('mal','No se ha podido guardar: '+(err&&err.message?err.message:err)); }
   botonEl.disabled=false; botonEl.textContent='Guardar las salas';
 };
@@ -939,7 +995,7 @@ document.getElementById('tinteQuita').onclick=()=>ponColor(null);
 
 function alSala(){
   const S=salas[clave];
-  arreglaEscaleras(S);
+  arreglaEscaleras(S); arreglaVueltas();
   document.getElementById('anc').value=S.grid[0].length;
   document.getElementById('alt').value=S.grid.length;
   const leg=(S.isPatio?D.legPatio:D.legNormal);
