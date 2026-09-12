@@ -488,6 +488,25 @@ function arreglaEscaleras(S){
   });
   return tocado;
 }
+// Una 'V' solo significa algo si tiene una puerta encima: es el peldaño
+// cableado de una escalera. Suelta, el juego la lee como una puerta que no
+// lleva a ninguna parte y saca el banner rojo. Las que quedan sueltas al
+// repintar vuelven a ser peldaño normal.
+function limpiaEscaleras(S){
+  const g=S.grid; let n=0;
+  const conPuerta=new Set();
+  (S.doors||[]).forEach(q=>{
+    const c=tramoEscalera(g,q.x,q.y);
+    if(c) c.forEach(([x,y])=>conPuerta.add(x+','+y));
+  });
+  for(let y=0;y<g.length;y++) for(let x=0;x<g[0].length;x++){
+    if(g[y][x]==='V' && !conPuerta.has(x+','+y)){
+      S.grid[y]=S.grid[y].slice(0,x)+'S'+S.grid[y].slice(x+1); n++;
+    }
+  }
+  return n;
+}
+
 // La otra mitad del cableado: la planta a la que BAJA una escalera necesita
 // una 'U' por la que volver. Si al repintar se ha perdido, el juego dejaria al
 // jugador en (1,1), asi que se repone sola en el peldaño por el que se sale a
@@ -527,6 +546,7 @@ function pisableCon(S,x,y){
 // Toda escalera cableada tiene que tener su vuelta al otro lado.
 function arreglaVueltas(){
   let n=0;
+  claves.forEach(k=>n+=limpiaEscaleras(salas[k]));
   claves.forEach(k=>{
     const S=salas[k];
     (S.doors||[]).forEach(q=>{
