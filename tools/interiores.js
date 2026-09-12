@@ -217,22 +217,55 @@ const tinteSrc=bloque(s,'const TINTABLES={','function drawInTile','}');
 const shadeSrc=(s.match(/function shade\([\s\S]*?\n\}/)||[''])[0];
 
 // --- leyenda sacada de los propios 'case' del dibujo ---
+// Saca de drawInTile que letra dibuja cada cosa. Va LINEA A LINEA porque en
+// una misma linea puede haber varios 'case': leyendo de corrido, el resto de
+// la linea se lo tragaba el primero y los demas no llegaban a la paleta (asi
+// se quedaron fuera veinte baldosas, la cama y los peldanos de la escalera
+// entre ellas). La descripcion es el comentario del final de la linea, o el
+// de la primera linea del cuerpo si el 'case' abre llave y no dice nada.
 function leyenda(txt){
-  const out=[]; const re=/case '((?:\\.|[^'])*)':(.*)/g; let m, pend=[];
-  while((m=re.exec(txt))){
-    const ch=m[1].replace(/\\u([0-9a-fA-F]{4})/g,(_,h)=>String.fromCharCode(parseInt(h,16)))
-                 .replace(/\\(.)/g,'$1');
-    const com=(m[2].match(/\/\/\s*(.+?)\s*$/)||[])[1];
-    pend.push(ch);
-    if(com){ pend.forEach(c=>out.push({ch:c, txt:com})); pend=[]; }
-  }
-  pend.forEach(c=>out.push({ch:c, txt:''}));
+  const out=[], lineas=txt.split('\n');
+  let pend=[];
+  const decod=ch=>ch.replace(/\\u([0-9a-fA-F]{4})/g,(_,h)=>String.fromCharCode(parseInt(h,16)))
+                    .replace(/\\(.)/g,'$1');
+  const suelta=com=>{ pend.forEach(c=>out.push({ch:c, txt:com})); pend=[]; };
+  lineas.forEach((linea,i)=>{
+    // el caracter puede ir entre comillas simples o dobles (la cama es "'")
+    const re=/case (?:'((?:\\.|[^'])*)'|"((?:\\.|[^"])*)")\s*:/g;
+    let m, hubo=false;
+    while((m=re.exec(linea))){ hubo=true; pend.push(decod(m[1]!==undefined?m[1]:m[2])); }
+    if(!hubo || !pend.length) return;
+    let com=(linea.match(/\/\/\s*(.+?)\s*$/)||[])[1];
+    if(!com && /\{\s*$/.test(linea)){
+      const sig=(lineas[i+1]||'').trim();
+      if(sig.startsWith('//')) com=sig.replace(/^\/\/\s*/,'').trim();
+    }
+    if(com) suelta(com);
+  });
+  suelta('');
   return out;
 }
+// Hay letras que comparten el 'case' y se quedan con la misma descripcion,
+// pero no hacen lo mismo. Las tres de la escalera son el caso claro: sin
+// distinguirlas no hay forma de saber cual hay que pintar.
+const APODOS={
+  'S':'escalera · peldaños',
+  'V':'escalera · peldaño de bajada (va cableado a una puerta)',
+  'U':'escalera · peldaño de vuelta (por aqui se sale a la sala)',
+  '<':'coche · morro (la otra mitad es la trasera, >)',
+  '>':'coche · trasera (la otra mitad es el morro, <)',
+  'w':'linea del campo, sobre cesped',
+  'y':'linea del campo, sobre pista de tenis',
+  'j':'linea del campo, sobre parque',
+  'd':'linea del campo curva, sobre cesped',
+  'f':'linea del campo curva, sobre parque',
+};
+
 const sw1=drawInTileSrc.indexOf('switch(t)');
 const sw2=drawInTileSrc.indexOf('switch(t)', sw1+10);
 const legPatio =leyenda(drawInTileSrc.slice(sw1, sw2));
 const legNormal=leyenda(drawInTileSrc.slice(sw2));
+[legPatio,legNormal].forEach(L=>L.forEach(l=>{ if(APODOS[l.ch]) l.txt=APODOS[l.ch]; }));
 
 // --- caracteres ya ocupados, para que las baldosas nuevas no pisen ninguno ---
 const ocupados=new Set();
@@ -258,7 +291,7 @@ for(const k in INTERIORS){
 const CAJONES=[
   ['Paredes',      '#=¦+'],
   ['Suelos',       '.rakbl-_:'],
-  ['Mobiliario',   'msDcuteKBWLIPZx^$|H R N O Q T i v z M'.replace(/ /g,'')],
+  ['Mobiliario',   "msDcuteKBWLIPZx^$|HRNOQTivzM'`;"],
   ['Tiendas',      'o()/&%@,[{]}F`;'],
   ['Vegetacion',   'pg~h'],
   ['Exteriores',   'nqwdyjf<>'],
