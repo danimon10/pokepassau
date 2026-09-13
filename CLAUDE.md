@@ -95,6 +95,51 @@ Al importar toca el `grid`, los `giros`, el `tinte` y las coordenadas de lo
 que se haya movido, y rechaza el cambio si una puerta, una salida o un NPC se
 quedaría fuera de la rejilla nueva.
 
+## Para escribir la historia, el editor de guion
+
+La trama y sus retos de lengua no se escriben a mano en `index.html`: se
+escriben en un esquema y de ahí sale un JSON con la forma que ya usa el juego.
+
+```sh
+node tools/guion.js              # escribe tools/.guion.html
+node tools/guion.js --catalogo   # saca por consola lo que sabe del juego
+```
+
+Lee `index.html` cada vez que se genera, así que **conoce el juego**: los 164
+personajes con la sala en la que están, las 85 salas, los objetos y las
+misiones que ya existen. Escribir una escena con alguien que no está en el
+juego es imposible: los nombres salen de una lista, no se teclean.
+
+Lo que hay que saber para usarlo:
+
+- **Se escribe como un esquema**, con `Enter` y `Tab`. Las categorías salen
+  escribiendo sus primeras letras (`mis`, `esc`, `tar`, `dice`, `opc`…) y
+  `Tab`; la gente, con `@nombre`.
+- **El orden es capítulo › misión › escena › tarea**, y cada categoría solo
+  puede colgar de las que le corresponden. El árbol no vive en la sangría: al
+  exportar, cada fila lleva escrito su padre.
+- **La mecánica y la función son dos ejes distintos.** Cómo se valida
+  (elegir, hueco, ordenar, abierta…) no es lo mismo que qué se practica
+  (saludar, pedir un favor, reclamar…). Un saludo puede pedirse de cualquiera
+  de las cinco maneras.
+- **El tratamiento es del personaje, no de la escena.** Se decide una vez y
+  todas sus tareas lo heredan. `tools/guion.js` lo propone a partir del
+  nombre (Herr, Frau, un oficio → usted; estudiante → tú).
+- **Huecos:** `{correcta|falsa|falsa}` para el desplegable y
+  `{=vale|también|así}` cuando se escribe y se aceptan varias formas.
+- **`✦ Claude se encarga`** marca una fila como encargo: se apunta qué se
+  quiere y esa línea sale en la lista de pendientes en vez de bloquear la
+  revisión. El botón «Encargos a Claude» saca esa lista con el contexto de
+  cada una (personaje, sala, tratamiento, mecánica, nivel) lista para pegar.
+- **«Revisar» dice lo que impediría aplicarlo** sin preguntar nada: escenas
+  sin personaje, tareas sin mecánica, una tarea abierta sin rúbrica, dos
+  tareas colgando de la misma escena, prerrequisitos en círculo.
+- El JSON exportado trae, por cada misión, su entrada de `MISIONES` ya hecha
+  (`juego:{nombre, ic, desc, pista, pasos, premio}`), y guarda también el
+  esquema en crudo para poder volver a importarlo.
+- Importa el formato del editor viejo: traduce los tipos a los dos ejes y
+  separa los «Distractores» que en realidad eran la reacción del NPC al fallo.
+
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
