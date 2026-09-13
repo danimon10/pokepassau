@@ -333,6 +333,19 @@ function partirHuecos(txt){
 const tieneHuecos = t => /\{[^{}]*\}/.test(t||'');
 // Una fila de opciones son cadenas separadas por | o por salto de linea.
 const listaOpc = t => (t||'').split(/[|\n]/).map(s=>s.trim()).filter(Boolean);
+// Un elemento de rubrica:  nombre: sinonimo|sinonimo >> lo que repregunta el NPC
+// La repregunta es la clave del diseño: si el elemento falta, el NPC no
+// suspende, pregunta por el. Sin ella la tarea vuelve a ser un corrector.
+function parseElem(l){
+  let repregunta='';
+  const r=l.indexOf('>>');
+  if(r>=0){ repregunta=l.slice(r+2).trim(); l=l.slice(0,r).trim(); }
+  const k=l.indexOf(':');
+  return k<0 ? {nombre:l, patrones:[], repregunta}
+             : {nombre:l.slice(0,k).trim(),
+                patrones:l.slice(k+1).split('|').map(s=>s.trim()).filter(Boolean),
+                repregunta};
+}
 
 //====================================================================
 //  PINTAR LA LISTA
@@ -404,7 +417,7 @@ function hueco(f){
     case 'jugador':  return 'Lo que dice tu personaje';
     case 'tarea':    return 'La frase correcta, con {a|b|c} si lleva hueco';
     case 'opciones': return 'Distractores separados por | o uno por línea';
-    case 'rubrica':  return 'nombre: sinónimo|sinónimo|sinónimo';
+    case 'rubrica':  return 'motivo: beca|intercambio >> ¿Y para qué lo necesita?';
     case 'acierta':  return 'Lo que responde el NPC si acierta';
     case 'falla':    return 'Lo que responde el NPC si se equivoca';
     case 'pista':    return 'La pista del segundo intento';
@@ -484,12 +497,19 @@ function pintaPanel(){
         <code>{=vale|también|así}</code> cuando se escribe y aceptas varias. Puedes poner varios en la misma frase.</div></div>`;
   }
 
+  if(f.cat==='rubrica'||f.cat==='opciones'){
+    h+=campoArea('txt', f.cat==='rubrica'?'Elementos propios (uno por línea)':'Distractores (uno por línea)', f.txt);
+  }
   if(f.cat==='rubrica'){
     h+=`<div class="campo"><label>Fragmentos que ya existen</label>
       <div class="checks">${Object.keys(FRAGS).map(k=>
         `<label><input type="checkbox" data-frag="${k}" ${f.frags.includes(k)?'checked':''}>
          <span>${esc(FRAGS[k])}</span></label>`).join('')}</div>
-      <div class="ayuda">Marcarlos evita reescribir los mismos sinónimos en cada personaje. En el texto de arriba solo van los elementos propios de esta tarea.</div></div>`;
+      <div class="ayuda">Marcarlos evita reescribir los mismos sinónimos en cada personaje.
+      En el texto de arriba van los elementos propios, uno por línea:<br>
+      <code>motivo: beca|intercambio|solicitud &gt;&gt; ¿Y para qué lo necesita?</code><br>
+      Lo de después de <code>&gt;&gt;</code> es lo que <b>pregunta</b> el NPC si ese elemento falta.
+      Sin eso el personaje solo puede rechazar, y una ventanilla de verdad repregunta.</div></div>`;
   }
 
   if(f.cat==='entrega'){
@@ -503,6 +523,14 @@ function pintaPanel(){
   h+=previa(f);
   panel.innerHTML=h;
   engancharPanel(f);
+}
+// Al teclear en el panel no se puede repintar todo: se perderia el cursor.
+// Solo se refresca la vista previa de la tarea de la que cuelga la fila.
+function pintaPreviaSuelta(f){
+  const cont=panel.querySelector('.previa'); if(!cont) return;
+  const tmp=document.createElement('div'); tmp.innerHTML=previa(f);
+  const nuevo=tmp.querySelector('.previa');
+  if(nuevo) cont.replaceWith(nuevo);
 }
 function campoTxt(id,et,v,ph){ return `<div class="campo"><label>${esc(et)}</label>
   <input id="p_${id}" value="${esc(v)}" placeholder="${esc(ph||'')}"></div>`; }
@@ -532,7 +560,11 @@ function tratoDe(f){
 //  VISTA PREVIA — como lo vera el jugador
 //====================================================================
 function previa(f){
-  if(f.cat!=='tarea'||!f.mec) return '';
+  if(f.cat!=='tarea'){                     // colgando de una tarea, se ve la de ella
+    const p=padreDe(idx(f.id));
+    return (p&&p.cat==='tarea') ? previa(p) : '';
+  }
+  if(!f.mec) return '';
   const i=idx(f.id);
   const esce=cadena(i).find(x=>x.cat==='escena');
   const npc=esce&&NPC_POR_ID[esce.npcId];
@@ -579,8 +611,11 @@ function previa(f){
         el jugador escribe aquí${M.donde==='portátil'?' (en el portátil)':''}…</div>`;
     cuerpo += `<div class="rub"><b>Qué se le pide</b><ul>`
       + frags.map(k=>`<li>${esc(FRAGS[k]||k)} <code>compartido</code></li>`).join('')
-      + propios.map(p=>{const [n,...rest]=p.split(':');
-          return `<li>${esc(n)} <code>${esc(rest.join(':').trim())}</code></li>`;}).join('')
+      + propios.map(l=>{const e=parseElem(l);
+          return `<li>${esc(e.nombre)} <code>${esc(e.patrones.join(' · '))}</code>`
+            + (e.repregunta?`<br><span style="color:var(--oro-osc)">si falta pregunta: «${esc(e.repregunta)}»</span>`
+                            :`<br><span style="color:var(--no)">si falta, el NPC no sabe qué preguntar</span>`)
+            + `</li>`;}).join('')
       + (frags.length||propios.length?'':'<li style="color:var(--no)">Todavía no hay rúbrica.</li>')
       + `</ul></div>`;
   }
@@ -619,6 +654,10 @@ function engancharPanel(f){
     e.onchange=()=>{ f[campo]= num?(parseInt(e.value,10)||0):e.value; guardar(); render(); };
   };
   ['ic','desc','pistaTxt','pasoTxt','idEnt'].forEach(k=>liga(k,k));
+  const ta=q('#p_txt');
+  if(ta) ta.oninput=()=>{ f.txt=ta.value; guardar();
+    const c=lista.querySelector(`.fila[data-id="${f.id}"] .txt`); if(c) c.value=f.txt;
+    pintaPreviaSuelta(f); };
   liga('premio','premio',true);
   ['cat','mec','fun','nivel','tipoEnt'].forEach(k=>liga(k,k));
 
@@ -842,6 +881,12 @@ function revisar(){
       if(!esc_.length) pon(f.id,'Misión sin ninguna escena.',true);
       if(!f.desc.trim()&&!f.claude) pon(f.id,'Misión sin descripción para el panel.',true);
     }
+    if(f.cat==='rubrica'){
+      const ls=(f.txt||'').split('\n').map(x=>x.trim()).filter(Boolean);
+      if(!ls.length && !f.frags.length && !f.claude) pon(f.id,'Rúbrica vacía.');
+      ls.map(parseElem).forEach(e=>{ if(!e.repregunta)
+        pon(f.id,'«'+e.nombre+'» no dice qué repregunta el NPC si falta. Sin eso solo puede rechazar.',true); });
+    }
     if(f.cat==='entrega' && !f.idEnt.trim()) pon(f.id,'Entrega sin identificador.');
   });
 
@@ -936,11 +981,7 @@ function compilar(){
         break;
       case 'rubrica': {
         if(!tarAct) break;
-        const propios=(f.txt||'').split('\n').map(s=>s.trim()).filter(Boolean).map(l=>{
-          const k=l.indexOf(':');
-          return k<0 ? {nombre:l, patrones:[]}
-                     : {nombre:l.slice(0,k).trim(), patrones:l.slice(k+1).split('|').map(s=>s.trim()).filter(Boolean)};
-        });
+        const propios=(f.txt||'').split('\n').map(s=>s.trim()).filter(Boolean).map(parseElem);
         tarAct.rubrica={fragmentos:f.frags.slice(), propios, porClaude:f.claude?f.brief:null};
         break;
       }
@@ -1059,6 +1100,10 @@ document.getElementById('bAyuda').onclick=()=>abrirModal('Cómo se escribe el gu
         Si falla
         Pista
       Entrega         qué se lleva el jugador</pre>
+    <p><b>Rúbrica</b> (solo en las tareas abiertas): un elemento por línea,
+    <code>nombre: sinónimos &gt;&gt; lo que pregunta el NPC si falta</code>. El NPC no
+    puntúa: repregunta por lo que no dijiste, y así una formulación buena que no
+    hayas previsto solo cuesta una pregunta de más, no un suspenso.</p>
     <p><b>Huecos:</b> <code>{correcta|falsa|falsa}</code> para desplegable,
     <code>{=vale|también}</code> cuando se escribe y aceptas varias formas.</p>
     <p><b>✦ Claude se encarga:</b> el botón de cada línea. Apunta qué quieres y

@@ -127,6 +127,13 @@ Lo que hay que saber para usarlo:
   nombre (Herr, Frau, un oficio → usted; estudiante → tú).
 - **Huecos:** `{correcta|falsa|falsa}` para el desplegable y
   `{=vale|también|así}` cuando se escribe y se aceptan varias formas.
+- **En las tareas abiertas, el NPC repregunta; no puntúa.** Cada elemento de
+  la rúbrica se escribe `nombre: sinónimos >> lo que pregunta el NPC si
+  falta`. Así, una formulación buena que no se haya previsto cuesta una
+  pregunta de más, no un suspenso; sin ese `>>` el personaje solo sabe
+  rechazar, y la revisión lo avisa. Los elementos que se repiten en muchas
+  tareas (saludo, cortesía, agradecimiento…) se marcan con una casilla en vez
+  de reescribir los sinónimos en cada personaje.
 - **`✦ Claude se encarga`** marca una fila como encargo: se apunta qué se
   quiere y esa línea sale en la lista de pendientes en vez de bloquear la
   revisión. El botón «Encargos a Claude» saca esa lista con el contexto de
