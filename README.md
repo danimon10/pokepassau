@@ -59,11 +59,17 @@ Tres contadores se guardan con la partida y se ven en la pantalla: la fecha y
 el dinero arriba a la izquierda, y las misiones en el botón de la derecha,
 debajo de la mochila.
 
-**El tiempo.** El calendario del juego tiene meses de **14 días** (dos semanas
-justas, así que todos empiezan en lunes), años de **168 días** (doce meses) y
-estaciones de **42 días** (tres meses: dic-ene-feb, mar-abr-may, jun-jul-ago,
-sep-oct-nov). La partida empieza el **1 de octubre**, cuando arranca el
-semestre de invierno.
+**El tiempo.** El calendario del juego tiene meses de **7 días** —el mes es la
+semana, de lunes a domingo— y años de **84 días** (doce meses). La estación
+cambia **con el mes** y da la vuelta cada cuatro, así que el año recorre el
+ciclo tres veces: agosto es verano, septiembre otoño, octubre invierno,
+noviembre primavera, diciembre verano otra vez. Como 12 es múltiplo de 4, la
+estación de cada mes es siempre la misma: en Passau siempre nieva en octubre.
+
+Es un calendario de juego, no el real: con semanas por mes, esperar tres meses
+para ver la nieve sería esperar demasiado. La partida empieza el **sábado 6 de
+agosto**, penúltimo día del verano: llegas al campus el último fin de semana
+antes de que se acabe, y a la segunda noche ya es otoño.
 
 El día solo avanza durmiendo: en tu cuarto de la residencia
 (Studentenwohnheim, cuarto 1) te pones delante de la cama, pulsas acción y

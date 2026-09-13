@@ -1755,7 +1755,7 @@ const INTERIORS = {
         "Los formularios se entregan por duplicado.",
         "El duplicado también por duplicado, si es para economía."]},
       {x:23,y:9,name:"Avisos del pasillo este",lines:[
-        "Convocatoria Erasmus+: plazo hasta el 15 de enero.",
+        "Convocatoria Erasmus+: plazo hasta el 5 de enero.",
         "Alguien ha tachado la fecha y ha escrito «¿otra vez?» al lado."]},
     ],
     npcs:[
@@ -1992,8 +1992,8 @@ const INTERIORS = {
         "3. Carné de estudiante y cuenta de la universidad.",
         "4. Respirar. El punto 4 lo añadió alguien a boli."]},
       {x:9,y:1,name:"Plazos de matrícula",lines:[
-        "🗓 Semestre de invierno: matrícula hasta el 15 de octubre.",
-        "🗓 Semestre de verano: hasta el 15 de abril.",
+        "🗓 Semestre de invierno: matrícula hasta el 5 de octubre.",
+        "🗓 Semestre de verano: hasta el 5 de abril.",
         "🗓 Fuera de plazo: existe, pero cuesta una historia larga."]},
     ],
     npcs:[
@@ -2060,7 +2060,7 @@ const INTERIORS = {
         "De tanto girarlo, hay países que ya casi no se leen.",
         "Passau, en cambio, está marcada a boli. Con una flecha."]},
       {x:16,y:10,name:"Plazos y convocatorias",lines:[
-        "🗓 Erasmus+ (Europa): solicitud hasta el 15 de enero.",
+        "🗓 Erasmus+ (Europa): solicitud hasta el 5 de enero.",
         "🗓 Convenios de ultramar: hasta el 1 de diciembre.",
         "🗓 Beca de movilidad: se pide DESPUÉS de la plaza, no antes.",
         "📎 Se necesita: expediente, carta de motivación y nivel de idioma.",
@@ -2442,7 +2442,7 @@ const INTERIORS = {
     info:[
       {x:9,y:6,name:"Tablón de másteres",lines:[
         "🎓 Másteres de la Universität Passau",
-        "Plazo de solicitud: hasta el 15 de julio.",
+        "Plazo de solicitud: hasta el 6 de julio.",
         "«¿Sirve mi grado?» — la pregunta más repetida de este despacho."]},
     ],
     npcs:[
@@ -2499,7 +2499,7 @@ const INTERIORS = {
       "#############"
     ],
     info:[
-      {x:6,y:8,name:"Pizarra",lines:["📝 Seminario de Historia Moderna","Hoy: la Paz de Westfalia y por qué nadie se puso de acuerdo.","En una esquina: «examen 12.02»."]},
+      {x:6,y:8,name:"Pizarra",lines:["📝 Seminario de Historia Moderna","Hoy: la Paz de Westfalia y por qué nadie se puso de acuerdo.","En una esquina: «examen 5.02»."]},
     ],
     npcs:[
       {x:4,y:3,name:"Estudiante Merle",color:"#5ad68f",dir:'right',
@@ -5072,18 +5072,20 @@ const ESTRUCTURA_PATIO=new Set(['#','m','M']);        // claustro y muros de con
 //------------------------------------------------------------------
 //  CALENDARIO
 //------------------------------------------------------------------
-const DIAS_MES=14;                        // un mes son dos semanas justas
+const DIAS_MES=7;                         // un mes es una semana justa
 const MESES_ANO=12;
-const DIAS_ANO=DIAS_MES*MESES_ANO;        // 168 dias
-const DIAS_ESTACION=DIAS_ANO/4;           // 42 dias por estacion
+const DIAS_ANO=DIAS_MES*MESES_ANO;        // 84 dias
+const DIAS_ESTACION=DIAS_MES;             // la estacion dura lo que el mes
 const SEMANA  =['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
 const SEMANA_C=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const MESES  =['enero','febrero','marzo','abril','mayo','junio',
                'julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const MESES_C=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-// Las estaciones van de tres meses en tres meses empezando en diciembre
-// (dic-ene-feb, mar-abr-may, jun-jul-ago, sep-oct-nov), asi que cambian
-// cada 42 dias exactos.
+// La estacion cambia con el mes y da la vuelta cada cuatro, asi que el año
+// recorre el ciclo tres veces: agosto es verano, septiembre otono, octubre
+// invierno, noviembre primavera, diciembre verano otra vez... Es un
+// calendario de juego: con semanas por mes, esperar tres meses para ver la
+// nieve seria esperar demasiado.
 const ESTACIONES=[{n:'Invierno',ic:'❄️'},{n:'Primavera',ic:'🌸'},
                   {n:'Verano',  ic:'☀️'},{n:'Otoño',    ic:'🍂'}];
 
@@ -5138,14 +5140,16 @@ const PALETAS=[
     mota:['#d1712c','#e0a03a','#b8562a','#e8c25a'],  // hojas caidas
   },
 ];
-// Arranca en la del dia 0 (1 de octubre). aplicarEstacion() la pone al dia
-// desde actualizarHud(), que es lo que se llama al empezar, al cargar y al
+// Arranca en la del dia 0 (6 de agosto, verano). aplicarEstacion() la pone al
+// dia desde actualizarHud(), que es lo que se llama al empezar, al cargar y al
 // despertarse: no hace falta consultarla en cada baldosa.
-let PAL=PALETAS[3];
+let PAL=PALETAS[2];
 function aplicarEstacion(){ PAL = PALETAS[fecha().est] || PALETAS[2]; }
-// La partida empieza el 1 de octubre, que es cuando arranca el semestre de
-// invierno: nueve meses de 14 dias desde el 1 de enero.
-const DIA_INICIO=9*DIAS_MES;
+// La partida empieza el sabado 6 de agosto, penultimo dia del verano: llegas
+// al campus el ultimo fin de semana antes de que se acabe. Son siete meses
+// enteros mas cinco dias desde el 1 de enero. Los meses empiezan en lunes,
+// asi que el dia 6 cae en sabado solo.
+const DIA_INICIO=7*DIAS_MES+5;
 const ANO_INICIO=2026;
 
 // Traduce el contador de noches dormidas a una fecha del calendario.
@@ -5154,13 +5158,12 @@ function fecha(d){
   const t=DIA_INICIO+dias;
   const delAno=((t%DIAS_ANO)+DIAS_ANO)%DIAS_ANO;
   const mes=Math.floor(delAno/DIAS_MES);
-  const dia=delAno%DIAS_MES+1;                     // 1..14
+  const dia=delAno%DIAS_MES+1;                     // 1..7
   return {
     ano:  ANO_INICIO+Math.floor(t/DIAS_ANO),
     mes, dia,
-    semana:(dia-1)%7,                              // todos los meses empiezan en lunes
-    quincena: dia<=7 ? 1 : 2,
-    est:  Math.floor(((mes+1)%MESES_ANO)/3),       // 0 invierno … 3 otono
+    semana:(dia-1)%7,                              // el mes es la semana: lunes a domingo
+    est:  (mes+3)%4,                               // 0 invierno … 3 otono; agosto = verano
     total: dias,                                   // dias jugados desde el principio
   };
 }
