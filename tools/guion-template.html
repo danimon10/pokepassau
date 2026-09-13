@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Guion · Uni·Quest Passau</title>
+<title>Guion de Uni·Quest</title>
 <style>
 :root{
   --papel:#d9d2c0; --crema:#f8f8f0; --marco:#5a6b8a; --sombra:#2a3550;
@@ -259,9 +259,10 @@ function cargar(){
   return EJEMPLO.map(f=>nuevaFila(f));
 }
 function guardar(){
-  try{ localStorage.setItem(CLAVE, JSON.stringify(filas));
-       estado.textContent='guardado '+new Date().toLocaleTimeString('es-ES'); }
-  catch(e){ estado.textContent='no se pudo guardar'; }
+  tocado=true;
+  try{ localStorage.setItem(CLAVE, JSON.stringify(filas)); }catch(e){}
+  if(nube) nubeApunta();
+  else estado.textContent='guardado '+new Date().toLocaleTimeString('es-ES');
 }
 const idx = id => filas.findIndex(f=>f.id===id);
 const fila = id => filas[idx(id)];
@@ -1016,7 +1017,16 @@ function compilar(){
 //====================================================================
 //  SALIDAS
 //====================================================================
-function bajar(nombre,texto,tipo){
+// Publicado como Artifact, el visor no deja que la pagina se descargue cosas
+// por su cuenta: hay que pasar por la capacidad 'downloads', que le pide
+// permiso al que mira. Como archivo suelto no existe, y vale el enlace de
+// toda la vida.
+let bajador=null;
+async function bajar(nombre,texto,tipo){
+  if(bajador){
+    try{ await bajador.save({filename:nombre, data:texto}); return; }
+    catch(e){ if(e && e.code==='cancelled') return; }   // dijo que no: ya esta
+  }
   const b=new Blob([texto],{type:tipo+';charset=utf-8'}), a=document.createElement('a');
   a.href=URL.createObjectURL(b); a.download=nombre; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),0);
@@ -1191,10 +1201,72 @@ function importar(d){
 }
 
 //====================================================================
+//  GUARDADO EN LA NUBE
+//  Publicado como Artifact, el guion se guarda en el servidor y no en el
+//  navegador: se abre desde cualquier sitio y Claude puede leerlo sin que
+//  haya que exportar nada. Abierto como archivo suelto (tools/.guion.html)
+//  no existe window.claude y todo esto no se enciende: queda localStorage.
+//  El guion va troceado porque un documento son 256 KiB como mucho.
+//====================================================================
+const TROZO=120;
+let nube=null, nubePartes=0, nubeTimer=null, tocado=false;
+
+async function nubeCargar(){
+  const ix=await nube.doc('guion/indice').get();
+  if(!ix.exists) return null;
+  const n=(ix.data()||{}).partes||0;
+  const trozos=await Promise.all(
+    Array.from({length:n},(_,k)=>nube.doc('guion/p'+k).get()));
+  const out=[];
+  trozos.forEach(t=>{ if(t.exists) out.push(...((t.data()||{}).filas||[])); });
+  nubePartes=n;
+  return out.length?out:null;
+}
+async function nubeGuardar(){
+  if(!nube) return;
+  const partes=[];
+  for(let i=0;i<filas.length;i+=TROZO) partes.push(filas.slice(i,i+TROZO));
+  if(!partes.length) partes.push([]);
+  await Promise.all(partes.map((p,k)=>nube.doc('guion/p'+k).set({filas:p})));
+  for(let k=partes.length;k<nubePartes;k++) await nube.doc('guion/p'+k).delete();
+  nubePartes=partes.length;
+  await nube.doc('guion/indice').set(
+    {partes:partes.length, filas:filas.length, guardado:new Date().toISOString()});
+}
+function nubeApunta(){
+  if(!nube) return;
+  clearTimeout(nubeTimer);
+  estado.textContent='guardando…';
+  nubeTimer=setTimeout(()=>{
+    nubeGuardar().then(
+      ()=>estado.textContent='en la nube · '+new Date().toLocaleTimeString('es-ES'),
+      ()=>estado.textContent='solo en este navegador (la nube falló)');
+  },1500);
+}
+async function arrancarNube(){
+  if(!(window.claude && window.claude.use)) return;
+  try{ bajador=await claude.use('downloads'); }catch(e){ bajador=null; }
+  try{ nube=await claude.use('db'); }catch(e){ nube=null; }
+  if(!nube){ estado.textContent='guardado en este navegador'; return; }
+  try{
+    const guardado=await nubeCargar();
+    // si ya se ha puesto a escribir, manda lo que tiene delante
+    if(guardado && !tocado){
+      filas=guardado.map(f=>nuevaFila(f)); sel=filas[0].id; render();
+      estado.textContent='cargado de la nube ('+filas.length+' líneas)';
+    }else{
+      await nubeGuardar();
+      estado.textContent='en la nube · Claude puede leerlo';
+    }
+  }catch(e){ estado.textContent='solo en este navegador (la nube falló)'; }
+}
+
+//====================================================================
 filas = cargar();
 if(!filas.length) filas=[nuevaFila({cat:'capitulo'})];
 sel = filas[0].id;
 render(); revisar(); pintaCuentas();
+arrancarNube();
 </script>
 </body>
 </html>

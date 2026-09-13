@@ -147,6 +147,15 @@ Lo que hay que saber para usarlo:
 - Importa el formato del editor viejo: traduce los tipos a los dos ejes y
   separa los «Distractores» que en realidad eran la reacción del NPC al fallo.
 
+**Hay una copia publicada como Artifact** («Guion de Uni·Quest»), que es la
+que el usuario usa de verdad porque es un enlace y no hay que ejecutar nada.
+Allí el guion **se guarda en el servidor**, troceado en `guion/p0…pN` con un
+`guion/indice`, así que se puede leer con `read_db` sin que él exporte nada;
+abierto como archivo suelto no hay `window.claude` y queda `localStorage`.
+Como el Artifact es una copia congelada, **lleva el catálogo del día en que se
+publicó**: si se mueven o se renombran NPCs en `index.html`, hay que volver a
+generarlo y republicarlo en *ese mismo* Artifact, igual que pasa con el juego.
+
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
