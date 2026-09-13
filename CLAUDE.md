@@ -171,7 +171,9 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   misiones. Con `fn` la opción ejecuta algo al cerrarse el cuadro.
 - **El día solo pasa durmiendo.** La cama (`'`) de la sala marcada con
   `dormitorio:true` es el único reloj del juego: no hay horas ni minutos.
-  El mes son 14 días, el año 168 y la estación cambia cada 42.
+  El mes son 7 días (lunes a domingo), el año 84, y la estación cambia con el
+  mes. Las fechas que se escriban en diálogos y carteles tienen que caer entre
+  el 1 y el 7: un «15 de octubre» ya no existe.
 - **La estación se pinta, no se mapea.** Los colores del exterior salen de
   `PALETAS[estación]` a través de `PAL`; el mapa no cambia. Si tocas un color
   de `drawOutTile`, ponlo en las cuatro paletas, no como literal. Verano es la
