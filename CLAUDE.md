@@ -174,6 +174,7 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 | `MAPA EXTERIOR` | la rejilla del campus como array de cadenas |
 | `TIEMPO, DINERO Y MISIONES` | calendario, cartera, misiones y dormir |
 | `TAREAS DE LENGUA` | los retos del guion y el motor que los juega |
+| `GENTE QUE ANDA` | NPCs que caminan, y sentarse en una silla |
 | Leyenda interior | qué significa cada letra de las rejillas de sala |
 | `INTERIORS` | las salas: 83 rejillas con sus puertas y NPCs |
 | `EDIFICIOS` | qué puerta del exterior lleva a qué sala |
@@ -261,6 +262,43 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   de diálogo da para unos 40 caracteres por opción en una línea; si la frase
   del guion es más larga, se parte: la primera mitad va en la `consigna` y la
   elección se queda con lo que de verdad se está practicando.
+- **Hay tres mecánicas cerradas**, todas dentro del cuadro de diálogo:
+  `single` (elegir la frase), `ordenar` (fichas de palabras y huecos, con
+  distractores en la sopa) y `huecoLista` (la frase con `{a|b|c}` y sus
+  desplegables). Las dos últimas se resuelven en `#dlgReto`, y mientras ese
+  panel está abierto **el cuadro no avanza**: se avanza resolviéndolo.
+- **Lo que hace bueno un reto es `errores`**, no la corrección. Es una lista
+  de comprobaciones sencillas —`huecos`, `contiene`, `pieza`, `sinPieza`— y la
+  primera que salta decide lo que contesta el personaje. `contiene` compara
+  sin tildes y por palabras enteras; `pieza` compara la ficha exacta, que es
+  la única forma de cazar un fallo de acentuación. Van de lo más concreto a lo
+  más general, porque gana la primera.
+- **Una tarea puede llevar `entrada`** (una elección antes del reto: preguntar
+  o no preguntar), **`sigue`** (la tarea que va detrás, para encadenar varias
+  preguntas a la misma persona) y **`remate`** (lo que pasa al acertar la
+  última: una compra, una escena). Las encadenadas llevan `paso:null` y no se
+  abren solas: solo se llega a ellas desde la anterior.
+- **`CHARLAS` es lo que alguien dice según por dónde vaya la historia**, en
+  vez de sus frases de siempre; la primera que encaja manda. Es lo que hace
+  que la joyera diga «vuelva mañana» un día y entregue el anillo al
+  siguiente. Para lo que no es ni objeto ni paso de misión están las
+  **banderas** (`bandera`/`ponBandera`), que se guardan con la partida.
+- **La gente puede andar.** `andarA(npc, [x,y], alLlegar)` busca el camino por
+  casillas libres (anchura primero) y lo recorre por píxeles, no a saltos de
+  casilla. Mientras anda, el NPC tiene `px/py` y se dibuja por ahí; parado, no
+  los tiene. `andantes` se vacía al cambiar de sala.
+- **Sentarse es como abrir una puerta:** se empuja hacia la silla (`e`) y uno
+  se sienta. Para levantarse hay que **soltar la tecla y volver a pulsar**, o
+  la misma pulsación que te sienta te levanta en el fotograma siguiente.
+- **La gente va y viene con la historia sin tocar `INTERIORS`.**
+  `GENTE_EVENTO` añade personas que solo existen en un momento del guion (los
+  de la mesa de la Mensa) y `GENTE_FUERA` quita a quien está en otra parte
+  (Ying, mientras te lleva a comer). `loadScene` lo aplica al entrar, y
+  `refrescarGente()` lo rehace sin recargar la sala. Nadie tiene que acordarse
+  de devolver a nadie a su sitio: al apagarse la bandera, vuelven solos.
+- **Un acompañante va por delante, no en todas partes a la vez.** Ying tiene
+  una ruta de salas (`RUTA_MENSA`) y una bandera con el tramo al que se ha
+  llegado: si vuelves atrás, no te la encuentras duplicada.
 - **Mover el mapa exterior toca más sitios de los que parece.** Además de
   `OUTDOOR`, `BUILDINGS` y `BLD_GEO` hay coordenadas absolutas del campus en:
   `OUT_NPCS`, el `player` inicial, el `spawn` de los objetos con

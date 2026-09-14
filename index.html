@@ -5319,6 +5319,17 @@ const MISIONES={
     pasos:[{id:'entregar', t:"Dárselo a Ying"}],
     premio:null,
   },
+  mensa_comer:{
+    nombre:"La comida de Ying", ic:"🍽️",
+    desc:"Ying te invita a comer en la Mensa para agradecerte lo del anillo. Va delante: síguela.",
+    pista:"La Mensa está al oeste del campus, junto al Inn.",
+    prereq:['anillo_devolver'],
+    pasos:[{id:'seguir', t:"Seguir a Ying hasta la Mensa"},
+           {id:'comer',  t:"Elegir la comida"},
+           {id:'mesa',   t:"Sentarte con ellos a la mesa"}],
+    premio:null,
+    alAbrir:()=>{ ponBandera('almuerzo','yendo'); refrescarGente(); arrancarGuia(); },
+  },
 };
 
 function estadoMision(id){ return (gameData.misiones||{})[id]||null; }
@@ -5557,12 +5568,78 @@ const TAREAS={
     acierta:["Un día. Si me lo deja ahora, mañana lo tiene."],
     remate:'anillo_encargo',
   },
+
+  // --- la sobremesa: tres preguntas de los de la mesa, una detras de otra ---
+  sobremesa_1:{
+    npc:'mensa2:Becaria Alessia', mision:'mensa_comer', paso:null,
+    mec:'single', fun:'presentarse', nivel:'A2',
+    dialogo:["Bueno, cuéntanos. ¿Y tú de dónde eres?"],
+    consigna:"¿Qué contestas?",
+    correcta:"Soy de Alemania, del norte.",
+    falsas:["Estoy de Alemania, del norte.","Soy desde Alemania, del norte.","Yo es de Alemania, del norte."],
+    pista:"El origen va con «ser» y con «de».",
+    falla:["¿Cómo? Perdona, con el ruido no te oigo bien."],
+    acierta:["¡Anda! Yo estuve un verano en Hamburgo. Llovía de lado."],
+    sigue:'sobremesa_2',
+  },
+  sobremesa_2:{
+    npc:'mensa2:Estudiante Marco', mision:'mensa_comer', paso:null,
+    mec:'single', fun:'narrar', nivel:'B1',
+    dialogo:["¿Y cuánto tiempo llevas en Passau?"],
+    consigna:"¿Qué contestas?",
+    correcta:"Llevo tres semanas aquí.",
+    falsas:["Tengo tres semanas aquí.","Estoy por tres semanas aquí.","Soy aquí desde tres semanas."],
+    pista:"Para el tiempo que llevas en un sitio: «llevo» + tiempo.",
+    falla:["¿Eh? A ver, otra vez."],
+    acierta:["¡Tres semanas! Entonces todavía estás en la parte bonita.",
+             "Espera al invierno, ya hablaremos."],
+    sigue:'sobremesa_3',
+  },
+  sobremesa_3:{
+    npc:'mensa2:Estudiante Judith', mision:'mensa_comer', paso:'mesa',
+    mec:'single', fun:'describir', nivel:'B1',
+    dialogo:["¿Y qué tal? ¿Te gusta esto?"],
+    consigna:"¿Qué contestas?",
+    correcta:"Me gusta mucho, pero todavía no conozco a nadie.",
+    falsas:["Me gusto mucho, pero todavía no conozco a nadie.",
+            "Yo gusto mucho, pero todavía no conozco a nadie.",
+            "Me gusta mucho, pero todavía no sé a nadie."],
+    pista:"«Gustar» concuerda con lo que gusta, no contigo. Y a las personas se las conoce.",
+    falla:["Mmm. Dilo otra vez, que se me ha escapado."],
+    acierta:["Bueno, a nosotros ya nos conoces. Eso es un empezar."],
+    remate:'santamarta',
+  },
 };
 
 // Lo que pasa al terminar la ultima pregunta de la joyeria: se decide si se
 // deja o no. El precio va en la opcion, que es como se cobra en este juego:
 // asi el boton enseña los 10 €, se apaga si no llegan y cuenta como gasto.
+function abrirCapitulo2(){
+  if(bandera('cap2')) return;
+  ponBandera('cap2', true);
+  avisar('📖 Capítulo 2: ¿cómo se hace un intercambio?');
+}
 const REMATES={
+  // el final del capitulo 1: alguien suelta lo de Santa Marta
+  santamarta:(npc)=>{
+    ponBandera('sobremesa_fin', true);
+    openDialog("Estudiante Judith", [
+      "Oye, y si quieres practicar, a mí me viene bien.",
+      "Yo el año pasado estuve de intercambio en Santa Marta. En Colombia, en la costa.",
+      "Volví hablando así, medio costeño. Se me pegó y no se me quita."], {
+      q:"¿Qué dices?",
+      opts:[
+        {t:"¿De intercambio? Cuéntame cómo se hace eso",
+         r:["Uf, papeleo. Mucho papeleo.",
+            "Pero se puede, ¿eh? Yo lo hice y no soy precisamente organizada.",
+            "Pásate por Relaciones Internacionales y pregunta. Y si te lías, me buscas."],
+         alCerrar:()=>abrirCapitulo2()},
+        {t:"Qué interesante",
+         r:["¿A que sí? Es de esas cosas que cambian el año.",
+            "Si alguna vez te lo planteas, en Relaciones Internacionales te lo cuentan todo."],
+         alCerrar:()=>abrirCapitulo2()},
+      ]});
+  },
   anillo_encargo:(npc)=>{
     openDialog(npc.name, ["¿Se lo dejo apuntado, entonces?"], {
       q:"¿Lo dejas arreglar?",
@@ -5645,9 +5722,51 @@ function abrirTarea(T, npc){
   openDialog(npc.name, (T.dialogo||[]).slice(), reto);
 }
 
+//------------------------------------------------------------------
+//  GENTE QUE VA Y VIENE CON LA HISTORIA
+//  Hay personas que solo existen en un momento del guion (los de la mesa
+//  de la Mensa) y personas que desaparecen de su sitio mientras estan en
+//  otra parte (Ying, mientras te lleva a comer). Las dos cosas se
+//  declaran aqui y loadScene las aplica al entrar en la sala: nadie tiene
+//  que acordarse de devolver a nadie a su sitio.
+//------------------------------------------------------------------
+const GENTE_EVENTO=[];     // se rellena mas abajo, con el capitulo 1
+const GENTE_FUERA=[];      // {sala, nombre, cuando()}
+function refrescarGente(){
+  const base = scene==='outdoor' ? OUT_NPCS : ((INTERIORS[scene]||{}).npcs||[]);
+  npcs=gentePara(scene, base);
+}
+function gentePara(sala, base){
+  const fuera=GENTE_FUERA.filter(g=>g.sala===sala && g.cuando()).map(g=>g.nombre);
+  const lista=base.filter(n=>fuera.indexOf(n.name)<0).map(n=>{ n.px=null; n.py=null; return n; });
+  GENTE_EVENTO.forEach(g=>{ if(g.sala===sala && g.cuando()) lista.push(...g.gente()); });
+  return lista;
+}
+
 // Lo que una persona dice cuando la historia va por cierto punto, en vez de
 // sus frases de siempre. La primera que encaja manda.
 const CHARLAS=[
+  // Ying, esperando en el mostrador de la Mensa
+  {npc:'mensa2:Ying', cuando:()=>fase()==='pidiendo',
+   hablar:(npc)=>{
+     const alaMesa=()=>{
+       cumplirPaso('mensa_comer','comer');
+       const Y=npcs.find(n=>n.name==='Ying');
+       const sentarla=()=>{ ponBandera('almuerzo','mesa'); refrescarGente(); };
+       if(Y) andarA(Y,[5,9],sentarla); else sentarla();
+     };
+     openDialog(npc.name, ["Pide lo que quieras, en serio. Hoy invito yo.",
+                           "Y no mires el precio, que te veo."], {
+       q:"¿Qué pides?",
+       opts:[
+         {t:"El menú del día", r:["Buena elección. El schnitzel de los jueves es el bueno.",
+                                  "Voy pagando y nos sentamos, que allí hay sitio."], fn:alaMesa},
+         {t:"La sopa y una ensalada", r:["Muy sano. Yo hoy no puedo, tengo examen y necesito grasa.",
+                                         "Voy pagando y nos sentamos."], fn:alaMesa},
+         {t:"Solo un café", r:["¿Un café? De eso nada, que te he invitado a comer.",
+                               "Te pido el menú y no se hable más. Vamos a sentarnos."], fn:alaMesa},
+       ]});
+   }},
   // la joyera, con el anillo ya encargado
   {npc:'ekz1:Joyera Frau Adler',
    cuando:()=>bandera('anillo_dejado')!=null && !misionHecha('anillo_arreglar'),
@@ -5664,6 +5783,86 @@ const CHARLAS=[
      cumplirPaso('anillo_arreglar','recoger');
    }},
 ];
+
+//------------------------------------------------------------------
+//  LA COMIDA DE YING — el final del capitulo 1
+//
+//  Es la escena que estrena las tres mecanicas de mundo: Ying va delante
+//  andando y hay que seguirla, en la Mensa se elige la comida, y a la
+//  mesa se sienta uno de verdad, en una silla, con gente que solo existe
+//  durante este almuerzo.
+//
+//  Todo el estado cabe en una bandera, 'almuerzo':
+//    yendo -> camino de la Mensa | pidiendo -> en el mostrador
+//    mesa  -> sentados           | hecho    -> se fueron
+//------------------------------------------------------------------
+const RUTA_MENSA=[
+  {sala:'wh_hab3',  entra:[5,5],   va:[6,7]},     // hacia la puerta de su cuarto
+  {sala:'wohnheim', entra:[14,6],  va:[11,13]},   // hacia la salida al campus
+  {sala:'outdoor',  entra:[62,51], va:[34,76]},   // cruzando el campus a la Mensa
+  {sala:'mensa',    entra:[13,1],  va:[2,7]},     // hacia la escalera del comedor
+  {sala:'mensa2',   entra:[2,5],   va:[11,2]},    // al mostrador
+];
+const fase=()=>bandera('almuerzo');
+const yingGuiando=()=>['yendo','pidiendo','mesa'].indexOf(fase())>=0;
+const guiaYing=(at)=>({x:at[0], y:at[1], name:"Ying", color:"#d65a8a", dir:'down',
+  lines:["¡Venga, que a la una no se cabe!"]});
+
+// Mientras te lleva a comer, Ying no esta en su habitacion.
+GENTE_FUERA.push({sala:'wh_hab3', nombre:'Ying', cuando:yingGuiando});
+
+// Va apareciendo en cada sala del camino, en la casilla por donde entra.
+// Va por delante, no en todas partes a la vez: solo esta en el tramo mas
+// lejano al que se ha llegado, asi que volver atras no la duplica.
+const tramoYing=()=>bandera("tramo")||0;
+RUTA_MENSA.forEach((r,i)=>GENTE_EVENTO.push({
+  sala:r.sala, cuando:()=>fase()==="yendo" && tramoYing()===i,
+  gente:()=>[guiaYing(r.entra)] }));
+GENTE_EVENTO.push({sala:'mensa2', cuando:()=>fase()==='pidiendo',
+  gente:()=>[guiaYing(RUTA_MENSA[4].va)] });     // ya esperando en el mostrador
+
+// La mesa: Ying y tres personas que solo existen en este almuerzo. Alessia es
+// la unica que sigue existiendo fuera de aqui (esta en el area tecnica): esta
+// es otra copia suya, para que su sitio de siempre no se mueva.
+GENTE_EVENTO.push({sala:'mensa2', cuando:()=>fase()==='mesa', gente:()=>[
+  {x:4,y:9, name:"Ying", color:"#d65a8a", dir:'left',
+   lines:["Come, come. Y no me des las gracias otra vez."]},
+  {x:4,y:8, name:"Becaria Alessia", color:"#7aa86a", dir:'left',
+   lines:["Yo a Ying la conozco del laboratorio de idiomas.","Nos vemos más en la Mensa que en clase."]},
+  {x:4,y:10, name:"Estudiante Marco", color:"#d6a05a", dir:'left',
+   lines:["Yo soy de Bolonia. Llevo aquí un año y sigo sin entender el dialecto de aquí.",
+          "El alemán lo llevo bien. El bávaro es otro idioma."]},
+  {x:7,y:10, name:"Estudiante Judith", color:"#8a6ab0", dir:'left',
+   lines:["Perdona que hablemos en español. Es que aquí es lo que se hace.",
+          "Si te pierdes, dilo y cambiamos."]},
+]});
+
+function arrancarGuia(){
+  const i=RUTA_MENSA.findIndex(r=>r.sala===scene);
+  if(i<0) return;
+  if(fase()==="yendo" && i>tramoYing()){ ponBandera('tramo', i); refrescarGente(); }
+  const r=RUTA_MENSA[i];
+  const Y=npcs.find(n=>n.name==='Ying'); if(!Y || andando(Y)) return;
+  if(fase()!=='yendo') return;
+  andarA(Y, r.va, ()=>{
+    if(scene==='mensa2'){ ponBandera('almuerzo','pidiendo'); cumplirPaso('mensa_comer','seguir'); }
+  });
+}
+// Se llama al terminar de cargar una sala.
+function alEntrarSala(sala){
+  // el almuerzo se cierra en cuanto sales de la Mensa: al volver ya no estan
+  if(bandera('sobremesa_fin') && fase()==='mesa' && sala!=='mensa2'){
+    ponBandera('almuerzo','hecho');
+  }
+  arrancarGuia();
+}
+// Sentarse en la silla que te han guardado arranca la sobremesa.
+function alSentarse(x,y){
+  if(scene!=='mensa2' || fase()!=='mesa' || bandera('sobremesa_fin')) return;
+  if(x!==7 || y!==9) return;
+  const A=npcs.find(n=>n.name==='Becaria Alessia');
+  if(A) setTimeout(()=>abrirTarea(TAREAS.sobremesa_1, A), 250);
+}
 
 //------------------------------------------------------------------
 //  RETOS QUE SE MONTAN: ordenar la frase y huecos con desplegable
@@ -6839,10 +7038,18 @@ function tryMove(){
   else if(keys['arrowdown']||keys['s']){dy=1;player.dir='down';}
   else if(keys['arrowleft']||keys['a']){dx=-1;player.dir='left';}
   else if(keys['arrowright']||keys['d']){dx=1;player.dir='right';}
+  if(player.sentado){
+    // sentado, moverse es ponerse de pie; pero hay que soltar la tecla
+    // primero, o la misma pulsacion que te sienta te levanta
+    if(dx===0&&dy===0){ player.sentado.listo=true; return; }
+    if(player.sentado.listo) levantarse();
+    return;
+  }
   if(dx===0&&dy===0) return;
   const nx=player.x+dx, ny=player.y+dy;
   if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
   if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
+  if(sentarse(nx,ny,dx,dy)) return;                  // ...y hacia una silla, te sienta
   if(isSolid(nx,ny)){
     if(!deslizarHaciaAbertura(dx,dy)) player.frame=0;
     return;
@@ -6876,6 +7083,101 @@ function updateMove(){
     player.x=player.tx;player.y=player.ty;player.moving=false;player.frame=0;
   }
 }
+//==================================================================
+//  GENTE QUE ANDA
+//  Un NPC puede ir andando hasta una casilla. El camino se busca por
+//  casillas libres (anchura primero, como npcCerca, pero guardando por
+//  donde se paso) y luego se recorre POR PIXELES, igual que el jugador:
+//  si no, la persona saltaria de casilla en casilla.
+//
+//  Mientras anda tiene px/py; parada, no: se dibuja en su casilla y
+//  todo lo demas (hablarle, el radio, el orden de dibujo) sigue igual.
+//==================================================================
+let andantes=[];
+const PASO_NPC=2.6;        // pixeles por fotograma: va un poco por delante de ti
+
+function caminoHasta(x0,y0,x1,y1){
+  if(x0===x1 && y0===y1) return [];
+  const visto=new Set([x0+','+y0]), cola=[[x0,y0]], de=new Map();
+  const ocupada=(x,y)=>npcs.some(n=>n.x===x&&n.y===y);
+  while(cola.length){
+    const [x,y]=cola.shift();
+    for(const [ox,oy] of [[0,-1],[0,1],[-1,0],[1,0]]){
+      const nx=x+ox, ny=y+oy, k=nx+','+ny;
+      if(visto.has(k)) continue;
+      if(nx<0||ny<0||nx>=mapW||ny>=mapH) continue;
+      if(isSolid(nx,ny) || ocupada(nx,ny)) continue;
+      visto.add(k); de.set(k,[x,y]);
+      if(nx===x1 && ny===y1){
+        const cam=[]; let c=[nx,ny];
+        while(c[0]!==x0 || c[1]!==y0){ cam.unshift(c); c=de.get(c[0]+','+c[1]); }
+        return cam;
+      }
+      cola.push([nx,ny]);
+    }
+  }
+  return null;                       // no hay por donde: quien llama decide
+}
+function andarA(npc, destino, alLlegar){
+  const cam=caminoHasta(npc.x,npc.y,destino[0],destino[1]);
+  if(!cam || !cam.length){ if(alLlegar) alLlegar(); return !!cam; }
+  npc.px=npc.x*TILE; npc.py=npc.y*TILE;
+  andantes.push({npc, cam, i:0, resto:0, alLlegar});
+  return true;
+}
+function andando(npc){ return andantes.some(a=>a.npc===npc); }
+function pararTodos(){ andantes.forEach(a=>{ a.npc.px=null; a.npc.py=null; }); andantes=[]; }
+
+function updateAndantes(){
+  for(let k=andantes.length-1;k>=0;k--){
+    const a=andantes[k], n=a.npc;
+    const [tx,ty]=a.cam[a.i];
+    n.dir = ty<n.y?'up' : ty>n.y?'down' : tx<n.x?'left':'right';
+    const gx=tx*TILE, gy=ty*TILE;
+    a.resto+=PASO_NPC;
+    let sp=Math.floor(a.resto); a.resto-=sp;
+    if(sp>0){
+      const falta=Math.abs(n.px-gx)+Math.abs(n.py-gy);
+      if(sp>falta){ a.resto+=sp-falta; sp=falta; }
+      if(n.px<gx) n.px=Math.min(n.px+sp,gx); else if(n.px>gx) n.px=Math.max(n.px-sp,gx);
+      if(n.py<gy) n.py=Math.min(n.py+sp,gy); else if(n.py>gy) n.py=Math.max(n.py-sp,gy);
+    }
+    n.frame=(Math.floor((n.px+n.py)/4)%2)+1;
+    if(n.px===gx && n.py===gy){
+      n.x=tx; n.y=ty; a.i++;
+      if(a.i>=a.cam.length){
+        n.px=null; n.py=null; n.frame=0;
+        andantes.splice(k,1);
+        if(a.alLlegar) try{ a.alLlegar(); }catch(e){ console.error('alLlegar',e); }
+      }
+    }
+  }
+}
+
+//==================================================================
+//  SENTARSE
+//  Una silla no se pisa andando: se empuja hacia ella, como una puerta,
+//  y uno se sienta. Levantarse es moverse en cualquier direccion.
+//==================================================================
+function sentarse(nx,ny,dx,dy){
+  if(scene==='outdoor' || patioMode) return false;
+  if(tileAt(nx,ny)!=='e') return false;                 // solo las sillas
+  if(npcs.some(n=>n.x===nx&&n.y===ny)) return false;    // ocupada
+  player.sentado={x:player.x, y:player.y};
+  player.x=nx; player.y=ny; player.px=nx*TILE; player.py=ny*TILE;
+  player.dir = dx<0?'left' : dx>0?'right' : dy<0?'up':'down';
+  player.frame=0;
+  if(typeof alSentarse==='function') alSentarse(nx,ny);
+  return true;
+}
+function levantarse(){
+  const s=player.sentado; if(!s) return false;
+  player.sentado=null;
+  player.x=s.x; player.y=s.y; player.px=s.x*TILE; player.py=s.y*TILE;
+  player.frame=0;
+  return true;
+}
+
 //==================================================================
 //  PUERTAS
 //  Una puerta no se pisa. Te colocas en la casilla de delante y
@@ -7105,25 +7407,31 @@ function loadScene(key,at,dir){
   // cargar una posicion del mapa exterior.
   if(key==='outdoor'){
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false; giradas=new Set(); lineasCon=new Map(); giros=new Map();
+    npcs=gentePara('outdoor', OUT_NPCS); patioMode=false; giradas=new Set(); lineasCon=new Map(); giros=new Map();
     tinte=null;                  // el campus no se repinta: tiene sus estaciones
     player.x=at?at[0]:39; player.y=at?at[1]:31;
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y; player.dir=dir||'up'; player.moving=false;
     resize(); updateLocation();
+    player.sentado=null;
     if(typeof saveGame==='function' && state!=='menu' && player.career) saveGame();
+    andantes=[];
+    if(typeof alEntrarSala==='function') alEntrarSala('outdoor');
     return;
   }
   scene=key; const I=INTERIORS[key];
   map=I.grid; mapW=map[0].length; mapH=map.length;
-  npcs=I.npcs||[]; patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
+  npcs=gentePara(key, I.npcs||[]); patioMode=!!I.isPatio;   // una sala sin NPCs no debe romper el render
   giradas=marcarGiradas(map); lineasCon=marcarLineas(map); giros=marcarGiros(I);
   tinte=I.tinte||null;                   // color propio de pared y suelo, si lo tiene
   player.x=at[0];player.y=at[1];player.px=player.x*TILE;player.py=player.y*TILE;
   player.tx=player.x;player.ty=player.y;player.dir=dir||'up';player.moving=false;
+  player.sentado=null;           // al cambiar de sala uno no sigue sentado
   showToast(I.name);
   resize();                      // ajustar la vista al tamano de esta sala
   if(typeof saveGame==='function' && state!=='menu' && player.career) saveGame();
+  andantes=[];                   // lo que anduviera en la sala anterior ya no existe
+  if(typeof alEntrarSala==='function') alEntrarSala(key);
 }
 function enterInterior(key,desde){
   transition(()=>{
@@ -7136,7 +7444,7 @@ function enterInterior(key,desde){
 function salirAlCampus(at){
   transition(()=>{
     scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-    npcs=OUT_NPCS; patioMode=false; sceneStack=[];
+    npcs=gentePara('outdoor', OUT_NPCS); patioMode=false; sceneStack=[];
     player.x=at[0]; player.y=at[1];
     player.px=player.x*TILE; player.py=player.y*TILE;
     player.tx=player.x; player.ty=player.y;
@@ -7161,7 +7469,7 @@ function exitInterior(){
       if(!back){ const k=Object.keys(BUILDINGS).find(k=>BUILDINGS[k].interior===scene);
                  if(k) back={x:BUILDINGS[k].door[0], y:BUILDINGS[k].door[1]}; }
       scene='outdoor'; map=OUTDOOR; mapW=OUTDOOR[0].length; mapH=OUTDOOR.length;
-      npcs=OUT_NPCS; patioMode=false;
+      npcs=gentePara('outdoor', OUT_NPCS); patioMode=false;
       player.x=back?back.x:player.x; player.y=back?back.y:player.y;
       player.px=player.x*TILE;player.py=player.y*TILE;player.tx=player.x;player.ty=player.y;
       player.dir='down';player.moving=false;
@@ -7495,8 +7803,9 @@ function render(){
       ents.push({y:b.y1, draw:()=>drawBuilding(b)});
     });
   }
-  npcs.forEach(n=>ents.push({y:n.y,draw:()=>{ const a=aspectoNPC(n);
-    drawPerson(ctx,n.x*TILE-cam.x,n.y*TILE-cam.y,a.skin,a.hair,n.color,n.dir,0,a.pelo); }}));
+  npcs.forEach(n=>ents.push({y:(n.py!=null?n.py/TILE:n.y),draw:()=>{ const a=aspectoNPC(n);
+    const px=(n.px!=null?n.px:n.x*TILE), py=(n.py!=null?n.py:n.y*TILE);
+    drawPerson(ctx,px-cam.x,py-cam.y,a.skin,a.hair,n.color,n.dir,n.frame||0,a.pelo); }}));
   worldItemsInScene().forEach(o=>ents.push({y:o.y-0.1,draw:()=>drawWorldItemAt(ctx,o.x,o.y,o.id)}));
   ents.push({y:player.y+0.5,draw:()=>drawPerson(ctx,player.px-cam.x,player.py-cam.y,player.char.skin,player.char.hair,player.char.shirt,player.dir,player.frame,player.char.pelo)});
   ents.sort((a,b)=>a.y-b.y).forEach(e=>e.draw());
@@ -8376,6 +8685,7 @@ function loop(){
     if(state==='menu') animarMenu();   // portada: campus de fondo y sprites andando
     if(state==='play'){ tryMove(); updateMove(); if(animTick%6===0)updateLocation(); }
     else if(guion){ avanzarGuion(); updateMove(); }   // escaleras: el jugador anda solo
+    updateAndantes();                  // la gente sigue andando aunque estes hablando
     updateCamera(); render();
   }catch(e){
     if(!falloDibujo){
