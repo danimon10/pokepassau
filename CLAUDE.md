@@ -299,6 +299,17 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 - **Un acompañante va por delante, no en todas partes a la vez.** Ying tiene
   una ruta de salas (`RUTA_MENSA`) y una bandera con el tramo al que se ha
   llegado: si vuelves atrás, no te la encuentras duplicada.
+- **Quien te acompaña no puede esperar en la casilla desde la que se abre una
+  puerta**, que es justo donde tiene que ponerse el jugador: `sitioDeEspera`
+  le busca un hueco al lado. Y donde no hay hueco —la salida del Wohnheim es
+  un pasillo de una casilla— se le **pide paso**: un NPC con `aparta:true`
+  cambia de sitio contigo en vez de dejarte encerrado. A los demás se les
+  sigue rodeando. Sin estas dos cosas, un guía parado delante de una puerta
+  bloquea la partida.
+- **Un objeto que se usa desde la mochila necesita su `type` propio**, no
+  `'doc'`: el botón de usarlo y su icono se eligen por `type`. Y hay que
+  probarlo **abriendo la mochila**, no llamando a la función: el mapa estuvo
+  roto con la función funcionando perfectamente.
 - **Mover el mapa exterior toca más sitios de los que parece.** Además de
   `OUTDOOR`, `BUILDINGS` y `BLD_GEO` hay coordenadas absolutas del campus en:
   `OUT_NPCS`, el `player` inicial, el `spawn` de los objetos con
