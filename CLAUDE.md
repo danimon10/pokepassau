@@ -310,6 +310,16 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   `'doc'`: el botón de usarlo y su icono se eligen por `type`. Y hay que
   probarlo **abriendo la mochila**, no llamando a la función: el mapa estuvo
   roto con la función funcionando perfectamente.
+- **Salir de una sala se apoya en `sceneStack`**, que se llena al ir entrando.
+  Al **continuar una partida guardada dentro de un cuarto** esa pila no existe,
+  así que se reconstruye con `cadenaDeSalas()`, que sube sala por sala hasta el
+  campus; `volverDe()` dice de dónde se entra a cada una. Antes se inventaba
+  una pila de una sola entrada apuntando a una casilla fija del campus, y al
+  salir del cuarto de Ying aparecías en la otra punta del mapa.
+  Al buscar el padre de una sala hay que mirar **primero si da al campus por sí
+  misma** (`BUILDINGS[k].interior`, o sus propias `salidas`) y solo después qué
+  sala tiene una puerta hacia ella: el claustro y el NK2 tienen puertas el uno
+  al otro, y preguntar primero por las puertas se muerde la cola.
 - **Mover el mapa exterior toca más sitios de los que parece.** Además de
   `OUTDOOR`, `BUILDINGS` y `BLD_GEO` hay coordenadas absolutas del campus en:
   `OUT_NPCS`, el `player` inicial, el `spawn` de los objetos con

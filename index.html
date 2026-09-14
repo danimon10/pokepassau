@@ -7480,9 +7480,48 @@ function gotoScene(key,at,dir){
     loadScene(key, f.at, f.dir);
   });
 }
+// De que sala se entra a esta, y por que casilla se vuelve. Sale de los
+// propios datos: la sala padre es la que tiene una puerta que lleva aqui, y
+// si no la hay, el edificio del campus cuyo interior es esta. Asi no hace
+// falta que nadie apunte a mano por donde se sale de cada cuarto.
+function volverDe(clave){
+  // Primero, si esta sala da al campus por si misma: es la planta baja de un
+  // edificio, o una de las que tienen su propia salida. Hay que mirarlo ANTES
+  // que las puertas entre salas, porque el claustro y el NK2 tienen puertas el
+  // uno al otro y preguntar "quien tiene una puerta hacia aqui" se muerde la
+  // cola: la cadena nunca llegaria al campus.
+  const e=Object.keys(BUILDINGS).find(k=>BUILDINGS[k].interior===clave);
+  if(e) return {scene:'outdoor', x:BUILDINGS[e].door[0], y:BUILDINGS[e].door[1]};
+  const sal=(INTERIORS[clave]||{}).salidas;
+  if(sal && sal.length && sal[0].at) return {scene:'outdoor', x:sal[0].at[0], y:sal[0].at[1]};
+  // y si no, la sala que tiene una puerta que lleva aqui
+  for(const k in INTERIORS){
+    const d=(INTERIORS[k].doors||[]).find(d=>d.to===clave);
+    if(!d) continue;
+    const g=INTERIORS[k].grid, SOL=INTERIORS[k].isPatio?SOLID_PATIO:SOLID_IN;
+    const libre=(x,y)=>{ const c=(g[y]||'')[x]; return c!==undefined && !SOL.has(c); };
+    for(const [ox,oy] of [[0,1],[0,-1],[-1,0],[1,0]])
+      if(libre(d.x+ox,d.y+oy)) return {scene:k, x:d.x+ox, y:d.y+oy};
+    return {scene:k, x:d.x, y:d.y};
+  }
+  return null;
+}
+// La cadena entera hasta el campus. Se usa al continuar una partida guardada
+// dentro de un cuarto: sin ella, la pila queda vacia y al salir el jugador
+// aparece en cualquier parte del mapa.
+function cadenaDeSalas(clave){
+  const pila=[]; let c=clave, vueltas=0;
+  while(c && c!=='outdoor' && vueltas++<12){
+    const v=volverDe(c); if(!v) break;
+    pila.unshift(v); c=v.scene;
+  }
+  return pila;
+}
 function exitInterior(){
   transition(()=>{
-    const prev=sceneStack.pop();
+    // si la pila esta vacia (partida cargada dentro de un cuarto), se mira de
+    // donde se entra a esta sala en vez de improvisar una casilla cualquiera
+    const prev=sceneStack.pop() || volverDe(scene);
     if(!prev || prev.scene==='outdoor'){
       // se vuelve exactamente a la baldosa desde la que se entro
       let back=prev||sceneStack[0];
@@ -8585,8 +8624,9 @@ function applyLoadedGame(){
   if(pos.scene==='outdoor'){
     loadScene('outdoor',[pos.x,pos.y],player.dir||'up');
   } else if(INTERIORS[pos.scene]){
-    // reconstruir pila mínima para poder salir
-    sceneStack=[{scene:'outdoor', x:39, y:31}];
+    // la pila se reconstruye de verdad, sala por sala hasta el campus: con
+    // una pila inventada, salir de un cuarto te dejaba en cualquier parte
+    sceneStack=cadenaDeSalas(pos.scene);
     loadScene(pos.scene,[pos.x,pos.y],player.dir||'down');
   } else {
     loadScene('outdoor',[39,31],'up');
