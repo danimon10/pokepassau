@@ -5254,6 +5254,14 @@ const MISIONES={
     pasos:[{id:'gastar', t:"Pagar algo por primera vez"}],
     premio:null,
   },
+  mapa_quien:{
+    nombre:"¿Quién tiene un mapa?", ic:"🗺️",
+    desc:"No sabes dónde está nada. Alguien de la residencia llevaba un mapa de Passau hace unos días: pregunta por ahí.",
+    pista:"En la cocina compartida de la residencia siempre hay alguien.",
+    prereq:['primera_noche','primer_gasto'],
+    pasos:[{id:'preguntar_tom', t:"Preguntar en la residencia quién tiene un mapa"}],
+    premio:null,
+  },
 };
 
 function estadoMision(id){ return (gameData.misiones||{})[id]||null; }
@@ -5298,11 +5306,23 @@ function completarMision(id){
   actualizarHud();
   avisar('✅ Misión cumplida: '+m.nombre+extra);
   saveGame();
+  abrirPorPrereq();           // esto puede abrir la siguiente de la historia
 }
 // Las misiones marcadas como 'inicial' arrancan solas al empezar, y tambien
 // al cargar una partida vieja que todavia no las tuviera.
 function arrancarMisiones(){
   for(const id in MISIONES) if(MISIONES[id].inicial) activarMision(id, true);
+  abrirPorPrereq(true);
+}
+// Una mision con 'prereq' se abre sola en cuanto estan hechas todas las que
+// espera. Es lo que en el editor del guion son los prerrequisitos: asi la
+// historia va saliendo sin que nadie tenga que activarla desde un dialogo.
+function abrirPorPrereq(callada){
+  for(const id in MISIONES){
+    const m=MISIONES[id];
+    if(!m.prereq || !m.prereq.length || estadoMision(id)) continue;
+    if(m.prereq.every(misionHecha)) activarMision(id, callada);
+  }
 }
 
 // --- panel de misiones (boton de la derecha o tecla M) ---
@@ -5334,6 +5354,84 @@ function openMisiones(){
     </div>${cuerpo}
     <div class="hintline">Tecla M · duerme en tu cama para pasar de día</div>`);
   overlay.querySelector('.close').onclick=closeOverlay;
+}
+
+//==================================================================
+//  TAREAS DE LENGUA
+//  Lo que se escribe en el editor del guion (tools/guion.js) acaba aqui.
+//  Una tarea es un intercambio con una persona concreta: lo que suelta
+//  antes, el reto, lo que contesta segun aciertes o no, y el paso de
+//  mision que marca al superarla.
+//
+//  A la persona se la nombra igual que en el editor, 'sala:Nombre', para
+//  que no haya que tocar INTERIORS: la tarea se engancha sola cuando su
+//  mision esta activa y su paso todavia suelto.
+//
+//  'single' (elegir la frase correcta) se apoya en el cuadro de dialogo
+//  de siempre: las opciones son las mismas de showChoices, barajadas. Al
+//  fallar el cuadro NO se cierra, se vuelve a preguntar, y del segundo
+//  intento en adelante con la pista delante: atascarse es lo peor que
+//  puede pasar en un juego.
+//==================================================================
+const TAREAS={
+  mapa_preguntar_tom:{
+    npc:'wh_cocina:Estudiante Tom',
+    mision:'mapa_quien', paso:'preguntar_tom',
+    mec:'single', fun:'pedir_info', nivel:'A2',
+    dialogo:["¿Qué pasa? ¿Perdido ya el primer día?"],
+    consigna:"«Estoy buscando un mapa de Passau…» ¿Cómo sigues?",
+    correcta:"¿Sabes quién tiene un mapa de Passau?",
+    falsas:[
+      "¿Sabes quien tiene un mapa de Passau?",
+      "¿Sabes quién un mapa de Passau tiene?",
+      "¿Conoces quién tiene un mapa de Passau?",
+    ],
+    pista:"Mira la tilde del interrogativo, dónde va el verbo y si es «saber» o «conocer».",
+    acierta:["Pues mira, vi a Ying con uno el otro día.",
+             "Vive en la habitación 3, aquí al lado. Pregúntale a ella."],
+    falla:["Perdona, no te he pillado. ¿Me lo repites?"],
+    despues:["¿Hablaste ya con Ying? Habitación 3, la del pasillo.",
+             "Si no está, vuelve luego. Esa no sale mucho."],
+  },
+};
+
+// La tarea que le toca ahora a esta persona, si le toca alguna.
+function tareaDe(npc){
+  const clave=scene+':'+npc.name;
+  for(const id in TAREAS){
+    const T=TAREAS[id];
+    if(T.npc!==clave) continue;
+    const e=estadoMision(T.mision);
+    if(!e) continue;                               // su mision aun no ha salido
+    return {T, hecha: !!e.pasos[T.paso] || e.estado==='hecha'};
+  }
+  return null;
+}
+function barajar(a){
+  const b=a.slice();
+  for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+  return b;
+}
+function abrirTarea(T, npc){
+  let fallos=0;
+  const opts=barajar([{t:T.correcta, ok:true}].concat((T.falsas||[]).map(t=>({t, ok:false}))));
+  const reto={q:T.consigna, opts};
+  // showChoices llama a fn ANTES de leer la respuesta, asi que aqui se decide
+  // lo que contesta la persona sabiendo por que intento vamos.
+  opts.forEach(o=>{
+    o.fn=()=>{
+      if(o.ok){
+        o.r=T.acierta.slice();
+        cumplirPaso(T.mision, T.paso);
+        return;
+      }
+      fallos++;
+      o.r=T.falla.slice();
+      if(fallos>=2 && T.pista) o.r=o.r.concat('💡 '+T.pista);
+      dlg.choice=reto;          // no se cierra el cuadro: se vuelve a preguntar
+    };
+  });
+  openDialog(npc.name, (T.dialogo||[]).slice(), reto);
 }
 
 //------------------------------------------------------------------
@@ -6769,7 +6867,11 @@ function interact(){
 }
 function startNPC(npc){
   mirarAlJugador(npc);        // te contesta de cara, le hables de cerca o de lejos
+  // si esta persona tiene un reto de lengua pendiente, es lo que toca ahora
+  const t=tareaDe(npc);
+  if(t && !t.hecha){ abrirTarea(t.T, npc); return; }
   let lines=[...npc.lines];
+  if(t && t.T.despues) lines=lines.concat(t.T.despues);
   if(npc.careerLine){ const cl=npc.careerLine[player.career]||npc.careerLine.default; if(cl)lines.push(cl); }
   // lo que ya le entregaste, lo comenta al volver a hablar con el
   (gameData.entregados||[]).forEach(id=>{

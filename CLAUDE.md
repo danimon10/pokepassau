@@ -173,6 +173,7 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 |---|---|
 | `MAPA EXTERIOR` | la rejilla del campus como array de cadenas |
 | `TIEMPO, DINERO Y MISIONES` | calendario, cartera, misiones y dormir |
+| `TAREAS DE LENGUA` | los retos del guion y el motor que los juega |
 | Leyenda interior | qué significa cada letra de las rejillas de sala |
 | `INTERIORS` | las salas: 83 rejillas con sus puertas y NPCs |
 | `EDIFICIOS` | qué puerta del exterior lleva a qué sala |
@@ -241,7 +242,25 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   de siempre: cualquier cambio ahí se nota en el juego que ya existía.
 - **Las misiones se avanzan con `cumplirPaso(mision, paso)`**, desde donde se
   cumplan. La misión se cierra sola cuando no le queda ningún paso suelto: no
-  hay que marcarla como hecha a mano.
+  hay que marcarla como hecha a mano. Una misión con `prereq:['otra','otra']`
+  se abre sola en cuanto están hechas todas las que espera (`abrirPorPrereq`),
+  que es lo que en el editor del guion son los prerrequisitos: la historia
+  avanza sin que ningún diálogo tenga que activar nada.
+- **Los retos de lengua viven en `TAREAS`**, no en el NPC. Cada tarea dice a
+  quién pertenece con la misma clave que usa el editor del guion
+  (`'sala:Nombre'`), así que añadir una **no toca `INTERIORS`**: `startNPC`
+  pregunta por `tareaDe(npc)` y, si su misión está activa y su paso suelto,
+  abre el reto en vez de la charla de siempre; cuando ya está hecho, sus
+  líneas de `despues` se añaden a lo que decía normalmente.
+  La mecánica `single` se apoya en el `choice` del cuadro de diálogo de
+  siempre, con las opciones barajadas. **Al fallar el cuadro no se cierra:**
+  la persona contesta y vuelve a preguntar, y del segundo intento en adelante
+  con la pista delante. Eso vale para todas las tareas cerradas; las abiertas
+  (rúbrica) todavía no están hechas.
+- **Las frases de una tarea `single` tienen que caber en un botón.** El cuadro
+  de diálogo da para unos 40 caracteres por opción en una línea; si la frase
+  del guion es más larga, se parte: la primera mitad va en la `consigna` y la
+  elección se queda con lo que de verdad se está practicando.
 - **Mover el mapa exterior toca más sitios de los que parece.** Además de
   `OUTDOOR`, `BUILDINGS` y `BLD_GEO` hay coordenadas absolutas del campus en:
   `OUT_NPCS`, el `player` inicial, el `spawn` de los objetos con
