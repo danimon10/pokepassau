@@ -5806,6 +5806,7 @@ const RUTA_MENSA=[
 const fase=()=>bandera('almuerzo');
 const yingGuiando=()=>['yendo','pidiendo','mesa'].indexOf(fase())>=0;
 const guiaYing=(at)=>({x:at[0], y:at[1], name:"Ying", color:"#d65a8a", dir:'down',
+  aparta:true,                    // si se queda en medio, se le pide paso
   lines:["¡Venga, que a la una no se cabe!"]});
 
 // Mientras te lleva a comer, Ying no esta en su habitacion.
@@ -5837,6 +5838,17 @@ GENTE_EVENTO.push({sala:'mensa2', cuando:()=>fase()==='mesa', gente:()=>[
           "Si te pierdes, dilo y cambiamos."]},
 ]});
 
+// Donde espera quien te acompaña: al lado de la puerta, nunca en la casilla
+// desde la que se abre, que es justo donde tiene que ponerse el jugador. Se
+// busca sola, asi que si un dia se rediseña la sala sigue valiendo.
+function sitioDeEspera(at){
+  const [x,y]=at;
+  const libre=(a,b)=> a>0 && b>0 && a<mapW && b<mapH && !isSolid(a,b)
+                      && !npcs.some(n=>n.x===a&&n.y===b)
+                      && !(player.x===a && player.y===b);
+  for(const [ox,oy] of [[-1,0],[1,0],[0,-1],[0,1]]) if(libre(x+ox,y+oy)) return [x+ox,y+oy];
+  return at;                      // sala sin hueco al lado: que espere donde pueda
+}
 function arrancarGuia(){
   const i=RUTA_MENSA.findIndex(r=>r.sala===scene);
   if(i<0) return;
@@ -5844,7 +5856,7 @@ function arrancarGuia(){
   const r=RUTA_MENSA[i];
   const Y=npcs.find(n=>n.name==='Ying'); if(!Y || andando(Y)) return;
   if(fase()!=='yendo') return;
-  andarA(Y, r.va, ()=>{
+  andarA(Y, sitioDeEspera(r.va), ()=>{
     if(scene==='mensa2'){ ponBandera('almuerzo','pidiendo'); cumplirPaso('mensa_comer','seguir'); }
   });
 }
@@ -7047,7 +7059,15 @@ function tryMove(){
   }
   if(dx===0&&dy===0) return;
   const nx=player.x+dx, ny=player.y+dy;
-  if(npcs.some(n=>n.x===nx&&n.y===ny)) return;
+  const enMedio=npcs.find(n=>n.x===nx&&n.y===ny);
+  if(enMedio){
+    // A quien te acompaña se le pide paso y cambiais de sitio; a los demas
+    // se les rodea, como siempre. Sin esto, un guia parado en un pasillo de
+    // una casilla te deja encerrado.
+    if(!enMedio.aparta || andando(enMedio)) return;
+    enMedio.x=player.x; enMedio.y=player.y; enMedio.px=null; enMedio.py=null;
+    enMedio.dir = dx<0?'right' : dx>0?'left' : dy<0?'down':'up';
+  }
   if(activarPuerta(nx,ny)){player.frame=0;return;}   // empujar hacia una puerta la acciona
   if(sentarse(nx,ny,dx,dy)) return;                  // ...y hacia una silla, te sienta
   if(isSolid(nx,ny)){
@@ -7928,7 +7948,7 @@ const ITEMS = {
     rechazo:["Qué anillo tan bonito. Pero no es mío."],
   },
   mapa: {
-    name:"Mapa de Passau", type:'doc', icon:'mapa', art:'el',
+    name:"Mapa de Passau", type:'mapa', icon:'mapa', art:'el',
     // tampoco tiene spawn: te lo da Ying
     guess:"Un plano doblado en cuatro.",
     desc:"El plano de la ciudad que te dio Ying. Por una cara, el campus entero con los edificios marcados.",
