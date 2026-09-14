@@ -246,6 +246,27 @@
   .choice{cursor:pointer;background:#fff;border:3px solid var(--dlg-frame);border-radius:8px;padding:7px 12px;
     font-family:inherit;font-size:calc(var(--fs) * .88);color:var(--txt);text-align:left;box-shadow:0 2px 0 rgba(90,107,138,.4);}
   .choice:hover{background:#ffe9a8;border-color:#e0a93a;}
+  /* ---- RETOS DE LENGUA: ordenar la frase y huecos con desplegable ----
+     Viven dentro del cuadro de dialogo, con su misma estetica, para que
+     el ejercicio no parezca un examen pegado encima del juego. */
+  #dlgReto{display:none;margin-top:10px;}
+  .huecos,.fichas{display:flex;flex-wrap:wrap;gap:5px;}
+  .huecos{margin-bottom:9px;padding-bottom:9px;border-bottom:2px dotted rgba(90,107,138,.45);}
+  .hueco,.ficha{cursor:pointer;font-family:inherit;font-size:calc(var(--fs) * .85);color:var(--txt);
+    border:2px solid var(--dlg-frame);border-radius:7px;padding:5px 9px;background:#fff;}
+  .hueco{min-width:calc(var(--fs) * 2.2);text-align:center;}
+  .hueco.vacio{background:rgba(90,107,138,.12);border-style:dashed;}
+  .ficha{box-shadow:0 2px 0 rgba(90,107,138,.4);}
+  .ficha:hover,.hueco:not(.vacio):hover{background:#ffe9a8;border-color:#e0a93a;}
+  .frase{font-size:var(--fs);line-height:2.1;}
+  .frase select{font-family:inherit;font-size:calc(var(--fs) * .85);color:var(--txt);background:#fff;
+    border:2px solid var(--dlg-frame);border-radius:7px;padding:3px 5px;margin:0 2px;}
+  .retoPie{display:flex;gap:7px;margin-top:10px;}
+  .dlgBtn{cursor:pointer;font-family:inherit;font-size:calc(var(--fs) * .85);border-radius:8px;
+    padding:6px 14px;border:3px solid var(--dlg-frame);background:#fff;color:var(--txt);
+    box-shadow:0 2px 0 rgba(90,107,138,.4);}
+  .dlgBtn.pri{background:#e0a93a;border-color:#b07a1a;color:#fff;font-weight:bold;}
+  .dlgBtn:hover{filter:brightness(1.06);}
   #dlgArrow{position:absolute;right:16px;bottom:8px;font-size:calc(var(--fs) * .95);color:var(--dlg-frame);animation:bob .6s infinite;}
   /* boton de inventario: mas discreto en movil */
   body.tmode #invBtn{width:var(--ib);height:var(--ib);font-size:calc(var(--ib) * .5);
@@ -309,7 +330,7 @@
     <button id="misBtn" title="Misiones (M)">📋<span class="num" id="misNum">0</span></button>
     <div id="dialog">
       <div id="dlgName">NPC</div><div id="dlgText"></div>
-      <div id="dlgChoices"></div><div id="dlgArrow">▼</div>
+      <div id="dlgChoices"></div><div id="dlgReto"></div><div id="dlgArrow">▼</div>
     </div>
   </div>
   <!-- el mando vive fuera del "stage" para aprovechar la pantalla entera,
@@ -5255,11 +5276,47 @@ const MISIONES={
     premio:null,
   },
   mapa_quien:{
-    nombre:"¿Quién tiene un mapa?", ic:"🗺️",
-    desc:"No sabes dónde está nada. Alguien de la residencia llevaba un mapa de Passau hace unos días: pregunta por ahí.",
-    pista:"En la cocina compartida de la residencia siempre hay alguien.",
+    nombre:"Un plano de la ciudad", ic:"🗺️",
+    desc:"No sabes dónde está nada. Hace unos días viste a alguien en la residencia con un mapa en la mano.",
+    pista:"En la residencia hay gente en la cocina, en el salón y en las habitaciones.",
     prereq:['primera_noche','primer_gasto'],
     pasos:[{id:'preguntar_tom', t:"Preguntar en la residencia quién tiene un mapa"}],
+    premio:null,
+  },
+  mapa_ying:{
+    nombre:"El mapa de Ying", ic:"🧭",
+    desc:"Tom dice que Ying, la estudiante taiwanesa, tiene uno. Vive en la habitación 3.",
+    pista:"Habitación 3 de la residencia, en el pasillo.",
+    prereq:['mapa_quien'],
+    pasos:[{id:'pedir', t:"Pedirle el mapa a Ying"}],
+    premio:null,
+  },
+  anillo_buscar:{
+    nombre:"El anillo de la abuela", ic:"💍",
+    desc:"A Ying se le perdió el anillo que le regaló su abuela en Taipéi. No sabe dónde, pero fue en algún punto del campus.",
+    pista:"Piensa dónde se tumba la gente cuando hace sol.",
+    prereq:['mapa_ying'],
+    pasos:[{id:'encontrar', t:"Encontrar el anillo"}],
+    premio:null,
+    // se puede haber cogido antes de que Ying lo mencionara
+    alAbrir:()=>{ if(gameData.inventory.includes('ring')) cumplirPaso('anillo_buscar','encontrar'); },
+  },
+  anillo_arreglar:{
+    nombre:"Un anillo abollado", ic:"🔧",
+    desc:"Lleva días a la intemperie: está torcido y sucio. Así no se lo puedes devolver a nadie.",
+    pista:null,               // a proposito: que se le ocurra a el donde se arregla eso
+    prereq:['anillo_buscar'],
+    pasos:[{id:'preguntar', t:"Preguntar en algún sitio si tiene arreglo"},
+           {id:'encargar',  t:"Dejarlo arreglar"},
+           {id:'recoger',   t:"Recogerlo cuando esté listo"}],
+    premio:null,
+  },
+  anillo_devolver:{
+    nombre:"Devolverle el anillo a Ying", ic:"💍",
+    desc:"Ya está como nuevo. Ying lleva días sin él.",
+    pista:"Habitación 3 de la residencia.",
+    prereq:['anillo_arreglar'],
+    pasos:[{id:'entregar', t:"Dárselo a Ying"}],
     premio:null,
   },
 };
@@ -5282,6 +5339,8 @@ function activarMision(id, callada){
   actualizarHud();
   if(!callada) avisar('📋 Nueva misión: '+m.nombre);
   saveGame();
+  // lo que ya estuviera hecho cuando la mision se abre, se da por hecho
+  if(m.alAbrir) try{ m.alAbrir(); }catch(e){ console.error('alAbrir '+id, e); }
   return true;
 }
 // Marca un paso. Cuando no queda ninguno suelto, la mision se da por hecha.
@@ -5374,33 +5433,182 @@ function openMisiones(){
 //  puede pasar en un juego.
 //==================================================================
 const TAREAS={
+  // --- Tom, en la cocina de la residencia: ordenar la frase ---
   mapa_preguntar_tom:{
     npc:'wh_cocina:Estudiante Tom',
     mision:'mapa_quien', paso:'preguntar_tom',
-    mec:'single', fun:'pedir_info', nivel:'A2',
-    dialogo:["¿Qué pasa? ¿Perdido ya el primer día?"],
-    consigna:"«Estoy buscando un mapa de Passau…» ¿Cómo sigues?",
-    correcta:"¿Sabes quién tiene un mapa de Passau?",
-    falsas:[
-      "¿Sabes quien tiene un mapa de Passau?",
-      "¿Sabes quién un mapa de Passau tiene?",
-      "¿Conoces quién tiene un mapa de Passau?",
+    mec:'ordenar', fun:'pedir_info', nivel:'A2',
+    dialogo:["¡Anda! Tú eres el nuevo del pasillo, ¿no?",
+             "Yo llevo aquí cinco años. Cinco. Iban a ser tres.",
+             "En fin. Que si tienes alguna duda de algo, pregúntame, que de esta ciudad ya me sé hasta las farolas."],
+    entrada:{q:"¿Le preguntas algo?", si:"Preguntar por el mapa", no:"No preguntar nada",
+             tuya:["En realidad sí puedes ayudarme. Es que todavía no conozco la ciudad."],
+             fuera:["Cuando quieras. Aquí estoy casi siempre, por desgracia."]},
+    consigna:"Monta la pregunta:",
+    frase:"¿ sabes quién tiene un mapa de Passau ?",
+    sobran:["una","conoces","sabe","el"],
+    errores:[
+      {huecos:true, dice:["Ehh… creo que le falta algo a tu pregunta.",
+                          "Ponla entera, anda, que si no no sé qué me estás pidiendo."]},
+      {contiene:"una mapa", dice:["¿«Una mapa»? Jajaja, perdona, perdona.",
+                                  "Es «un mapa». De los que engañan: acaba en -a pero es masculino.",
+                                  "Como «el problema» o «el día». Un clásico."]},
+      {contiene:"conoces", dice:["«¿Conoces quién…?» No, hombre, no.",
+                                 "«Conocer» es para personas y sitios: conoces Passau, conoces a Ying.",
+                                 "Para un dato es «saber»."]},
+      {contiene:"sabe", dice:["¿«Sabe»? Oye, que no soy tu profesor.",
+                              "Háblame de tú, que vivimos en el mismo pasillo."]},
+      {sinPieza:"¿", dice:["Te ha faltado abrir la pregunta.",
+                           "Ya sé que en alemán no se hace, pero aquí la pregunta se abre y se cierra. Dos signos."]},
     ],
-    pista:"Mira la tilde del interrogativo, dónde va el verbo y si es «saber» o «conocer».",
-    acierta:["Pues mira, vi a Ying con uno el otro día.",
-             "Vive en la habitación 3, aquí al lado. Pregúntale a ella."],
-    falla:["Perdona, no te he pillado. ¿Me lo repites?"],
+    pista:"Empieza abriendo la pregunta, y acuérdate de que «mapa» es masculino.",
+    falla:["Mmm. Casi, pero así no me suena.","Prueba otra vez."],
+    acierta:["¡Ah, un mapa! Haberlo dicho.",
+             "Yo el mío lo perdí en una mudanza. Pero Ying tiene uno, seguro: la taiwanesa del 3.",
+             "Habitación 3, aquí al lado. Es simpática, no te cortes."],
     despues:["¿Hablaste ya con Ying? Habitación 3, la del pasillo.",
              "Si no está, vuelve luego. Esa no sale mucho."],
   },
+
+  // --- Ying, en su habitacion: huecos con lista desplegable ---
+  mapa_pedir_ying:{
+    npc:'wh_hab3:Ying',
+    mision:'mapa_ying', paso:'pedir',
+    mec:'huecoLista', fun:'pedir_favor', nivel:'B1',
+    dialogo:["¡Hola! Perdona el desorden, estoy con los exámenes.",
+             "¿Necesitas algo?"],
+    consigna:"Completa lo que le dices:",
+    frase:"{Me gustaría saber si|Dime si|—|Tú} tienes {un|una} mapa de Passau.",
+    errores:[
+      {huecos:true, dice:["Perdona, ¿me lo repites? Es que me he perdido a la mitad."]},
+      {contiene:"una", dice:["¿«Una mapa»? Cuidado con ese.",
+                             "Acaba en -a pero es «un mapa». A mí me costó un semestre entero."]},
+      {contiene:"dime si", dice:["Uy. «Dime si tienes» suena a que me estás mandando.",
+                                 "No pasa nada, ¿eh? Pero con «me gustaría saber si» me habrías caído mejor."]},
+      {contiene:"tu tienes", dice:["Eso no es una pregunta, es una afirmación.",
+                                   "Y yo me quedo esperando a ver qué quieres."]},
+      {contiene:"tienes un mapa de passau", dice:["Pues sí, tengo. ¿Y?",
+                                                  "Perdona, es que así, a secas, no sé si me lo estás pidiendo o solo preguntando."]},
+    ],
+    pista:"Empieza por algo que suene a petición, y ojo con el artículo de «mapa».",
+    falla:["Mmm… no acabo de entenderte."],
+    acierta:["¡Claro! Toma, quédatelo, yo ya me lo sé de memoria.",
+             "Oye… ya que estás. El otro día perdí un anillo que me regaló mi abuela en Taipéi.",
+             "No sé dónde. Fue en algún sitio del campus, seguro. Si lo ves… me harías un favor enorme."],
+    entrega:'mapa',
+    despues:["¿Has visto el anillo? Es de plata, finito. Con una piedra pequeña.",
+             "Mi abuela ya no está. Es lo único suyo que tengo."],
+  },
+
+  // --- Joyeria, tres preguntas encadenadas, una mecanica distinta cada una ---
+  anillo_p1:{
+    npc:'ekz1:Joyera Frau Adler',
+    mision:'anillo_arreglar', paso:'preguntar',
+    mec:'single', fun:'pedir_info', nivel:'A2',
+    dialogo:["Buenos días. ¿En qué puedo ayudarle?"],
+    consigna:"¿Cómo se lo preguntas?",
+    correcta:"¿Arreglan ustedes anillos?",
+    falsas:["¿Arregláis ustedes anillos?","¿Ustedes arregla anillos?","¿Arreglan ustedes anillo?"],
+    pista:"Con «ustedes» el verbo va en tercera persona del plural.",
+    falla:["¿Cómo dice? Perdone, es que no le he entendido bien."],
+    acierta:["Claro que sí. A ver, déjeme mirar… plata, y de la buena.",
+             "Esto se endereza y se limpia. Queda como nuevo."],
+    sigue:'anillo_p2',
+  },
+  anillo_p2:{
+    npc:'ekz1:Joyera Frau Adler',
+    mision:'anillo_arreglar', paso:null,
+    mec:'ordenar', fun:'pedir_info', nivel:'B1',
+    dialogo:[],
+    consigna:"Pregúntale el precio:",
+    frase:"¿ cuánto costaría arreglarlo ?",
+    sobran:["cuanto","cuesta","lo","qué"],
+    errores:[
+      {huecos:true, dice:["Perdone, ¿la pregunta entera?"]},
+      {pieza:"cuanto", dice:["Le falta la tilde: «cuánto», que está preguntando.",
+                             "Sin tilde es otra cosa. Aquí lleva."]},
+      {contiene:"que", dice:["«¿Qué costaría?» No, mujer. Perdón: no, hombre.",
+                             "Para un precio se pregunta «cuánto»."]},
+      {sinPieza:"¿", dice:["Se abre la pregunta, por favor. Que si no parece que me la esté afirmando."]},
+    ],
+    pista:"Es «cuánto», con tilde, y la pregunta se abre.",
+    falla:["No le sigo. ¿Me lo dice otra vez?"],
+    acierta:["Diez euros. Y no se lo cobro más caro porque el trabajo es sencillo."],
+    sigue:'anillo_p3',
+  },
+  anillo_p3:{
+    npc:'ekz1:Joyera Frau Adler',
+    mision:'anillo_arreglar', paso:null,
+    mec:'huecoLista', fun:'pedir_info', nivel:'B1',
+    dialogo:[],
+    consigna:"Y lo último:",
+    frase:"¿{Cuánto|Qué|Cuándo} tiempo {tardaría|tardarías|tardaremos}?",
+    errores:[
+      {huecos:true, dice:["Dígamelo entero, que estoy con las manos ocupadas."]},
+      {contiene:"cuando tiempo", dice:["«¿Cuándo tiempo?» No.",
+                                       "«Cuándo» es para un momento; para una cantidad, «cuánto»."]},
+      {contiene:"que tiempo", dice:["«¿Qué tiempo?» Eso es lo que se pregunta mirando por la ventana."]},
+      {contiene:"tardarias", dice:["¿Yo? Yo no tardo nada, es el anillo el que tarda.",
+                                   "Hábleme de usted, haga el favor."]},
+      {contiene:"tardaremos", dice:["¿Tardaremos? ¿Va a ayudarme usted a limarlo?"]},
+    ],
+    pista:"Para una cantidad de tiempo, «cuánto». Y a mí, de usted.",
+    falla:["¿Perdone?"],
+    acierta:["Un día. Si me lo deja ahora, mañana lo tiene."],
+    remate:'anillo_encargo',
+  },
 };
+
+// Lo que pasa al terminar la ultima pregunta de la joyeria: se decide si se
+// deja o no. El precio va en la opcion, que es como se cobra en este juego:
+// asi el boton enseña los 10 €, se apaga si no llegan y cuenta como gasto.
+const REMATES={
+  anillo_encargo:(npc)=>{
+    openDialog(npc.name, ["¿Se lo dejo apuntado, entonces?"], {
+      q:"¿Lo dejas arreglar?",
+      opts:[
+        {t:"Sí, déjemelo arreglado", precio:1000,
+         r:["Muy bien. Su nombre… ya está. Mañana a esta hora lo tiene listo.",
+            "Y no lo pierda otra vez, que estas cosas solo se pierden una vez de verdad."],
+         sin:["Son diez euros, y no los lleva encima. Vuelva cuando los tenga, que el anillo no se va a ir."],
+         fn:()=>{
+           gameData.inventory=gameData.inventory.filter(x=>x!=='ring');
+           gameData.worldItems['ring']='taken';
+           ponBandera('anillo_dejado', gameData.dia||0);
+           cumplirPaso('anillo_arreglar','encargar');
+           saveGame();
+         }},
+        {t:"Me lo pienso", r:["Como quiera. Aquí estoy de nueve a seis."]},
+      ]});
+  },
+};
+
+// Sin tildes y en minusculas, para comparar lo que escribe el jugador sin
+// que una tilde de menos tumbe una respuesta por lo demas correcta.
+const sinTildes = s => String(s||'').toLowerCase()
+  .normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+// Un {a|b|c} de una frase con huecos: la primera opcion es la correcta.
+// Es la misma sintaxis que usa el editor del guion.
+function partirHuecos(txt){
+  const fuera=[]; let ult=0, m;
+  const re=/\{([^{}]*)\}/g;
+  while((m=re.exec(txt||''))){
+    if(m.index>ult) fuera.push({t:'texto', v:txt.slice(ult,m.index)});
+    const ops=m[1].split('|').map(s=>s.trim());
+    fuera.push({t:'hueco', ops, bien:ops[0]});
+    ult=m.index+m[0].length;
+  }
+  if(ult<(txt||'').length) fuera.push({t:'texto', v:txt.slice(ult)});
+  return fuera;
+}
 
 // La tarea que le toca ahora a esta persona, si le toca alguna.
 function tareaDe(npc){
   const clave=scene+':'+npc.name;
   for(const id in TAREAS){
     const T=TAREAS[id];
-    if(T.npc!==clave) continue;
+    if(T.npc!==clave || !T.paso) continue;        // sin paso propio: solo se llega encadenado
     const e=estadoMision(T.mision);
     if(!e) continue;                               // su mision aun no ha salido
     return {T, hecha: !!e.pasos[T.paso] || e.estado==='hecha'};
@@ -5413,6 +5621,7 @@ function barajar(a){
   return b;
 }
 function abrirTarea(T, npc){
+  if(T.mec==='ordenar' || T.mec==='huecoLista'){ abrirReto(T, npc); return; }
   let fallos=0;
   const opts=barajar([{t:T.correcta, ok:true}].concat((T.falsas||[]).map(t=>({t, ok:false}))));
   const reto={q:T.consigna, opts};
@@ -5422,7 +5631,9 @@ function abrirTarea(T, npc){
     o.fn=()=>{
       if(o.ok){
         o.r=T.acierta.slice();
-        cumplirPaso(T.mision, T.paso);
+        o.alCerrar=trasAcertar(T, npc);      // showChoices lo lee despues de fn
+        if(T.paso) cumplirPaso(T.mision, T.paso);
+        if(T.entrega) takeItem(T.entrega);
         return;
       }
       fallos++;
@@ -5432,6 +5643,189 @@ function abrirTarea(T, npc){
     };
   });
   openDialog(npc.name, (T.dialogo||[]).slice(), reto);
+}
+
+// Lo que una persona dice cuando la historia va por cierto punto, en vez de
+// sus frases de siempre. La primera que encaja manda.
+const CHARLAS=[
+  // la joyera, con el anillo ya encargado
+  {npc:'ekz1:Joyera Frau Adler',
+   cuando:()=>bandera('anillo_dejado')!=null && !misionHecha('anillo_arreglar'),
+   hablar:(npc)=>{
+     if((gameData.dia||0) <= bandera('anillo_dejado')){
+       openDialog(npc.name, ["Todavía no, hombre. Le he dicho mañana.",
+                             "Estas cosas no se hacen con prisa. Vuelva mañana."]);
+       return;
+     }
+     openDialog(npc.name, ["Ahí lo tiene. Mírelo a la luz.",
+                           "Estaba más torcido de lo que parecía, pero ha salido bien.",
+                           "Y por dentro lleva algo grabado. Ni lo he tocado: eso es de quien sea."]);
+     takeItem('ring_ok');
+     cumplirPaso('anillo_arreglar','recoger');
+   }},
+];
+
+//------------------------------------------------------------------
+//  RETOS QUE SE MONTAN: ordenar la frase y huecos con desplegable
+//
+//  Los dos viven dentro del cuadro de dialogo, detras de lo que dice la
+//  persona, y se comportan igual que el 'single': al fallar no se cierra
+//  nada, contesta y vuelve a dejarte probar.
+//
+//  Lo que distingue a estos dos es que la persona puede reaccionar AL
+//  ERROR CONCRETO: 'errores' es una lista de comprobaciones sencillas
+//  —huecos sin rellenar, una pareja de palabras que no concuerdan, una
+//  ficha que falta— y la primera que salta manda. Asi no se contesta
+//  siempre lo mismo, que es lo que convierte el ejercicio en trato.
+//------------------------------------------------------------------
+const dlgReto=document.getElementById('dlgReto');
+let retoVivo=null;         // {T, npc, pinta(), fallos}
+
+function abrirReto(T, npc){
+  retoVivo={T, npc, fallos:0, estado:null};
+  if(T.mec==='ordenar'){
+    const piezas=T.frase.trim().split(/\s+/);
+    retoVivo.estado={
+      piezas,
+      sopa: barajar(piezas.concat(T.sobran||[])),
+      puestos: new Array(piezas.length).fill(null),
+    };
+  }else{
+    const partes=partirHuecos(T.frase);
+    retoVivo.estado={
+      partes,
+      // cada hueco se baraja al pintarlo, pero el orden se fija aqui para
+      // que no bailen las opciones a cada repintado
+      ordenes: partes.map(p=>p.t==='hueco' ? barajar(p.ops) : null),
+      elegido: partes.map(()=>''),
+    };
+  }
+  // la consigna es la ultima linea antes del reto: si no, las fichas salen
+  // colgando de una frase que no pedia nada
+  const lineas=(T.dialogo||[]).slice();
+  const E=T.entrada;
+  if(E){
+    // primero se decide si se le pregunta o no; lo que dice tu personaje va
+    // como respuesta de la opcion, y al acabarse esas lineas sale el reto
+    openDialog(npc.name, lineas, {q:E.q, opts:[
+      {t:E.si, r:(E.tuya||[]).concat(T.consigna||[]), fn:()=>{ dlg.reto=retoVivo; }},
+      {t:E.no, r:(E.fuera||['Como quieras.']).slice(), fn:()=>{ retoVivo=null; }},
+    ]});
+    return;
+  }
+  if(T.consigna) lineas.push(T.consigna);
+  openDialog(npc.name, lineas, null);
+  dlg.reto=retoVivo;
+  if(!lineas.length) mostrarReto();            // sin preambulo, al grano
+}
+
+// Que pasa cuando se acierta: encadenar con la siguiente pregunta o rematar
+// la escena. Va en 'alCerrar' porque necesita el cuadro ya cerrado.
+function trasAcertar(T, npc){
+  if(T.sigue && TAREAS[T.sigue]) return ()=>abrirTarea(TAREAS[T.sigue], npc);
+  if(T.remate && REMATES[T.remate]) return ()=>REMATES[T.remate](npc);
+  return null;
+}
+
+// Lo que dice la persona, y despues vuelve a dejarte probar.
+function responderReto(lineas, sigue){
+  dlgReto.style.display='none';
+  dlg.lines=lineas.slice(); dlg.idx=0;
+  dlg.reto = sigue ? retoVivo : null;
+  dlgArrow.style.display='none';
+  typeLine(dlg.lines[0]);
+}
+
+function mostrarReto(){
+  if(!retoVivo) return;
+  dlgArrow.style.display='none';
+  dlgChoices.style.display='none';
+  dlgReto.style.display='block';
+  if(retoVivo.T.mec==='ordenar') pintaOrdenar(); else pintaHuecos();
+}
+
+// ---- ordenar la frase ----
+function pintaOrdenar(){
+  const {sopa,puestos}=retoVivo.estado;
+  const usada=new Set(puestos.filter(k=>k!=null));
+  dlgReto.innerHTML=
+    '<div class="huecos">'+puestos.map((k,i)=>
+      `<button class="hueco${k==null?' vacio':''}" data-h="${i}">${k==null?'&nbsp;&nbsp;':esc(sopa[k])}</button>`).join('')+'</div>'
+    +'<div class="fichas">'+sopa.map((w,k)=>
+      usada.has(k)?'':`<button class="ficha" data-f="${k}">${esc(w)}</button>`).join('')+'</div>'
+    +'<div class="retoPie"><button class="dlgBtn pri" data-a="di">Decirlo</button>'
+    +'<button class="dlgBtn" data-a="limpiar">Empezar de nuevo</button></div>';
+
+  dlgReto.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{
+    const libre=puestos.indexOf(null);
+    if(libre<0) return;                       // ya estan todos llenos
+    puestos[libre]=+b.dataset.f; pintaOrdenar();
+  });
+  dlgReto.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{
+    puestos[+b.dataset.h]=null; pintaOrdenar();   // vuelve a la sopa
+  });
+  dlgReto.querySelector('[data-a="limpiar"]').onclick=()=>{
+    puestos.fill(null); pintaOrdenar();
+  };
+  dlgReto.querySelector('[data-a="di"]').onclick=()=>{
+    const dicho=puestos.map(k=>k==null?null:sopa[k]);
+    corregirReto(dicho, dicho.every(Boolean) && dicho.join(' ')===retoVivo.estado.piezas.join(' '));
+  };
+}
+
+// ---- huecos con lista desplegable ----
+function pintaHuecos(){
+  const {partes,ordenes,elegido}=retoVivo.estado;
+  dlgReto.innerHTML=
+    '<div class="frase">'+partes.map((p,i)=>{
+      if(p.t==='texto') return esc(p.v);
+      return `<select data-q="${i}"><option value="">…</option>`
+        + ordenes[i].map(o=>`<option value="${esc(o)}"${elegido[i]===o?' selected':''}>${esc(o)}</option>`).join('')
+        + '</select>';
+    }).join('')+'</div>'
+    +'<div class="retoPie"><button class="dlgBtn pri" data-a="di">Decirlo</button></div>';
+
+  dlgReto.querySelectorAll('[data-q]').forEach(s=>s.onchange=()=>{
+    elegido[+s.dataset.q]=s.value;
+  });
+  dlgReto.querySelector('[data-a="di"]').onclick=()=>{
+    const huecos=partes.map((p,i)=>p.t==='hueco'?{bien:p.bien, dado:elegido[i]}:null).filter(Boolean);
+    // los huecos sin elegir llegan como null para que el NPC pueda decir
+    // "te falta algo"; los trozos de texto vacios no estorban
+    const dicho=partes.map((p,i)=>p.t==='texto'?p.v.trim():(elegido[i]||null))
+                      .filter(v=>v!=='' && v!=='—');
+    corregirReto(dicho, huecos.every(h=>h.dado===h.bien));
+  };
+}
+
+// ---- correccion comun a los dos ----
+function corregirReto(dicho, bien){
+  const T=retoVivo.T;
+  if(bien){
+    const npc=retoVivo.npc;
+    responderReto(T.acierta.slice(), false);
+    dlg.alCerrar=trasAcertar(T, npc);
+    if(T.paso) cumplirPaso(T.mision, T.paso);
+    if(T.entrega) takeItem(T.entrega);
+    retoVivo=null;
+    return;
+  }
+  retoVivo.fallos++;
+  let lineas=motivoDelFallo(T, dicho) || T.falla.slice();
+  if(retoVivo.fallos>=3 && T.pista) lineas=lineas.concat('💡 '+T.pista);
+  responderReto(lineas, true);
+}
+// La primera comprobacion que salta manda: por eso van de lo mas concreto
+// a lo mas general en el guion.
+function motivoDelFallo(T, dicho){
+  const hay=' '+sinTildes(dicho.filter(Boolean).join(' '))+' ';
+  for(const e of (T.errores||[])){
+    if(e.huecos && dicho.some(x=>!x)) return e.dice.slice();
+    if(e.contiene && hay.includes(' '+sinTildes(e.contiene)+' ')) return e.dice.slice();
+    if(e.pieza && dicho.includes(e.pieza)) return e.dice.slice();
+    if(e.sinPieza && !dicho.includes(e.sinPieza)) return e.dice.slice();
+  }
+  return null;
 }
 
 //------------------------------------------------------------------
@@ -5733,7 +6127,9 @@ function validateMaps(){
   // sala tapa el unico paso. Se comprueba andando de verdad desde donde
   // aparece el jugador, con los NPCs de obstaculo como en tryMove.
   for(const id in ITEMS){
-    const sp=ITEMS[id].spawn, fuera=(sp.scene==='outdoor');
+    const sp=ITEMS[id].spawn;
+    if(!sp) continue;                   // los que te dan en mano no se validan
+    const fuera=(sp.scene==='outdoor');
     const I=fuera?null:INTERIORS[sp.scene];
     if(!fuera && !I){ E("objeto '"+id+"': sale en la sala '"+sp.scene+"', que no existe"); continue; }
     const g=fuera?OUTDOOR:I.grid, alto=g.length, ancho=g[0].length;
@@ -6329,7 +6725,8 @@ stage.addEventListener('pointerdown',e=>{
   if(!touchMode || e.pointerType==='mouse') return;
   if(state!=='dialog') return;
   if(document.getElementById('dlgChoices').style.display==='flex') return;  // hay opciones que elegir
-  if(e.target.closest && e.target.closest('#dlgChoices')) return;
+  if(dlgReto.style.display==='block') return;                                // o un reto que resolver
+  if(e.target.closest && (e.target.closest('#dlgChoices')||e.target.closest('#dlgReto'))) return;
   if(Date.now()-lastAPress<250) return;
   e.preventDefault(); advanceDialog();
 });
@@ -6870,6 +7267,8 @@ function startNPC(npc){
   // si esta persona tiene un reto de lengua pendiente, es lo que toca ahora
   const t=tareaDe(npc);
   if(t && !t.hecha){ abrirTarea(t.T, npc); return; }
+  const ch=CHARLAS.find(c=>c.npc===scene+':'+npc.name && c.cuando());
+  if(ch){ ch.hablar(npc); return; }
   let lines=[...npc.lines];
   if(t && t.T.despues) lines=lines.concat(t.T.despues);
   if(npc.careerLine){ const cl=npc.careerLine[player.career]||npc.careerLine.default; if(cl)lines.push(cl); }
@@ -6904,10 +7303,11 @@ function openDialog(name,lines,choice){
   // La pregunta va como ultima linea. Si no se dice, las opciones aparecen
   // colgando de una frase que no preguntaba nada y no se entiende que se elige.
   if(choice && choice.q) lines.push(choice.q);
-  dlg={lines:lines,idx:0,choice:choice,alCerrar:null};
+  dlg={lines:lines,idx:0,choice:choice,alCerrar:null,reto:null};
   dlgName.textContent=name; dlgBox.style.display='block';
   dlgChoices.style.display='none';dlgChoices.innerHTML='';
-  typeLine(lines[0]);
+  dlgReto.style.display='none';dlgReto.innerHTML='';
+  typeLine(lines.length?lines[0]:'');
 }
 function typeLine(txt){
   fullLine=txt;typing=true;dlgText.textContent='';dlgArrow.style.display='none';
@@ -6916,9 +7316,12 @@ function typeLine(txt){
     if(i>=txt.length){clearInterval(typer);typing=false;dlgArrow.style.display='block';}},22);
 }
 function advanceDialog(){
+  // con un reto delante el cuadro no avanza: se avanza resolviendolo
+  if(dlgReto.style.display==='block') return;
   if(typing){clearInterval(typer);dlgText.textContent=fullLine;typing=false;dlgArrow.style.display='block';return;}
   dlg.idx++;
   if(dlg.idx<dlg.lines.length){typeLine(dlg.lines[dlg.idx]);return;}
+  if(dlg.reto){ dlg.reto=null; mostrarReto(); return; }
   if(dlg.choice){ showChoices(dlg.choice); dlg.choice=null; return; }
   closeDialog();
 }
@@ -6952,6 +7355,7 @@ function showChoices(choice){
 }
 function closeDialog(){
   dlgBox.style.display='none';state='play';
+  dlgReto.style.display='none';dlgReto.innerHTML='';retoVivo=null;
   // lo que haya que hacer con el cuadro ya cerrado (dormir) va despues de
   // devolver el control: asi la escena no arranca con el dialogo delante
   const fin=dlg.alCerrar; dlg.alCerrar=null;
@@ -7148,7 +7552,16 @@ let gameData = {
   dia: 0,                     // noches dormidas desde que empezo la partida
   dinero: DINERO_INICIAL,     // en centimos
   misiones: {},               // id -> {estado, pasos, desde}
+  banderas: {},               // marcas sueltas de la historia: 'anillo_dejado': dia
 };
+
+// Marcas sueltas de la historia, para lo que no es ni un objeto ni un paso de
+// mision: el dia en que se dejo algo encargado, una conversacion ya tenida...
+function bandera(k){ return (gameData.banderas||{})[k]; }
+function ponBandera(k,v){
+  if(!gameData.banderas) gameData.banderas={};
+  gameData.banderas[k]=(v===undefined?true:v); saveGame();
+}
 
 // --- Definición de objetos recolectables ---
 // spawn: {scene, x, y} donde aparece en el mundo
@@ -7172,25 +7585,45 @@ const ITEMS = {
     },
   },
   ring: {
-    name:"Anillo", type:'ring', icon:'ring',
+    name:"Anillo abollado", type:'ring', icon:'ring', art:'el',
     spawn:{scene:'outdoor', x:70, y:81},    // en la Innwiese
-    guess:"Un anillo pequeño y brillante. ¿Se le habrá caído a alguien en el prado?",
-    desc:"Un anillo elegante. Quizá alguien lo esté buscando.",
-    entrega:{npc:"Herr Wenzl", scene:'ekz1',
-      gracias:["¿Un anillo? Vaya. Esto no es un paraguas de los míos.",
-               "Lo apunto en el libro y lo guardo bajo llave, no en la caja de los perdidos.",
-               "Gracias. Ya verá como esta vez sí viene alguien a buscarlo."],
-      despues:["El anillo sigue bajo llave, esperando. Con este tengo fe."]},
-    rechazo:["No es mío. Yo lo llevaría a objetos perdidos, que para eso están."],
+    alCoger:['anillo_buscar','encontrar'],
+    guess:"Algo brilla entre la hierba. ¿Se le habrá caído a alguien en el prado?",
+    desc:"El anillo de la abuela de Ying. Lleva días a la intemperie: está sucio y un poco deformado. Así no se lo puedes devolver.",
+    // sin 'entrega': asi no se lo puede dar a Ying. Primero hay que arreglarlo.
+    rechazo:["No es mío. Pero por el desgaste, ese anillo le importa a alguien."],
     pistas:{
-      "Joyera Frau Adler":["Bonito, pero no es de mi vitrina: este ya ha vivido.",
-                           "Llévelo al mostrador de atención, ahí en el pasillo.",
-                           "Allí guardan lo que aparece. Y a veces alguien vuelve a por ello."],
+      "Ying":["¡Es ese! Es… espera.",
+              "Está torcido. Y lleno de tierra. Mi abuela lo llevó cuarenta años y nunca estuvo así.",
+              "Perdona, no quiero parecer desagradecida. ¿Podrías llevarlo a arreglar antes de dármelo? Yo te lo pago, pero mañana tengo examen y no salgo de aquí."],
+      "Joyera Frau Adler":["A ver… plata, y buena. Pero está abollado y con tierra dentro.",
+                           "Esto tiene arreglo, ¿eh? No lo tire.",
+                           "Si quiere lo miramos con calma. Pregúnteme por el mostrador."],
       "Estudiante Max":["¡No es mío! Yo al prado bajo sin nada que perder.",
-                        "Prueba en objetos perdidos, en el centro comercial."],
+                        "Pero está hecho polvo. Yo lo llevaría a limpiar antes de devolverlo."],
       "Sara":["No, qué va. Pero no lo dejes tirado.",
-              "En el centro comercial, en atención al cliente, recogen lo que aparece."],
+              "Está torcido. Con eso en la mano no queda uno muy bien, la verdad."],
     },
+  },
+  ring_ok: {
+    name:"Anillo restaurado", type:'ring', icon:'ring', art:'el',
+    // no tiene spawn: sale del taller de la joyeria, no del suelo
+    guess:"Un anillo de plata, limpio y derecho.",
+    desc:"El anillo de la abuela de Ying, enderezado y pulido. Ahora sí.",
+    readable:["💍 Por dentro lleva algo grabado, muy gastado:","«Taipei, 1968»"],
+    entrega:{npc:"Ying", scene:'wh_hab3', paso:['anillo_devolver','entregar'],
+      gracias:["Ay. Ay, ay, ay.",
+               "Está igual que cuando ella me lo dio. Igual.",
+               "Mira, no me des las gracias por el mapa ni nada: te invito a comer. Ahora. En la Mensa. Y no acepto un no."],
+      despues:["Sigue en mi dedo, mira. No pienso quitármelo más."]},
+    rechazo:["Qué anillo tan bonito. Pero no es mío."],
+  },
+  mapa: {
+    name:"Mapa de Passau", type:'doc', icon:'mapa', art:'el',
+    // tampoco tiene spawn: te lo da Ying
+    guess:"Un plano doblado en cuatro.",
+    desc:"El plano de la ciudad que te dio Ying. Por una cara, el campus entero con los edificios marcados.",
+    rechazo:["¿Un plano? Quédatelo tú, que aquí ya nos sabemos las calles."],
   },
   cert_fr: {
     name:"Certificado de francés", type:'doc', icon:'cert',
@@ -7373,6 +7806,60 @@ function closeOverlay(){
 }
 let prevState='play';
 
+//------------------------------------------------------------------
+//  EL PLANO DE PASSAU
+//  Se dibuja desde la rejilla de verdad (OUTDOOR y BLD_GEO), no desde
+//  una imagen: si se mueve un edificio, el plano se entera solo. Es un
+//  plano de papel, no una foto del juego, asi que va por manchas —agua,
+//  asfalto, cesped, arbolado— y los edificios con sus siglas.
+//------------------------------------------------------------------
+const PLANO_ESC=5;      // pixeles de plano por casilla de mapa
+function abrirPlano(){
+  const an=OUTDOOR[0].length*PLANO_ESC, al=OUTDOOR.length*PLANO_ESC;
+  showOverlay(`<button class="close">✕</button><h3>🗺️ Passau</h3>
+    <div style="overflow:auto;-webkit-overflow-scrolling:touch">
+      <canvas id="plano" width="${an}" height="${al}"
+        style="width:100%;max-width:${an}px;display:block;image-rendering:pixelated;
+               border:3px solid #5a6b8a;border-radius:8px;background:#cfe0b8"></canvas>
+    </div>
+    <div class="hintline">${scene==='outdoor'?'El punto rojo eres tú.':'Estás dentro de un edificio.'}</div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  pintarPlano(overlay.querySelector('#plano').getContext('2d'));
+}
+function pintarPlano(x){
+  const E=PLANO_ESC;
+  const COLOR={'W':'#6a9ad0','R':'#b9b3a6','P':'#d8d2c0','o':'#4a7a4a','t':'#4a7a4a',
+               ',':'#b8c89a','r':'#b9b3a6','f':'#9ab88a','b':'#c8bfa0'};
+  for(let y=0;y<OUTDOOR.length;y++){
+    const fila=OUTDOOR[y];
+    for(let i=0;i<fila.length;i++){
+      x.fillStyle=COLOR[fila[i]]||'#a8c88a';      // lo demas es cesped
+      x.fillRect(i*E,y*E,E,E);
+    }
+  }
+  // los edificios se pintan encima, con su color de tejado y su sigla
+  x.textAlign='center'; x.textBaseline='middle';
+  BLD_GEO.concat(DECOR_GEO).forEach(b=>{
+    const px=b.x0*E, py=b.y0*E, pw=(b.x1-b.x0+1)*E, ph=(b.y1-b.y0+1)*E;
+    x.fillStyle=b.roof||'#9b8b7a'; x.fillRect(px,py,pw,ph);
+    x.fillStyle='rgba(0,0,0,.28)'; x.fillRect(px,py+ph-2,pw,2);
+    if(b.label && pw>=22){
+      x.fillStyle='#fff'; x.font='bold '+Math.max(7,Math.min(11,Math.floor(pw/4)))+'px "Courier New",monospace';
+      x.fillText(b.label, px+pw/2, py+ph/2);
+    }
+  });
+  // el rio grande se nombra, que es lo que orienta a cualquiera en Passau
+  x.fillStyle='rgba(255,255,255,.85)'; x.font='italic bold 11px Georgia,serif';
+  x.fillText('Donau', OUTDOOR[0].length*E*0.5, 3*E);
+  x.fillText('Inn',   OUTDOOR[0].length*E*0.5, (OUTDOOR.length-3)*E);
+  if(scene==='outdoor'){
+    x.fillStyle='#c0392b';
+    x.beginPath(); x.arc(player.x*E+E/2, player.y*E+E/2, E*1.1, 0, Math.PI*2); x.fill();
+    x.strokeStyle='#fff'; x.lineWidth=1.5; x.stroke();
+  }
+  x.textAlign='left'; x.textBaseline='alphabetic';
+}
+
 // icono pixelado de objeto (para inventario)
 function itemIconCanvas(type,size){
   const c=document.createElement('canvas'); c.width=size;c.height=size;
@@ -7384,6 +7871,11 @@ function itemIconCanvas(type,size){
 }
 function drawItemIcon(x,type){
   // dibuja en 16x16
+  if(type==='mapa'){ x.fillStyle='#e8e0c8';x.fillRect(1,3,14,10);
+    x.fillStyle='#c8bfa0';x.fillRect(5,3,1,10); x.fillRect(10,3,1,10);   // los dobleces
+    x.fillStyle='#7aa86a';x.fillRect(2,4,3,3); x.fillRect(11,9,3,3);
+    x.fillStyle='#5a8ad6';x.fillRect(2,10,12,2);                          // el rio
+    x.fillStyle='#c0392b';x.fillRect(7,6,2,2); return; }
   if(type==='laptop'){ x.fillStyle='#3a4250';x.fillRect(2,4,12,7); x.fillStyle='#6aa8d8';x.fillRect(3,5,10,5);
     x.fillStyle='#2a3038';x.fillRect(1,11,14,2); x.fillStyle='#4a5468';x.fillRect(6,11,4,1); return; }
   if(type==='ring'){ x.fillStyle='#e8c85a';x.beginPath();x.arc(8,10,4,0,7);x.stroke();
@@ -7434,6 +7926,7 @@ function openItem(id){
   let actions='';
   if(it.type==='laptop') actions=`<button class="ui primary" data-a="use">💻 Usar portátil</button>`;
   else if(it.type==='notebook') actions=`<button class="ui primary" data-a="use">📓 Abrir cuaderno</button>`;
+  else if(it.type==='mapa') actions=`<button class="ui primary" data-a="use">🗺️ Desplegar el mapa</button>`;
   else if(it.readable) actions=`<button class="ui primary" data-a="read">🔍 Leer</button>`;
   showOverlay(`<button class="close">✕</button><h3>${esc(it.name)}</h3>
     <p style="font-size:14px;line-height:1.5">${esc(it.desc)}</p>
@@ -7450,6 +7943,7 @@ function openItem(id){
       if(a==='back') return openInventory();
       if(a==='use'&&it.type==='laptop') return openLaptop();
       if(a==='use'&&it.type==='notebook') return openNotebook();
+      if(a==='use'&&it.type==='mapa') return abrirPlano();
       if(a==='read') return showRead(it);
       if(a==='give') return giveItem(id);
       if(a==='drop') return dropItem(id);
@@ -7499,6 +7993,8 @@ function soltarEntrega(id){
   gameData.worldItems[id]='entregado';
   if(!gameData.entregados) gameData.entregados=[];
   if(gameData.entregados.indexOf(id)<0) gameData.entregados.push(id);
+  const e=ITEMS[id]&&ITEMS[id].entrega;
+  if(e&&e.paso) cumplirPaso(e.paso[0], e.paso[1]);
   saveGame();
 }
 function giveItem(id){
@@ -7550,6 +8046,8 @@ function takeItem(id){
   gameData.droppedItems = gameData.droppedItems.filter(d=>d.id!==id);
   saveGame();
   showToast(`Obtienes: ${ITEMS[id].name}`);
+  const c=ITEMS[id]&&ITEMS[id].alCoger;
+  if(c) cumplirPaso(c[0], c[1]);
 }
 
 // --- LAPTOP: menú de apps ---
@@ -7713,6 +8211,7 @@ function worldItemAt(x,y){
     const st=gameData.worldItems[id];
     if(st) continue;                    // cogido, tirado o entregado: no esta en su sitio
     const sp=ITEMS[id].spawn;
+    if(!sp) continue;                   // sin spawn: no esta en el mundo, te lo dan
     if(sp.scene===scene && sp.x===x && sp.y===y) return id;
   }
   const d=gameData.droppedItems.find(d=>d.scene===scene && d.x===x && d.y===y);
@@ -7725,7 +8224,7 @@ function worldItemsInScene(){
     const st=gameData.worldItems[id];
     if(st) continue;                    // cogido, tirado o entregado: no esta en su sitio
     const sp=ITEMS[id].spawn;
-    if(sp.scene===scene) out.push({id,x:sp.x,y:sp.y});
+    if(sp && sp.scene===scene) out.push({id,x:sp.x,y:sp.y});
   }
   gameData.droppedItems.forEach(d=>{ if(d.scene===scene) out.push({id:d.id,x:d.x,y:d.y}); });
   return out;
