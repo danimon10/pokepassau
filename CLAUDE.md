@@ -95,6 +95,67 @@ Al importar toca el `grid`, los `giros`, el `tinte` y las coordenadas de lo
 que se haya movido, y rechaza el cambio si una puerta, una salida o un NPC se
 quedaría fuera de la rejilla nueva.
 
+## Para escribir la historia, el editor de guion
+
+La trama y sus retos de lengua no se escriben a mano en `index.html`: se
+escriben en un esquema y de ahí sale un JSON con la forma que ya usa el juego.
+
+```sh
+node tools/guion.js              # escribe tools/.guion.html
+node tools/guion.js --catalogo   # saca por consola lo que sabe del juego
+```
+
+Lee `index.html` cada vez que se genera, así que **conoce el juego**: los 164
+personajes con la sala en la que están, las 85 salas, los objetos y las
+misiones que ya existen. Escribir una escena con alguien que no está en el
+juego es imposible: los nombres salen de una lista, no se teclean.
+
+Lo que hay que saber para usarlo:
+
+- **Se escribe como un esquema**, con `Enter` y `Tab`. Las categorías salen
+  escribiendo sus primeras letras (`mis`, `esc`, `tar`, `dice`, `opc`…) y
+  `Tab`; la gente, con `@nombre`.
+- **El orden es capítulo › misión › escena › tarea**, y cada categoría solo
+  puede colgar de las que le corresponden. El árbol no vive en la sangría: al
+  exportar, cada fila lleva escrito su padre.
+- **La mecánica y la función son dos ejes distintos.** Cómo se valida
+  (elegir, hueco, ordenar, abierta…) no es lo mismo que qué se practica
+  (saludar, pedir un favor, reclamar…). Un saludo puede pedirse de cualquiera
+  de las cinco maneras.
+- **El tratamiento es del personaje, no de la escena.** Se decide una vez y
+  todas sus tareas lo heredan. `tools/guion.js` lo propone a partir del
+  nombre (Herr, Frau, un oficio → usted; estudiante → tú).
+- **Huecos:** `{correcta|falsa|falsa}` para el desplegable y
+  `{=vale|también|así}` cuando se escribe y se aceptan varias formas.
+- **En las tareas abiertas, el NPC repregunta; no puntúa.** Cada elemento de
+  la rúbrica se escribe `nombre: sinónimos >> lo que pregunta el NPC si
+  falta`. Así, una formulación buena que no se haya previsto cuesta una
+  pregunta de más, no un suspenso; sin ese `>>` el personaje solo sabe
+  rechazar, y la revisión lo avisa. Los elementos que se repiten en muchas
+  tareas (saludo, cortesía, agradecimiento…) se marcan con una casilla en vez
+  de reescribir los sinónimos en cada personaje.
+- **`✦ Claude se encarga`** marca una fila como encargo: se apunta qué se
+  quiere y esa línea sale en la lista de pendientes en vez de bloquear la
+  revisión. El botón «Encargos a Claude» saca esa lista con el contexto de
+  cada una (personaje, sala, tratamiento, mecánica, nivel) lista para pegar.
+- **«Revisar» dice lo que impediría aplicarlo** sin preguntar nada: escenas
+  sin personaje, tareas sin mecánica, una tarea abierta sin rúbrica, dos
+  tareas colgando de la misma escena, prerrequisitos en círculo.
+- El JSON exportado trae, por cada misión, su entrada de `MISIONES` ya hecha
+  (`juego:{nombre, ic, desc, pista, pasos, premio}`), y guarda también el
+  esquema en crudo para poder volver a importarlo.
+- Importa el formato del editor viejo: traduce los tipos a los dos ejes y
+  separa los «Distractores» que en realidad eran la reacción del NPC al fallo.
+
+**Hay una copia publicada como Artifact** («Guion de Uni·Quest»), que es la
+que el usuario usa de verdad porque es un enlace y no hay que ejecutar nada.
+Allí el guion **se guarda en el servidor**, troceado en `guion/p0…pN` con un
+`guion/indice`, así que se puede leer con `read_db` sin que él exporte nada;
+abierto como archivo suelto no hay `window.claude` y queda `localStorage`.
+Como el Artifact es una copia congelada, **lleva el catálogo del día en que se
+publicó**: si se mueven o se renombran NPCs en `index.html`, hay que volver a
+generarlo y republicarlo en *ese mismo* Artifact, igual que pasa con el juego.
+
 `node tools/artifact.js` genera `uniquest.artifact.html`, la versión
 publicable como Artifact. Los archivos de salida están en `.gitignore`.
 
@@ -112,6 +173,8 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
 |---|---|
 | `MAPA EXTERIOR` | la rejilla del campus como array de cadenas |
 | `TIEMPO, DINERO Y MISIONES` | calendario, cartera, misiones y dormir |
+| `TAREAS DE LENGUA` | los retos del guion y el motor que los juega |
+| `GENTE QUE ANDA` | NPCs que caminan, y sentarse en una silla |
 | Leyenda interior | qué significa cada letra de las rejillas de sala |
 | `INTERIORS` | las salas: 83 rejillas con sus puertas y NPCs |
 | `EDIFICIOS` | qué puerta del exterior lleva a qué sala |
@@ -180,7 +243,62 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   de siempre: cualquier cambio ahí se nota en el juego que ya existía.
 - **Las misiones se avanzan con `cumplirPaso(mision, paso)`**, desde donde se
   cumplan. La misión se cierra sola cuando no le queda ningún paso suelto: no
-  hay que marcarla como hecha a mano.
+  hay que marcarla como hecha a mano. Una misión con `prereq:['otra','otra']`
+  se abre sola en cuanto están hechas todas las que espera (`abrirPorPrereq`),
+  que es lo que en el editor del guion son los prerrequisitos: la historia
+  avanza sin que ningún diálogo tenga que activar nada.
+- **Los retos de lengua viven en `TAREAS`**, no en el NPC. Cada tarea dice a
+  quién pertenece con la misma clave que usa el editor del guion
+  (`'sala:Nombre'`), así que añadir una **no toca `INTERIORS`**: `startNPC`
+  pregunta por `tareaDe(npc)` y, si su misión está activa y su paso suelto,
+  abre el reto en vez de la charla de siempre; cuando ya está hecho, sus
+  líneas de `despues` se añaden a lo que decía normalmente.
+  La mecánica `single` se apoya en el `choice` del cuadro de diálogo de
+  siempre, con las opciones barajadas. **Al fallar el cuadro no se cierra:**
+  la persona contesta y vuelve a preguntar, y del segundo intento en adelante
+  con la pista delante. Eso vale para todas las tareas cerradas; las abiertas
+  (rúbrica) todavía no están hechas.
+- **Las frases de una tarea `single` tienen que caber en un botón.** El cuadro
+  de diálogo da para unos 40 caracteres por opción en una línea; si la frase
+  del guion es más larga, se parte: la primera mitad va en la `consigna` y la
+  elección se queda con lo que de verdad se está practicando.
+- **Hay tres mecánicas cerradas**, todas dentro del cuadro de diálogo:
+  `single` (elegir la frase), `ordenar` (fichas de palabras y huecos, con
+  distractores en la sopa) y `huecoLista` (la frase con `{a|b|c}` y sus
+  desplegables). Las dos últimas se resuelven en `#dlgReto`, y mientras ese
+  panel está abierto **el cuadro no avanza**: se avanza resolviéndolo.
+- **Lo que hace bueno un reto es `errores`**, no la corrección. Es una lista
+  de comprobaciones sencillas —`huecos`, `contiene`, `pieza`, `sinPieza`— y la
+  primera que salta decide lo que contesta el personaje. `contiene` compara
+  sin tildes y por palabras enteras; `pieza` compara la ficha exacta, que es
+  la única forma de cazar un fallo de acentuación. Van de lo más concreto a lo
+  más general, porque gana la primera.
+- **Una tarea puede llevar `entrada`** (una elección antes del reto: preguntar
+  o no preguntar), **`sigue`** (la tarea que va detrás, para encadenar varias
+  preguntas a la misma persona) y **`remate`** (lo que pasa al acertar la
+  última: una compra, una escena). Las encadenadas llevan `paso:null` y no se
+  abren solas: solo se llega a ellas desde la anterior.
+- **`CHARLAS` es lo que alguien dice según por dónde vaya la historia**, en
+  vez de sus frases de siempre; la primera que encaja manda. Es lo que hace
+  que la joyera diga «vuelva mañana» un día y entregue el anillo al
+  siguiente. Para lo que no es ni objeto ni paso de misión están las
+  **banderas** (`bandera`/`ponBandera`), que se guardan con la partida.
+- **La gente puede andar.** `andarA(npc, [x,y], alLlegar)` busca el camino por
+  casillas libres (anchura primero) y lo recorre por píxeles, no a saltos de
+  casilla. Mientras anda, el NPC tiene `px/py` y se dibuja por ahí; parado, no
+  los tiene. `andantes` se vacía al cambiar de sala.
+- **Sentarse es como abrir una puerta:** se empuja hacia la silla (`e`) y uno
+  se sienta. Para levantarse hay que **soltar la tecla y volver a pulsar**, o
+  la misma pulsación que te sienta te levanta en el fotograma siguiente.
+- **La gente va y viene con la historia sin tocar `INTERIORS`.**
+  `GENTE_EVENTO` añade personas que solo existen en un momento del guion (los
+  de la mesa de la Mensa) y `GENTE_FUERA` quita a quien está en otra parte
+  (Ying, mientras te lleva a comer). `loadScene` lo aplica al entrar, y
+  `refrescarGente()` lo rehace sin recargar la sala. Nadie tiene que acordarse
+  de devolver a nadie a su sitio: al apagarse la bandera, vuelven solos.
+- **Un acompañante va por delante, no en todas partes a la vez.** Ying tiene
+  una ruta de salas (`RUTA_MENSA`) y una bandera con el tramo al que se ha
+  llegado: si vuelves atrás, no te la encuentras duplicada.
 - **Mover el mapa exterior toca más sitios de los que parece.** Además de
   `OUTDOOR`, `BUILDINGS` y `BLD_GEO` hay coordenadas absolutas del campus en:
   `OUT_NPCS`, el `player` inicial, el `spawn` de los objetos con

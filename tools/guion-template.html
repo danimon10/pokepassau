@@ -1,0 +1,1272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guion de Uni·Quest</title>
+<style>
+:root{
+  --papel:#d9d2c0; --crema:#f8f8f0; --marco:#5a6b8a; --sombra:#2a3550;
+  --tinta:#2f3446; --gris:#7d8398; --oro:#e0a93a; --oro-osc:#b07a1a;
+  --ok:#3f7a52; --no:#8e3a52; --lila:#7a5a9a; --verde:#2f7a5a;
+  --mono:ui-monospace,'Courier New',Courier,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--papel);color:var(--tinta);font-family:var(--sans);font-size:14px}
+
+/* ---------------------------------------------------------------- armazon */
+#app{display:flex;flex-direction:column;height:100vh}
+header{background:var(--crema);border-bottom:3px solid var(--marco);padding:10px 14px;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+h1{font-family:var(--mono);font-size:15px;letter-spacing:.04em;white-space:nowrap}
+h1 small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris)}
+.cuentas{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
+.cuenta{background:#fff;border:2px solid var(--marco);border-radius:6px;padding:3px 8px;white-space:nowrap}
+.cuenta b{font-size:13px}
+.cuenta.claude{border-color:var(--lila);color:var(--lila)}
+.cuenta.mal{border-color:var(--no);color:var(--no)}
+.barra{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+button{cursor:pointer;font-family:var(--mono);font-size:12px;background:var(--crema);
+  color:var(--tinta);border:2px solid var(--marco);border-radius:7px;padding:6px 10px}
+button:hover{background:#fff}
+button.pri{background:var(--oro);border-color:var(--oro-osc);color:#fff;font-weight:700}
+button.pri:hover{background:#eab84f}
+button.mini{padding:2px 6px;font-size:11px;border-width:1px;border-radius:5px}
+button.peli{border-color:var(--no);color:var(--no)}
+
+.cols{flex:1;display:flex;min-height:0}
+#lista{flex:1;overflow:auto;padding:12px 10px 200px;min-width:0}
+#panel{width:390px;flex:0 0 390px;overflow:auto;background:var(--crema);
+  border-left:3px solid var(--marco);padding:14px}
+@media (max-width:1000px){
+  .cols{flex-direction:column}
+  #panel{width:auto;flex:1 1 auto;border-left:none;border-top:3px solid var(--marco)}
+}
+
+/* ------------------------------------------------------------------ filas */
+.fila{display:flex;gap:6px;align-items:flex-start;margin-left:calc(var(--ind) * 26px);
+  padding:2px 0;position:relative}
+.fila.sel>.cuerpo{outline:3px solid var(--oro);outline-offset:1px}
+.num{font-family:var(--mono);font-size:9.5px;color:var(--gris);width:62px;flex:0 0 62px;
+  text-align:right;padding-top:8px;user-select:none}
+.cuerpo{flex:1;min-width:0;background:var(--crema);border:2px solid var(--marco);
+  border-radius:8px;padding:4px 6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;color:#fff;white-space:nowrap}
+.txt{flex:1;min-width:120px;border:none;background:transparent;font-family:var(--sans);
+  font-size:14px;color:var(--tinta);padding:5px 2px;outline:none}
+.txt::placeholder{color:#b3b8c6}
+.marca{font-family:var(--mono);font-size:10px;background:#fff;border:1px solid var(--marco);
+  border-radius:4px;padding:1px 5px;color:var(--marco);white-space:nowrap}
+.marca.npc{border-color:var(--verde);color:var(--verde)}
+.marca.mec{border-color:var(--oro-osc);color:var(--oro-osc)}
+.marca.avi{border-color:var(--no);color:var(--no);cursor:help}
+.acc{display:flex;gap:3px;opacity:.25}
+.fila:hover .acc,.fila.sel .acc{opacity:1}
+.fila.esClaude>.cuerpo{background:#f3eefa;border-color:var(--lila);border-style:dashed}
+.brief{flex:1 0 100%;font-family:var(--mono);font-size:11.5px;color:var(--lila);
+  border-top:1px dotted var(--lila);padding-top:3px;margin-top:2px}
+.brief:empty::before{content:'(sin instrucciones — dile a Claude qué quieres aquí)';opacity:.6}
+.vacia>.cuerpo{border-style:dotted;opacity:.75}
+
+.sug{position:absolute;left:calc(var(--ind) * 26px + 50px);top:100%;z-index:20;
+  background:#fff;border:2px solid var(--oro);border-radius:7px;font-family:var(--mono);
+  font-size:12px;box-shadow:0 4px 0 rgba(42,53,80,.25);max-height:240px;overflow:auto;min-width:260px}
+.sug div{padding:5px 9px;cursor:pointer;border-bottom:1px dotted #ddd}
+.sug div:last-child{border-bottom:none}
+.sug div.act{background:#ffe9a8}
+.sug small{color:var(--gris);display:block;font-size:10px}
+
+/* ------------------------------------------------------------------ panel */
+#panel h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--marco);margin-bottom:10px;border-bottom:2px solid var(--marco);padding-bottom:5px}
+.campo{margin-bottom:11px}
+.campo label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gris);margin-bottom:3px}
+.campo input,.campo select,.campo textarea{width:100%;font-family:var(--sans);font-size:13px;
+  color:var(--tinta);background:#fff;border:2px solid var(--marco);border-radius:6px;padding:6px}
+.campo input[type=checkbox]{width:auto;flex:0 0 auto;margin:2px 0 0;padding:0}
+.campo textarea{min-height:70px;resize:vertical;font-family:var(--mono);font-size:12px;line-height:1.5}
+.campo .ayuda{font-size:11px;color:var(--gris);margin-top:3px;line-height:1.4}
+.dos{display:flex;gap:8px}.dos>*{flex:1;min-width:0}
+.checks{display:flex;flex-direction:column;gap:3px;max-height:190px;overflow:auto;
+  background:#fff;border:2px solid var(--marco);border-radius:6px;padding:6px}
+.checks label{display:flex;gap:6px;align-items:flex-start;font-size:12px;
+  font-family:var(--sans);text-transform:none;letter-spacing:0;color:var(--tinta);margin:0}
+.nada{color:var(--gris);font-size:12.5px;line-height:1.6}
+
+.previa{background:#fff;border:3px solid var(--marco);border-radius:9px;padding:11px;margin-top:6px}
+.previa .quien{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--marco);color:#fff;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:7px}
+.previa .dice{font-size:13.5px;line-height:1.5;margin-bottom:9px}
+.opt{display:block;width:100%;text-align:left;margin-bottom:5px;background:var(--crema);
+  border:2px solid var(--marco);border-radius:7px;padding:7px 9px;font-family:var(--sans);font-size:13px}
+.opt.bien{border-color:var(--ok);background:#eefaf1}
+.opt.bien::after{content:' ✓';color:var(--ok);font-weight:700}
+.hueco{display:inline-block;border:2px solid var(--oro-osc);background:#fff8e8;border-radius:5px;
+  padding:1px 6px;font-family:var(--mono);font-size:12.5px}
+.ficha{display:inline-block;background:var(--crema);border:2px solid var(--marco);border-radius:6px;
+  padding:3px 8px;margin:0 4px 4px 0;font-size:12.5px}
+.ficha.extra{border-color:var(--no);color:var(--no);border-style:dashed}
+.rub{font-size:12px;border-top:1px dotted var(--marco);padding-top:7px;margin-top:7px}
+.rub b{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris)}
+.rub li{list-style:none;padding:3px 0;border-bottom:1px dotted #e2e2dc}
+.rub code{font-family:var(--mono);font-size:11px;color:var(--gris)}
+
+.avisos{margin-top:12px}
+.avi{display:flex;gap:7px;background:rgba(142,58,82,.08);border-left:4px solid var(--no);
+  padding:7px 9px;margin-bottom:5px;font-size:12.5px;cursor:pointer;border-radius:0 5px 5px 0}
+.avi.leve{background:rgba(224,169,58,.14);border-left-color:var(--oro-osc)}
+.avi:hover{background:rgba(142,58,82,.16)}
+
+dialog{border:4px solid var(--marco);border-radius:11px;background:var(--crema);padding:16px;
+  max-width:min(680px,92vw);max-height:86vh;color:var(--tinta);box-shadow:0 6px 0 var(--sombra)}
+dialog::backdrop{background:rgba(42,53,80,.55)}
+dialog h3{font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+dialog pre{background:#fff;border:2px solid var(--marco);border-radius:7px;padding:10px;
+  font-family:var(--mono);font-size:11.5px;line-height:1.5;max-height:52vh;overflow:auto;white-space:pre-wrap}
+.pie{display:flex;gap:7px;justify-content:flex-end;margin-top:11px}
+kbd{font-family:var(--mono);font-size:10.5px;background:#fff;border:1px solid var(--marco);
+  border-bottom-width:2px;border-radius:4px;padding:1px 4px}
+.ayudapie{font-size:11.5px;color:var(--gris);padding:10px 14px;background:var(--crema);
+  border-top:2px solid var(--marco);display:flex;gap:14px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Guion<small>Uni·Quest Passau</small></h1>
+    <div class="cuentas" id="cuentas"></div>
+    <div class="barra">
+      <button id="bAyuda">Cómo se escribe</button>
+      <button id="bValidar">Revisar</button>
+      <button id="bEncargos">Encargos a Claude</button>
+      <button id="bTxt">Exportar TXT</button>
+      <button class="pri" id="bJson">Exportar JSON</button>
+      <button id="bImport">Importar</button>
+      <input type="file" id="fImport" accept=".json,application/json" hidden>
+      <button class="peli" id="bReset">Vaciar</button>
+    </div>
+  </header>
+
+  <div class="cols">
+    <div id="lista"></div>
+    <aside id="panel"></aside>
+  </div>
+
+  <div class="ayudapie">
+    <span><kbd>Enter</kbd> nueva línea · <kbd>Tab</kbd> sangrar o aceptar sugerencia · <kbd>⇧Tab</kbd> sacar · <kbd>↑↓</kbd> moverse</span>
+    <span>Escribe <kbd>mis</kbd>, <kbd>esc</kbd>, <kbd>tar</kbd>… y <kbd>Tab</kbd> para la categoría · <kbd>@</kbd> para un personaje</span>
+    <span id="estado"></span>
+  </div>
+</div>
+
+<dialog id="modal"><h3 id="mTit"></h3><div id="mCuerpo"></div>
+  <div class="pie"><button id="mCopiar" hidden>Copiar</button><button class="pri" id="mCerrar">Cerrar</button></div>
+</dialog>
+
+<script>
+"use strict";
+//====================================================================
+//  CATALOGO DEL JUEGO
+//  Lo escribe tools/guion.js leyendo index.html: personajes con su sala,
+//  salas, objetos y las misiones que ya existen. No se toca a mano.
+//====================================================================
+const CAT = __CATALOGO__;
+const NPC_POR_ID = {}; CAT.npcs.forEach(n=>NPC_POR_ID[n.id]=n);
+const SALA_NOMBRE = {}; CAT.salas.forEach(s=>SALA_NOMBRE[s.clave]=s.nombre);
+
+//====================================================================
+//  VOCABULARIO DEL GUION
+//  Cada categoria dice de quien puede colgar. El arbol deja de vivir en
+//  la sangria: al exportar cada fila lleva su padre escrito.
+//====================================================================
+const CATS = {
+  capitulo : {et:'Capítulo',  col:'#2a3550', bajo:[],                    alias:['capitulo','capítulo','cap']},
+  mision   : {et:'Misión',    col:'#345995', bajo:['capitulo'],          alias:['mision','misión','misi']},
+  escena   : {et:'Escena',    col:'#2f7a5a', bajo:['mision'],            alias:['escena','esc','interaccion','interacción','inter']},
+  dialogo  : {et:'Dice NPC',  col:'#d97706', bajo:['escena'],            alias:['dice','dialogo','diálogo','npc']},
+  jugador  : {et:'Dice tú',   col:'#b07a1a', bajo:['escena'],            alias:['yo','jugador','digo']},
+  tarea    : {et:'Tarea',     col:'#8e3a52', bajo:['escena'],            alias:['tarea','tar','reto']},
+  opciones : {et:'Opciones',  col:'#7a5a9a', bajo:['tarea'],             alias:['opciones','opc','distractores','distractor']},
+  rubrica  : {et:'Rúbrica',   col:'#5a6b8a', bajo:['tarea'],             alias:['rubrica','rúbrica','rub']},
+  acierta  : {et:'Si acierta',col:'#3f7a52', bajo:['tarea','escena'],    alias:['acierta','bien','si acierta']},
+  falla    : {et:'Si falla',  col:'#8e3a52', bajo:['tarea','escena'],    alias:['falla','mal','si falla']},
+  pista    : {et:'Pista',     col:'#b07a1a', bajo:['tarea'],             alias:['pista','ayuda']},
+  entrega  : {et:'Entrega',   col:'#7c6f64', bajo:['escena','mision'],   alias:['entrega','da','premio','recompensa']},
+  requisito: {et:'Requisito', col:'#8a5a3a', bajo:['escena','mision'],   alias:['requisito','req','necesita']},
+  nota     : {et:'Nota',      col:'#7d8398', bajo:null,                  alias:['nota','comentario']},
+};
+const ORDEN_CATS = Object.keys(CATS);
+
+// Como se valida la tarea. 'abre' = el jugador escribe texto libre.
+const MECS = {
+  single    :{et:'Elegir la frase correcta', opc:true,  abre:false, donde:'cuadro'},
+  huecoLista:{et:'Hueco con desplegable',    opc:false, abre:false, donde:'cuadro', llaves:true},
+  huecoLibre:{et:'Hueco para escribir',      opc:false, abre:true,  donde:'cuadro', llaves:true},
+  ordenar   :{et:'Ordenar la frase',         opc:true,  abre:false, donde:'cuadro'},
+  abierta   :{et:'Respuesta abierta',        opc:false, abre:true,  donde:'cuadro', rub:true},
+  email     :{et:'Correo (portátil)',        opc:false, abre:true,  donde:'portátil', rub:true},
+  carta     :{et:'Texto largo (portátil)',   opc:false, abre:true,  donde:'portátil', rub:true},
+  corregir  :{et:'Corregir al NPC',          opc:true,  abre:false, donde:'cuadro'},
+  leer      :{et:'Sacar datos de un papel',  opc:true,  abre:false, donde:'cuadro'},
+  entregar  :{et:'Dar un objeto',            opc:false, abre:false, donde:'cuadro'},
+};
+// Que se practica. Es otro eje distinto de la mecanica: un saludo puede
+// pedirse eligiendo, ordenando o escribiendo.
+const FUNS = {
+  saludo:'Saludar', despedida:'Despedirse', gracias:'Agradecer', presentarse:'Presentarse',
+  pedir_info:'Pedir información', pedir_favor:'Pedir un favor', solicitud:'Solicitud formal',
+  disculpa:'Disculparse', queja:'Reclamar', describir:'Describir', narrar:'Contar algo pasado',
+  negociar:'Negociar / regatear', quedar:'Quedar con alguien', comprension:'Entender lo que dicen',
+  correccion:'Corregir a otro',
+};
+const NIVELES=['A1','A2','B1','B2'];
+// Trozos de rubrica que se repiten en muchas tareas. Se marcan con una
+// casilla en vez de reescribir los sinonimos en cada personaje.
+const FRAGS = {
+  saludo_formal :'Saludo formal (buenos días, disculpe…)',
+  saludo_info   :'Saludo informal (hola, oye, qué tal…)',
+  cortesia      :'Cortesía en condicional (quisiera, podría, sería tan amable…)',
+  presentarse   :'Se presenta (me llamo, soy estudiante de…)',
+  motivo        :'Dice para qué lo necesita',
+  plazo         :'Menciona el plazo',
+  gracias       :'Agradece',
+  despedida_form:'Despedida formal (atentamente, un cordial saludo…)',
+  despedida_info:'Despedida informal (hasta luego, nos vemos…)',
+};
+
+//====================================================================
+//  ESTADO
+//====================================================================
+const CLAVE='uniquestGuionV1';
+let filas = [];          // se rellena al final, cuando ya existe el EJEMPLO
+let sel = null;
+let sug = null;          // sugerencia abierta {filaId, tipo, lista, i}
+let avisos = [];
+
+function uid(){ return 'f'+Math.random().toString(36).slice(2,9); }
+function nuevaFila(p){
+  return Object.assign({id:uid(), ind:0, cat:null, txt:'', claude:false, brief:'',
+    npcId:'', mec:'', fun:'', nivel:'', trato:'', prereq:[], ic:'', desc:'', pistaTxt:'',
+    premio:0, paso:true, pasoTxt:'', frags:[], tipoEnt:'documento', idEnt:''}, p||{});
+}
+function cargar(){
+  try{ const s=localStorage.getItem(CLAVE);
+       if(s){ const d=JSON.parse(s); if(Array.isArray(d)&&d.length) return d.map(f=>nuevaFila(f)); } }catch(e){}
+  return EJEMPLO.map(f=>nuevaFila(f));
+}
+function guardar(){
+  tocado=true;
+  try{ localStorage.setItem(CLAVE, JSON.stringify(filas)); }catch(e){}
+  if(nube) nubeApunta();
+  else estado.textContent='guardado '+new Date().toLocaleTimeString('es-ES');
+}
+const idx = id => filas.findIndex(f=>f.id===id);
+const fila = id => filas[idx(id)];
+
+// El padre de una fila es la anterior con menos sangria cuya categoria la
+// admita. Esto se calcula aqui y se escribe en el JSON: nadie tiene que
+// deducirlo contando espacios.
+function padreDe(i){
+  const f=filas[i]; if(!f) return null;
+  for(let j=i-1;j>=0;j--){
+    if(filas[j].ind < f.ind) return filas[j];
+  }
+  return null;
+}
+function cadena(i){                       // capitulo > mision > escena de una fila
+  const out=[]; let ind=filas[i].ind;
+  for(let j=i-1;j>=0 && ind>0;j--) if(filas[j].ind<ind){ out.unshift(filas[j]); ind=filas[j].ind; }
+  return out;
+}
+
+//====================================================================
+//  EJEMPLO DE ARRANQUE — la escena del mapa, ya en el formato nuevo
+//====================================================================
+const EJEMPLO=[
+  {ind:0,cat:'capitulo',txt:'Inicio'},
+  {ind:1,cat:'mision',txt:'Hacer una primera compra',ic:'💶',
+   desc:'Paga algo por primera vez y mira bajar el contador.'},
+  {ind:1,cat:'mision',txt:'Dormir la primera noche',ic:'🛏️',
+   desc:'Busca tu cuarto en la residencia y duerme allí.'},
+  {ind:0,cat:'capitulo',txt:'El mapa del campus'},
+  {ind:1,cat:'mision',txt:'Averiguar quién tiene un mapa',ic:'🗺️',
+   desc:'Alguien de la residencia tenía un mapa hace unos días.'},
+  {ind:2,cat:'escena',txt:'Preguntarle a Tom en la residencia',npcId:'wh_cocina:Estudiante Tom',
+   pasoTxt:'Preguntar por el mapa'},
+  {ind:3,cat:'dialogo',txt:'¿Qué pasa? ¿Perdido ya el primer día?'},
+  {ind:3,cat:'tarea',txt:'Estoy buscando un mapa de Passau, ¿sabes quién tiene uno?',
+   mec:'single',fun:'pedir_info',nivel:'A2'},
+  {ind:4,cat:'opciones',txt:'',claude:true,
+   brief:'3 distractores: uno sin el interrogativo con tilde, uno con orden verbo-sujeto alemán, uno con «conoces» por «sabes».'},
+  {ind:4,cat:'acierta',txt:'Vi que Ying, la estudiante taiwanesa, tenía uno el otro día. Pregúntale a ella.'},
+  {ind:4,cat:'falla',txt:'Perdona, no te he pillado. ¿Me lo repites?'},
+  {ind:1,cat:'mision',txt:'Conseguir el mapa del campus',ic:'🗺️'},
+  {ind:2,cat:'escena',txt:'Pedirle el mapa a Ying',npcId:'wh_hab3:Ying',pasoTxt:'Conseguir el mapa'},
+  {ind:3,cat:'tarea',txt:'{Me gustaría saber si|Quiero saber si|Dime si} tienes un mapa de Passau.',
+   mec:'huecoLista',fun:'pedir_favor',nivel:'B1'},
+  {ind:4,cat:'acierta',txt:'Con mucho gusto, ten. Y oye… el otro día perdí en la Innwiese un anillo de mi abuela. ¿Me ayudarías a buscarlo?'},
+  {ind:4,cat:'falla',txt:'Si me lo pides así, no te cuento nada.'},
+  {ind:3,cat:'entrega',txt:'Mapa del campus',tipoEnt:'objeto',idEnt:'mapa'},
+];
+
+//====================================================================
+//  SINTAXIS DEL CONTENIDO
+//  {correcta|falsa|falsa}  hueco con opciones, la primera es la buena
+//  {=vale|tambien|asi}     hueco para escribir, todas se aceptan
+//====================================================================
+function partirHuecos(txt){
+  const trozos=[]; let resto=txt||'', m;
+  const re=/\{([^{}]*)\}/g; let ult=0;
+  while((m=re.exec(resto))){
+    if(m.index>ult) trozos.push({t:'texto', v:resto.slice(ult,m.index)});
+    const libre = m[1].startsWith('=');
+    const ops = (libre?m[1].slice(1):m[1]).split('|').map(s=>s.trim());
+    trozos.push({t:'hueco', libre, ops, bien:ops[0]});
+    ult = m.index+m[0].length;
+  }
+  if(ult<resto.length) trozos.push({t:'texto', v:resto.slice(ult)});
+  return trozos;
+}
+const tieneHuecos = t => /\{[^{}]*\}/.test(t||'');
+// Una fila de opciones son cadenas separadas por | o por salto de linea.
+const listaOpc = t => (t||'').split(/[|\n]/).map(s=>s.trim()).filter(Boolean);
+// Un elemento de rubrica:  nombre: sinonimo|sinonimo >> lo que repregunta el NPC
+// La repregunta es la clave del diseño: si el elemento falta, el NPC no
+// suspende, pregunta por el. Sin ella la tarea vuelve a ser un corrector.
+function parseElem(l){
+  let repregunta='';
+  const r=l.indexOf('>>');
+  if(r>=0){ repregunta=l.slice(r+2).trim(); l=l.slice(0,r).trim(); }
+  const k=l.indexOf(':');
+  return k<0 ? {nombre:l, patrones:[], repregunta}
+             : {nombre:l.slice(0,k).trim(),
+                patrones:l.slice(k+1).split('|').map(s=>s.trim()).filter(Boolean),
+                repregunta};
+}
+
+//====================================================================
+//  PINTAR LA LISTA
+//====================================================================
+const lista=document.getElementById('lista'), panel=document.getElementById('panel'),
+      estado=document.getElementById('estado'), cuentas=document.getElementById('cuentas');
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function numeros(){
+  const n={}, pila=[];
+  filas.forEach(f=>{
+    const d=f.ind;
+    while(pila.length>d+1) pila.pop();
+    while(pila.length<d+1) pila.push(0);
+    pila[d]++;
+    n[f.id]=pila.slice(0,d+1).join('.');
+  });
+  return n;
+}
+
+function render(){
+  const nums=numeros();
+  lista.innerHTML='';
+  filas.forEach((f,i)=>{
+    const c=CATS[f.cat];
+    const d=document.createElement('div');
+    d.className='fila'+(f.id===sel?' sel':'')+(f.claude?' esClaude':'')+(!f.cat?' vacia':'');
+    d.style.setProperty('--ind', f.ind);
+    d.dataset.id=f.id;
+
+    let marcas='';
+    if(f.npcId){
+      const n=NPC_POR_ID[f.npcId];
+      marcas += n ? `<span class="marca npc">${esc(n.nombre)} · ${esc(n.nombreSala)}</span>`
+                  : `<span class="marca avi">personaje que ya no está en el juego</span>`;
+    }
+    if(f.mec) marcas += `<span class="marca mec">${esc(MECS[f.mec].et)}</span>`;
+    if(f.fun) marcas += `<span class="marca">${esc(FUNS[f.fun]||f.fun)}</span>`;
+    if(f.nivel) marcas += `<span class="marca">${esc(f.nivel)}</span>`;
+    if(f.cat==='entrega'&&f.idEnt) marcas += `<span class="marca">${esc(f.tipoEnt)}: ${esc(f.idEnt)}</span>`;
+    if(f.cat==='mision'&&f.prereq.length) marcas += `<span class="marca">tras ${f.prereq.length} misión(es)</span>`;
+
+    d.innerHTML =
+      `<div class="num">${nums[f.id]||''}</div>
+       <div class="cuerpo">
+         ${c?`<span class="chip" style="background:${c.col}">${esc(c.et)}</span>`:''}
+         <input class="txt" value="${esc(f.txt)}" placeholder="${esc(hueco(f))}">
+         ${marcas}
+         <span class="acc">
+           <button class="mini" data-a="claude" title="Que lo redacte Claude">✦</button>
+           <button class="mini" data-a="dup" title="Duplicar">⧉</button>
+           <button class="mini" data-a="del" title="Borrar">✕</button>
+         </span>
+         ${f.claude?`<div class="brief" contenteditable data-brief="${f.id}">${esc(f.brief)}</div>`:''}
+       </div>`;
+    lista.appendChild(d);
+  });
+  pintaCuentas();
+  pintaPanel();
+  if(sug) pintaSug();
+}
+function hueco(f){
+  if(f.claude) return 'lo escribe Claude — apunta abajo qué quieres';
+  switch(f.cat){
+    case 'capitulo': return 'Título del capítulo';
+    case 'mision':   return 'Qué tiene que conseguir el jugador';
+    case 'escena':   return 'Qué pasa aquí (y con quién: escribe @nombre)';
+    case 'dialogo':  return 'Lo que dice el NPC antes de la tarea';
+    case 'jugador':  return 'Lo que dice tu personaje';
+    case 'tarea':    return 'La frase correcta, con {a|b|c} si lleva hueco';
+    case 'opciones': return 'Distractores separados por | o uno por línea';
+    case 'rubrica':  return 'motivo: beca|intercambio >> ¿Y para qué lo necesita?';
+    case 'acierta':  return 'Lo que responde el NPC si acierta';
+    case 'falla':    return 'Lo que responde el NPC si se equivoca';
+    case 'pista':    return 'La pista del segundo intento';
+    case 'entrega':  return 'Qué se lleva el jugador';
+    case 'requisito':return 'Qué hace falta para que esto ocurra';
+    case 'nota':     return 'Nota para Claude (no sale en el juego)';
+    default:         return 'Escribe y pulsa Tab (mis, esc, tar, dice…)';
+  }
+}
+function pintaCuentas(){
+  const n=t=>filas.filter(f=>f.cat===t).length;
+  const enc=filas.filter(f=>f.claude).length;
+  cuentas.innerHTML =
+    `<span class="cuenta"><b>${n('capitulo')}</b> capítulos</span>
+     <span class="cuenta"><b>${n('mision')}</b> misiones</span>
+     <span class="cuenta"><b>${n('escena')}</b> escenas</span>
+     <span class="cuenta"><b>${n('tarea')}</b> tareas</span>
+     <span class="cuenta claude"><b>${enc}</b> para Claude</span>`
+    + (avisos.length?`<span class="cuenta mal"><b>${avisos.length}</b> por revisar</span>`:'');
+}
+
+//====================================================================
+//  PANEL DE DETALLE
+//====================================================================
+function pintaPanel(){
+  const f=fila(sel);
+  if(!f){ panel.innerHTML='<h2>Detalle</h2><div class="nada">Elige una línea del guion.</div>'; return; }
+  const c=CATS[f.cat];
+  let h=`<h2>${c?esc(c.et):'Sin categoría'}</h2>`;
+
+  h+=campoSel('cat','Categoría', ORDEN_CATS.map(k=>[k,CATS[k].et]), f.cat||'');
+
+  // --- encargo a Claude, en cualquier fila ---
+  h+=`<div class="campo">
+    <label>Quién lo escribe</label>
+    <label style="display:flex;gap:7px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--tinta)">
+      <input type="checkbox" id="pClaude" ${f.claude?'checked':''}> Que lo redacte Claude
+    </label>
+    ${f.claude?`<textarea id="pBrief" placeholder="Qué quieres exactamente: registro, qué error ataca cada distractor, tono del personaje…">${esc(f.brief)}</textarea>
+      <div class="ayuda">Cuanto más concreto, menos vueltas. «3 distractores: género, orden V-S, tilde» vale más que «3 distractores».</div>`:''}
+  </div>`;
+
+  if(f.cat==='mision'){
+    h+=`<div class="dos">${campoTxt('ic','Icono',f.ic,'📋')}${campoTxt('premio','Premio en céntimos',f.premio||'','0')}</div>`;
+    h+=campoArea('desc','Descripción (la que se lee en el panel)',f.desc);
+    h+=campoArea('pistaTxt','Pista (dónde buscar)',f.pistaTxt);
+    const otras=filas.filter(x=>x.cat==='mision'&&x.id!==f.id);
+    h+=`<div class="campo"><label>No empieza hasta que estén hechas</label>
+      <div class="checks">${otras.length?otras.map(m=>
+        `<label><input type="checkbox" data-pre="${m.id}" ${f.prereq.includes(m.id)?'checked':''}>
+         <span>${esc(m.txt||'(sin título)')}</span></label>`).join(''):'<span class="nada">No hay otras misiones todavía.</span>'}</div></div>`;
+  }
+
+  if(f.cat==='escena'){
+    h+=campoNpc(f);
+    h+=`<div class="campo">
+      <label style="display:flex;gap:7px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--tinta)">
+        <input type="checkbox" id="pPaso" ${f.paso?'checked':''}> Cuenta como paso de la misión
+      </label>
+      ${f.paso?campoTxt('pasoTxt','Cómo se lee el paso en el panel',f.pasoTxt,'Preguntar por el mapa'):''}
+    </div>`;
+  }
+
+  if(f.cat==='tarea'){
+    h+=`<div class="dos">
+      ${campoSel('mec','Mecánica', Object.keys(MECS).map(k=>[k,MECS[k].et]), f.mec)}
+      ${campoSel('nivel','Nivel', NIVELES.map(n=>[n,n]), f.nivel)}</div>`;
+    h+=campoSel('fun','Qué se practica', Object.keys(FUNS).map(k=>[k,FUNS[k]]), f.fun);
+    const tr=tratoDe(f);
+    h+=`<div class="campo"><label>Tratamiento</label>
+      <select id="pTrato"><option value="">heredado del personaje: ${tr||'—'}</option>
+        <option value="tu" ${f.trato==='tu'?'selected':''}>tú</option>
+        <option value="usted" ${f.trato==='usted'?'selected':''}>usted</option></select>
+      <div class="ayuda">Se decide una vez en el personaje y todas sus tareas lo heredan.</div></div>`;
+    if(MECS[f.mec]&&MECS[f.mec].llaves)
+      h+=`<div class="campo"><div class="ayuda"><b>Huecos:</b> <code>{correcta|falsa|falsa}</code> para el desplegable,
+        <code>{=vale|también|así}</code> cuando se escribe y aceptas varias. Puedes poner varios en la misma frase.</div></div>`;
+  }
+
+  if(f.cat==='rubrica'||f.cat==='opciones'){
+    h+=campoArea('txt', f.cat==='rubrica'?'Elementos propios (uno por línea)':'Distractores (uno por línea)', f.txt);
+  }
+  if(f.cat==='rubrica'){
+    h+=`<div class="campo"><label>Fragmentos que ya existen</label>
+      <div class="checks">${Object.keys(FRAGS).map(k=>
+        `<label><input type="checkbox" data-frag="${k}" ${f.frags.includes(k)?'checked':''}>
+         <span>${esc(FRAGS[k])}</span></label>`).join('')}</div>
+      <div class="ayuda">Marcarlos evita reescribir los mismos sinónimos en cada personaje.
+      En el texto de arriba van los elementos propios, uno por línea:<br>
+      <code>motivo: beca|intercambio|solicitud &gt;&gt; ¿Y para qué lo necesita?</code><br>
+      Lo de después de <code>&gt;&gt;</code> es lo que <b>pregunta</b> el NPC si ese elemento falta.
+      Sin eso el personaje solo puede rechazar, y una ventanilla de verdad repregunta.</div></div>`;
+  }
+
+  if(f.cat==='entrega'){
+    h+=`<div class="dos">
+      ${campoSel('tipoEnt','Qué es', [['documento','Documento'],['objeto','Objeto'],['dinero','Dinero'],['dato','Un dato / una pista']], f.tipoEnt)}
+      ${campoTxt('idEnt','Identificador',f.idEnt,'cert_notas')}</div>`;
+    const ya=CAT.objetos.map(o=>o.id);
+    h+=`<div class="campo"><div class="ayuda">Ya existen en el juego: ${ya.map(esc).join(', ')}. Si pones uno nuevo, lo creo yo.</div></div>`;
+  }
+
+  h+=previa(f);
+  panel.innerHTML=h;
+  engancharPanel(f);
+}
+// Al teclear en el panel no se puede repintar todo: se perderia el cursor.
+// Solo se refresca la vista previa de la tarea de la que cuelga la fila.
+function pintaPreviaSuelta(f){
+  const cont=panel.querySelector('.previa'); if(!cont) return;
+  const tmp=document.createElement('div'); tmp.innerHTML=previa(f);
+  const nuevo=tmp.querySelector('.previa');
+  if(nuevo) cont.replaceWith(nuevo);
+}
+function campoTxt(id,et,v,ph){ return `<div class="campo"><label>${esc(et)}</label>
+  <input id="p_${id}" value="${esc(v)}" placeholder="${esc(ph||'')}"></div>`; }
+function campoArea(id,et,v){ return `<div class="campo"><label>${esc(et)}</label>
+  <textarea id="p_${id}">${esc(v)}</textarea></div>`; }
+function campoSel(id,et,pares,v){ return `<div class="campo"><label>${esc(et)}</label>
+  <select id="p_${id}"><option value="">—</option>${pares.map(([k,t])=>
+    `<option value="${esc(k)}" ${v===k?'selected':''}>${esc(t)}</option>`).join('')}</select></div>`; }
+function campoNpc(f){
+  const n=NPC_POR_ID[f.npcId];
+  return `<div class="campo"><label>Personaje</label>
+    <input id="pBusca" placeholder="escribe un nombre…" value="${esc(n?n.nombre:'')}" autocomplete="off">
+    <div class="ayuda">${n?`Está en <b>${esc(n.nombreSala)}</b> (${esc(n.sala)}), casilla ${n.x},${n.y}.
+      Trato sugerido: <b>${n.trato==='usted'?'usted':'tú'}</b>.
+      ${n.tieneOpciones?'<b>Ojo:</b> ya tiene menú de opciones en el juego; habrá que decidir si la tarea lo sustituye.':'Solo suelta frases: la tarea no pisa nada.'}`
+      :'Los 164 personajes salen de index.html: si no está en la lista, no está en el juego.'}</div>
+    <div id="resNpc"></div></div>`;
+}
+function tratoDe(f){
+  if(f.trato) return f.trato;
+  const i=idx(f.id); const c=cadena(i).find(x=>x.cat==='escena');
+  const n=c&&NPC_POR_ID[c.npcId];
+  return n?n.trato:'';
+}
+
+//====================================================================
+//  VISTA PREVIA — como lo vera el jugador
+//====================================================================
+function previa(f){
+  if(f.cat!=='tarea'){                     // colgando de una tarea, se ve la de ella
+    const p=padreDe(idx(f.id));
+    return (p&&p.cat==='tarea') ? previa(p) : '';
+  }
+  if(!f.mec) return '';
+  const i=idx(f.id);
+  const esce=cadena(i).find(x=>x.cat==='escena');
+  const npc=esce&&NPC_POR_ID[esce.npcId];
+  const M=MECS[f.mec];
+  let cuerpo='';
+
+  if(f.mec==='single'||f.mec==='corregir'||f.mec==='leer'){
+    const hijas=hijasDe(f.id,'opciones');
+    const malas=hijas.flatMap(h=>listaOpc(h.txt));
+    const encargo=hijas.some(h=>h.claude);
+    cuerpo = `<button class="opt bien">${esc(f.txt||'(la frase correcta)')}</button>`
+      + malas.map(m=>`<button class="opt">${esc(m)}</button>`).join('')
+      + (encargo?`<div class="ayuda" style="color:var(--lila)">+ los distractores que escriba Claude</div>`
+                :(!malas.length?`<div class="ayuda" style="color:var(--no)">Faltan los distractores.</div>`:''));
+  }
+  else if(M.llaves){
+    const partes=partirHuecos(f.txt);
+    cuerpo = '<div class="dice">'+partes.map(p=>{
+      if(p.t==='texto') return esc(p.v);
+      return p.libre ? `<span class="hueco">_____</span>`
+                     : `<span class="hueco">${esc(p.ops[0])} ▾</span>`;
+    }).join('')+'</div>';
+    const h=partes.filter(p=>p.t==='hueco');
+    cuerpo += h.length
+      ? h.map((p,k)=>`<div class="rub"><b>Hueco ${k+1}</b><br>
+          ${p.libre?'Se acepta: ':'Correcta: '}<code>${esc(p.ops[0])}</code>
+          ${p.ops.length>1?(p.libre?' · también <code>'+p.ops.slice(1).map(esc).join('</code>, <code>')+'</code>'
+                                   :' · falsas: <code>'+p.ops.slice(1).map(esc).join('</code>, <code>')+'</code>'):''}</div>`).join('')
+      : `<div class="ayuda" style="color:var(--no)">No hay ningún {hueco} en la frase.</div>`;
+  }
+  else if(f.mec==='ordenar'){
+    const pal=(f.txt||'').replace(/[.,;:¿?¡!]/g,'').split(/\s+/).filter(Boolean);
+    const extra=hijasDe(f.id,'opciones').flatMap(h=>listaOpc(h.txt));
+    cuerpo = pal.map(p=>`<span class="ficha">${esc(p)}</span>`).join('')
+      + extra.map(p=>`<span class="ficha extra">${esc(p)}</span>`).join('')
+      + `<div class="rub"><b>Frase correcta</b><br>${esc(f.txt||'—')}</div>`;
+  }
+  else if(M.abre){
+    const rubs=hijasDe(f.id,'rubrica');
+    const propios=rubs.flatMap(r=>(r.txt||'').split('\n').map(s=>s.trim()).filter(Boolean));
+    const frags=[...new Set(rubs.flatMap(r=>r.frags))];
+    cuerpo = `<div class="dice">${esc(f.txt||'(la consigna)')}</div>
+      <div style="background:#fff;border:2px dashed var(--marco);border-radius:7px;padding:14px;color:#b3b8c6;font-size:12.5px">
+        el jugador escribe aquí${M.donde==='portátil'?' (en el portátil)':''}…</div>`;
+    cuerpo += `<div class="rub"><b>Qué se le pide</b><ul>`
+      + frags.map(k=>`<li>${esc(FRAGS[k]||k)} <code>compartido</code></li>`).join('')
+      + propios.map(l=>{const e=parseElem(l);
+          return `<li>${esc(e.nombre)} <code>${esc(e.patrones.join(' · '))}</code>`
+            + (e.repregunta?`<br><span style="color:var(--oro-osc)">si falta pregunta: «${esc(e.repregunta)}»</span>`
+                            :`<br><span style="color:var(--no)">si falta, el NPC no sabe qué preguntar</span>`)
+            + `</li>`;}).join('')
+      + (frags.length||propios.length?'':'<li style="color:var(--no)">Todavía no hay rúbrica.</li>')
+      + `</ul></div>`;
+  }
+  else if(f.mec==='entregar'){
+    cuerpo=`<div class="dice">${esc(f.txt||'(qué se le da)')}</div>
+      <div class="ayuda">Sin tarea de lengua: se elige el objeto de la mochila.</div>`;
+  }
+
+  const acierta=hijasDe(f.id,'acierta')[0], falla=hijasDe(f.id,'falla')[0];
+  return `<div class="campo"><label>Así lo verá el jugador</label>
+    <div class="previa">
+      <span class="quien">${esc(npc?npc.nombre:'¿quién?')}</span>
+      ${cuerpo}
+      ${acierta?`<div class="rub"><b>Si acierta</b><br>${esc(acierta.claude?'(lo escribe Claude)':acierta.txt)}</div>`:''}
+      ${falla?`<div class="rub"><b>Si falla</b><br>${esc(falla.claude?'(lo escribe Claude)':falla.txt)}</div>`:''}
+    </div></div>`;
+}
+// Hijas directas de una fila (por sangria), filtrando por categoria.
+function hijasDe(id,cat){
+  const i=idx(id); if(i<0) return [];
+  const base=filas[i].ind, out=[];
+  for(let j=i+1;j<filas.length;j++){
+    if(filas[j].ind<=base) break;
+    if(filas[j].ind===base+1 && (!cat||filas[j].cat===cat)) out.push(filas[j]);
+  }
+  return out;
+}
+
+//====================================================================
+//  EVENTOS DEL PANEL
+//====================================================================
+function engancharPanel(f){
+  const q=s=>panel.querySelector(s);
+  const liga=(id,campo,num)=>{ const e=q('#p_'+id); if(!e) return;
+    e.oninput=()=>{ f[campo]= num?(parseInt(e.value,10)||0):e.value; guardar(); if(campo==='cat'||campo==='mec') render(); else pintaCuentas(); };
+    e.onchange=()=>{ f[campo]= num?(parseInt(e.value,10)||0):e.value; guardar(); render(); };
+  };
+  ['ic','desc','pistaTxt','pasoTxt','idEnt'].forEach(k=>liga(k,k));
+  const ta=q('#p_txt');
+  if(ta) ta.oninput=()=>{ f.txt=ta.value; guardar();
+    const c=lista.querySelector(`.fila[data-id="${f.id}"] .txt`); if(c) c.value=f.txt;
+    pintaPreviaSuelta(f); };
+  liga('premio','premio',true);
+  ['cat','mec','fun','nivel','tipoEnt'].forEach(k=>liga(k,k));
+
+  const cb=q('#pClaude'); if(cb) cb.onchange=()=>{ f.claude=cb.checked; guardar(); render(); };
+  const br=q('#pBrief'); if(br) br.oninput=()=>{ f.brief=br.value; guardar(); };
+  const tp=q('#pTrato'); if(tp) tp.onchange=()=>{ f.trato=tp.value; guardar(); render(); };
+  const pp=q('#pPaso'); if(pp) pp.onchange=()=>{ f.paso=pp.checked; guardar(); render(); };
+  panel.querySelectorAll('[data-pre]').forEach(el=>el.onchange=()=>{
+    const id=el.dataset.pre;
+    f.prereq = el.checked ? [...new Set([...f.prereq,id])] : f.prereq.filter(x=>x!==id);
+    guardar(); render();
+  });
+  panel.querySelectorAll('[data-frag]').forEach(el=>el.onchange=()=>{
+    const k=el.dataset.frag;
+    f.frags = el.checked ? [...new Set([...f.frags,k])] : f.frags.filter(x=>x!==k);
+    guardar(); render();
+  });
+
+  const bus=q('#pBusca');
+  if(bus) bus.oninput=()=>{
+    const t=bus.value.trim().toLowerCase();
+    const res=q('#resNpc');
+    if(!t){ res.innerHTML=''; return; }
+    const hall=CAT.npcs.filter(n=>n.nombre.toLowerCase().includes(t)).slice(0,9);
+    res.innerHTML = hall.length
+      ? `<div class="checks" style="max-height:180px;margin-top:5px">`+hall.map(n=>
+          `<div style="cursor:pointer;padding:3px 2px;font-size:12.5px" data-npc="${esc(n.id)}">
+             <b>${esc(n.nombre)}</b> <span style="color:var(--gris)">· ${esc(n.nombreSala)}</span></div>`).join('')+`</div>`
+      : `<div class="ayuda" style="color:var(--no)">Nadie con ese nombre en el juego.</div>`;
+    res.querySelectorAll('[data-npc]').forEach(el=>el.onclick=()=>{
+      f.npcId=el.dataset.npc; guardar(); render();
+    });
+  };
+}
+
+//====================================================================
+//  EVENTOS DE LA LISTA
+//====================================================================
+lista.addEventListener('input', e=>{
+  if(e.target.classList.contains('txt')){
+    const f=fila(e.target.closest('.fila').dataset.id);
+    f.txt=e.target.value; guardar();
+    proponer(f, e.target);
+    if(f.cat==='tarea'||f.cat==='opciones') pintaPanel();
+  }
+  if(e.target.dataset.brief){
+    fila(e.target.dataset.brief).brief=e.target.textContent; guardar();
+  }
+});
+lista.addEventListener('focusin', e=>{
+  const d=e.target.closest('.fila'); if(!d) return;
+  if(sel!==d.dataset.id){ sel=d.dataset.id;
+    lista.querySelectorAll('.fila.sel').forEach(x=>x.classList.remove('sel'));
+    d.classList.add('sel'); pintaPanel(); }
+});
+lista.addEventListener('click', e=>{
+  const b=e.target.closest('button[data-a]'); if(!b) return;
+  const f=fila(e.target.closest('.fila').dataset.id);
+  if(b.dataset.a==='claude'){ f.claude=!f.claude; }
+  if(b.dataset.a==='dup'){ const c=nuevaFila(JSON.parse(JSON.stringify(f))); c.id=uid();
+                           filas.splice(idx(f.id)+1,0,c); sel=c.id; }
+  if(b.dataset.a==='del'){ borrar(f.id); }
+  guardar(); render();
+});
+lista.addEventListener('keydown', e=>{
+  const d=e.target.closest('.fila'); if(!d||!e.target.classList.contains('txt')) return;
+  const f=fila(d.dataset.id), i=idx(f.id);
+
+  if(sug && (e.key==='ArrowDown'||e.key==='ArrowUp')){
+    e.preventDefault(); sug.i=(sug.i+(e.key==='ArrowDown'?1:-1)+sug.lista.length)%sug.lista.length;
+    pintaSug(); return;
+  }
+  if(e.key==='Tab' && sug){ e.preventDefault(); aceptarSug(); return; }
+  if(e.key==='Enter' && sug){ e.preventDefault(); aceptarSug(); return; }
+  if(e.key==='Escape' && sug){ cerrarSug(); return; }
+
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const max = i>0 ? filas[i-1].ind+1 : 0;
+    f.ind = Math.max(0, Math.min(max, f.ind + (e.shiftKey?-1:1)));
+    guardar(); render(); foco(f.id);
+    return;
+  }
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const n=nuevaFila({ind:f.ind, cat:siguienteCat(f)});
+    filas.splice(i+1,0,n); sel=n.id; guardar(); render(); foco(n.id);
+    return;
+  }
+  if(e.key==='Backspace' && !f.txt && filas.length>1){
+    e.preventDefault(); const ant=filas[i-1]; borrar(f.id); guardar(); render();
+    if(ant) foco(ant.id);
+    return;
+  }
+  if(e.key==='ArrowDown' && i<filas.length-1){ e.preventDefault(); foco(filas[i+1].id); }
+  if(e.key==='ArrowUp' && i>0){ e.preventDefault(); foco(filas[i-1].id); }
+  if(e.key==='ArrowDown' && e.altKey && i<filas.length-1){
+    e.preventDefault(); filas.splice(i,1); filas.splice(i+1,0,f); guardar(); render(); foco(f.id);
+  }
+});
+function foco(id){
+  const el=lista.querySelector(`.fila[data-id="${id}"] .txt`);
+  if(el){ el.focus(); el.setSelectionRange(el.value.length,el.value.length); }
+}
+function borrar(id){
+  const i=idx(id); if(i<0) return;
+  filas.splice(i,1);
+  filas.forEach(f=>f.prereq=f.prereq.filter(p=>p!==id));
+  if(!filas.length) filas.push(nuevaFila({cat:'capitulo'}));
+  if(sel===id) sel=filas[Math.min(i,filas.length-1)].id;
+}
+// Al pulsar Enter, la categoria que toca casi siempre: otra opcion despues de
+// una opcion, otra escena despues de una escena...
+function siguienteCat(f){
+  if(!f.cat) return null;
+  if(['dialogo','opciones','rubrica','nota','jugador'].includes(f.cat)) return f.cat;
+  return null;
+}
+
+//====================================================================
+//  SUGERENCIAS: categorias con Tab, personajes con @
+//====================================================================
+function proponer(f, input){
+  const v=input.value;
+  const arro=v.match(/@([^@]*)$/);
+  if(arro){
+    const t=arro[1].toLowerCase();
+    const hall=CAT.npcs.filter(n=>n.nombre.toLowerCase().includes(t)).slice(0,8);
+    if(hall.length){ sug={filaId:f.id, tipo:'npc', lista:hall, i:0, corte:arro[0]}; pintaSug(); return; }
+  }
+  if(!f.cat){
+    const t=v.trim().toLowerCase();
+    if(t.length>=2){
+      const hall=ORDEN_CATS.filter(k=>CATS[k].alias.some(a=>a.startsWith(t)));
+      if(hall.length){ sug={filaId:f.id, tipo:'cat', lista:hall, i:0, corte:v}; pintaSug(); return; }
+    }
+  }
+  cerrarSug();
+}
+function pintaSug(){
+  cerrarSug(true);
+  if(!sug) return;
+  const d=lista.querySelector(`.fila[data-id="${sug.filaId}"]`); if(!d) return;
+  const box=document.createElement('div'); box.className='sug'; box.id='sugbox';
+  box.innerHTML = sug.lista.map((x,k)=>{
+    const act=k===sug.i?' class="act"':'';
+    return sug.tipo==='cat'
+      ? `<div${act} data-k="${k}">${esc(CATS[x].et)}<small>${esc(CATS[x].alias.slice(0,3).join(', '))}</small></div>`
+      : `<div${act} data-k="${k}">${esc(x.nombre)}<small>${esc(x.nombreSala)}</small></div>`;
+  }).join('');
+  box.querySelectorAll('[data-k]').forEach(el=>el.onmousedown=ev=>{
+    ev.preventDefault(); sug.i=+el.dataset.k; aceptarSug();
+  });
+  d.appendChild(box);
+}
+function cerrarSug(soloDom){
+  const b=document.getElementById('sugbox'); if(b) b.remove();
+  if(!soloDom) sug=null;
+}
+function aceptarSug(){
+  if(!sug) return;
+  const f=fila(sug.filaId), x=sug.lista[sug.i];
+  if(sug.tipo==='cat'){
+    f.cat=x; f.txt='';
+    if(x==='escena'&&!f.pasoTxt) f.pasoTxt='';
+  }else{
+    f.npcId=x.id;
+    f.txt=f.txt.replace(/@[^@]*$/,'').trimEnd();
+    if(!f.cat) f.cat='escena';
+  }
+  cerrarSug(); guardar(); render(); foco(f.id);
+}
+
+//====================================================================
+//  REVISION
+//  Busca lo que me impediria aplicar el guion sin preguntarte.
+//====================================================================
+function revisar(){
+  avisos=[];
+  const pon=(id,txt,leve)=>avisos.push({id,txt,leve:!!leve});
+  const misiones=filas.filter(f=>f.cat==='mision');
+
+  filas.forEach((f,i)=>{
+    const c=CATS[f.cat];
+    if(!f.cat){ if(f.txt.trim()) pon(f.id,'Línea sin categoría: «'+f.txt.slice(0,40)+'»'); return; }
+    const p=padreDe(i);
+    if(c.bajo && c.bajo.length && (!p || !c.bajo.includes(p.cat)))
+      pon(f.id, CATS[f.cat].et+' tiene que colgar de: '+c.bajo.map(k=>CATS[k].et).join(' o ')+'.');
+    if(c.bajo && !c.bajo.length && f.ind!==0)
+      pon(f.id, CATS[f.cat].et+' va siempre al margen izquierdo.');
+    if(!f.txt.trim() && !f.claude && !['entrega','rubrica'].includes(f.cat))
+      pon(f.id,CATS[f.cat].et+' sin texto. Escríbelo o márcalo para Claude.');
+    if(f.claude && !f.brief.trim())
+      pon(f.id,'Encargo a Claude sin instrucciones: no sabría qué escribir.',true);
+
+    if(f.cat==='escena'){
+      if(!f.npcId) pon(f.id,'Escena sin personaje: no sé dónde ponerla.');
+      else if(!NPC_POR_ID[f.npcId]) pon(f.id,'El personaje de esta escena ya no está en index.html.');
+      if(f.paso && !f.pasoTxt.trim()) pon(f.id,'La escena cuenta como paso pero no dice cómo se lee en el panel.',true);
+      const tareas=hijasDe(f.id,'tarea');
+      if(!tareas.length && !hijasDe(f.id,'dialogo').length)
+        pon(f.id,'Escena sin tarea ni diálogo: no pasa nada en ella.',true);
+      // una escena es un intercambio: con dos tareas no se sabe cual se juega
+      if(tareas.length>1) pon(f.id,'Esta escena tiene '+tareas.length+' tareas. Parte la escena en dos.');
+    }
+    if(f.cat==='tarea'){
+      if(!f.mec) pon(f.id,'Tarea sin mecánica: no sé cómo se valida.');
+      else{
+        const M=MECS[f.mec];
+        const opc=hijasDe(f.id,'opciones');
+        if(M.opc && !opc.length) pon(f.id,'«'+M.et+'» necesita distractores (fila Opciones), aunque los escriba Claude.');
+        if(M.llaves && !tieneHuecos(f.txt) && !f.claude) pon(f.id,'«'+M.et+'» sin ningún {hueco} en la frase.');
+        if(M.rub && !hijasDe(f.id,'rubrica').length) pon(f.id,'Tarea abierta sin rúbrica: no sabría qué aceptar.');
+      }
+      if(!f.fun) pon(f.id,'Tarea sin función comunicativa.',true);
+      if(!hijasDe(f.id,'acierta').length) pon(f.id,'La tarea no dice qué pasa si acierta.');
+      if(!hijasDe(f.id,'falla').length) pon(f.id,'La tarea no dice qué pasa si falla.',true);
+    }
+    if(f.cat==='mision'){
+      const esc_=hijasDe(f.id,'escena');
+      if(!esc_.length) pon(f.id,'Misión sin ninguna escena.',true);
+      if(!f.desc.trim()&&!f.claude) pon(f.id,'Misión sin descripción para el panel.',true);
+    }
+    if(f.cat==='rubrica'){
+      const ls=(f.txt||'').split('\n').map(x=>x.trim()).filter(Boolean);
+      if(!ls.length && !f.frags.length && !f.claude) pon(f.id,'Rúbrica vacía.');
+      ls.map(parseElem).forEach(e=>{ if(!e.repregunta)
+        pon(f.id,'«'+e.nombre+'» no dice qué repregunta el NPC si falta. Sin eso solo puede rechazar.',true); });
+    }
+    if(f.cat==='entrega' && !f.idEnt.trim()) pon(f.id,'Entrega sin identificador.');
+  });
+
+  // prerrequisitos circulares
+  const mapa={}; misiones.forEach(m=>mapa[m.id]=m.prereq);
+  const visto={}, pila={};
+  const ciclo=id=>{
+    if(pila[id]) return true; if(visto[id]) return false;
+    visto[id]=pila[id]=true;
+    for(const p of (mapa[id]||[])) if(mapa[p]&&ciclo(p)) return true;
+    pila[id]=false; return false;
+  };
+  misiones.forEach(m=>{ if(ciclo(m.id)) pon(m.id,'Los prerrequisitos de esta misión dan vueltas en círculo.'); });
+
+  pintaCuentas();
+  return avisos;
+}
+
+//====================================================================
+//  COMPILAR — del esquema a la forma que usa el juego
+//====================================================================
+function claveDe(txt,pre){
+  const s=(txt||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,28);
+  return (pre||'')+(s||'sin_nombre');
+}
+function compilar(){
+  const nums=numeros();
+  const ruta=i=>cadena(i).map(f=>f.txt||CATS[f.cat].et).concat(filas[i].txt||CATS[filas[i].cat].et).join(' › ');
+  const capitulos=[], pendientes=[];
+  let capAct=null, misAct=null, escAct=null, tarAct=null;
+
+  filas.forEach((f,i)=>{
+    if(f.claude) pendientes.push({
+      n:nums[f.id], que:CATS[f.cat]?CATS[f.cat].et:'(sin categoría)', ruta:ruta(i),
+      instrucciones:f.brief,
+      contexto:{
+        personaje: escAct&&escAct.npc ? escAct.npc.nombre : null,
+        sala:      escAct&&escAct.npc ? escAct.npc.nombreSala : null,
+        trato:     tarAct? tarAct.trato : (escAct&&escAct.npc?escAct.npc.trato:null),
+        mecanica:  tarAct? tarAct.mecanica : null,
+        funcion:   tarAct? tarAct.funcion : null,
+        nivel:     tarAct? tarAct.nivel : null,
+        frase:     tarAct? tarAct.enunciado : null,
+      }});
+
+    switch(f.cat){
+      case 'capitulo':
+        capAct={id:claveDe(f.txt,'cap_'), titulo:f.txt, misiones:[]};
+        capitulos.push(capAct); misAct=escAct=tarAct=null; break;
+
+      case 'mision': {
+        if(!capAct){ capAct={id:'cap_sueltas',titulo:'(sin capítulo)',misiones:[]}; capitulos.push(capAct); }
+        const id=claveDe(f.txt);
+        misAct={id, nombre:f.txt, icono:f.ic||'📋', descripcion:f.desc, pista:f.pistaTxt,
+                premio:f.premio||0, prereq:f.prereq.map(p=>{const m=fila(p); return m?claveDe(m.txt):p;}),
+                requisitos:[], entregas:[], escenas:[], pasos:[]};
+        capAct.misiones.push(misAct); escAct=tarAct=null; break;
+      }
+      case 'escena': {
+        if(!misAct) break;
+        const n=NPC_POR_ID[f.npcId]||null;
+        escAct={id:claveDe(f.txt,'esc_'), titulo:f.txt,
+                npc:n?{id:n.id,nombre:n.nombre,sala:n.sala,nombreSala:n.nombreSala,x:n.x,y:n.y,trato:n.trato}:null,
+                requisitos:[], entregas:[], dialogo:[], jugador:[], tarea:null,
+                siAcierta:[], siFalla:[], pista:''};
+        misAct.escenas.push(escAct); tarAct=null;
+        if(f.paso){
+          const pid=claveDe(f.pasoTxt||f.txt);
+          escAct.cumplePaso=pid;
+          misAct.pasos.push({id:pid, t:f.pasoTxt||f.txt});
+        }
+        break;
+      }
+      case 'tarea': {
+        if(!escAct) break;
+        const M=MECS[f.mec]||{};
+        tarAct={mecanica:f.mec, funcion:f.fun, nivel:f.nivel,
+                trato: f.trato || (escAct.npc?escAct.npc.trato:''),
+                donde: M.donde||'cuadro', enunciado:f.txt,
+                huecos: M.llaves?partirHuecos(f.txt).filter(p=>p.t==='hueco')
+                          .map(p=>({libre:p.libre, correcta:p.ops[0], otras:p.ops.slice(1)})):[],
+                opciones:{correcta:f.txt, falsas:[], porClaude:false},
+                rubrica:null, encargo:f.claude?f.brief:null};
+        escAct.tarea=tarAct; break;
+      }
+      case 'opciones':
+        if(!tarAct) break;
+        if(f.claude) tarAct.opciones.porClaude=true;
+        tarAct.opciones.falsas.push(...listaOpc(f.txt));
+        if(tarAct.mecanica==='ordenar') tarAct.sobran=listaOpc(f.txt);
+        break;
+      case 'rubrica': {
+        if(!tarAct) break;
+        const propios=(f.txt||'').split('\n').map(s=>s.trim()).filter(Boolean).map(parseElem);
+        tarAct.rubrica={fragmentos:f.frags.slice(), propios, porClaude:f.claude?f.brief:null};
+        break;
+      }
+      case 'dialogo':  if(escAct) escAct.dialogo.push(f.claude?{claude:f.brief}:f.txt); break;
+      case 'jugador':  if(escAct) escAct.jugador.push(f.claude?{claude:f.brief}:f.txt); break;
+      case 'acierta':  if(escAct) escAct.siAcierta.push(f.claude?{claude:f.brief}:f.txt); break;
+      case 'falla':    if(escAct) escAct.siFalla.push(f.claude?{claude:f.brief}:f.txt); break;
+      case 'pista':    if(escAct) escAct.pista=f.txt; break;
+      case 'entrega': {
+        const e={tipo:f.tipoEnt, id:f.idEnt, nombre:f.txt,
+                 yaExiste:CAT.objetos.some(o=>o.id===f.idEnt)};
+        (escAct||misAct||{entregas:[]}).entregas.push(e); break;
+      }
+      case 'requisito': {
+        const r={texto:f.txt, id:f.idEnt||null};
+        (escAct||misAct||{requisitos:[]}).requisitos.push(r); break;
+      }
+    }
+  });
+
+  // Cada mision sale ademas con su entrada de MISIONES lista para el juego.
+  capitulos.forEach(c=>c.misiones.forEach(m=>{
+    m.juego={ id:m.id, nombre:m.nombre, ic:m.icono, desc:m.descripcion,
+              pista:m.pista, pasos:m.pasos, premio:m.premio?{dinero:m.premio}:null };
+  }));
+
+  return {formato:'uniquest-guion', version:2, generado:new Date().toISOString(),
+          catalogo:{generado:CAT.generado, npcs:CAT.npcs.length, salas:CAT.salas.length},
+          capitulos, pendientes, avisos:revisar(), outline:filas};
+}
+
+//====================================================================
+//  SALIDAS
+//====================================================================
+// Publicado como Artifact, el visor no deja que la pagina se descargue cosas
+// por su cuenta: hay que pasar por la capacidad 'downloads', que le pide
+// permiso al que mira. Como archivo suelto no existe, y vale el enlace de
+// toda la vida.
+let bajador=null;
+async function bajar(nombre,texto,tipo){
+  if(bajador){
+    try{ await bajador.save({filename:nombre, data:texto}); return; }
+    catch(e){ if(e && e.code==='cancelled') return; }   // dijo que no: ya esta
+  }
+  const b=new Blob([texto],{type:tipo+';charset=utf-8'}), a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=nombre; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),0);
+}
+function textoPlano(){
+  const nums=numeros();
+  return filas.map(f=>{
+    const s='  '.repeat(f.ind), c=CATS[f.cat];
+    let l=`${s}${nums[f.id]}. ${c?c.et+': ':''}${f.claude?'[CLAUDE] '+f.brief:f.txt}`;
+    const n=NPC_POR_ID[f.npcId]; if(n) l+=`  «${n.nombre} · ${n.nombreSala}»`;
+    if(f.mec) l+=`  [${MECS[f.mec].et}${f.fun?' · '+FUNS[f.fun]:''}${f.nivel?' · '+f.nivel:''}]`;
+    return l;
+  }).join('\n')+'\n';
+}
+function textoEncargos(){
+  const c=compilar();
+  if(!c.pendientes.length) return 'No hay nada marcado para Claude.';
+  return 'ENCARGOS DEL GUION — '+c.pendientes.length+' cosas por redactar\n\n'
+    + c.pendientes.map(p=>{
+      const x=p.contexto;
+      return `${p.n}. ${p.que} — ${p.ruta}\n`
+        + (x.personaje?`   personaje: ${x.personaje} (${x.sala})${x.trato?' · trato de '+x.trato:''}\n`:'')
+        + (x.mecanica?`   tarea: ${MECS[x.mecanica].et}${x.funcion?' · '+FUNS[x.funcion]:''}${x.nivel?' · '+x.nivel:''}\n`:'')
+        + (x.frase?`   frase: ${x.frase}\n`:'')
+        + `   quiero: ${p.instrucciones||'(sin instrucciones)'}\n`;
+    }).join('\n');
+}
+
+const modal=document.getElementById('modal');
+function abrirModal(tit,html,copiar){
+  document.getElementById('mTit').textContent=tit;
+  document.getElementById('mCuerpo').innerHTML=html;
+  const bc=document.getElementById('mCopiar');
+  bc.hidden=!copiar;
+  bc.onclick=()=>{ navigator.clipboard.writeText(copiar).then(
+    ()=>bc.textContent='copiado ✓', ()=>bc.textContent='no se pudo copiar'); };
+  bc.textContent='Copiar';
+  modal.showModal();
+}
+document.getElementById('mCerrar').onclick=()=>modal.close();
+
+document.getElementById('bJson').onclick=()=>{
+  const c=compilar();
+  bajar('guion-uniquest.json', JSON.stringify(c,null,2), 'application/json');
+  render();
+};
+document.getElementById('bTxt').onclick=()=>bajar('guion-uniquest.txt', textoPlano(), 'text/plain');
+document.getElementById('bEncargos').onclick=()=>{
+  const t=textoEncargos();
+  abrirModal('Encargos a Claude','<pre>'+esc(t)+'</pre>', t);
+};
+document.getElementById('bValidar').onclick=()=>{
+  const a=revisar();
+  const html = a.length
+    ? '<div class="avisos">'+a.map(x=>`<div class="avi${x.leve?' leve':''}" data-ir="${x.id}">
+        <span>${x.leve?'·':'!'}</span><span>${esc(x.txt)}</span></div>`).join('')+'</div>'
+    : '<div class="nada">Todo en orden: puedo aplicar este guion sin preguntarte nada.</div>';
+  abrirModal('Revisión del guion', html);
+  document.getElementById('mCuerpo').querySelectorAll('[data-ir]').forEach(el=>el.onclick=()=>{
+    modal.close(); sel=el.dataset.ir; render(); foco(sel);
+    const d=lista.querySelector(`.fila[data-id="${sel}"]`); if(d) d.scrollIntoView({block:'center'});
+  });
+};
+document.getElementById('bAyuda').onclick=()=>abrirModal('Cómo se escribe el guion',`
+  <div style="font-size:13px;line-height:1.65">
+    <p><b>Se escribe como un esquema.</b> Enter hace línea nueva, Tab la mete
+    dentro de la anterior. Escribe las primeras letras de la categoría
+    (<code>mis</code>, <code>esc</code>, <code>tar</code>, <code>dice</code>,
+    <code>opc</code>, <code>acierta</code>, <code>falla</code>…) y pulsa Tab.</p>
+    <p><b>@ para la gente.</b> Escribe <code>@ying</code> y elige: el editor sabe
+    en qué sala está cada uno de los ${CAT.npcs.length} personajes del juego.</p>
+    <p><b>El orden que espera:</b></p>
+    <pre>Capítulo
+  Misión
+    Escena            (con @personaje)
+      Dice NPC        lo que suelta antes
+      Tarea           la frase correcta + mecánica
+        Opciones      los distractores
+        Rúbrica       solo si es respuesta abierta
+        Si acierta
+        Si falla
+        Pista
+      Entrega         qué se lleva el jugador</pre>
+    <p><b>Rúbrica</b> (solo en las tareas abiertas): un elemento por línea,
+    <code>nombre: sinónimos &gt;&gt; lo que pregunta el NPC si falta</code>. El NPC no
+    puntúa: repregunta por lo que no dijiste, y así una formulación buena que no
+    hayas previsto solo cuesta una pregunta de más, no un suspenso.</p>
+    <p><b>Huecos:</b> <code>{correcta|falsa|falsa}</code> para desplegable,
+    <code>{=vale|también}</code> cuando se escribe y aceptas varias formas.</p>
+    <p><b>✦ Claude se encarga:</b> el botón de cada línea. Apunta qué quieres y
+    esa línea sale en la lista de encargos en vez de bloquear la revisión.</p>
+  </div>`);
+
+document.getElementById('bImport').onclick=()=>document.getElementById('fImport').click();
+document.getElementById('fImport').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ importar(JSON.parse(r.result)); }
+                 catch(err){ abrirModal('No se pudo leer','<div class="nada">'+esc(err.message)+'</div>'); } };
+  r.readAsText(f); e.target.value='';
+};
+document.getElementById('bReset').onclick=()=>{
+  if(!confirm('¿Vaciar el guion y volver al ejemplo? Se pierde lo escrito.')) return;
+  filas=EJEMPLO.map(x=>nuevaFila(x)); sel=filas[0].id; guardar(); render();
+};
+
+//====================================================================
+//  IMPORTAR
+//  Entiende su propio JSON y tambien el del editor viejo, traduciendo
+//  los tipos a los dos ejes (mecanica y funcion) y separando los
+//  distractores de las reacciones a fallo, que alli se llamaban igual.
+//====================================================================
+const VIEJO_MEC={
+  'Single Choice':['single',''],
+  'Lückentext con lista desplegable':['huecoLista',''],
+  'Lückentext con hueco para escribir':['huecoLibre',''],
+  'Ordena la frase':['ordenar',''],
+  'Pregunta abierta: Petición de favor':['abierta','pedir_favor'],
+  'Pregunta abierta: Petición de información':['abierta','pedir_info'],
+  'Email: Petición de información':['email','pedir_info'],
+  'Email: Solicitud de certificado':['email','solicitud'],
+  'Email: Solicitud de carta de recomendación':['email','solicitud'],
+  'Carta de motivación':['carta','solicitud'],
+  'Corrección de tarea':['corregir','correccion'],
+  'Saludo':['','saludo'], 'Despedida':['','despedida'], 'Agradecimiento':['','gracias'],
+};
+const VIEJO_CAT={'Capítulo':'capitulo','Misión':'mision','Interacción':'escena',
+  'Pregunta de NPC':'dialogo','Respuesta de NPC a interacción':'acierta',
+  'Respuesta de personaje':'jugador','Tipo de interacción':'tarea','Distractores':'opciones'};
+
+function importar(d){
+  let nuevas=[], notas=[];
+  if(d.formato==='uniquest-guion' && Array.isArray(d.outline)){
+    nuevas=d.outline.map(f=>nuevaFila(f));
+  }else if(Array.isArray(d.rows)){
+    const porNombre={}; CAT.npcs.forEach(n=>{ if(!porNombre[n.nombre]) porNombre[n.nombre]=n; });
+    const viejoNombre={}; (d.characters||[]).forEach(c=>viejoNombre[c.id]=c.name);
+    const mapId={};
+    nuevas=d.rows.filter(r=>r.category||(r.text||'').trim()).map(r=>{
+      const f=nuevaFila({ind:r.indent||0, txt:r.text||''});
+      mapId[r.id]=f.id;
+      f.cat=VIEJO_CAT[r.category]||null;
+      if(r.subtype && VIEJO_MEC[r.subtype]){ const [m,fn]=VIEJO_MEC[r.subtype]; f.mec=m; f.fun=fn; }
+      const nom=viejoNombre[r.characterId];
+      if(nom){
+        const n=porNombre[nom];
+        if(!n) notas.push('«'+nom+'» no está en index.html');
+        else if(f.cat==='escena'||!f.cat) f.npcId=n.id;   // en las demas filas ya se sabe quien habla
+      }
+      f._pre=r.prereqIds||[];
+      return f;
+    });
+    // «Distractores» colgando de una respuesta de NPC eran, en realidad, lo
+    // que dice el NPC cuando fallas.
+    nuevas.forEach((f,i)=>{
+      if(f.cat!=='opciones') return;
+      for(let j=i-1;j>=0;j--) if(nuevas[j].ind<f.ind){
+        if(nuevas[j].cat==='acierta'){ f.cat='falla'; }
+        break;
+      }
+    });
+    nuevas.forEach(f=>{ f.prereq=(f._pre||[]).map(x=>mapId[x]).filter(Boolean); delete f._pre; });
+  }else{
+    throw new Error('No reconozco este archivo.');
+  }
+  if(!nuevas.length) throw new Error('El archivo no traía ninguna línea.');
+  filas=nuevas; sel=filas[0].id; guardar(); render();
+  const a=revisar();
+  abrirModal('Importado', `<div class="nada">${nuevas.length} líneas.
+    ${notas.length?'<br><br>Personajes que no encontré: '+esc(notas.join(', ')):''}
+    ${a.length?'<br><br>La revisión encontró '+a.length+' cosas por mirar.':'<br><br>Sin avisos.'}</div>`);
+}
+
+//====================================================================
+//  GUARDADO EN LA NUBE
+//  Publicado como Artifact, el guion se guarda en el servidor y no en el
+//  navegador: se abre desde cualquier sitio y Claude puede leerlo sin que
+//  haya que exportar nada. Abierto como archivo suelto (tools/.guion.html)
+//  no existe window.claude y todo esto no se enciende: queda localStorage.
+//  El guion va troceado porque un documento son 256 KiB como mucho.
+//====================================================================
+const TROZO=120;
+let nube=null, nubePartes=0, nubeTimer=null, tocado=false;
+
+async function nubeCargar(){
+  const ix=await nube.doc('guion/indice').get();
+  if(!ix.exists) return null;
+  const n=(ix.data()||{}).partes||0;
+  const trozos=await Promise.all(
+    Array.from({length:n},(_,k)=>nube.doc('guion/p'+k).get()));
+  const out=[];
+  trozos.forEach(t=>{ if(t.exists) out.push(...((t.data()||{}).filas||[])); });
+  nubePartes=n;
+  return out.length?out:null;
+}
+async function nubeGuardar(){
+  if(!nube) return;
+  const partes=[];
+  for(let i=0;i<filas.length;i+=TROZO) partes.push(filas.slice(i,i+TROZO));
+  if(!partes.length) partes.push([]);
+  await Promise.all(partes.map((p,k)=>nube.doc('guion/p'+k).set({filas:p})));
+  for(let k=partes.length;k<nubePartes;k++) await nube.doc('guion/p'+k).delete();
+  nubePartes=partes.length;
+  await nube.doc('guion/indice').set(
+    {partes:partes.length, filas:filas.length, guardado:new Date().toISOString()});
+}
+function nubeApunta(){
+  if(!nube) return;
+  clearTimeout(nubeTimer);
+  estado.textContent='guardando…';
+  nubeTimer=setTimeout(()=>{
+    nubeGuardar().then(
+      ()=>estado.textContent='en la nube · '+new Date().toLocaleTimeString('es-ES'),
+      ()=>estado.textContent='solo en este navegador (la nube falló)');
+  },1500);
+}
+async function arrancarNube(){
+  if(!(window.claude && window.claude.use)) return;
+  try{ bajador=await claude.use('downloads'); }catch(e){ bajador=null; }
+  try{ nube=await claude.use('db'); }catch(e){ nube=null; }
+  if(!nube){ estado.textContent='guardado en este navegador'; return; }
+  try{
+    const guardado=await nubeCargar();
+    // si ya se ha puesto a escribir, manda lo que tiene delante
+    if(guardado && !tocado){
+      filas=guardado.map(f=>nuevaFila(f)); sel=filas[0].id; render();
+      estado.textContent='cargado de la nube ('+filas.length+' líneas)';
+    }else{
+      await nubeGuardar();
+      estado.textContent='en la nube · Claude puede leerlo';
+    }
+  }catch(e){ estado.textContent='solo en este navegador (la nube falló)'; }
+}
+
+//====================================================================
+filas = cargar();
+if(!filas.length) filas=[nuevaFila({cat:'capitulo'})];
+sel = filas[0].id;
+render(); revisar(); pintaCuentas();
+arrancarNube();
+</script>
+</body>
+</html>
