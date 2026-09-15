@@ -42,6 +42,9 @@ function puertasDe(B){
   return ps;
 }
 
+// Con --artefacto se escribe solo el cuerpo, para publicarlo como Artifact.
+const artefacto = process.argv.includes('--artefacto');
+
 // ====================== IMPORTAR ======================
 if(process.argv[2]==='--import'){
   const f=process.argv[3];
@@ -178,8 +181,8 @@ const tpl=fs.readFileSync(path.join(__dirname,'editor-template.html'),'utf8');
 const cuerpo=tpl.replace('__DATOS__', ()=>JSON.stringify(carga));
 // la plantilla es la misma que se publica como Artifact (solo el cuerpo);
 // para abrirla como archivo suelto le ponemos el envoltorio
-const salida=path.join(__dirname,'.editor.html');
-fs.writeFileSync(salida,
+const salida=path.join(__dirname, artefacto?'../uniquest-plano.artifact.html':'.editor.html');
+fs.writeFileSync(salida, artefacto ? cuerpo :
   '<!doctype html><html lang="es"><head><meta charset="utf-8">'+
   '<meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<style>html,body{margin:0}</style></head><body>'+cuerpo+'</body></html>');

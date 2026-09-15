@@ -95,6 +95,33 @@ Al importar toca el `grid`, los `giros`, el `tinte` y las coordenadas de lo
 que se haya movido, y rechaza el cambio si una puerta, una salida o un NPC se
 quedaría fuera de la rejilla nueva.
 
+**Los dos editores de lienzo están publicados como Artifact**, que es como
+el usuario los usa de verdad:
+
+| | Artifact | guarda en |
+|---|---|---|
+| campus | [Plano del Campus](https://claude.ai/artifact/DdUE1WWYW8k2RatNHNdDTj) | `planos/actual` |
+| salas | [Salas del Campus](https://claude.ai/artifact/SgEYV89dW5MgSvr8TaBsEZ) | `planos/salas` |
+
+Se genera el cuerpo publicable con `--artefacto` (`node tools/editor.js
+--artefacto` → `uniquest-plano.artifact.html`), porque el contenedor de
+Artifacts ya pone el doctype, el `<head>` y el `<body>`. Lo que dibuje se lee
+con `read_db` de esas dos claves y se mete con el `--import` de siempre; **no
+hace falta que exporte nada**. Como el juego y el editor de guion, **son
+copias congeladas**: si se toca el mapa o las salas hay que regenerarlos y
+republicarlos en *esos mismos* Artifacts o seguirá editando los de antes.
+Llevan `db` y `downloads`: sin `downloads` el botón de guardar caería en un
+`<a download>`, que **en el visor no hace absolutamente nada** y deja al
+usuario pulsando un botón muerto.
+
+**Una herramienta con lienzo se maneja con `pointer*`, nunca con `mouse*`.**
+Con `mouse*` a secas, en una tableta los botones responden al toque y el
+lienzo no: el navegador se queda el arrastre para desplazar la página y no
+llega ningún evento, sin ningún aviso. Hace falta `touch-action:none` en el
+lienzo y `setPointerCapture` para que el dedo pueda salirse sin cortar el
+trazo. Se prueba con toques de verdad (CDP `Input.dispatchTouchEvent`), que
+`page.mouse` pasa por encima del problema sin verlo.
+
 ## Para escribir la historia, el editor de guion
 
 La trama y sus retos de lengua no se escriben a mano en `index.html`: se

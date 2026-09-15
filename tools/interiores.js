@@ -32,6 +32,9 @@ function leer(){
 }
 const ladoPuerta=(b,d)=> d[1]<b.y0 ? 'norte' : d[1]>b.y1 ? 'sur' : (d[0]<b.x0 ? 'oeste' : 'este');
 
+// Con --artefacto se escribe solo el cuerpo, para publicarlo como Artifact.
+const artefacto = process.argv.includes('--artefacto');
+
 // ====================== IMPORTAR ======================
 if(process.argv[2]==='--import'){
   const f=process.argv[3];
@@ -320,8 +323,11 @@ const carga={salas, legPatio, legNormal, drawInTileSrc, shadeSrc, tinteSrc, libr
 
 const tpl=fs.readFileSync(path.join(__dirname,'interiores-template.html'),'utf8');
 const cuerpo=tpl.replace('__DATOS__', ()=>JSON.stringify(carga));
-const salida=path.join(__dirname,'.interiores.html');
-fs.writeFileSync(salida,
+// El contenedor de Artifacts pone el doctype, el <html>, el <head> y el
+// <body>, asi que alli va solo el cuerpo; para abrirlo como archivo suelto
+// hay que ponerle el envoltorio.
+const salida=path.join(__dirname, artefacto?'../uniquest-salas.artifact.html':'.interiores.html');
+fs.writeFileSync(salida, artefacto ? cuerpo :
   '<!doctype html><html lang="es"><head><meta charset="utf-8">'+
   '<meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<style>html,body{margin:0}</style></head><body>'+cuerpo+'</body></html>');

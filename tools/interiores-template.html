@@ -942,6 +942,33 @@ const cuerpo=()=>({
                      npcs:salas[k].npcs, info:salas[k].info})),
   baldosasNuevas: nuevas, notas, cuando:new Date().toISOString()
 });
+// Sin nube hay que entregar el JSON a mano. Publicado como Artifact, el visor
+// no deja que la pagina se descargue cosas por su cuenta: hay que pasar por la
+// capacidad 'downloads', que le pide permiso al que mira. Si tampoco la hay,
+// lo peor seria decir "descargado" y que no se descargara nada: se copia al
+// portapapeles y se dice la verdad.
+let bajador=null;
+async function bajarJSON(nombre, datos, comoImportar){
+  const texto=JSON.stringify(datos,null,1);
+  if(bajador){
+    try{ await bajador.save({filename:nombre, data:texto});
+         muestra('ok','Guardado '+nombre+' — impórtalo con: '+comoImportar); return; }
+    catch(e){ if(e && e.code==='cancelled'){ muestra('mal','No se ha guardado nada.'); return; } }
+  }
+  if(window.claude){        // en el visor, un <a download> no hace nada
+    try{ await navigator.clipboard.writeText(texto);
+         muestra('ok','Sin permiso para guardar, así que te lo he copiado al portapapeles. '
+                     +'Pégaselo a Claude, o dale permiso y vuelve a pulsar.'); return; }
+    catch(_){ muestra('mal','No puedo ni guardar el archivo ni copiarlo. Dale permiso de '
+                           +'guardado a la página y vuelve a pulsar.'); return; }
+  }
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([texto],{type:'application/json'}));
+  a.download=nombre; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),0);
+  muestra('ok','Descargado '+nombre+' — impórtalo con: '+comoImportar);
+}
+
 // GUARDAR NO SE BLOQUEA NUNCA. Lo que esté a medias se avisa, pero se guarda
 // igual: una tarde de trabajo vale mucho más que una rejilla coherente, y de
 // que no entre nada roto en el juego ya se encarga el --import, que se niega a
@@ -952,12 +979,8 @@ botonEl.onclick=async()=>{
   if(!c.salas.length && !nuevas.length && !notas.length){
     muestra('mal','No has cambiado nada todavía.'); return; }
   // (si hay algo a medias se dice DESPUES de guardar, no en vez de guardar)
-  if(!almacen){
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([JSON.stringify(c,null,1)],{type:'application/json'}));
-    a.download='salas.json'; a.click();
-    muestra('ok','Descargado salas.json — impórtalo con: node tools/interiores.js --import salas.json');
-    return; }
+  if(!almacen){ await bajarJSON('salas.json', c,
+    'node tools/interiores.js --import salas.json'); return; }
   const av=avisos();
   botonEl.disabled=true; botonEl.textContent='Guardando…';
   try{
@@ -1036,9 +1059,13 @@ function alSala(){
 pintarGiros(); selSala.value=clave; alSala(); pintarEncargos();
 
 (async()=>{
-  try{ almacen = window.claude && claude.use ? await claude.use('db') : null; }
-  catch(_){ almacen=null; }
-  if(!almacen){ estadoEl.textContent='Sin guardado en la nube: el botón descargará un salas.json.'; return; }
+  if(window.claude && claude.use){
+    try{ bajador = await claude.use('downloads'); }catch(_){ bajador=null; }
+    try{ almacen = await claude.use('db'); }catch(_){ almacen=null; }
+  }
+  if(!almacen){ estadoEl.textContent = window.claude
+      ? 'Sin guardado en la nube: el botón te dará el salas.json.'
+      : 'Sin guardado en la nube: el botón descargará un salas.json.'; return; }
   estadoEl.textContent='Listo para guardar.';
   try{
     const s=await almacen.doc('planos/salas').get();
