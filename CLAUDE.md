@@ -285,6 +285,22 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   la persona contesta y vuelve a preguntar, y del segundo intento en adelante
   con la pista delante. Eso vale para todas las tareas cerradas; las abiertas
   (rúbrica) todavía no están hechas.
+- **El cuadro de diálogo tiene tope de alto en el móvil.** Puede pedir más de
+  lo que hay: una frase larga con sus distractores no cabe, y sin tope se
+  salía por arriba sin forma de llegar a ella. El tope es `--dlgMax`, que
+  calcula `resize()` —el único que sabe dónde queda la base del lienzo— y lo
+  que se desplaza es el **panel del reto**, no el cuadro entero, para que el
+  nombre de quien habla y lo que dice se queden a la vista. Hace falta
+  `touch-action:pan-y` en el panel, porque `#game` declara `none` y si no el
+  dedo no desplaza nada. El cuadro se abre y se cierra con la **clase**
+  `.abierto`, no con `style.display`: en línea gana siempre y dejaría el modo
+  táctil sin su `display:flex`.
+- **Ojo con los nombres de clase repetidos.** `.ficha` era a la vez la ficha
+  de personaje del menú y la ficha de palabra de los retos; la del menú iba
+  antes y les colaba su `width:100%`, así que cada palabra ocupaba una fila
+  entera y el cuadro medía 839 px en una pantalla de 640. La del menú va
+  acotada a `#menu`. Al añadir CSS al juego conviene mirar si el nombre ya
+  existe arriba, que el menú y el diálogo comparten hoja de estilos.
 - **Las frases de una tarea `single` tienen que caber en un botón.** El cuadro
   de diálogo da para unos 40 caracteres por opción en una línea; si la frase
   del guion es más larga, se parte: la primera mitad va en la `consigna` y la
