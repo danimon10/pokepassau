@@ -676,9 +676,9 @@ const INTERIORS = {
       "#.....######..#######",
       "#...................#",
       "#...................#",
-      "#..te.te.te.te.te.te#",
-      "#..te.te.te.te.te.te#",
-      "#..te.te.te.te.te.te#",
+      "#.ete.te.te.te.te.te#",
+      "#.ete.te.te.te.te.te#",
+      "#.ete.te.te.te.te.te#",
       "#...................#",
       "#¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦#"
     ],
@@ -5629,11 +5629,13 @@ function abrirCapitulo2(){
   avisar('📖 Capítulo 2: ¿cómo se hace un intercambio?');
 }
 const REMATES={
-  // el final del capitulo 1: alguien suelta lo de Santa Marta
+  // El final del capitulo 1: lo de Santa Marta es de ALESSIA, la que abrio la
+  // sobremesa; la ultima pregunta es de Judith, asi que aqui se cambia de voz
+  // a proposito — es una mesa, habla quien tiene algo que contar.
   santamarta:(npc)=>{
     ponBandera('sobremesa_fin', true);
-    openDialog("Estudiante Judith", [
-      "Oye, y si quieres practicar, a mí me viene bien.",
+    openDialog("Becaria Alessia", [
+      "Oye, pues si quieres practicar, a mí me viene bien.",
       "Yo el año pasado estuve de intercambio en Santa Marta. En Colombia, en la costa.",
       "Volví hablando así, medio costeño. Se me pegó y no se me quita."], {
       q:"¿Qué dices?",
@@ -5856,7 +5858,9 @@ GENTE_EVENTO.push({sala:'mensa2', cuando:()=>fase()==='mesa', gente:()=>[
   {x:4,y:10, name:"Estudiante Marco", color:"#d6a05a", dir:'left',
    lines:["Yo soy de Bolonia. Llevo aquí un año y sigo sin entender el dialecto de aquí.",
           "El alemán lo llevo bien. El bávaro es otro idioma."]},
-  {x:7,y:10, name:"Estudiante Judith", color:"#8a6ab0", dir:'left',
+  // Judith se sienta en el lado de aca de la misma mesa, contigo: antes
+  // estaba en la mesa de al lado y comiais separados.
+  {x:2,y:8, name:"Estudiante Judith", color:"#8a6ab0", dir:'right',
    lines:["Perdona que hablemos en español. Es que aquí es lo que se hace.",
           "Si te pierdes, dilo y cambiamos."]},
 ]});
@@ -5894,7 +5898,8 @@ function alEntrarSala(sala){
 // Sentarse en la silla que te han guardado arranca la sobremesa.
 function alSentarse(x,y){
   if(scene!=='mensa2' || fase()!=='mesa' || bandera('sobremesa_fin')) return;
-  if(x!==7 || y!==9) return;
+  // la silla que te guardan es la de enfrente de Ying, en su misma mesa
+  if(x!==2 || y!==9) return;
   const A=npcs.find(n=>n.name==='Becaria Alessia');
   if(A) setTimeout(()=>abrirTarea(TAREAS.sobremesa_1, A), 250);
 }
