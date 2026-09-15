@@ -99,7 +99,8 @@ select,input[type=file]{width:100%;font:inherit;font-size:12px;padding:5px 6px;
 #escena{flex:1;overflow:auto;background:var(--hueco);position:relative}
 #lienzo{position:relative;width:max-content;padding:26px}
 #calco{position:absolute;left:26px;top:26px;pointer-events:none;opacity:.45}
-canvas{display:block;image-rendering:pixelated;cursor:crosshair;
+/* touch-action:none o el dedo arrastra la pagina en vez de pintar */
+canvas{display:block;image-rendering:pixelated;cursor:crosshair;touch-action:none;
   border:1px solid var(--borde);border-radius:2px}
 #coord{position:fixed;right:16px;bottom:14px;font-family:var(--f-num);font-size:11.5px;
   background:var(--panel);border:1px solid var(--borde);border-radius:6px;
@@ -362,8 +363,14 @@ function colocaPuerta(x,y){
   pintarPuertas(); dibujar();
 }
 
-cv.addEventListener('mousedown', e => {
+// Con 'pointer' en vez de 'mouse' esto se pinta igual con el raton, con el
+// dedo y con un lapiz. Con 'mouse' a secas, en una tableta los botones
+// respondian y el lienzo no: el navegador se quedaba el arrastre para
+// desplazar la pagina y no llegaba ningun evento.
+cv.addEventListener('pointerdown', e => {
   const [x,y] = casilla(e); if (x<0||y<0||x>=AN||y>=AL) return;
+  e.preventDefault();
+  try{ cv.setPointerCapture(e.pointerId); }catch(_){}   // que el dedo pueda salirse
   if (colocando && puertaSel){ colocaPuerta(x,y); return; }
   const o = elegido();
   if (e.shiftKey && o && sel.t==='b' && puertaSel){ colocaPuerta(x,y); return; }
@@ -374,10 +381,11 @@ cv.addEventListener('mousedown', e => {
   if (modo === 'libre') pinta(x,y);
   dibujar();
 });
-cv.addEventListener('mousemove', e => {
+cv.addEventListener('pointermove', e => {
   const [x,y] = casilla(e);
   document.getElementById('coord').textContent =
     (x>=0&&y>=0&&x<AN&&y<AL) ? 'x '+x+'   y '+y+'   ·   '+g[y][x] : '—';
+  if (moviendo || pulsando) e.preventDefault();
   if (moviendo){
     const o = elegido(); if (!o) return;
     o.x0=Math.min(ini[0],x); o.x1=Math.max(ini[0],x);
@@ -389,7 +397,7 @@ cv.addEventListener('mousemove', e => {
     cx.strokeRect(Math.min(ini[0],x)*CS, Math.min(ini[1],y)*CS,
       (Math.abs(x-ini[0])+1)*CS, (Math.abs(y-ini[1])+1)*CS); }
 });
-window.addEventListener('mouseup', e => {
+const sueltaPincel = e => {
   if (moviendo){
     const o = elegido();
     if (o){
@@ -406,7 +414,9 @@ window.addEventListener('mouseup', e => {
         if (i>=0&&i<AN&&j>=0&&j<AL) g[j][i] = pincel;
     dibujar(); }
   pulsando = false;
-});
+};
+window.addEventListener('pointerup', sueltaPincel);
+window.addEventListener('pointercancel', sueltaPincel);
 
 function deshacer(){
   const p = pila.pop(); if (!p) return;
@@ -461,7 +471,27 @@ function revisar(){
 const avisoEl = document.getElementById('aviso');
 const estadoEl = document.getElementById('estadoGuardado');
 const botonEl = document.getElementById('guardar');
-let almacen = null;
+let almacen = null, bajador = null;
+async function bajarJSON(nombre, datos, comoImportar){
+  const texto = JSON.stringify(datos, null, 1);
+  if (bajador){
+    try{ await bajador.save({filename:nombre, data:texto});
+         muestra('ok','Guardado '+nombre+' — impórtalo con: '+comoImportar); return; }
+    catch(e){ if (e && e.code==='cancelled'){ muestra('mal','No se ha guardado nada.'); return; } }
+  }
+  if (window.claude){        // en el visor, un <a download> no hace nada
+    try{ await navigator.clipboard.writeText(texto);
+         muestra('ok','Sin permiso para guardar, así que te lo he copiado al portapapeles. '
+                     +'Pégaselo a Claude, o dale permiso y vuelve a pulsar.'); return; }
+    catch(_){ muestra('mal','No puedo ni guardar el archivo ni copiarlo. Dale permiso de '
+                           +'guardado a la página y vuelve a pulsar.'); return; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([texto],{type:'application/json'}));
+  a.download = nombre; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 0);
+  muestra('ok','Descargado '+nombre+' — impórtalo con: '+comoImportar);
+}
 
 function muestra(clase, titulo, lista){
   avisoEl.className = clase; avisoEl.style.display='block'; avisoEl.innerHTML='';
@@ -479,18 +509,18 @@ const cuerpo = () => ({
 });
 
 botonEl.onclick = async () => {
+  // Sin nube hay que entregar el JSON a mano. Publicado como Artifact, el visor
+  // no deja que la pagina se descargue cosas por su cuenta: hay que pasar por
+  // la capacidad 'downloads', que le pide permiso al que mira. Si tampoco la
+  // hay, lo peor seria decir "descargado" y que no se descargara nada: se copia
+  // al portapapeles y se dice la verdad.
   const pegas = revisar();
   if (pegas.length){
     muestra('mal','No lo guardo todavía — hay '+pegas.length+' cosa(s) que arreglar:', pegas);
     return; }
   const nuevas = BLD.flatMap(b => b.puertas.filter(p => p.nueva).map(p => b.label+' ('+p.x+','+p.y+')'));
-  if (!almacen){
-    // sin almacen (abierto como archivo suelto): se descarga
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(cuerpo(),null,1)],{type:'application/json'}));
-    a.download = 'mapa.json'; a.click();
-    muestra('ok','Descargado mapa.json — impórtalo con: node tools/editor.js --import mapa.json');
-    return; }
+  if (!almacen){ await bajarJSON('mapa.json', cuerpo(),
+    'node tools/editor.js --import mapa.json'); return; }
   botonEl.disabled = true; botonEl.textContent = 'Guardando…';
   try{
     await almacen.doc('planos/actual').set(cuerpo());
@@ -505,9 +535,13 @@ botonEl.onclick = async () => {
 pintarLista(); pintarPuertas(); dibujar();
 
 (async () => {
-  try{ almacen = window.claude && claude.use ? await claude.use('db') : null; }
-  catch(_){ almacen = null; }
-  if (!almacen){ estadoEl.textContent = 'Sin guardado en la nube: el botón descargará un mapa.json.'; return; }
+  if (window.claude && claude.use){
+    try{ bajador = await claude.use('downloads'); }catch(_){ bajador = null; }
+    try{ almacen = await claude.use('db'); }catch(_){ almacen = null; }
+  }
+  if (!almacen){ estadoEl.textContent = window.claude
+      ? 'Sin guardado en la nube: el botón te dará el mapa.json.'
+      : 'Sin guardado en la nube: el botón descargará un mapa.json.'; return; }
   estadoEl.textContent = 'Listo para guardar.';
   try{
     const s = await almacen.doc('planos/actual').get();

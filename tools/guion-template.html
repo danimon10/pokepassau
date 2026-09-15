@@ -316,16 +316,24 @@ const EJEMPLO=[
 //====================================================================
 //  SINTAXIS DEL CONTENIDO
 //  {correcta|falsa|falsa}  hueco con opciones, la primera es la buena
+//  {correcta|=tambien|falsa}  el '=' marca otra opcion igual de buena
 //  {=vale|tambien|asi}     hueco para escribir, todas se aceptan
+//  =frase                  en una fila de Opciones: otra respuesta buena,
+//                          no un distractor
 //====================================================================
 function partirHuecos(txt){
   const trozos=[]; let resto=txt||'', m;
   const re=/\{([^{}]*)\}/g; let ult=0;
   while((m=re.exec(resto))){
     if(m.index>ult) trozos.push({t:'texto', v:resto.slice(ult,m.index)});
+    // '=' delante de TODO el hueco: se escribe y valen todas.
+    // '=' delante de UNA opcion: esa tambien se da por buena.
     const libre = m[1].startsWith('=');
-    const ops = (libre?m[1].slice(1):m[1]).split('|').map(s=>s.trim());
-    trozos.push({t:'hueco', libre, ops, bien:ops[0]});
+    const crudas = (libre?m[1].slice(1):m[1]).split('|').map(s=>s.trim());
+    const ops = crudas.map(o=>o.replace(/^=\s*/,''));
+    const buenas = libre ? ops.slice()
+                         : ops.filter((o,i)=>i===0 || crudas[i].startsWith('='));
+    trozos.push({t:'hueco', libre, ops, bien:ops[0], buenas});
     ult = m.index+m[0].length;
   }
   if(ult<resto.length) trozos.push({t:'texto', v:resto.slice(ult)});
@@ -334,6 +342,16 @@ function partirHuecos(txt){
 const tieneHuecos = t => /\{[^{}]*\}/.test(t||'');
 // Una fila de opciones son cadenas separadas por | o por salto de linea.
 const listaOpc = t => (t||'').split(/[|\n]/).map(s=>s.trim()).filter(Boolean);
+// ...y la que empieza por '=' no es un distractor: es OTRA RESPUESTA BUENA.
+// Casi ninguna pregunta se hace de una sola manera («cuanto cuesta» y «cuanto
+// costaria» valen las dos), y poner la otra de distractor es tenderle al
+// alumno una frase correcta para luego rechazarsela.
+function partirOpc(t){
+  const buenas=[], falsas=[];
+  listaOpc(t).forEach(o=>{ if(o.startsWith('=')) buenas.push(o.slice(1).trim());
+                           else falsas.push(o); });
+  return {buenas, falsas};
+}
 // Un elemento de rubrica:  nombre: sinonimo|sinonimo >> lo que repregunta el NPC
 // La repregunta es la clave del diseño: si el elemento falta, el NPC no
 // suspende, pregunta por el. Sin ella la tarea vuelve a ser un corrector.
@@ -417,7 +435,7 @@ function hueco(f){
     case 'dialogo':  return 'Lo que dice el NPC antes de la tarea';
     case 'jugador':  return 'Lo que dice tu personaje';
     case 'tarea':    return 'La frase correcta, con {a|b|c} si lleva hueco';
-    case 'opciones': return 'Distractores separados por | o uno por línea';
+    case 'opciones': return 'Distractores separados por | o uno por línea · =otra que también valga';
     case 'rubrica':  return 'motivo: beca|intercambio >> ¿Y para qué lo necesita?';
     case 'acierta':  return 'Lo que responde el NPC si acierta';
     case 'falla':    return 'Lo que responde el NPC si se equivoca';
@@ -495,11 +513,18 @@ function pintaPanel(){
       <div class="ayuda">Se decide una vez en el personaje y todas sus tareas lo heredan.</div></div>`;
     if(MECS[f.mec]&&MECS[f.mec].llaves)
       h+=`<div class="campo"><div class="ayuda"><b>Huecos:</b> <code>{correcta|falsa|falsa}</code> para el desplegable,
-        <code>{=vale|también|así}</code> cuando se escribe y aceptas varias. Puedes poner varios en la misma frase.</div></div>`;
+        <code>{=vale|también|así}</code> cuando se escribe y aceptas varias. Puedes poner varios en la misma frase.<br>
+        Si en un desplegable hay <b>dos formas buenas</b>, marca la otra con <code>=</code>:
+        <code>{tardaría|=tarda|tardarías}</code>.</div></div>`;
   }
 
   if(f.cat==='rubrica'||f.cat==='opciones'){
     h+=campoArea('txt', f.cat==='rubrica'?'Elementos propios (uno por línea)':'Distractores (uno por línea)', f.txt);
+    if(f.cat==='opciones')
+      h+=`<div class="campo"><div class="ayuda">Una línea que empiece por <code>=</code> no es un
+        distractor: es <b>otra respuesta igual de buena</b>. Casi ninguna pregunta se hace de una sola
+        manera —<code>=¿cuánto cuesta arreglarlo?</code>— y poner la otra forma de distractor es
+        rechazarle al alumno una frase que está bien dicha.</div></div>`;
   }
   if(f.cat==='rubrica'){
     h+=`<div class="campo"><label>Fragmentos que ya existen</label>
@@ -574,9 +599,11 @@ function previa(f){
 
   if(f.mec==='single'||f.mec==='corregir'||f.mec==='leer'){
     const hijas=hijasDe(f.id,'opciones');
-    const malas=hijas.flatMap(h=>listaOpc(h.txt));
+    const malas =hijas.flatMap(h=>partirOpc(h.txt).falsas);
+    const otras =hijas.flatMap(h=>partirOpc(h.txt).buenas);
     const encargo=hijas.some(h=>h.claude);
     cuerpo = `<button class="opt bien">${esc(f.txt||'(la frase correcta)')}</button>`
+      + otras.map(m=>`<button class="opt bien">${esc(m)}</button>`).join('')
       + malas.map(m=>`<button class="opt">${esc(m)}</button>`).join('')
       + (encargo?`<div class="ayuda" style="color:var(--lila)">+ los distractores que escriba Claude</div>`
                 :(!malas.length?`<div class="ayuda" style="color:var(--no)">Faltan los distractores.</div>`:''));
@@ -590,18 +617,28 @@ function previa(f){
     }).join('')+'</div>';
     const h=partes.filter(p=>p.t==='hueco');
     cuerpo += h.length
-      ? h.map((p,k)=>`<div class="rub"><b>Hueco ${k+1}</b><br>
-          ${p.libre?'Se acepta: ':'Correcta: '}<code>${esc(p.ops[0])}</code>
-          ${p.ops.length>1?(p.libre?' · también <code>'+p.ops.slice(1).map(esc).join('</code>, <code>')+'</code>'
-                                   :' · falsas: <code>'+p.ops.slice(1).map(esc).join('</code>, <code>')+'</code>'):''}</div>`).join('')
+      ? h.map((p,k)=>{
+          const otras=p.buenas.slice(1), malas=p.ops.filter(o=>!p.buenas.includes(o));
+          return `<div class="rub"><b>Hueco ${k+1}</b><br>
+            ${p.libre?'Se acepta: ':'Correcta: '}<code>${esc(p.ops[0])}</code>
+            ${otras.length?' · también <code>'+otras.map(esc).join('</code>, <code>')+'</code>':''}
+            ${malas.length?' · falsas: <code>'+malas.map(esc).join('</code>, <code>')+'</code>':''}</div>`;
+        }).join('')
       : `<div class="ayuda" style="color:var(--no)">No hay ningún {hueco} en la frase.</div>`;
   }
   else if(f.mec==='ordenar'){
     const pal=(f.txt||'').replace(/[.,;:¿?¡!]/g,'').split(/\s+/).filter(Boolean);
-    const extra=hijasDe(f.id,'opciones').flatMap(h=>listaOpc(h.txt));
+    const hij=hijasDe(f.id,'opciones');
+    const extra=hij.flatMap(h=>partirOpc(h.txt).falsas);
+    const otras=hij.flatMap(h=>partirOpc(h.txt).buenas);
+    // las palabras que solo aparecen en la otra forma buena tambien son fichas
+    const suyas=[...new Set(otras.flatMap(o=>o.replace(/[.,;:¿?¡!]/g,'').split(/\s+/))
+                                 .filter(w=>w && !pal.includes(w)))];
     cuerpo = pal.map(p=>`<span class="ficha">${esc(p)}</span>`).join('')
+      + suyas.map(p=>`<span class="ficha">${esc(p)}</span>`).join('')
       + extra.map(p=>`<span class="ficha extra">${esc(p)}</span>`).join('')
-      + `<div class="rub"><b>Frase correcta</b><br>${esc(f.txt||'—')}</div>`;
+      + `<div class="rub"><b>Frase correcta</b><br>${esc(f.txt||'—')}
+         ${otras.length?'<br><b>También vale</b><br>'+otras.map(esc).join('<br>'):''}</div>`;
   }
   else if(M.abre){
     const rubs=hijasDe(f.id,'rubrica');
@@ -869,7 +906,25 @@ function revisar(){
       else{
         const M=MECS[f.mec];
         const opc=hijasDe(f.id,'opciones');
-        if(M.opc && !opc.length) pon(f.id,'«'+M.et+'» necesita distractores (fila Opciones), aunque los escriba Claude.');
+        const malas=opc.flatMap(h=>partirOpc(h.txt).falsas);
+        const otras=opc.flatMap(h=>partirOpc(h.txt).buenas);
+        if(M.opc && !malas.length && !opc.some(h=>h.claude))
+          pon(f.id,'«'+M.et+'» necesita distractores (fila Opciones), aunque los escriba Claude.');
+        // El fallo que no se ve releyendo: una respuesta que esta bien dicha
+        // puesta de distractor. El alumno la elige porque es correcta, el
+        // personaje se la rechaza, y lo que aprende es que el juego falla.
+        const norm=s=>s.replace(/\s+/g,' ').trim().toLowerCase();
+        malas.forEach(m=>{
+          if(norm(m)===norm(f.txt) || otras.some(o=>norm(o)===norm(m)))
+            pon(f.id,'«'+m+'» está de distractor y a la vez es una respuesta buena. Márcala con «=» o quítala.');
+        });
+        if(f.mec==='ordenar'){
+          const n=(f.txt||'').trim().split(/\s+/).filter(Boolean).length;
+          otras.forEach(o=>{
+            const k=o.trim().split(/\s+/).filter(Boolean).length;
+            if(n && k!==n) pon(f.id,'«'+o+'» tiene '+k+' palabras y la frase '+n+': con ese número de huecos no se podría montar.');
+          });
+        }
         if(M.llaves && !tieneHuecos(f.txt) && !f.claude) pon(f.id,'«'+M.et+'» sin ningún {hueco} en la frase.');
         if(M.rub && !hijasDe(f.id,'rubrica').length) pon(f.id,'Tarea abierta sin rúbrica: no sabría qué aceptar.');
       }
@@ -969,17 +1024,22 @@ function compilar(){
                 trato: f.trato || (escAct.npc?escAct.npc.trato:''),
                 donde: M.donde||'cuadro', enunciado:f.txt,
                 huecos: M.llaves?partirHuecos(f.txt).filter(p=>p.t==='hueco')
-                          .map(p=>({libre:p.libre, correcta:p.ops[0], otras:p.ops.slice(1)})):[],
-                opciones:{correcta:f.txt, falsas:[], porClaude:false},
+                          .map(p=>({libre:p.libre, correcta:p.ops[0],
+                                    tambien:p.buenas.slice(1),
+                                    otras:p.ops.filter(o=>!p.buenas.includes(o))})):[],
+                opciones:{correcta:f.txt, falsas:[], tambien:[], porClaude:false},
                 rubrica:null, encargo:f.claude?f.brief:null};
         escAct.tarea=tarAct; break;
       }
-      case 'opciones':
+      case 'opciones': {
         if(!tarAct) break;
         if(f.claude) tarAct.opciones.porClaude=true;
-        tarAct.opciones.falsas.push(...listaOpc(f.txt));
-        if(tarAct.mecanica==='ordenar') tarAct.sobran=listaOpc(f.txt);
+        const {buenas,falsas}=partirOpc(f.txt);
+        tarAct.opciones.falsas.push(...falsas);
+        tarAct.opciones.tambien.push(...buenas);
+        if(tarAct.mecanica==='ordenar') tarAct.sobran=falsas;
         break;
+      }
       case 'rubrica': {
         if(!tarAct) break;
         const propios=(f.txt||'').split('\n').map(s=>s.trim()).filter(Boolean).map(parseElem);

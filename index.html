@@ -676,9 +676,9 @@ const INTERIORS = {
       "#.....######..#######",
       "#...................#",
       "#...................#",
-      "#..te.te.te.te.te.te#",
-      "#..te.te.te.te.te.te#",
-      "#..te.te.te.te.te.te#",
+      "#.ete.te.te.te.te.te#",
+      "#.ete.te.te.te.te.te#",
+      "#.ete.te.te.te.te.te#",
       "#...................#",
       "#¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦¦#"
     ],
@@ -5532,8 +5532,13 @@ const TAREAS={
     mec:'ordenar', fun:'pedir_info', nivel:'B1',
     dialogo:[],
     consigna:"Pregúntale el precio:",
+    // Para preguntar un precio, «cuanto cuesta» es tan bueno como «cuanto
+    // costaria» —y mas corriente—, asi que valen los dos. Lo que se practica
+    // aqui es «cuanto» con tilde y abrir la pregunta, no el condicional: tener
+    // «cuesta» de distractor era tenderle una ficha buena y luego castigarla.
     frase:"¿ cuánto costaría arreglarlo ?",
-    sobran:["cuanto","cuesta","lo","qué"],
+    tambien:["¿ cuánto cuesta arreglarlo ?"],
+    sobran:["cuanto","lo","qué"],
     errores:[
       {huecos:true, dice:["Perdone, ¿la pregunta entera?"]},
       {pieza:"cuanto", dice:["Le falta la tilde: «cuánto», que está preguntando.",
@@ -5553,14 +5558,18 @@ const TAREAS={
     mec:'huecoLista', fun:'pedir_info', nivel:'B1',
     dialogo:[],
     consigna:"Y lo último:",
-    frase:"¿{Cuánto|Qué|Cuándo} tiempo {tardaría|tardarías|tardaremos}?",
+    // «tarda» y «tardaria» son las dos buenas: lo que se practica es «cuanto»
+    // y el usted, no el condicional. Lo unico que falla en «tardarias» es el
+    // tuteo —preguntarle a ella cuanto tarda es justo lo que toca—, asi que
+    // eso es lo unico que corrige.
+    frase:"¿{Cuánto|Qué|Cuándo} tiempo {tardaría|=tarda|tardarías|tardaremos}?",
     errores:[
       {huecos:true, dice:["Dígamelo entero, que estoy con las manos ocupadas."]},
       {contiene:"cuando tiempo", dice:["«¿Cuándo tiempo?» No.",
                                        "«Cuándo» es para un momento; para una cantidad, «cuánto»."]},
       {contiene:"que tiempo", dice:["«¿Qué tiempo?» Eso es lo que se pregunta mirando por la ventana."]},
-      {contiene:"tardarias", dice:["¿Yo? Yo no tardo nada, es el anillo el que tarda.",
-                                   "Hábleme de usted, haga el favor."]},
+      {contiene:"tardarias", dice:["La pregunta está bien, pero «tardarías» no.",
+                                   "Que nos acabamos de conocer, criatura. Hábleme de usted."]},
       {contiene:"tardaremos", dice:["¿Tardaremos? ¿Va a ayudarme usted a limarlo?"]},
     ],
     pista:"Para una cantidad de tiempo, «cuánto». Y a mí, de usted.",
@@ -5620,11 +5629,13 @@ function abrirCapitulo2(){
   avisar('📖 Capítulo 2: ¿cómo se hace un intercambio?');
 }
 const REMATES={
-  // el final del capitulo 1: alguien suelta lo de Santa Marta
+  // El final del capitulo 1: lo de Santa Marta es de ALESSIA, la que abrio la
+  // sobremesa; la ultima pregunta es de Judith, asi que aqui se cambia de voz
+  // a proposito — es una mesa, habla quien tiene algo que contar.
   santamarta:(npc)=>{
     ponBandera('sobremesa_fin', true);
-    openDialog("Estudiante Judith", [
-      "Oye, y si quieres practicar, a mí me viene bien.",
+    openDialog("Becaria Alessia", [
+      "Oye, pues si quieres practicar, a mí me viene bien.",
       "Yo el año pasado estuve de intercambio en Santa Marta. En Colombia, en la costa.",
       "Volví hablando así, medio costeño. Se me pegó y no se me quita."], {
       q:"¿Qué dices?",
@@ -5672,8 +5683,18 @@ function partirHuecos(txt){
   const re=/\{([^{}]*)\}/g;
   while((m=re.exec(txt||''))){
     if(m.index>ult) fuera.push({t:'texto', v:txt.slice(ult,m.index)});
+    // Un hueco puede tener mas de una forma buena, que hay preguntas que se
+    // hacen de dos maneras igual de correctas y castigar la que el guion no
+    // puso primera no enseña nada: solo enseña a adivinar.
+    // Es la misma marca que usa el editor del guion, en sus dos sitios:
+    //   {=vale|tambien|asi}     el '=' delante de todo: valen todas
+    //   {esta|=y esta|falsa}    el '=' delante de una: esa tambien
+    const todas=m[1].trim().startsWith('=');
     const ops=m[1].split('|').map(s=>s.trim());
-    fuera.push({t:'hueco', ops, bien:ops[0]});
+    const limpias=ops.map(o=>o.replace(/^=\s*/,''));
+    const buenas=todas ? limpias.slice()
+                       : limpias.filter((o,i)=>i===0 || ops[i].startsWith('='));
+    fuera.push({t:'hueco', ops:limpias, bien:limpias[0], buenas});
     ult=m.index+m[0].length;
   }
   if(ult<(txt||'').length) fuera.push({t:'texto', v:txt.slice(ult)});
@@ -5700,7 +5721,11 @@ function barajar(a){
 function abrirTarea(T, npc){
   if(T.mec==='ordenar' || T.mec==='huecoLista'){ abrirReto(T, npc); return; }
   let fallos=0;
-  const opts=barajar([{t:T.correcta, ok:true}].concat((T.falsas||[]).map(t=>({t, ok:false}))));
+  // 'tambien' son otras maneras igual de buenas de decirlo: salen como opcion
+  // y se dan por acertadas, que rechazar una frase correcta no enseña nada.
+  const opts=barajar([{t:T.correcta, ok:true}]
+    .concat((T.tambien||[]).map(t=>({t, ok:true})))
+    .concat((T.falsas||[]).map(t=>({t, ok:false}))));
   const reto={q:T.consigna, opts};
   // showChoices llama a fn ANTES de leer la respuesta, asi que aqui se decide
   // lo que contesta la persona sabiendo por que intento vamos.
@@ -5833,7 +5858,9 @@ GENTE_EVENTO.push({sala:'mensa2', cuando:()=>fase()==='mesa', gente:()=>[
   {x:4,y:10, name:"Estudiante Marco", color:"#d6a05a", dir:'left',
    lines:["Yo soy de Bolonia. Llevo aquí un año y sigo sin entender el dialecto de aquí.",
           "El alemán lo llevo bien. El bávaro es otro idioma."]},
-  {x:7,y:10, name:"Estudiante Judith", color:"#8a6ab0", dir:'left',
+  // Judith se sienta en el lado de aca de la misma mesa, contigo: antes
+  // estaba en la mesa de al lado y comiais separados.
+  {x:2,y:8, name:"Estudiante Judith", color:"#8a6ab0", dir:'right',
    lines:["Perdona que hablemos en español. Es que aquí es lo que se hace.",
           "Si te pierdes, dilo y cambiamos."]},
 ]});
@@ -5871,7 +5898,8 @@ function alEntrarSala(sala){
 // Sentarse en la silla que te han guardado arranca la sobremesa.
 function alSentarse(x,y){
   if(scene!=='mensa2' || fase()!=='mesa' || bandera('sobremesa_fin')) return;
-  if(x!==7 || y!==9) return;
+  // la silla que te guardan es la de enfrente de Ying, en su misma mesa
+  if(x!==2 || y!==9) return;
   const A=npcs.find(n=>n.name==='Becaria Alessia');
   if(A) setTimeout(()=>abrirTarea(TAREAS.sobremesa_1, A), 250);
 }
@@ -5896,9 +5924,17 @@ function abrirReto(T, npc){
   retoVivo={T, npc, fallos:0, estado:null};
   if(T.mec==='ordenar'){
     const piezas=T.frase.trim().split(/\s+/);
+    // 'tambien' son otras formas igual de correctas de decir lo mismo. Sus
+    // palabras entran en la sopa —si no, no habria fichas para montarlas— y
+    // al corregir valen tanto como la del guion.
+    const otras=(T.tambien||[]).map(f=>f.trim().split(/\s+/));
+    const extra=[];
+    otras.forEach(o=>o.forEach(w=>{
+      if(!piezas.includes(w) && !extra.includes(w)) extra.push(w); }));
     retoVivo.estado={
       piezas,
-      sopa: barajar(piezas.concat(T.sobran||[])),
+      validas: [piezas.join(' ')].concat(otras.map(o=>o.join(' '))),
+      sopa: barajar(piezas.concat(extra, T.sobran||[])),
       puestos: new Array(piezas.length).fill(null),
     };
   }else{
@@ -5957,7 +5993,7 @@ function mostrarReto(){
 
 // ---- ordenar la frase ----
 function pintaOrdenar(){
-  const {sopa,puestos}=retoVivo.estado;
+  const {sopa,puestos,validas}=retoVivo.estado;
   const usada=new Set(puestos.filter(k=>k!=null));
   dlgReto.innerHTML=
     '<div class="huecos">'+puestos.map((k,i)=>
@@ -5980,7 +6016,7 @@ function pintaOrdenar(){
   };
   dlgReto.querySelector('[data-a="di"]').onclick=()=>{
     const dicho=puestos.map(k=>k==null?null:sopa[k]);
-    corregirReto(dicho, dicho.every(Boolean) && dicho.join(' ')===retoVivo.estado.piezas.join(' '));
+    corregirReto(dicho, dicho.every(Boolean) && validas.includes(dicho.join(' ')));
   };
 }
 
@@ -6000,12 +6036,12 @@ function pintaHuecos(){
     elegido[+s.dataset.q]=s.value;
   });
   dlgReto.querySelector('[data-a="di"]').onclick=()=>{
-    const huecos=partes.map((p,i)=>p.t==='hueco'?{bien:p.bien, dado:elegido[i]}:null).filter(Boolean);
+    const huecos=partes.map((p,i)=>p.t==='hueco'?{buenas:p.buenas, dado:elegido[i]}:null).filter(Boolean);
     // los huecos sin elegir llegan como null para que el NPC pueda decir
     // "te falta algo"; los trozos de texto vacios no estorban
     const dicho=partes.map((p,i)=>p.t==='texto'?p.v.trim():(elegido[i]||null))
                       .filter(v=>v!=='' && v!=='—');
-    corregirReto(dicho, huecos.every(h=>h.dado===h.bien));
+    corregirReto(dicho, huecos.every(h=>h.buenas.includes(h.dado)));
   };
 }
 
@@ -6330,6 +6366,84 @@ function validateMaps(){
     if(m.premio && m.premio.dinero!=null &&
        (!Number.isInteger(m.premio.dinero)||m.premio.dinero<0))
       E('mision '+id+': el premio en dinero va en centimos enteros');
+  }
+
+  // ---------------- TAREAS DE LENGUA ----------------
+  // Lo que se caza aqui es el fallo que no se ve leyendo el guion: una
+  // respuesta que en realidad es correcta puesta de distractor. El jugador
+  // la elige porque esta bien dicha, la persona se la rechaza, y lo que
+  // aprende es que el juego se equivoca. Ademas, el cableado: a quien
+  // pertenece cada tarea y con que paso de que mision va.
+  const npcsDe=(clave)=>{
+    const i=clave.indexOf(':');
+    const sala=clave.slice(0,i), nombre=clave.slice(i+1);
+    const I=INTERIORS[sala];
+    if(i<0) return null;
+    if(sala!=='outdoor' && !I) return 'sala';
+    const lista=(sala==='outdoor'?OUT_NPCS:(I.npcs||[])).map(n=>n.name);
+    // los que solo existen en un momento del guion no estan en INTERIORS
+    const evento=GENTE_EVENTO.filter(g=>g.sala===sala)
+                             .reduce((a,g)=>a.concat(g.gente().map(n=>n.name)),[]);
+    return lista.concat(evento).includes(nombre) ? null : 'npc';
+  };
+  for(const id in TAREAS){
+    const T=TAREAS[id], D='tarea '+id;
+    const falta=npcsDe(T.npc||'');
+    if(falta==='sala')     E(D+": la sala de '"+T.npc+"' no existe");
+    else if(falta==='npc') E(D+": en esa sala no hay nadie que se llame '"+T.npc+"'");
+    else if(falta===null && !T.npc) E(D+': no dice de quien es (npc)');
+
+    const m=MISIONES[T.mision];
+    if(!m) E(D+": la mision '"+T.mision+"' no existe");
+    else if(T.paso && !m.pasos.some(p=>p.id===T.paso))
+      E(D+": la mision '"+T.mision+"' no tiene ningun paso '"+T.paso+"'");
+    if(T.sigue  && !TAREAS[T.sigue])   E(D+": 'sigue' apunta a '"+T.sigue+"', que no existe");
+    if(T.remate && !REMATES[T.remate]) E(D+": 'remate' apunta a '"+T.remate+"', que no existe");
+    if(T.entrega && !ITEMS[T.entrega]) E(D+": entrega '"+T.entrega+"', que no es ningun objeto");
+    if(!T.acierta || !T.acierta.length) E(D+': no tiene respuesta al acertar');
+    if(!T.falla   || !T.falla.length)   Wn(D+': no tiene respuesta generica al fallar');
+
+    if(T.mec==='ordenar'){
+      const piezas=(T.frase||'').trim().split(/\s+/).filter(Boolean);
+      if(!piezas.length){ E(D+": mecanica 'ordenar' sin frase"); continue; }
+      const otras=(T.tambien||[]).map(f=>f.trim().split(/\s+/).filter(Boolean));
+      // los huecos son tantos como piezas tiene la del guion: una alternativa
+      // mas larga o mas corta no se podria montar nunca
+      otras.forEach(o=>{ if(o.length!==piezas.length)
+        E(D+': la forma «'+o.join(' ')+'» tiene '+o.length+' palabras y la del guion '+
+          piezas.length+'; con ese numero de huecos no se puede montar'); });
+      const buenas=new Set(piezas.concat(...otras));
+      (T.sobran||[]).forEach(w=>{ if(buenas.has(w))
+        E(D+': «'+w+'» esta de distractor y a la vez es parte de una respuesta buena'); });
+      otras.forEach(o=>{ if(o.join(' ')===piezas.join(' '))
+        Wn(D+': una forma de «tambien» repite la frase del guion'); });
+    }
+    if(T.mec==='single'){
+      if(!T.correcta) E(D+": mecanica 'single' sin frase correcta");
+      const buenas=[T.correcta].concat(T.tambien||[]);
+      if(!(T.falsas||[]).length) Wn(D+': no tiene ninguna opcion falsa');
+      (T.falsas||[]).forEach(f=>{ if(buenas.includes(f))
+        E(D+': la opcion «'+f+'» esta de falsa y de buena a la vez'); });
+    }
+    if(T.mec==='huecoLista'){
+      const partes=partirHuecos(T.frase||'');
+      const hs=partes.filter(p=>p.t==='hueco');
+      if(!hs.length) E(D+": mecanica 'huecoLista' pero la frase no tiene ningun {a|b|c}");
+      hs.forEach(h=>{
+        if(h.ops.length<2) Wn(D+': el hueco «'+h.bien+'» no da a elegir nada');
+        const rep=h.ops.filter((o,i)=>h.ops.indexOf(o)!==i);
+        if(rep.length) E(D+': el hueco «'+h.bien+'» repite la opcion «'+rep[0]+'»');
+        if(h.buenas.length===h.ops.length)
+          Wn(D+': en el hueco «'+h.bien+'» valen todas las opciones');
+      });
+    }
+    // un error que no puede saltar nunca es un error mal escrito: 'contiene'
+    // se compara sin tildes y por palabras enteras
+    (T.errores||[]).forEach(e=>{
+      if(e.contiene && e.contiene!==sinTildes(e.contiene))
+        Wn(D+': el error «'+e.contiene+'» lleva tildes o mayusculas y se compara sin ellas');
+      if(!e.dice || !e.dice.length) E(D+': hay un error sin nada que decir');
+    });
   }
 
   // ---------------- OBJETOS ----------------

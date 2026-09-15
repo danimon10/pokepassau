@@ -95,6 +95,33 @@ Al importar toca el `grid`, los `giros`, el `tinte` y las coordenadas de lo
 que se haya movido, y rechaza el cambio si una puerta, una salida o un NPC se
 quedaría fuera de la rejilla nueva.
 
+**Los dos editores de lienzo están publicados como Artifact**, que es como
+el usuario los usa de verdad:
+
+| | Artifact | guarda en |
+|---|---|---|
+| campus | [Plano del Campus](https://claude.ai/artifact/DdUE1WWYW8k2RatNHNdDTj) | `planos/actual` |
+| salas | [Salas del Campus](https://claude.ai/artifact/SgEYV89dW5MgSvr8TaBsEZ) | `planos/salas` |
+
+Se genera el cuerpo publicable con `--artefacto` (`node tools/editor.js
+--artefacto` → `uniquest-plano.artifact.html`), porque el contenedor de
+Artifacts ya pone el doctype, el `<head>` y el `<body>`. Lo que dibuje se lee
+con `read_db` de esas dos claves y se mete con el `--import` de siempre; **no
+hace falta que exporte nada**. Como el juego y el editor de guion, **son
+copias congeladas**: si se toca el mapa o las salas hay que regenerarlos y
+republicarlos en *esos mismos* Artifacts o seguirá editando los de antes.
+Llevan `db` y `downloads`: sin `downloads` el botón de guardar caería en un
+`<a download>`, que **en el visor no hace absolutamente nada** y deja al
+usuario pulsando un botón muerto.
+
+**Una herramienta con lienzo se maneja con `pointer*`, nunca con `mouse*`.**
+Con `mouse*` a secas, en una tableta los botones responden al toque y el
+lienzo no: el navegador se queda el arrastre para desplazar la página y no
+llega ningún evento, sin ningún aviso. Hace falta `touch-action:none` en el
+lienzo y `setPointerCapture` para que el dedo pueda salirse sin cortar el
+trazo. Se prueba con toques de verdad (CDP `Input.dispatchTouchEvent`), que
+`page.mouse` pasa por encima del problema sin verlo.
+
 ## Para escribir la historia, el editor de guion
 
 La trama y sus retos de lengua no se escriben a mano en `index.html`: se
@@ -267,6 +294,23 @@ Las secciones están marcadas con cabeceras `//====`. Las que más se tocan:
   distractores en la sopa) y `huecoLista` (la frase con `{a|b|c}` y sus
   desplegables). Las dos últimas se resuelven en `#dlgReto`, y mientras ese
   panel está abierto **el cuadro no avanza**: se avanza resolviéndolo.
+- **Casi ninguna pregunta se hace de una sola manera.** «¿Cuánto cuesta
+  arreglarlo?» y «¿cuánto costaría arreglarlo?» valen las dos, y rechazar la
+  que el guion no puso primera no enseña nada: enseña a adivinar. Por eso una
+  tarea puede llevar **`tambien`** con otras respuestas igual de buenas
+  (`single`: otra opción; `ordenar`: otra frase entera, que tiene que tener
+  **las mismas palabras** o no cabría en los huecos), y un desplegable marca
+  la segunda forma buena con **`=`**: `{tardaría|=tarda|tardarías}`. Es la
+  misma marca que el editor del guion ya usaba en `{=vale|también|así}`, y
+  allí una línea de Opciones que empieza por `=` tampoco es un distractor,
+  sino otra respuesta buena. **Antes de poner algo de distractor, hay que
+  preguntarse si está bien dicho**: si lo está, va con `=`. El validador y el
+  botón «Revisar» cazan ya el caso de que una respuesta buena esté también de
+  distractor, pero no cazan el criterio: eso lo pone el guion.
+- **El validador mira también `TAREAS`**: que la tarea sea de alguien que
+  existe en esa sala, que su paso exista en su misión, que `sigue`/`remate`
+  lleven a alguna parte, y lo de arriba. Un fallo aquí no rompe el mapa,
+  rompe la clase.
 - **Lo que hace bueno un reto es `errores`**, no la corrección. Es una lista
   de comprobaciones sencillas —`huecos`, `contiene`, `pieza`, `sinPieza`— y la
   primera que salta decide lo que contesta el personaje. `contiene` compara
