@@ -316,6 +316,16 @@
     background:rgba(248,248,240,.7);opacity:.85;top:calc(var(--ib) + 16px);right:8px;}
   body.tmode.ovl #misBtn{display:none !important;}
   #misBtn:active{transform:translateY(2px);}
+  /* tercero de la columna: mochila, misiones y este */
+  #pauseBtn{position:absolute;top:114px;right:12px;z-index:40;cursor:pointer;width:44px;height:44px;
+    background:var(--dlg-bg);border:3px solid var(--dlg-frame);border-radius:10px;
+    box-shadow:0 3px 0 var(--dlg-shadow);display:none;align-items:center;justify-content:center;
+    font-size:22px;padding:0;font-family:inherit;color:var(--txt);}
+  body.playing #pauseBtn{display:flex;}
+  body.tmode #pauseBtn{width:var(--ib);height:var(--ib);font-size:calc(var(--ib) * .5);
+    background:rgba(248,248,240,.7);opacity:.85;top:calc(var(--ib) * 2 + 24px);right:8px;}
+  body.tmode.ovl #pauseBtn{display:none !important;}
+  #pauseBtn:active{transform:translateY(2px);}
   #misBtn .num{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 3px;
     background:#e0a93a;border:2px solid #8a5e12;border-radius:10px;color:#fff;
     font-size:11px;line-height:15px;font-weight:bold;}
@@ -343,6 +353,7 @@
       <div class="pill" id="pillDinero">💶 50,00 €</div>
     </div>
     <button id="misBtn" title="Misiones (M)">📋<span class="num" id="misNum">0</span></button>
+    <button id="pauseBtn" title="Menú (Esc)">☰</button>
     <div id="dialog">
       <div id="dlgName">NPC</div><div id="dlgText"></div>
       <div id="dlgChoices"></div><div id="dlgReto"></div><div id="dlgArrow">▼</div>
@@ -5264,6 +5275,8 @@ function actualizarHud(destelloDinero){
   }
 }
 misBtn.onclick=()=>{ if(state==='play') openMisiones(); };
+const pauseBtn=document.getElementById('pauseBtn');
+pauseBtn.onclick=()=>{ if(state==='play') openPausa(); };
 
 // Los avisos se ponen en cola: si se cobra y ademas se cumple una mision,
 // el segundo mensaje no debe borrar al primero antes de que se lea.
@@ -6168,6 +6181,102 @@ function motivoDelFallo(T, dicho){
 }
 
 //------------------------------------------------------------------
+//  MENÚ DEL JUEGO (tecla Esc)
+//  Un solo boton para lo que no cabe en pantalla: la pantalla completa,
+//  el mando tactil, los controles y la vuelta a la portada.
+//  Las opciones viven en una lista: anadir una es meter una linea en
+//  OPCIONES_PAUSA, sin tocar el dibujo del panel.
+//    ic      icono
+//    t()     el rotulo, que se recalcula al abrir (los interruptores
+//            enseñan asi como estan)
+//    d       la linea de debajo, en pequeno
+//    fn()    lo que hace
+//    hay()   opcional: si falta, la opcion no se enseña
+//    queda   opcional: deja el panel abierto y lo repinta (interruptores)
+//    fuerte  opcional: la pinta destacada
+//------------------------------------------------------------------
+function enPantallaCompleta(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+function hayPantallaCompleta(){ return !!(document.fullscreenEnabled||document.webkitFullscreenEnabled); }
+function alternarPantallaCompleta(){
+  // el navegador puede negarse (permisos, iOS); si dice que no, no pasa nada
+  try{
+    if(enPantallaCompleta()){
+      const salir=document.exitFullscreen||document.webkitExitFullscreen;
+      if(salir) salir.call(document);
+    }else{
+      const d=document.documentElement;
+      const entrar=d.requestFullscreen||d.webkitRequestFullscreen;
+      if(entrar) entrar.call(d);
+    }
+  }catch(e){ console.warn('pantalla completa: el navegador no ha querido', e); }
+}
+
+// Volver a la portada. Se guarda antes, asi que no se pierde nada, y la
+// tarjeta de la partida sale al dia con lo que acabas de dejar.
+function volverAlMenu(){
+  saveGame();
+  closeOverlay();
+  document.body.classList.remove('playing');
+  document.getElementById('hud').style.display='none';
+  invBtn.style.display='none';
+  menuEl.style.display='';
+  state='menu';
+  pintarSlot();              // tu dia, tu dinero y donde te quedaste
+  mostrarPant('pPortada');
+  resize();
+}
+
+const OPCIONES_PAUSA=[
+  {ic:'⛶', hay:hayPantallaCompleta, queda:true,
+   t:()=>enPantallaCompleta()?'Salir de pantalla completa':'Pantalla completa',
+   d:'Aprovecha la pantalla entera, sin las barras del navegador.',
+   fn:alternarPantallaCompleta},
+  {ic:'🕹️', queda:true,
+   t:()=>'Mando táctil: '+(touchMode?'encendido':'apagado'),
+   d:'El joystick y el botón A. En el ordenador también va con la tecla T.',
+   fn:()=>{ touchMode=!touchMode; applyMode(); }},
+  {ic:'❓',
+   t:()=>'Cómo se juega',
+   d:'Las teclas, el mando y las cuatro cosas que conviene saber.',
+   fn:()=>abrirAyudaEnJuego()},
+  {ic:'🏠', fuerte:true,
+   t:()=>'Guardar y salir al menú',
+   d:'Se guarda antes de salir, así que no se pierde nada.',
+   fn:volverAlMenu},
+];
+
+function openPausa(){
+  const vivas=OPCIONES_PAUSA.filter(o=>!o.hay||o.hay());
+  const lista=vivas.map((o,i)=>
+    `<button class="opc${o.fuerte?' fuerte':''}" data-i="${i}">
+       <span class="ic">${o.ic}</span>
+       <span class="txt"><b>${esc(o.t())}</b><span class="sub">${esc(o.d)}</span></span>
+     </button>`).join('');
+  showOverlay(`<button class="close">✕</button><h3>☰ Menú</h3>
+    <div class="opcs">${lista}</div>
+    <div class="hintline">Tecla Esc · la partida se guarda sola</div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelectorAll('.opc').forEach(b=>{
+    b.onclick=()=>{
+      const o=vivas[+b.dataset.i];
+      o.fn();
+      if(o.queda) openPausa();      // interruptor: se repinta con el rotulo nuevo
+    };
+  });
+}
+
+// Los controles, sin salir de la partida. Se reaprovecha la misma caja que
+// hay en el menu de inicio, para no tener el texto escrito dos veces.
+function abrirAyudaEnJuego(){
+  const caja=document.querySelector('#pAyuda .ayudaCaja');
+  showOverlay(`<button class="close">✕</button><h3>❓ Cómo se juega</h3>
+    <div class="ayudaCaja">${caja?caja.innerHTML:''}</div>
+    <div class="btnrow"><button class="ui volver">‹ Menú</button></div>`);
+  overlay.querySelector('.close').onclick=closeOverlay;
+  overlay.querySelector('.volver').onclick=()=>openPausa();
+}
+
+//------------------------------------------------------------------
 //  DORMIR — el unico reloj del juego
 //  Se acciona la cama de tu cuarto (la sala lleva 'dormitorio:true'):
 //  la pantalla se apaga, cambia la fecha, entran los 10 € de la noche
@@ -6897,6 +7006,7 @@ window.addEventListener('keydown',e=>{
     return;
   }
   keys[e.key.toLowerCase()]=true;
+  if(e.key==='Escape'&&state==='play'&&!e.repeat){ openPausa(); return; }
   if((e.key==='i'||e.key==='I')&&state==='play'&&!e.repeat){ openInventory(); return; }
   if((e.key==='m'||e.key==='M')&&state==='play'&&!e.repeat){ openMisiones(); return; }
   if(e.key===' '||e.key==='Enter'||e.key==='z'||e.key==='Z'){
@@ -8327,6 +8437,24 @@ uiStyle.textContent=`
   #overlay .listitem{background:#fff;border:2px solid var(--dlg-frame);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px;}
   #overlay .listitem .meta{font-size:11px;color:#8a90a8;margin-bottom:3px;}
   #overlay .hintline{font-size:11px;color:#8a90a8;margin-top:10px;text-align:center;}
+  /* lista de opciones del menu de pausa */
+  #overlay .opcs{display:flex;flex-direction:column;gap:8px;}
+  #overlay .opc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    font-family:inherit;color:var(--txt);background:#fff;border:3px solid var(--dlg-frame);
+    border-radius:10px;padding:10px 12px;box-shadow:0 3px 0 rgba(90,107,138,.4);transition:.08s;}
+  #overlay .opc:hover{background:#ffe9a8;transform:translateY(-2px);}
+  #overlay .opc:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(90,107,138,.4);}
+  #overlay .opc .ic{font-size:22px;flex:0 0 auto;line-height:1;}
+  #overlay .opc .txt{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  #overlay .opc b{font-size:14px;letter-spacing:.5px;}
+  #overlay .opc .sub{font-size:11px;color:#6a7088;line-height:1.35;}
+  #overlay .opc.fuerte{background:#ffe9a8;border-color:#e0a93a;box-shadow:0 3px 0 #c98a20;}
+  #overlay .opc.fuerte:hover{background:#ffdd8a;}
+  /* la caja de controles se reaprovecha del menu, que es oscuro: aqui va sobre claro */
+  #overlay .ayudaCaja{background:none;border:0;box-shadow:none;padding:0;margin:0;}
+  #overlay .ayudaCaja h3{color:#3a4a7a;font-size:11px;letter-spacing:3px;margin:14px 0 7px;display:block;}
+  #overlay .ayudaCaja h3:first-child{margin-top:0;}
+  #overlay .ayudaCaja p{color:var(--txt);}
   /* --- panel de misiones --- */
   #overlay .estado{display:flex;flex-direction:column;gap:2px;font-size:12px;color:#6a7088;
     border:2px dashed var(--dlg-frame);border-radius:8px;padding:7px 10px;margin-bottom:12px;}
