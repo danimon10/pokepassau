@@ -112,11 +112,14 @@
   /* --- creacion de personaje --- */
   .tit{font-size:clamp(15px,4.4vw,23px);letter-spacing:4px;color:#ffe9a8;margin-bottom:14px;
     text-shadow:0 3px 0 #7a5410, 0 0 18px rgba(255,214,120,.35);}
-  .ficha{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-bottom:16px;
+  /* La ficha del personaje va acotada al menu: 'ficha' se llama tambien la
+     ficha de palabra de los retos, y sin acotarla les colaba su width:100%
+     y cada palabra se comia una fila entera del cuadro de dialogo. */
+  #menu .ficha{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-bottom:16px;
     padding:12px 14px;border:3px solid #7f93b8;border-radius:12px;
     background:linear-gradient(180deg,rgba(48,65,104,.92),rgba(25,35,61,.92));
     box-shadow:0 5px 0 #1c2540, inset 0 1px 0 rgba(255,255,255,.14);}
-  .ficha canvas{flex:0 0 auto;image-rendering:pixelated;border-radius:9px;
+  #menu .ficha canvas{flex:0 0 auto;image-rendering:pixelated;border-radius:9px;
     background:linear-gradient(180deg,#9ad884,#63aa55);border:3px solid #47733a;box-shadow:none;}
   .fichaNm{font-size:16px;font-weight:bold;letter-spacing:1.5px;color:#ffe9a8;}
   .fichaCar{font-size:11px;letter-spacing:1.5px;color:#8fd0ff;margin-top:4px;}
@@ -267,6 +270,18 @@
     box-shadow:0 2px 0 rgba(90,107,138,.4);}
   .dlgBtn.pri{background:#e0a93a;border-color:#b07a1a;color:#fff;font-weight:bold;}
   .dlgBtn:hover{filter:brightness(1.06);}
+  /* En el movil el cuadro puede pedir mas alto del que hay: una frase larga
+     con sus distractores no cabe en la pantalla, y hasta ahora se salia por
+     arriba sin forma de llegar a ella. Se le pone tope y lo que se desplaza
+     es el panel del reto, no el cuadro entero: asi el rotulo con el nombre y
+     lo que dice la persona se quedan siempre a la vista.
+     El tope lo calcula resize(), que es el unico que sabe donde queda la base
+     del lienzo; y hace falta touch-action, porque #game se declara 'none' y
+     sin esto el dedo no desplaza nada. */
+  #dialog.abierto{display:block;}
+  body.tmode #dialog.abierto{display:flex;flex-direction:column;max-height:var(--dlgMax,80vh);}
+  body.tmode #dlgReto,body.tmode #dlgChoices{min-height:0;overflow-y:auto;
+    touch-action:pan-y;overscroll-behavior:contain;}
   #dlgArrow{position:absolute;right:16px;bottom:8px;font-size:calc(var(--fs) * .95);color:var(--dlg-frame);animation:bob .6s infinite;}
   /* boton de inventario: mas discreto en movil */
   body.tmode #invBtn{width:var(--ib);height:var(--ib);font-size:calc(var(--ib) * .5);
@@ -493,6 +508,12 @@ function resize(){
   root.setProperty('--pad',  Math.max(6, Math.round(menor*0.027))+'px');
   root.setProperty('--fs',   fs+'px');
   root.setProperty('--ib',   ib+'px');
+  // Tope del cuadro de dialogo: desde arriba del todo de la pantalla hasta
+  // donde le queda la base, menos el hueco del rotulo con el nombre, que
+  // sobresale por encima del marco. Se calcula aqui porque es el unico sitio
+  // que sabe donde ha quedado el lienzo despues de escalarlo.
+  const base=stage.getBoundingClientRect().bottom;
+  root.setProperty('--dlgMax', Math.max(140, Math.round(base-10-fs*1.9))+'px');
   try{ colocarBotonA(); }catch(_){}   // (en el primer arranque aun no existe)
 }
 window.addEventListener('resize',resize);
@@ -7785,7 +7806,9 @@ function openDialog(name,lines,choice){
   // colgando de una frase que no preguntaba nada y no se entiende que se elige.
   if(choice && choice.q) lines.push(choice.q);
   dlg={lines:lines,idx:0,choice:choice,alCerrar:null,reto:null};
-  dlgName.textContent=name; dlgBox.style.display='block';
+  // la clase manda, pero se limpia el 'display' suelto por si alguien lo puso:
+  // en linea gana siempre y dejaria el cuadro escondido para toda la partida
+  dlgName.textContent=name; dlgBox.style.display=''; dlgBox.classList.add('abierto');
   dlgChoices.style.display='none';dlgChoices.innerHTML='';
   dlgReto.style.display='none';dlgReto.innerHTML='';
   typeLine(lines.length?lines[0]:'');
@@ -7835,7 +7858,7 @@ function showChoices(choice){
   });
 }
 function closeDialog(){
-  dlgBox.style.display='none';state='play';
+  dlgBox.classList.remove('abierto');state='play';
   dlgReto.style.display='none';dlgReto.innerHTML='';retoVivo=null;
   // lo que haya que hacer con el cuadro ya cerrado (dormir) va despues de
   // devolver el control: asi la escena no arranca con el dialogo delante
