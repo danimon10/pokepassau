@@ -7,10 +7,75 @@ Un juego web estilo Pokémon sobre el campus de la Universidad de Passau.
 dependencias. Se abre el archivo en el navegador y ya está. Los `tools/*.js`
 son utilidades sueltas de Node que se ejecutan a mano, no parte del juego.
 
-Idioma: **castellano en todo** — interfaz, diálogos, comentarios del código,
-mensajes de commit y descripciones de PR. Los comentarios del código van casi
-siempre **sin tildes** (una de cada siete las lleva, casi todas en las
-cabeceras de sección); se sigue lo que haya alrededor.
+Idioma: **español en todo** — interfaz, diálogos, comentarios del código,
+mensajes de commit y descripciones de PR. Qué español, más abajo. Los
+comentarios del código van casi siempre **sin tildes** (una de cada siete las
+lleva, casi todas en las cabeceras de sección); se sigue lo que haya alrededor.
+
+## Qué español habla el juego
+
+Esto lo juega gente de cualquier país hispanohablante, así que la voz de casa
+es **español general**: lo que se entiende igual en Guadalajara, en Bogotá y en
+Sevilla. No es el «neutro» del doblaje ni una variante inventada; es quedarse
+en lo compartido y, cuando no hay palabra compartida, elegir la que el contexto
+explica sola.
+
+**Lo que no se escribe nunca, en ninguna boca:** `coger` por tomar, agarrar,
+sacar o llevarse. Es malsonante en México, Argentina, Uruguay, Venezuela y
+buena parte de Centroamérica, y aquí lo lee alguien que está aprendiendo y no
+sabe que hay chiste.
+
+**Lo que va en la norma base:**
+
+- **`ustedes` como único plural.** `vosotros` y todo lo suyo (`sois`, `venís`,
+  `os vais`, `vuestro`) es solo de España.
+- **Nada de `a por`.** Fuera de España ni se dice ni se deduce: «me mandaron a
+  por un cable» → «me mandaron por un cable».
+- **En un mostrador se sirve, no se pone.** `¿Qué te pongo?` → `¿Qué te sirvo?`
+  o `¿Qué le doy?`; `¡Marchando!` → `¡Enseguida!` o `¡Ahí va!`.
+- **Léxico**: computadora, celular, papas, refrigerador, lentes, sándwich,
+  jugo, estacionar, pastel, y «a mano» en vez de «a boli».
+- **Muletillas**: `anda`, `venga`, `vale`, `majo`, `guay`, `qué va`, `en plan`
+  se cambian por lo de todos, o se quitan, que muchas veces sobran.
+- **El pretérito perfecto no es un error.** «Alguien ha escrito» se entiende en
+  todas partes; solo es más frecuente en España. No hay que convertirlo en
+  masa. Lo que no puede pasar es que decida entre acierto y fallo en un reto.
+
+**La variante es del personaje, no del guion.** Igual que el tratamiento
+(tú/usted) o el `aspecto`, se decide una vez y la heredan todas sus líneas:
+
+```js
+{x:4,y:2,name:"Lector Diego",habla:'es-ES', lines:[…]}
+```
+
+Quien lo declara habla como habla —Diego es de Salamanca y puede decir «vale» y
+«a por»— y el corrector deja de señalarle esas marcas. Lo grave no se le
+perdona ni declarándolo. Sin `habla:`, la norma base. Es la manera de que el
+campus suene a mucha gente de muchos sitios sin que se cuele una sola variante
+por descuido, que es justo lo que había pasado.
+
+**En los retos, la variante del jugador nunca es un fallo.** Es la regla que ya
+vale para las formas buenas, estirada a los países: si la correcta es «¿me da
+un café?», «¿me pone un café?» no es un distractor, va en `tambien` (o con `=`
+si es un hueco). Poner de falsa una frase que en otro país está bien dicha no
+enseña español: enseña a adivinar de dónde era quien escribió el guion.
+
+```sh
+node tools/variantes.js              # lo que hay que mirar
+node tools/variantes.js --todo       # y lo que su personaje tiene permitido
+node tools/variantes.js --glosario   # el glosario entero, para ampliarlo
+```
+
+Dice línea, quién lo dice y por qué cambiarlo, y sale con código 1 si queda
+alguna marca grave. Separa lo que hay que tocar de lo que **hay que mirar a
+mano**, porque la misma palabra significa otra cosa según el caso: el `piso` de
+un edificio no es un `piso` de alquiler, `Lo sello` no es un `sello` de correos
+y la `pasta` de los lunes se come.
+
+El glosario vive en el propio `tools/variantes.js`. Cuando el juego necesite
+las equivalencias en marcha —las rúbricas de las tareas abiertas, el
+validador—, la tabla se muda a `index.html` y la herramienta la lee de ahí,
+como hacen los demás `tools/*.js`.
 
 ## Cómo trabajamos
 
@@ -32,7 +97,10 @@ PR **nuevo**. Nunca apilar sobre historia ya mergeada.
    página y saca un **banner rojo** sobre el juego si hay geometría o puertas
    mal. Los errores salen por consola; los avisos, solo por consola. Se puede
    relanzar a mano desde la consola del navegador.
-3. **Probarlo de verdad en un navegador**, no solo leer el diff. Si el
+3. **Pasar el corrector de variantes** si se ha tocado texto que ve el
+   jugador. `node tools/variantes.js` señala lo que se ha escrito en una sola
+   variante del español; ver «Qué español habla el juego».
+4. **Probarlo de verdad en un navegador**, no solo leer el diff. Si el
    entorno trae Chromium y Playwright, se automatiza; si no, hay que decirlo
    en vez de dar por bueno lo que no se ha visto correr. Para el mando táctil
    hacen falta eventos táctiles reales: `page.touchscreen` no vale para
