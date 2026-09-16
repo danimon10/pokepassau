@@ -33,8 +33,10 @@ sabe que hay chiste.
   por un cable» → «me mandaron por un cable».
 - **En un mostrador se sirve, no se pone.** `¿Qué te pongo?` → `¿Qué te sirvo?`
   o `¿Qué le doy?`; `¡Marchando!` → `¡Enseguida!` o `¡Ahí va!`.
-- **Léxico**: computadora, celular, papas, refrigerador, lentes, sándwich,
-  jugo, estacionar, pastel, y «a mano» en vez de «a boli».
+- **Léxico**: computadora, smartphone, papas, refrigerador, lentes, sándwich,
+  jugo, estacionar, pastel, y «a mano» en vez de «a boli». El **sello** se
+  queda: en el juego siempre es el de sellar un papel en una ventanilla, que
+  se dice igual en todas partes, no el de pegar en un sobre.
 - **Muletillas**: `anda`, `venga`, `vale`, `majo`, `guay`, `qué va`, `en plan`
   se cambian por lo de todos, o se quitan, que muchas veces sobran.
 - **El pretérito perfecto no es un error.** «Alguien ha escrito» se entiende en
@@ -60,6 +62,19 @@ un café?», «¿me pone un café?» no es un distractor, va en `tambien` (o con
 si es un hueco). Poner de falsa una frase que en otro país está bien dicha no
 enseña español: enseña a adivinar de dónde era quien escribió el guion.
 
+Y en `single`, una forma de `tambien` puede traer **lo que contesta la persona
+a esa forma en concreto**, que se dice antes de lo de siempre:
+
+```js
+tambien:[{t:"Tengo tres semanas aquí.",
+          r:["«Tengo tres semanas». Eso lo dice igual mi compañera de Medellín.",
+             "Por aquí se oye más «llevo», pero las dos están bien."]}],
+```
+
+Así el jugador que contesta con lo suyo no acierta por los pelos: acierta y le
+dicen de dónde es lo que ha dicho. En `ordenar` y en `huecoLista`, `tambien`
+sigue siendo una lista de frases a secas.
+
 ```sh
 node tools/variantes.js              # lo que hay que mirar
 node tools/variantes.js --todo       # y lo que su personaje tiene permitido
@@ -69,13 +84,18 @@ node tools/variantes.js --glosario   # el glosario entero, para ampliarlo
 Dice línea, quién lo dice y por qué cambiarlo, y sale con código 1 si queda
 alguna marca grave. Separa lo que hay que tocar de lo que **hay que mirar a
 mano**, porque la misma palabra significa otra cosa según el caso: el `piso` de
-un edificio no es un `piso` de alquiler, `Lo sello` no es un `sello` de correos
-y la `pasta` de los lunes se come.
+un edificio no es un `piso` de alquiler y la `pasta` de los lunes se come.
 
-El glosario vive en el propio `tools/variantes.js`. Cuando el juego necesite
-las equivalencias en marcha —las rúbricas de las tareas abiertas, el
-validador—, la tabla se muda a `index.html` y la herramienta la lee de ahí,
-como hacen los demás `tools/*.js`.
+Son **dos listas distintas y en dos sitios a propósito**. El glosario de lo que
+*no* se escribe vive en `tools/variantes.js`, porque solo hace falta al
+escribir. `EQUIVALENCIAS`, la lista de qué palabra es cuál en cada país, vive
+en `index.html` porque la usa el juego: con ella `validateMaps()` da **error**
+si un distractor resulta ser la respuesta buena dicha en otro sitio —«jugo» de
+distractor cuando la buena es «zumo»—, y de ahí saldrán los sinónimos de las
+rúbricas cuando se hagan las tareas abiertas. Se escriben todas las formas,
+singular y plural: un quita-plurales listo falla justo en las que importan
+(«lentes» no sale de «lente» como «ordenadores» sale de «ordenador»). Si se
+añade una palabra que cambia de país, va ahí.
 
 ## Cómo trabajamos
 

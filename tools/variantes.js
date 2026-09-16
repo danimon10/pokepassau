@@ -58,9 +58,9 @@ const GLOSARIO=[
   // --- muletillas e interjecciones ---
   {v:'es-ES', re:/(^|[¡«,(]\s*)anda\b\s*[,!.…]/i, alt:'dale / vamos (o quitarlo, que muchas veces sobra)'},
   {v:'es-ES', re:/(^|[¡«,(]\s*)venga\b\s*[,!.…]/i, alt:'vamos / dale'},
-  {v:'es-ES', re:/(^|[¡«\s(])vale\s*[,.!…]/, alt:'de acuerdo / esta bien / listo'},
+  {v:'es-ES', re:/(^|[¡«\s(])vale\s*[,.!…»]/i, alt:'de acuerdo / esta bien / listo'},
   {v:'es-ES', re:/\bhala\b|\bostras\b|\bjol[ií]n\w*\b|\bjod[eo]r\b|\bhostia\b/i, alt:'vaya / uy / caramba'},
-  {v:'es-ES', re:/\bqu[eé] va\b(?!\s+(incluid|con|a\s+ser))/, alt:'para nada / que no'},
+  {v:'es-ES', re:/\bqu[eé] va\b(?!\s+(incluid|con|a\s+ser))/i, alt:'para nada / que no'},
   {v:'es-ES', re:/\ben plan\b|\bpues nada\b|\bni de co[ñn]a\b/i, alt:'como / bueno / ni loco'},
   {v:'es-ES', re:/\bmaj[ao]s?\b|\bguay\b|\bmola[ns]?\b|\bchul[ao]s?\b|\bcutre\w*\b|\bchung[ao]s?\b|\bflip\w+\b/i,
    alt:'simpatico / genial / feo'},
@@ -70,7 +70,7 @@ const GLOSARIO=[
 
   // --- lexico ---
   {v:'es-ES', re:/\bordenador(es)?\b/i,   alt:'computadora / computador'},
-  {v:'es-ES', re:/\bm[oó]vil(es)?\b/i,    alt:'celular'},
+  {v:'es-ES', re:/\bm[oó]vil(es)?\b/i,    alt:'smartphone'},
   {v:'es-ES', re:/\bpatatas?\b/i,         alt:'papas'},
   {v:'es-ES', re:/\bnevera\b/i,           alt:'refrigerador / heladera'},
   {v:'es-ES', re:/\bbocadillos?\b/i,      alt:'sandwich'},
@@ -92,8 +92,6 @@ const GLOSARIO=[
    alt:'quitarlo (o el apelativo del personaje)', por:'puede ser tio/tia de familia'},
   {v:'es-ES', dudoso:true, re:/\bbillete(s)?\b/i,
    alt:'boleto / pasaje', por:'si es billete de banco, se dice igual en todas partes'},
-  {v:'es-ES', dudoso:true, re:/\bsellos?\b/i,
-   alt:'estampilla / timbre', por:'el de correos si; el de sellar un papel, no'},
   {v:'es-ES', dudoso:true, re:/\bpisos?\b/i,
    alt:'departamento', por:'solo si es vivienda; la planta de un edificio es piso en todas partes'},
   {v:'es-ES', dudoso:true, re:/\bconduc(ir|e|es|en)\b/i,
@@ -183,7 +181,7 @@ function cadenasJS(l, st){
 
 function frases(src){
   const lineas=src.split('\n'), out=[];
-  let modo='html', st={bloque:false}, tarea='', npcTarea='';
+  let modo='html', st={bloque:false}, npcTarea='', tabla=false;
   lineas.forEach((l,i)=>{
     const n=i+1;
     if(/<style/.test(l))    modo='style';
@@ -197,9 +195,16 @@ function frases(src){
       return;
     }
     if(/<\/script>/.test(l)) modo='html';
-    // dentro de TAREAS cada reto dice de quien es; asi sus frases tienen dueño
+    // EQUIVALENCIAS es la lista de palabras que cambian de pais: son datos,
+    // no frases, y marcarlas seria marcar el propio remedio
+    if(/^const EQUIVALENCIAS=\[/.test(l)) tabla=true;
+    if(tabla){ if(/^\];/.test(l)) tabla=false; return; }
+    // dentro de TAREAS cada reto dice de quien es; asi sus frases tienen dueño.
+    // Se suelta al cerrar el bloque, que si no el ultimo se queda con todo lo
+    // que venga detras.
+    if(/^\}/.test(l)) npcTarea='';
     const mt=l.match(/^\s{2}([a-z_0-9]+)\s*:\s*\{/);
-    if(mt){ tarea=mt[1]; npcTarea=''; }
+    if(mt) npcTarea='';
     const mn=l.match(/npc\s*:\s*'([^']+)'/);
     if(mn) npcTarea=mn[1];
     cadenasJS(l, st).forEach(s=>{

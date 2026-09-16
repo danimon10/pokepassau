@@ -408,7 +408,7 @@
         <p><span class="tecla">←↑↓→</span> o <span class="tecla">W A S D</span> para andar por el campus.</p>
         <p><span class="tecla">Z</span> <span class="tecla">Espacio</span> <span class="tecla">Enter</span> para hablar, abrir puertas y recoger cosas.</p>
         <p><span class="tecla">I</span> abre la mochila · <span class="tecla">M</span> las misiones · <span class="tecla">T</span> muestra u oculta el mando táctil.</p>
-        <h3>MÓVIL</h3>
+        <h3>SMARTPHONE</h3>
         <p>Apoya el dedo en la <b>mitad izquierda</b> y desliza: el joystick nace donde toques.</p>
         <p>Toca la <b>mitad derecha</b> (o el botón A) para interactuar. Arrastra el botón A si te estorba.</p>
         <h3>LO QUE HAY QUE SABER</h3>
@@ -671,7 +671,7 @@ const INTERIORS = {
       {x:2,y:8, to:'mensa2'},
     ],
     info:[
-      {x:6,y:9,name:"Pantalla · Menú del día",lines:["🍽 MENÚ 1 — Schnitzel con patatas · 3,20 €","🥗 MENÚ 2 — Curry de verduras con arroz · 2,80 €","🍲 SOPA — Crema de calabaza · 1,20 €"]},
+      {x:6,y:9,name:"Pantalla · Menú del día",lines:["🍽 MENÚ 1 — Schnitzel con papas · 3,20 €","🥗 MENÚ 2 — Curry de verduras con arroz · 2,80 €","🍲 SOPA — Crema de calabaza · 1,20 €"]},
       {x:10,y:9,name:"Pantalla · Menú de la semana",lines:["📅 ESTA SEMANA","Lunes: pasta. Martes: pescado. Miércoles: Schnitzel.","Jueves: curry. Viernes: lo que quede."]},
       {x:7,y:1,name:"Recarga de tarjeta",lines:["💳 RECARGA DE TARJETA DE ESTUDIANTE","Inserta billetes y apoya la tarjeta en el lector.","Saldo actual: 12,40 €"]},
       {x:5,y:1,name:"Recarga de tarjeta",lines:["💳 Fuera de servicio.","Usa el de al lado. Lleva así desde febrero."]},
@@ -707,9 +707,9 @@ const INTERIORS = {
     giros:{'11,4':1, '12,3':1, '14,3':1, '14,4':1},
     npcs:[
       {x:11,y:1,name:"Cocinero Béla",color:"#d6a05a",dir:'down',
-       lines:["¡Hoy hay Schnitzel con patatas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
+       lines:["¡Hoy hay Schnitzel con papas y opción vegana!","La cola es larga, pero la vista al Inn lo compensa."],
        choice:{q:"¿Qué te sirvo?",opts:[
-         {t:"El menú del día",precio:320,r:["¡Marchando! Que aproveche.","(Recuperas energía para seguir explorando.)"],
+         {t:"El menú del día",precio:320,r:["¡Enseguida! Que aproveche.","(Recuperas energía para seguir explorando.)"],
           sin:["Con eso no te llega ni al postre. Pásate por el cajero y vuelves."]},
          {t:"La sopa del día",precio:120,r:["Crema de calabaza. Poca cosa, pero entra caliente."]},
          {t:"Solo un café",precio:150,r:["Un café para sobrevivir al seminario. Lo entiendo."]},
@@ -718,7 +718,7 @@ const INTERIORS = {
        lines:["¡Hola, guapo! Tienes cara de examen, ¿me equivoco?","Tú tranquilo, que aquí no se cobra con prisa."],
        careerLine:{default:"Sea lo que sea que estudies, hoy has hecho bien en bajar a comer."},
        choice:{q:"¿Te cobro?",opts:[
-         {t:"Sí, por favor",r:["Marchando. Y llévate un postre, anda, que estás muy delgado."]},
+         {t:"Sí, por favor",r:["Enseguida. Y llévate un postre, que estás muy delgado."]},
          {t:"Todavía no",r:["Pues cuando quieras, bonito. Aquí me tienes."]}]}},
       {x:15,y:4,name:"Cajera Brunhilde",color:"#6a7a8a",dir:'down',
        lines:["Tarjeta.","...","¿Necesita algo más o va a seguir ahí parado?"],
@@ -805,7 +805,7 @@ const INTERIORS = {
     ],
     npcs:[
       {x:11,y:6,name:"Becario Lukas",color:"#8a5ad6",dir:'right',
-       lines:["Me mandaron a por un cable HDMI hace media hora.","Aquí abajo no hay cobertura y he perdido la noción del tiempo."]},
+       lines:["Me mandaron por un cable HDMI hace media hora.","Aquí abajo no hay cobertura y he perdido la noción del tiempo."]},
     ]
   },
   // Almacén técnico: estanterías, escritorios con equipos y cajas.
@@ -905,7 +905,7 @@ const INTERIORS = {
     ],
     npcs:[
       {x:8,y:2,name:"Estudiante Ida",color:"#d65a8a",dir:'up',
-       lines:["Esta es la que siempre está libre, y por algo será.","Los ordenadores de esta sala son de la época del disquete."]},
+       lines:["Esta es la que siempre está libre, y por algo será.","Las computadoras de esta sala son de la época del disquete."]},
     ]
   },
   informatik_bano_h: {
@@ -1215,7 +1215,7 @@ const INTERIORS = {
     ],
     npcs:[
       {x:7,y:12,name:"Profesora Irene",color:"#d65a8a",dir:'down',
-       lines:["¡Hola! Aquí se aprenden idiomas de medio mundo.","El alemán cuesta al principio, pero se le coge el gusto."],
+       lines:["¡Hola! Aquí se aprenden idiomas de medio mundo.","El alemán cuesta al principio, pero se le toma el gusto."],
        careerLine:{Kuwi:"¿KuWi? Los idiomas son medio grado tuyo, ¿verdad?",
                    MuK:"¿MuK? Comunicar en varios idiomas te abrirá muchas puertas.",
                    default:"Sea cual sea tu carrera, un idioma más nunca sobra."}},
@@ -1251,8 +1251,8 @@ const INTERIORS = {
     npcs:[
       {x:11,y:12,name:"Tabernero Wast",color:"#c87a3a",dir:'down',
        lines:["Servus! Bienvenido al Gmoa, la barra más querida del campus.","Aquí la cerveza está fría y las charlas son largas."],
-       choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Una Weißbier",precio:390,r:["¡Marchando una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"],
+       choice:{q:"¿Qué te sirvo?",opts:[
+         {t:"Una Weißbier",precio:390,r:["¡Ahí va una Weißbier! Fresquita, como debe ser.","(Prost! 🍺 La vida universitaria también se hace aquí.)"],
           sin:["Servus, que aquí no se fía. Vuelve con monedas y te la guardo fría."]},
          {t:"Una Radler",precio:340,r:["Buena elección para seguir estudiando después: media cerveza, media limonada."]},
          {t:"Solo agua, gracias",r:["…¿agua? ¿En el Gmoa? Bueno, tú mandas. Va por la casa."]}]}},
@@ -1548,7 +1548,7 @@ const INTERIORS = {
                    default:"Económicas recibe a todo el mundo, estudies lo que estudies."}},
       {x:11,y:3,name:"Estudiante Lasse",color:"#5a8ad6",dir:'left',
        lines:["Estudio BWL. Nos vemos por todos los salones, tarde o temprano.","La biblioteca de economía tiene los mejores manuales."],
-       careerLine:{"BWL":"¡Anda, tú también! Habrá que sobrevivir juntos a Estadística.",
+       careerLine:{"BWL":"¡Ah, tú también! Habrá que sobrevivir juntos a Estadística.",
                    default:"Y si estudias otra cosa, los manuales de aquí también se dejan leer."}},
     ]
   },
@@ -1676,12 +1676,12 @@ const INTERIORS = {
        careerLine:{default:"Da igual la carrera que hagas: alguna clase acabarás dando aquí."}},
       {x:2,y:12,name:"Cafetera Sabine",color:"#c87a3a",dir:'right',
        lines:["Café antes de una clase magistral de dos horas. Te hace falta, créeme.","Las mesas de la derecha están libres."],
-       choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Un café doble",r:["Marchando. Con esto aguantas hasta el descanso."]},
+       choice:{q:"¿Qué te sirvo?",opts:[
+         {t:"Un café doble",r:["Enseguida. Con esto aguantas hasta el descanso."]},
          {t:"Un té, que voy nervioso",r:["Buena elección si hoy te toca presentar."]},
          {t:"Nada, gracias",r:["Aquí estaré cuando cambies de idea."]}]}},
       {x:9,y:13,name:"Estudiante Lena",color:"#5ad68f",dir:'left',
-       lines:["Me siento aquí a repasar antes de entrar al aula magna.","El truco es coger sitio en las filas de en medio."]},
+       lines:["Me siento aquí a repasar antes de entrar al aula magna.","El truco es sentarse en las filas de en medio."]},
     ]
   },
   // Aula magna: butacas en abanico alrededor del escenario, con pasillo
@@ -1834,7 +1834,7 @@ const INTERIORS = {
       {x:10,y:6,name:"Ofertas de trabajo",lines:[
         "💼 Se buscan HiWis para la biblioteca. 8 h/semana.",
         "💼 Corrector de ejercicios, Informatik. «Imprescindible paciencia.»",
-        "💼 Alguien ha añadido a boli: «y café»."]},
+        "💼 Alguien ha añadido a mano: «y café»."]},
     ],
     npcs:[
       {x:2,y:4,name:"Frau Dr. Hoffmann",color:"#b05a8a",dir:'right',
@@ -1864,7 +1864,7 @@ const INTERIORS = {
       {x:9,y:1,name:"Fotocopiadora",lines:[
         "Una fotocopiadora enorme con un cartel pegado: «NO FUNCIONA».",
         "Debajo, otro cartel: «SÍ funciona, pero solo en A4».",
-        "Debajo del todo, a boli: «mentira»."]},
+        "Debajo del todo, a mano: «mentira»."]},
       {x:10,y:6,name:"Tablón de tasas",lines:[
         "💶 Semesterbeitrag: se paga antes del inicio del semestre.",
         "💶 Sin el pago no hay matrícula, y sin matrícula no hay carné.",
@@ -1905,7 +1905,7 @@ const INTERIORS = {
        lines:["Aquí se decide qué asignatura va en qué semestre. Y quién se enfada por ello.",
               "El plan de estudios cambia cada dos años. Justo cuando alguien lo entiende."],
        careerLine:{Kuwi:"¿KuWi? Tu plan es el más flexible del campus. Y el más difícil de explicar.",
-                   Inf:"¿Inf? El vuestro es rígido como una viga. Al menos se entiende.",
+                   Inf:"¿Inf? El de ustedes es rígido como una viga. Al menos se entiende.",
                    BWL:"¿BWL? Ah, el plan que todos copian y nadie lee.",
                    default:"Mira el Modulhandbuch antes de matricularte. Créeme."}},
       {x:5,y:5,name:"Herr Kuhn",color:"#5a8a6a",dir:'up',
@@ -1927,7 +1927,7 @@ const INTERIORS = {
       "###########",
     ],
     info:[
-      {x:1,y:6,name:"Nevera",lines:[
+      {x:1,y:6,name:"Refrigerador",lines:[
         "Una nota pegada con un imán: «EL YOGUR DE FRAU PICHLER. NO TOCAR.»",
         "Debajo, otra nota más pequeña: «alguien lo tocó».",
         "El yogur ya no está."]},
@@ -1969,7 +1969,7 @@ const INTERIORS = {
     ],
     npcs:[
       {x:6,y:4,name:"Frau Pichler",color:"#8a5ad6",dir:'down',
-       lines:["Oficina de notas. Sí, ya sé por qué vienes. Todos venís por lo mismo.",
+       lines:["Oficina de notas. Sí, ya sé por qué vienes. Todos vienen por lo mismo.",
               "No, todavía no están. No, no puedo decirte la tuya. No, tampoco «solo si aprobé».",
               "Vuelve el jueves. O no vuelvas: te llegará un correo."],
        careerLine:{default:"Lo tuyo lo corrige tu cátedra, no yo. Yo solo las guardo y las publico."}},
@@ -2032,7 +2032,7 @@ const INTERIORS = {
         "1. Matrícula y pago de la tasa del semestre.",
         "2. Empadronamiento en el ayuntamiento (¡obligatorio!).",
         "3. Carné de estudiante y cuenta de la universidad.",
-        "4. Respirar. El punto 4 lo añadió alguien a boli."]},
+        "4. Respirar. El punto 4 lo añadió alguien a mano."]},
       {x:9,y:1,name:"Plazos de matrícula",lines:[
         "🗓 Semestre de invierno: matrícula hasta el 5 de octubre.",
         "🗓 Semestre de verano: hasta el 5 de abril.",
@@ -2044,8 +2044,8 @@ const INTERIORS = {
               "Carné, número de matrícula y una carpeta que perderás en dos semanas.",
               "Bienvenido a Passau. Lo digo veinte veces al día y sigo diciéndolo en serio."],
        careerLine:{Kuwi:"KuWi… tu carpeta es la naranja. Bienvenida, bienvenido.",
-                   Inf:"Inf. La carpeta azul. Y el aula de ordenadores está en el sótano.",
-                   BWL:"BWL. Carpeta verde. Sois muchos este año, mucho ánimo.",
+                   Inf:"Inf. La carpeta azul. Y el aula de computadoras está en el sótano.",
+                   BWL:"BWL. Carpeta verde. Son muchos este año, mucho ánimo.",
                    default:"Tu carpeta es la gris. Guárdala mejor que los demás."},
        choice:{q:"¿Necesitas algún papel?",opts:[
          {t:"Certificado de matrícula",precio:500,r:["Cinco euros la copia sellada. Te la doy ahora mismo.",
@@ -2100,7 +2100,7 @@ const INTERIORS = {
       {x:16,y:9,name:"Globo terráqueo",lines:[
         "Un globo terráqueo de los de toda la vida, gastado en el ecuador.",
         "De tanto girarlo, hay países que ya casi no se leen.",
-        "Passau, en cambio, está marcada a boli. Con una flecha."]},
+        "Passau, en cambio, está marcada a mano. Con una flecha."]},
       {x:16,y:10,name:"Plazos y convocatorias",lines:[
         "🗓 Erasmus+ (Europa): solicitud hasta el 5 de enero.",
         "🗓 Convenios de ultramar: hasta el 1 de diciembre.",
@@ -2120,13 +2120,13 @@ const INTERIORS = {
            "Y ven a verme antes del plazo, no el último día. El último día viene todo el mundo."]},
          {t:"Todavía me lo estoy pensando",r:[
            "Piénsalo, pero no demasiado. Los plazos son de enero y enero llega pronto.",
-           "Coge un folleto del expositor mientras tanto. Son gratis y hacen ilusión."]},
+           "Llévate un folleto del expositor mientras tanto. Son gratis y alegran el día."]},
          {t:"Vengo de intercambio, no me voy",r:[
            "¡Ah, bienvenido entonces! Aquí tienes tu contacto para todo lo que necesites.",
            "Buddy-Programm, curso de alemán y una cena de bienvenida el segundo jueves.",
            "Y si algo no funciona, esta puerta está siempre abierta."]}]},
        careerLine:{Kuwi:"Con KuWi tienes media Europa abierta. Literalmente: es la carrera con más convenios.",
-                   Inf:"Los de Inf os vais poco y no sé por qué. Hay plazas en Taipéi y en Uppsala esperando.",
+                   Inf:"Los de Inf se van poco y no sé por qué. Hay plazas en Taipéi y en Uppsala esperando.",
                    BWL:"BWL tiene doble titulación con Lyon. Se pide un año antes, aviso.",
                    default:"Estudies lo que estudies, hay convenio para ti en alguna parte."}},
       {x:13,y:7,name:"Yuki, estudiante de intercambio",color:"#d65a8a",dir:'left',
@@ -2190,7 +2190,7 @@ const INTERIORS = {
         "Un portón de madera oscura, cerrado con dos vueltas de llave.",
         "Detrás se oye, muy flojo, un canto a varias voces.",
         "Sobre el dintel, tallado en la piedra: MCDLXXVIII."]},
-      {x:4,y:23,name:"Aparcabicis",lines:[
+      {x:4,y:23,name:"Estacionamiento de bicis",lines:[
         "🚲 Treinta bicis y ni un candado igual.",
         "Una lleva aquí desde el semestre pasado, con el sillín torcido.",
         "Alguien le ha colgado un cartel: «¿de quién soy?»"]},
@@ -2198,7 +2198,7 @@ const INTERIORS = {
     npcs:[
       {x:29,y:4,name:"Sor Adelheid",color:"#6a4a8a",dir:'left',
        lines:["Por aquí no se pasa, criatura. Esto ya no es parte de la universidad.",
-              "El claustro es vuestro; el convento, nuestro. Fue el trato de 1978.",
+              "El claustro es de ustedes; el convento, nuestro. Fue el trato de 1978.",
               "Quizá algún día. Hoy no."],
        careerLine:{default:"Estudia con calma. Este edificio lleva quinientos años viendo pasar prisas."}},
       {x:7,y:5,name:"Jardinero Sepp",color:"#8a6a3a",dir:'down',
@@ -2289,7 +2289,7 @@ const INTERIORS = {
       {x:1,y:12,name:"Cartel de plazas",lines:[
         "🅿 PLAZAS RESERVADAS AL PERSONAL",
         "Estudiantes: 40 € al semestre. Lista de espera: dos semestres.",
-        "Debajo, a boli: «o vienes en bici»."]},
+        "Debajo, a mano: «o vienes en bici»."]},
     ],
     npcs:[
       {x:10,y:8,name:"Herr Pichlmaier",color:"#7a8494",dir:'left',
@@ -2366,7 +2366,7 @@ const INTERIORS = {
         "Fundada en 1978 · unos 11.000 estudiantes · cuatro facultades.",
         "Este edificio, el Nikolakloster, es un convento del siglo XV.",
         "Charla de intercambios el jueves a las 18:00, aquí mismo.",
-        "Alguien ha añadido a boli: «hay tarta»."]},
+        "Alguien ha añadido a mano: «hay pastel»."]},
       {x:6,y:1,name:"Escenario",lines:[
         "🎭 Un escenario bajo, de tablas, con dos focos colgados.",
         "Los jueves hay conciertos pequeños; los martes, teatro universitario.",
@@ -2377,8 +2377,8 @@ const INTERIORS = {
        lines:["¡Bienvenido! ¿Un café antes de clase?",
               "Llevo veintidós años detrás de este mostrador y he visto graduarse a media ciudad.",
               "El truco para aprobar: cafeína y buena compañía. En ese orden, según el día."],
-       choice:{q:"¿Qué te pongo?",opts:[
-         {t:"Un café solo",precio:160,r:["Marchando. Cargadito, que se nota el lunes."]},
+       choice:{q:"¿Qué te sirvo?",opts:[
+         {t:"Un café solo",precio:160,r:["Ahí va. Cargadito, que se nota el lunes."]},
          {t:"Café con Apfelstrudel",precio:420,r:["¡Excelente elección! El strudel es casero, lo hago yo."],
           sin:["Hoy no te llega, cielo. Y fiado no hago, que empecé así y acabé regalando el horno."]},
          {t:"Solo miro, gracias",r:["Tú mira, que huele de maravilla. Ya caerás."]}]},
@@ -2464,7 +2464,7 @@ const INTERIORS = {
               "Estas mesas de arriba son las mejores del edificio y lo sabe muy poca gente.",
               "Te pido un favor: no lo cuentes."]},
       {x:9,y:17,name:"Estudiante Pia",color:"#d65a8a",dir:'up',
-       lines:["La sociedad de libros se reúne los miércoles, por si te apetece.",
+       lines:["La sociedad de libros se reúne los miércoles, por si te animas.",
               "Este mes toca uno de setecientas páginas. Vamos por la treinta."]},
     ]
   },
@@ -2520,7 +2520,7 @@ const INTERIORS = {
               "Todo el mundo me pregunta para qué sirve. Yo pregunto: ¿para qué sirve la pregunta?",
               "…Perdona. Es deformación profesional. Pasa, pasa."],
        careerLine:{Kuwi:"KuWi y Filosofía se llevan mejor de lo que parece. Casi demasiado bien.",
-                   default:"Puedes coger asignaturas nuestras sueltas. Se llama Studium Generale y es gratis."}},
+                   default:"Puedes tomar asignaturas nuestras sueltas. Se llama Studium Generale y es gratis."}},
       {x:8,y:5,name:"Estudiante Konrad",color:"#8a6a4a",dir:'left',
        lines:["Vengo a cambiar de asignatura. Otra vez.",
               "Es la tercera. El profesor ya me llama por mi nombre y eso me da vergüenza."]},
@@ -2647,7 +2647,7 @@ const INTERIORS = {
               "Yo llevo la limpieza de esta planta desde antes de que existieran los másteres."]},
       {x:12,y:30,name:"Estudiante Ilias",color:"#d6a05a",dir:'up',
        lines:["Examen oral en el despacho de idiomas. Llevo aquí de pie diez minutos.",
-              "Dicen que el gerente es majo. Dicen."]},
+              "Dicen que el gerente es buena gente. Dicen."]},
     ]
   },
   nk4_aula1: {
@@ -2692,7 +2692,7 @@ const INTERIORS = {
     // cuartos de vuelta a mano: solo cambian el dibujo, no lo que se pisa
     giros:{'1,2':2, '12,2':1, '2,2':2, '4,4':2, '4,5':2, '4,6':2, '4,7':2, '4,8':2, '4,9':2},
     info:[
-      {x:7,y:1,name:"Pizarra",lines:["📝 DaF · Deutsch als Fremdsprache","« Der, die, das. » Debajo, siete tachones.","Y al final, a boli: «ánimo»."]},
+      {x:7,y:1,name:"Pizarra",lines:["📝 DaF · Deutsch als Fremdsprache","« Der, die, das. » Debajo, siete tachones.","Y al final, a mano: «ánimo»."]},
     ],
     npcs:[
       {x:8,y:6,name:"Estudiante Wen",color:"#d65a8a",dir:'down',
@@ -2920,7 +2920,7 @@ const INTERIORS = {
     giros:{'0,5':3, '1,1':3, '1,9':2, '10,2':3, '10,3':3, '10,4':3, '11,2':3, '11,3':3, '13,6':1, '2,9':2, '3,9':2, '4,9':2, '5,9':2, '6,9':2, '7,9':2, '8,9':2, '9,1':3, '9,9':2},
     info:[
       {x:5,y:9,name:"Tablón del lectorado",lines:[
-        "🇪🇸 LECTORADO DE ESPAÑOL",
+        "🌎 LECTORADO DE ESPAÑOL",
         "Tándems español–alemán: apúntate en la lista.",
         "Cine en V.O. el último jueves de mes. Con subtítulos, tranquilos."]},
     ],
@@ -2933,13 +2933,15 @@ const INTERIORS = {
          {t:"A un tándem",r:["¡Estupendo! Te busco pareja esta semana.",
                               "Una hora en español, una hora en alemán. Y un café en medio."]},
          {t:"Al cine en V.O.",r:["Último jueves de mes, aula 111. Este mes toca una argentina.",
-                                  "Trae paciencia con el acento. Y palomitas."]},
+                                  "Otro acento, el mismo idioma. En diez minutos te acostumbras.",
+                                  "Trae palomitas."]},
          {t:"Solo venía a preguntar",r:["Pues pregunta lo que quieras. Para eso está la puerta abierta."]}]},
        careerLine:{Kuwi:"¿KuWi? Entonces el español te va a abrir media carrera. Y medio mundo.",
                    default:"Un idioma más nunca sobra. Y este te lo llevas puesto a veinte países."}},
-      {x:4,y:2,name:"Lector Diego",color:"#c87a3a",dir:'left',
-       lines:["Vine de Salamanca por un año. Van cinco.",
-              "Passau en invierno es dura, pero el río compensa."]},
+      {x:4,y:2,name:"Lector Diego",habla:'es-ES',color:"#c87a3a",dir:'left',
+       lines:["Vale, pues te cuento: vine de Salamanca por un año. Van cinco.",
+              "Passau en invierno es dura, pero el río compensa.",
+              "Y sí, digo «vale» cada tres frases. Es de Salamanca, no se me quita."]},
     ]
   },
   nk4_vicegerencia: {
@@ -3151,17 +3153,17 @@ const INTERIORS = {
         "🛍 EINKAUFSZENTRUM PASSAU",
         "Planta baja: zapatos, moda, hamburguesas, joyería, óptica,",
         "restaurante italiano y droguería.",
-        "Arriba: panadería, móviles, TK Maxx, Saturn, deportes y librería."]},
+        "Arriba: panadería, smartphones, TK Maxx, Saturn, deportes y librería."]},
       {x:26,y:10,name:"Mostrador de atención",lines:[
         "📋 Devoluciones, tarjetas regalo y objetos perdidos.",
         "En la caja de objetos perdidos hay catorce paraguas y un patinete.",
         "El patinete lleva ahí desde marzo."]},
       {x:1,y:1,name:"Estantería de zapatos",lines:[
-        "👟 Zapatillas, botas de invierno y unas sandalias en oferta.",
+        "👟 Zapatos deportivos, botas de invierno y unas sandalias en oferta.",
         "Las botas buenas cuestan lo que dos semanas de Mensa.",
         "Todo el mundo acaba comprándolas igual. Aquí nieva."]},
       {x:10,y:1,name:"Perchero",lines:[
-        "👕 Camisetas, sudaderas y abrigos ordenados por talla…",
+        "👕 Camisetas, suéteres y abrigos ordenados por talla…",
         "…más o menos. La M está entre la XL y la S.",
         "Nadie sabe cómo pasa esto en todas las tiendas del mundo."]},
       {x:21,y:2,name:"Plancha",lines:[
@@ -3170,7 +3172,7 @@ const INTERIORS = {
       {x:1,y:16,name:"Vitrina de joyas",lines:[
         "💍 Anillos, cadenas y unos pendientes con el precio hacia abajo.",
         "Le das la vuelta a la etiqueta y decides que solo mirabas."]},
-      {x:22,y:15,name:"Expositor de gafas",lines:[
+      {x:22,y:15,name:"Expositor de lentes",lines:[
         "👓 Monturas de todos los colores y un espejo pequeño.",
         "Te pruebas unas redondas. Te quedan raras. Te las pruebas otra vez."]},
       {x:21,y:23,name:"Estante de droguería",lines:[
@@ -3194,11 +3196,11 @@ const INTERIORS = {
        lines:["Los probadores están al fondo. Sí, esos dos de ahí.",
               "Si no te vale la talla, prueba la de al lado. Aquí las tallas son una sugerencia."]},
       {x:27,y:2,name:"Cocinero Ünal",color:"#e8d65a",dir:'down',
-       lines:["¡Marchando dos con queso!",
+       lines:["¡Van dos con queso!",
               "Media universidad ha cenado aquí en época de exámenes. La otra media también."],
        choice:{q:"¿Le pongo una?",opts:[
-         {t:"Hamburguesa con queso",precio:650,r:["¡Marchando! Con cebolla frita, que va incluida y no se discute."]},
-         {t:"El menú con patatas",precio:890,r:["Buena decisión. Se come de pie, junto al cristal, como manda la tradición."],
+         {t:"Hamburguesa con queso",precio:650,r:["¡Enseguida! Con cebolla frita, que va incluida y no se discute."]},
+         {t:"El menú con papas",precio:890,r:["Buena decisión. Se come de pie, junto al cristal, como manda la tradición."],
           sin:["Hoy no llega, amigo. Pero la cebolla huele gratis, aprovéchate."]},
          {t:"Solo estaba oliendo",r:["Eso hace todo el mundo. Y todo el mundo vuelve."]}]}},
       {x:3,y:18,name:"Joyera Frau Adler",color:"#e8d860",dir:'down',
@@ -3220,7 +3222,7 @@ const INTERIORS = {
          {t:"Solo estoy mirando",r:["Mire, mire. Y vuelva con hambre."]}]}},
       {x:26,y:26,name:"Dependiente Kai",color:"#8fb0d8",dir:'down',
        lines:["¿Busca algo en concreto o va a salir con la cesta llena como todo el mundo?",
-              "Es lo que tiene esta tienda. Entras a por pasta de dientes y sales con cuatro cosas."]},
+              "Es lo que tiene esta tienda. Entras por pasta de dientes y sales con cuatro cosas."]},
       {x:17,y:9,name:"Estudiante Rieke",color:"#5a8ad6",dir:'down',
        lines:["Vengo al centro comercial cuando llueve, que es casi siempre.",
               "La escalera de la izquierda sube a la otra planta. Allí está el Saturn."]},
@@ -3286,7 +3288,7 @@ const INTERIORS = {
     ],
     rotulos:[
       {x:12,y:7,  t:"PANADERÍA", c:"#e8a33c"},
-      {x:25,y:7,  t:"MÓVILES",   c:"#8fd0f5"},
+      {x:25,y:7,  t:"SMARTPHONES", c:"#8fd0f5"},
       {x:7, y:12, t:"LIBROS",    c:"#e8d65a"},
       {x:25,y:11, t:"TK MAXX",   c:"#d65a8a"},
       {x:12,y:25, t:"DEPORTES",  c:"#5ad68f"},
@@ -3297,7 +3299,7 @@ const INTERIORS = {
         "🥨 Brezel, Brötchen, Streuselkuchen y un pan de centeno enorme.",
         "A las siete de la tarde queda la mitad y baja de precio.",
         "Media residencia de estudiantes lo sabe."]},
-      {x:28,y:2,name:"Expositor de móviles",lines:[
+      {x:28,y:2,name:"Expositor de smartphones",lines:[
         "📱 Modelos en fila, todos encendidos, todos con la misma foto de fondo.",
         "Las tarifas están en un cartel con letra muy pequeña.",
         "La letra pequeña es la parte importante. Siempre lo es."]},
@@ -3309,7 +3311,7 @@ const INTERIORS = {
         "Hay que rebuscar. Rebuscar es medio placer de venir aquí."]},
       {x:31,y:20,name:"Estante de menaje",lines:[
         "🛋 Cojines, una lámpara, tres juegos de vasos y un cuadro enorme.",
-        "Nadie entra a por esto y todo el mundo sale con algo de esto."]},
+        "Nadie entra por esto y todo el mundo sale con algo de esto."]},
       {x:23,y:33,name:"Pared de televisores",lines:[
         "📺 Doce televisores enseñando la misma imagen a la vez.",
         "Un documental de montañas. Siempre es un documental de montañas."]},
@@ -3329,7 +3331,7 @@ const INTERIORS = {
                                  "Y al tercer día está mejor que el primero, ya verá."]},
          {t:"Nada, gracias",r:["Pues vuelva a las siete. Ya sabe por qué."]}]}},
       {x:31,y:5,name:"Dependiente Timo",color:"#8fd0f5",dir:'down',
-       lines:["¿Busca móvil o tarifa? Porque son dos conversaciones distintas.",
+       lines:["¿Busca smartphone o tarifa? Porque son dos conversaciones distintas.",
               "Si es estudiante, hay tarifa de estudiante. Pregunte siempre, que no la ofrecen sola."]},
       {x:5,y:21,name:"Librero Herr Falk",color:"#e8d65a",dir:'right',
        lines:["Si busca algo y no lo tengo, se lo pido y llega en dos días.",
@@ -3591,7 +3593,7 @@ const INTERIORS = {
       {x:11,y:2,name:"La pared de Freya",lines:[
         "🏃 Dorsales de carreras clavados en fila, ocho o nueve.",
         "El más viejo es de un medio maratón en Múnich.",
-        "Debajo, a boli: «el próximo, entero»."]},
+        "Debajo, a mano: «el próximo, entero»."]},
     ],
     npcs:[
       {x:6,y:4,name:"Freya",color:"#d65a8a",dir:'down',
@@ -3616,14 +3618,14 @@ const INTERIORS = {
       "###############",
     ],
     info:[
-      {x:1,y:1,name:"Nevera",lines:[
+      {x:1,y:1,name:"Refrigerador",lines:[
         "🧊 Cuatro baldas, una por persona, y ninguna respetada.",
         "Un táper con una nota: «ES DE MIRA. NO ES DE TODOS.»",
         "Al lado, medio limón sin dueño desde hace tres semanas."]},
-      {x:8,y:1,name:"La otra nevera",lines:[
-        "La segunda nevera, la de las bebidas y lo que no cabe en la primera.",
-        "Dentro hay ocho cervezas, un yogur caducado y una tarta entera.",
-        "Nadie sabe de quién es la tarta. Nadie se atreve."]},
+      {x:8,y:1,name:"El otro refrigerador",lines:[
+        "El segundo refrigerador, el de las bebidas y lo que no cabe en el primero.",
+        "Dentro hay ocho cervezas, un yogur caducado y un pastel entero.",
+        "Nadie sabe de quién es el pastel. Nadie se atreve."]},
       {x:12,y:1,name:"Cuadrante de limpieza",lines:[
         "📋 Semana 1: Lukas. Semana 2: Ying. Semana 3: Ravi.",
         "Las semanas 4 y 5 están en blanco desde noviembre.",
@@ -3635,12 +3637,12 @@ const INTERIORS = {
               "Aquí se cocina mucho, se friega poco y se habla de todo.",
               "Regla de oro de esta cocina: si usas la sartén grande, la lavas tú."],
        choice:{q:"¿Te quedas a cenar?",opts:[
-         {t:"Sí, gracias",r:["¡Perfecto! Coge plato del segundo cajón.",
+         {t:"Sí, gracias",r:["¡Perfecto! Saca un plato del segundo cajón.",
                               "Y prueba antes de echarle sal, que la gente aquí tiene la mano suelta."]},
          {t:"Ya he cenado",r:["Pues siéntate igual. Aquí se viene a hablar tanto como a comer."]},
-         {t:"Solo venía a por agua",r:["El vaso limpio está arriba. Los de abajo llevan dos días esperando."]}]}},
+         {t:"Solo venía por agua",r:["El vaso limpio está arriba. Los de abajo llevan dos días esperando."]}]}},
       {x:12,y:6,name:"Estudiante Tom",color:"#5a8ad6",dir:'up',
-       lines:["Llevo tres semestres aquí y sigo sin saber de quién es esa tarta.",
+       lines:["Llevo tres semestres aquí y sigo sin saber de quién es ese pastel.",
               "Un día alguien se la comerá y se armará. Espero estar delante."]},
     ]
   },
@@ -3725,7 +3727,7 @@ const INTERIORS = {
               "La barra la montaron unos que se graduaron hace años. Nosotros solo la cuidamos.",
               "La cerveza sale de la máquina; el vaso, de aquí. Y las monedas, al bote."],
        choice:{q:"¿Te sirvo algo?",opts:[
-         {t:"Una cerveza",precio:120,r:["Marchando. La máquina está ahí, tú echa la moneda.",
+         {t:"Una cerveza",precio:120,r:["Enseguida. La máquina está ahí, tú echa la moneda.",
                               "El vaso te lo pongo yo, que beber de botella en el salón está mal visto. Un poco."],
           sin:["Sin monedas no hay botella. El bote es sagrado, aquí no se fía a nadie."]},
          {t:"Un agua",precio:80,r:["Buena elección si mañana hay clase a las ocho.",
@@ -3811,22 +3813,22 @@ const INTERIORS = {
          {t:"Un café para llevar",precio:190,r:["Cuidado que quema. Y sí, el vaso es pequeño; esto no es América."]},
          {t:"Solo miraba",r:["Mire, mire. El quiosco lleva aquí desde antes que el edificio nuevo."]}]}},
       {x:23,y:13,name:"Dependiente Timo",color:"#5ad68f",dir:'down',
-       lines:["¡Bienvenido a Yorma's! Bocadillos, Leberkäse y bebida fría para el viaje.",
+       lines:["¡Bienvenido a Yorma's! Sándwiches, Leberkäse y bebida fría para el viaje.",
               "En toda estación alemana hay un Yorma's. Es una ley no escrita."],
        choice:{q:"¿Qué te preparo?",opts:[
-         {t:"Panecillo de Leberkäse",precio:390,r:["¡Marchando! Con mostaza dulce, que es como se come de verdad."]},
+         {t:"Panecillo de Leberkäse",precio:390,r:["¡Ahí va! Con mostaza dulce, que es como se come de verdad."]},
          {t:"Una bebida fría",precio:250,r:["Fresquita del todo. Te la bebes en el andén mirando el panel."]},
          {t:"Nada, gracias",r:["Otra vez será. Aquí abrimos hasta que sale el último tren."]}]}},
       {x:3,y:19,name:"Panadera Frau Kilic",color:"#e8a33c",dir:'up',
        lines:["Brezel recién hechos, Brötchen y bollos. Huele a mañana de examen.",
               "El pan de la estación tiene fama de malo. El mío no. Pruébelo."],
-       choice:{q:"¿Qué le apetece?",opts:[
+       choice:{q:"¿Qué le sirvo?",opts:[
          {t:"Un Brezel",precio:150,r:["Salado y crujiente. El desayuno de media Baviera."]},
          {t:"Café y bollo",precio:290,r:["El clásico. Se lo toma de pie, mirando llegar los trenes."],
           sin:["Hoy va justo de suelto, ¿eh? No pasa nada, el Brezel espera."]},
          {t:"Solo estaba oliendo",r:["Eso hace todo el mundo al pasar. Y casi todo el mundo vuelve."]}]}},
       {x:28,y:19,name:"Taquillero Herr Frei",color:"#5a8ad6",dir:'up',
-       lines:["Taquilla de la DB. Billetes, enlaces y reclamaciones por retraso.",
+       lines:["Taquilla de la DB. Boletos, enlaces y reclamaciones por retraso.",
               "¿Reclamación? Rellene el formulario. Con 60 minutos de retraso le devuelven un cuarto.",
               "Para trayectos cortos, use mejor las máquinas de ahí: más rápido que esta cola."]},
       {x:18,y:3,name:"Revisor Herr Ott",color:"#c8506a",dir:'down',
@@ -3834,7 +3836,7 @@ const INTERIORS = {
               "¿Que si llega a tiempo? Estadísticamente… mejor lleve algo para leer."]},
       {x:9,y:10,name:"Estudiante con mochila",color:"#8a6ad6",dir:'right',
        lines:["Voy a casa el fin de semana. Bolsa de ropa sucia para mamá, clásico.",
-              "El truco es sentarse del lado del río; las vistas valen el billete."]},
+              "El truco es sentarse del lado del río; las vistas valen el boleto."]},
       {x:18,y:15,name:"Viajera con maleta",color:"#4a9a8a",dir:'left',
        lines:["Llevo veinte minutos mirando el panel. El tren no adelanta por mirarlo, pero una insiste.",
               "Si oye el aviso en alemán y todos suspiran a la vez, es que hay más retraso."]},
@@ -3912,7 +3914,7 @@ const OUT_NPCS=[
      {t:"El ambiente del río",r:["¡Esa es la actitud! El Inn nunca falla."]}]}},
   {x:45,y:76,name:"Tutora Wiebke",color:"#5ab0d6",dir:'down',
    lines:["¿Buscas tu aula? Los seminarios cambian de sala cada semana, es tradición.","Revisa Stud.IP… y luego revísalo otra vez."],
-   careerLine:{Inf:"¿Informática? El laboratorio está en el sótano. Lleva sudadera, hace frío.",
+   careerLine:{Inf:"¿Informática? El laboratorio está en el sótano. Lleva suéter, hace frío.",
                Mathe:"¿Mates? Tercer piso, sin ascensor. Ánimo.",
                MuK:"¿MuK? El estudio de medios está pasando el Audimax.",
                default:"Seguro que tu horario tiene un hueco perfecto para un café."}},
@@ -4995,7 +4997,7 @@ function drawInTile(t,sx,sy,patio,girada,conex){
       R('#8a94a2',3,0,10,3); R('#5a6270',1,3,14,11);
       R('#8fb0d8',2,4,12,4); R('#2a3038',3,9,10,4); R('#e8e2d0',4,10,8,2);
       R('#5ad68f',12,5,2,2); R('#d65a5a',12,1,1,1); return; }
-    case 'N': { // nevera de la cocina
+    case 'N': { // refrigerador de la cocina
       F('#c0d0d8');
       R('#d8dee4',2,0,12,16); R('#c2cad2',2,6,12,1); R('#eef2f5',3,1,9,4);
       R('#9aa4ae',11,3,1,2); R('#9aa4ae',11,9,1,3);
@@ -5470,7 +5472,7 @@ const TAREAS={
     npc:'wh_cocina:Estudiante Tom',
     mision:'mapa_quien', paso:'preguntar_tom',
     mec:'ordenar', fun:'pedir_info', nivel:'A2',
-    dialogo:["¡Anda! Tú eres el nuevo del pasillo, ¿no?",
+    dialogo:["¡Ah! Tú eres el nuevo del pasillo, ¿no?",
              "Yo llevo aquí cinco años. Cinco. Iban a ser tres.",
              "En fin. Que si tienes alguna duda de algo, pregúntame, que de esta ciudad ya me sé hasta las farolas."],
     entrada:{q:"¿Le preguntas algo?", si:"Preguntar por el mapa", no:"No preguntar nada",
@@ -5481,7 +5483,7 @@ const TAREAS={
     sobran:["una","conoces","sabe","el"],
     errores:[
       {huecos:true, dice:["Ehh… creo que le falta algo a tu pregunta.",
-                          "Ponla entera, anda, que si no no sé qué me estás pidiendo."]},
+                          "Ponla entera, que si no no sé qué me estás pidiendo."]},
       {contiene:"una mapa", dice:["¿«Una mapa»? Jajaja, perdona, perdona.",
                                   "Es «un mapa». De los que engañan: acaba en -a pero es masculino.",
                                   "Como «el problema» o «el día». Un clásico."]},
@@ -5497,7 +5499,7 @@ const TAREAS={
     falla:["Mmm. Casi, pero así no me suena.","Prueba otra vez."],
     acierta:["¡Ah, un mapa! Haberlo dicho.",
              "Yo el mío lo perdí en una mudanza. Pero Ying tiene uno, seguro: la taiwanesa del 3.",
-             "Habitación 3, aquí al lado. Es simpática, no te cortes."],
+             "Habitación 3, aquí al lado. Es simpática, entra con confianza."],
     despues:["¿Hablaste ya con Ying? Habitación 3, la del pasillo.",
              "Si no está, vuelve luego. Esa no sale mucho."],
   },
@@ -5609,7 +5611,7 @@ const TAREAS={
     falsas:["Estoy de Alemania, del norte.","Soy desde Alemania, del norte.","Yo es de Alemania, del norte."],
     pista:"El origen va con «ser» y con «de».",
     falla:["¿Cómo? Perdona, con el ruido no te oigo bien."],
-    acierta:["¡Anda! Yo estuve un verano en Hamburgo. Llovía de lado."],
+    acierta:["¡No me digas! Yo estuve un verano en Hamburgo. Llovía de lado."],
     sigue:'sobremesa_2',
   },
   sobremesa_2:{
@@ -5618,7 +5620,13 @@ const TAREAS={
     dialogo:["¿Y cuánto tiempo llevas en Passau?"],
     consigna:"¿Qué contestas?",
     correcta:"Llevo tres semanas aquí.",
-    falsas:["Tengo tres semanas aquí.","Estoy por tres semanas aquí.","Soy aquí desde tres semanas."],
+    // «Tengo tres semanas aqui» es lo normal en Mexico, el Caribe, Colombia y
+    // Centroamerica. Estaba de distractor, que es suspender a quien habla
+    // bien: va de buena, y Marco dice de donde viene antes de seguir.
+    tambien:[{t:"Tengo tres semanas aquí.",
+              r:["«Tengo tres semanas». Eso lo dice igual mi compañera de Medellín.",
+                 "Por aquí se oye más «llevo», pero las dos están bien."]}],
+    falsas:["Llevo aquí desde tres semanas.","Estoy por tres semanas aquí.","Soy aquí desde tres semanas."],
     pista:"Para el tiempo que llevas en un sitio: «llevo» + tiempo.",
     falla:["¿Eh? A ver, otra vez."],
     acierta:["¡Tres semanas! Entonces todavía estás en la parte bonita.",
@@ -5636,7 +5644,7 @@ const TAREAS={
             "Me gusta mucho, pero todavía no sé a nadie."],
     pista:"«Gustar» concuerda con lo que gusta, no contigo. Y a las personas se las conoce.",
     falla:["Mmm. Dilo otra vez, que se me ha escapado."],
-    acierta:["Bueno, a nosotros ya nos conoces. Eso es un empezar."],
+    acierta:["Bueno, a nosotros ya nos conoces. Algo es algo."],
     remate:'santamarta',
   },
 };
@@ -5664,10 +5672,10 @@ const REMATES={
         {t:"¿De intercambio? Cuéntame cómo se hace eso",
          r:["Uf, papeleo. Mucho papeleo.",
             "Pero se puede, ¿eh? Yo lo hice y no soy precisamente organizada.",
-            "Pásate por Relaciones Internacionales y pregunta. Y si te lías, me buscas."],
+            "Pásate por Relaciones Internacionales y pregunta. Y si te pierdes, me buscas."],
          alCerrar:()=>abrirCapitulo2()},
         {t:"Qué interesante",
-         r:["¿A que sí? Es de esas cosas que cambian el año.",
+         r:["¿Verdad que sí? Es de esas cosas que cambian el año.",
             "Si alguna vez te lo planteas, en Relaciones Internacionales te lo cuentan todo."],
          alCerrar:()=>abrirCapitulo2()},
       ]});
@@ -5696,6 +5704,66 @@ const REMATES={
 // que una tilde de menos tumbe una respuesta por lo demas correcta.
 const sinTildes = s => String(s||'').toLowerCase()
   .normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+// Las palabras que cambian de pais a pais. No es un diccionario: solo estan
+// las que salen en el juego, y sirven para una cosa concreta —que el validador
+// cace un distractor que en realidad esta bien dicho en otro sitio—. Poner de
+// falsa una frase correcta en Bogota no enseña español: enseña a adivinar de
+// donde era quien escribio el guion. Se escriben todas las formas, singular y
+// plural, que un quita-plurales listo se equivoca justo en las que importan
+// («lentes» no sale de «lente» como «ordenadores» sale de «ordenador»).
+const EQUIVALENCIAS=[
+  ['ordenador','ordenadores','computadora','computadoras','computador'],
+  ['movil','moviles','smartphone','smartphones','celular','celulares'],
+  ['coche','coches','carro','carros','auto','autos'],
+  ['patata','patatas','papa','papas'],
+  ['zumo','zumos','jugo','jugos'],
+  ['nevera','neveras','refrigerador','refrigeradores','heladera','heladeras'],
+  ['gafas','lentes','anteojos'],
+  ['bocadillo','bocadillos','sandwich','sandwiches','emparedado','emparedados'],
+  ['tarta','tartas','pastel','pasteles','torta','tortas'],
+  ['billete','billetes','boleto','boletos','pasaje','pasajes'],
+  ['aparcar','estacionar','parquear'],
+  ['conducir','manejar'],
+  ['coger','tomar','agarrar'],
+  ['ascensor','ascensores','elevador','elevadores'],
+  ['acera','aceras','vereda','veredas','banqueta','banquetas'],
+  ['boligrafo','boligrafos','lapicero','lapiceros','birome','biromes'],
+  ['piso','pisos','departamento','departamentos','apartamento','apartamentos'],
+  ['sudadera','sudaderas','buzo','buzos','sueter','sueteres'],
+  ['autobus','autobuses','camion','camiones','colectivo','colectivos','guagua','guaguas'],
+];
+
+// La misma cosa dicha en dos paises.
+function mismaCosa(a,b){
+  a=sinTildes(a); b=sinTildes(b);
+  if(a===b) return false;
+  return EQUIVALENCIAS.some(g=>g.includes(a) && g.includes(b));
+}
+// Al cambiar la palabra cambia su articulo, que «el ordenador» es «la
+// computadora»: estos acompañan al cambio, no lo son.
+const ACOMPANAN=new Set(['el','la','los','las','un','una','unos','unas','lo',
+                         'este','esta','estos','estas','ese','esa','esos','esas',
+                         'del','al','mi','tu','su','mis','tus','sus']);
+// Dos frases que solo se diferencian en palabras equivalentes son la misma
+// frase dicha en dos sitios, no una buena y una mala.
+function mismaFrase(a,b){
+  const parte=t=>sinTildes(t).replace(/[¿?¡!.,;:]/g,' ').split(/\s+/).filter(Boolean);
+  const A=parte(a), B=parte(b);
+  if(A.length!==B.length || !A.length) return false;
+  let cambio=false;
+  for(let i=0;i<A.length;i++){
+    if(A[i]===B[i]) continue;
+    if(ACOMPANAN.has(A[i]) && ACOMPANAN.has(B[i])) continue;
+    if(!mismaCosa(A[i],B[i])) return false;
+    cambio=true;
+  }
+  return cambio;   // sin ningun cambio de verdad, solo cambio de articulo
+}
+
+// 'tambien' trae la frase a secas, o {t,r} cuando la persona tiene algo que
+// decir de esa forma en concreto (de que pais es, por ejemplo).
+const formasTambien = T => (T.tambien||[]).map(x=>typeof x==='string'?x:x.t);
 
 // Un {a|b|c} de una frase con huecos: la primera opcion es la correcta.
 // Es la misma sintaxis que usa el editor del guion.
@@ -5745,7 +5813,8 @@ function abrirTarea(T, npc){
   // 'tambien' son otras maneras igual de buenas de decirlo: salen como opcion
   // y se dan por acertadas, que rechazar una frase correcta no enseña nada.
   const opts=barajar([{t:T.correcta, ok:true}]
-    .concat((T.tambien||[]).map(t=>({t, ok:true})))
+    .concat((T.tambien||[]).map(x=>typeof x==='string' ? {t:x, ok:true}
+                                                       : {t:x.t, ok:true, suya:x.r}))
     .concat((T.falsas||[]).map(t=>({t, ok:false}))));
   const reto={q:T.consigna, opts};
   // showChoices llama a fn ANTES de leer la respuesta, asi que aqui se decide
@@ -5753,7 +5822,9 @@ function abrirTarea(T, npc){
   opts.forEach(o=>{
     o.fn=()=>{
       if(o.ok){
-        o.r=T.acierta.slice();
+        // una forma buena de otro pais se contesta a su manera antes de
+        // seguir: no es un acierto raro, es el mismo idioma en otro sitio
+        o.r=(o.suya||[]).concat(T.acierta);
         o.alCerrar=trasAcertar(T, npc);      // showChoices lo lee despues de fn
         if(T.paso) cumplirPaso(T.mision, T.paso);
         if(T.entrega) takeItem(T.entrega);
@@ -5853,7 +5924,7 @@ const fase=()=>bandera('almuerzo');
 const yingGuiando=()=>['yendo','pidiendo','mesa'].indexOf(fase())>=0;
 const guiaYing=(at)=>({x:at[0], y:at[1], name:"Ying", color:"#d65a8a", dir:'down',
   aparta:true,                    // si se queda en medio, se le pide paso
-  lines:["¡Venga, que a la una no se cabe!"]});
+  lines:["¡Vamos, que a la una no se cabe!"]});
 
 // Mientras te lleva a comer, Ying no esta en su habitacion.
 GENTE_FUERA.push({sala:'wh_hab3', nombre:'Ying', cuando:yingGuiando});
@@ -5948,7 +6019,7 @@ function abrirReto(T, npc){
     // 'tambien' son otras formas igual de correctas de decir lo mismo. Sus
     // palabras entran en la sopa —si no, no habria fichas para montarlas— y
     // al corregir valen tanto como la del guion.
-    const otras=(T.tambien||[]).map(f=>f.trim().split(/\s+/));
+    const otras=formasTambien(T).map(f=>f.trim().split(/\s+/));
     const extra=[];
     otras.forEach(o=>o.forEach(w=>{
       if(!piezas.includes(w) && !extra.includes(w)) extra.push(w); }));
@@ -6427,7 +6498,7 @@ function validateMaps(){
     if(T.mec==='ordenar'){
       const piezas=(T.frase||'').trim().split(/\s+/).filter(Boolean);
       if(!piezas.length){ E(D+": mecanica 'ordenar' sin frase"); continue; }
-      const otras=(T.tambien||[]).map(f=>f.trim().split(/\s+/).filter(Boolean));
+      const otras=formasTambien(T).map(f=>f.trim().split(/\s+/).filter(Boolean));
       // los huecos son tantos como piezas tiene la del guion: una alternativa
       // mas larga o mas corta no se podria montar nunca
       otras.forEach(o=>{ if(o.length!==piezas.length)
@@ -6436,15 +6507,21 @@ function validateMaps(){
       const buenas=new Set(piezas.concat(...otras));
       (T.sobran||[]).forEach(w=>{ if(buenas.has(w))
         E(D+': «'+w+'» esta de distractor y a la vez es parte de una respuesta buena'); });
+      // una ficha que es la misma palabra en otro pais no es un fallo del
+      // jugador: es un fallo del guion
+      (T.sobran||[]).forEach(w=>{ buenas.forEach(b=>{ if(mismaCosa(w,b))
+        E(D+': «'+w+'» esta de distractor y es «'+b+'» dicho en otro pais'); }); });
       otras.forEach(o=>{ if(o.join(' ')===piezas.join(' '))
         Wn(D+': una forma de «tambien» repite la frase del guion'); });
     }
     if(T.mec==='single'){
       if(!T.correcta) E(D+": mecanica 'single' sin frase correcta");
-      const buenas=[T.correcta].concat(T.tambien||[]);
+      const buenas=[T.correcta].concat(formasTambien(T));
       if(!(T.falsas||[]).length) Wn(D+': no tiene ninguna opcion falsa');
       (T.falsas||[]).forEach(f=>{ if(buenas.includes(f))
         E(D+': la opcion «'+f+'» esta de falsa y de buena a la vez'); });
+      (T.falsas||[]).forEach(f=>{ buenas.forEach(b=>{ if(mismaFrase(f,b))
+        E(D+': la opcion «'+f+'» es «'+b+'» dicho en otro pais, no un fallo: va en «tambien»'); }); });
     }
     if(T.mec==='huecoLista'){
       const partes=partirHuecos(T.frase||'');
@@ -6456,6 +6533,8 @@ function validateMaps(){
         if(rep.length) E(D+': el hueco «'+h.bien+'» repite la opcion «'+rep[0]+'»');
         if(h.buenas.length===h.ops.length)
           Wn(D+': en el hueco «'+h.bien+'» valen todas las opciones');
+        h.ops.forEach(o=>{ if(!h.buenas.includes(o) && h.buenas.some(b=>mismaCosa(o,b)))
+          E(D+': en el hueco «'+h.bien+'», «'+o+'» es lo mismo dicho en otro pais: va con «=»'); });
       });
     }
     // un error que no puede saltar nunca es un error mal escrito: 'contiene'
@@ -8080,7 +8159,7 @@ const ITEMS = {
   laptop: {
     name:"Portátil", type:'laptop', icon:'laptop',
     spawn:{scene:'niko_biblio', x:16, y:5},  // sobre una mesa del estudio silencioso del NK
-    guess:"Parece un ordenador portátil. Alguien lo dejó abierto sobre la mesa.",
+    guess:"Parece una computadora portátil. Alguien la dejó abierta sobre la mesa.",
     desc:"Un portátil funcional. Puedes escribir emails y documentos con él.",
     rechazo:["¿Un portátil? No es mío, quédatelo.",
              "Y si aparece el dueño, ya te buscará. Aquí siempre acaban encontrándose."],
@@ -8105,8 +8184,8 @@ const ITEMS = {
                            "Esto tiene arreglo, ¿eh? No lo tire.",
                            "Si quiere lo miramos con calma. Pregúnteme por el mostrador."],
       "Estudiante Max":["¡No es mío! Yo al prado bajo sin nada que perder.",
-                        "Pero está hecho polvo. Yo lo llevaría a limpiar antes de devolverlo."],
-      "Sara":["No, qué va. Pero no lo dejes tirado.",
+                        "Pero está destrozado. Yo lo llevaría a limpiar antes de devolverlo."],
+      "Sara":["No, para nada. Pero no lo dejes tirado.",
               "Está torcido. Con eso en la mano no queda uno muy bien, la verdad."],
     },
   },
@@ -8140,7 +8219,7 @@ const ITEMS = {
       gracias:["A ver… DELF B2, Lisa Müller. ¡Pero si lleva dos semanas buscándolo!",
                "Se le caería al salir. Aquí todo el mundo sale con las manos llenas de papeles.",
                "Lo sello, lo archivo y la aviso hoy mismo. Gracias, de verdad."],
-      despues:["Lo de Lisa Müller ya está archivado. Vino a por él y casi me abraza."]},
+      despues:["Lo de Lisa Müller ya está archivado. Vino por él y casi me abraza."]},
     rechazo:["No es mío. Eso hay que devolverlo en alguna oficina, digo yo."],
     pistas:{
       "Administrativo Kurt":["¿Un DELF? Es de esta casa, pero no es cosa mía.",
